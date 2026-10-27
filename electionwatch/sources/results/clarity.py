@@ -242,6 +242,15 @@ async def _optional_settings(client: httpx.AsyncClient, url: str):
         return None
 
 
+def scope(entry: dict, results: list[RaceResult]) -> list[RaceResult]:
+    """A county feed (entry with a jurisdiction) only speaks for its local races: its
+    U.S. Senate / Governor / House totals cover one county and must not stand in for the
+    statewide result (this adapter registers ahead of the state's own adapter)."""
+    if not entry.get("jurisdiction"):
+        return results
+    return [r for r in results if r.key.level is Level.LOCAL]
+
+
 @register
 class Clarity(ResultsSource):
     name = "clarity"
@@ -265,8 +274,8 @@ class Clarity(ResultsSource):
             summary = await c.get_json(client, f"{base}/{version}/json/en/summary.json")
             settings = await _optional_settings(
                 client, f"{base}/{version}/json/en/electionsettings.json")
-            results.extend(parse_clarity(
-                summary, settings, state=str(entry["state"]).upper(), fetched_at=c.utcnow()))
+            results.extend(scope(entry, parse_clarity(
+                summary, settings, state=str(entry["state"]).upper(), fetched_at=c.utcnow())))
         return c.select(results, keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -281,5 +290,5 @@ class Clarity(ResultsSource):
             except SourceUnavailable:
                 continue
             return [(r.key, r.title or str(r.key))
-                    for r in parse_clarity(summary, state=state, fetched_at=c.utcnow())]
+                    for r in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))]
         return []

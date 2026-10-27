@@ -124,3 +124,14 @@ def test_feed_configuration(monkeypatch):
     with pytest.raises(SourceUnavailable):
         monkeypatch.setenv("CLARITY_FEEDS", '[{"state": "WV"}]')
         feeds("2026-11-03")
+
+
+def test_county_feed_does_not_stand_in_for_statewide_results():
+    from electionwatch.sources.results.clarity import scope
+
+    at = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
+    parsed = parse_clarity(load("il_mclean_2026_general_summary.json"), state="IL", fetched_at=at)
+    assert any(r.key.level is not Level.LOCAL for r in parsed)       # IL SEN, IL GOV, IL-16 ...
+    kept = scope({"state": "IL", "jurisdiction": "McLean", "election_id": "127349"}, parsed)
+    assert kept and all(r.key.level is Level.LOCAL for r in kept)
+    assert scope({"state": "WV", "election_id": "1"}, parsed) == parsed
