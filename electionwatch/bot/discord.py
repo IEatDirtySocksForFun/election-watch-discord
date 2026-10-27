@@ -1,6 +1,7 @@
 """discord.py 2.x application-command bot. Discord I/O stays in this module/view."""
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 from datetime import datetime, timezone
@@ -24,13 +25,14 @@ from electionwatch.bot.logic import (
     settings_dump,
 )
 from electionwatch.bot.navigator import RaceNavigator, list_races
-from electionwatch.bot.poster import DiscordPoster
+from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
 from electionwatch.racekeys import describe, parse
 from electionwatch.settings import GuildSettings, UserSettings
 
 logger = logging.getLogger(__name__)
+MAX_MESSAGE = 2000  # Discord's message content limit
 
 
 async def handle_app_command_error(interaction: discord.Interaction, error: Exception) -> None:
@@ -123,12 +125,8 @@ async def _user(interaction: discord.Interaction) -> UserSettings:
 
 
 async def _error(interaction: discord.Interaction, exc: Exception) -> None:
-    # Parse errors quote the user's input, which can be up to 6000 characters: Discord
-    # rejects messages over 2000, and the user would get the generic failure instead.
-    message = str(exc)
-    if len(message) > 2000:
-        message = message[:1999] + "…"
-    await interaction.response.send_message(message, ephemeral=True)
+    # Parse errors quote the user's input, which may be up to 6000 characters long.
+    await interaction.response.send_message(clip(str(exc), MAX_MESSAGE), ephemeral=True)
 
 
 @app_commands.command(name="setup", description="Choose the channel for election posts")
@@ -353,12 +351,19 @@ async def favorite_command(
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
 async def faq_command(interaction: discord.Interaction, state: str | None = None) -> None:
     try:
-        from electionwatch.faq.loader import load_outlets, load_states
+        from electionwatch.faq.loader import FAQDataError, load_outlets, load_states
     except ImportError:
         await interaction.response.send_message("FAQ data not installed", ephemeral=True)
         return
     try:
-        text = faq_text(load_states(), load_outlets(), state)
+        states, outlets = load_states(), load_outlets()
+    except FAQDataError:
+        # The loader's message names the server's file path: log it, don't show it.
+        logger.exception("Could not load the FAQ data")
+        await interaction.response.send_message("FAQ data not installed", ephemeral=True)
+        return
+    try:
+        text = faq_text(states, outlets, state)
     except ValueError as exc:
         await _error(interaction, exc)
         return
@@ -369,26 +374,28 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
     bot: ElectionBot = interaction.client  # type: ignore[assignment]
     choices: dict[str, str] = {}
     states: set[str] = set()
-    if interaction.guild_id is not None:
-        gs = await bot.store.get_guild(interaction.guild_id)
-        watched = gs.important if gs and gs.important else [str(r.key) for r in load_races()]
-        from electionwatch.racekeys import parse
-
-        for text in watched:
-            try:
-                key = parse(text)
-            except ValueError:
-                continue
-            choices[str(key)] = describe(key)
-            states.add(key.state)
-    for state in sorted(states):
-        for key, label in (await list_races(bot, state)).values():
+    # /odds and /polls work in DMs too: offer the default races there.
+    gs = await bot.store.get_guild(interaction.guild_id) if interaction.guild_id is not None else None
+    watched = gs.important if gs and gs.important else [str(r.key) for r in load_races()]
+    for text in watched:
+        try:
+            key = parse(text)
+        except ValueError:
+            continue
+        choices[str(key)] = describe(key)
+        states.add(key.state)
+    # One state at a time would add a LIST_TIMEOUT_SECONDS per state with a slow source and
+    # miss Discord's 3 s autocomplete deadline: list every state concurrently.
+    listed = await asyncio.gather(*(list_races(bot, state) for state in sorted(states)))
+    for found in listed:
+        for key, label in found.values():
             choices[str(key)] = label or describe(key)
     needle = current.casefold()
     return [
         app_commands.Choice(name=f"{key} · {label}"[:100], value=key)
         for key, label in sorted(choices.items())
-        if needle in key.casefold() or needle in label.casefold()
+        # A choice value over 100 characters makes Discord reject the whole answer.
+        if len(key) <= 100 and (needle in key.casefold() or needle in label.casefold())
     ][:25]
 
 

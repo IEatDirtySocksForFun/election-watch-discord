@@ -14,6 +14,7 @@ from electionwatch.racekeys import describe
 logger = logging.getLogger(__name__)
 _MARKET_ORDER = {"kalshi": 0, "polymarket": 1}
 _PARTY_MARKERS = {"DEM": "🔵", "REP": "🔴"}
+MAX_EMBED_TOTAL = 6000  # Discord's limit on all embed text combined
 
 
 def _utc(value: datetime) -> datetime:
@@ -192,6 +193,9 @@ def format_polls(
     embed.description = f"Showing {len(visible)} most recent poll" + ("s" if len(visible) != 1 else "") + (
         "; partisan internals included." if internals else "; partisan internals excluded."
     )
+    # Ten fields of up to 1024 characters would break Discord's 6000-character embed total:
+    # share what is left after the title and description evenly between the polls.
+    share = (MAX_EMBED_TOTAL - len(embed.title) - len(embed.description)) // len(visible)
     for poll in visible:
         details = [_poll_dates(poll)]
         if poll.sample_size is not None:
@@ -208,9 +212,10 @@ def format_polls(
         lines = [" · ".join(details), results]
         if poll.url:
             lines.append(f"[Poll link]({poll.url})")
+        name = clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME)
         embed.add_field(
-            name=clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME),
-            value=clip("\n".join(lines), MAX_FIELD_VALUE),
+            name=name,
+            value=clip("\n".join(lines), min(MAX_FIELD_VALUE, share - len(name))),
             inline=False,
         )
     return embed
@@ -220,6 +225,7 @@ def format_polls(
 class _CacheEntry:
     at: datetime
     value: list
+    ttl: timedelta | None = None   # None = the caller's normal TTL
 
 
 class CommandData:
@@ -315,18 +321,21 @@ class CommandData:
         cache_key = str(key)
         now = self._now()
         cached = self._polls_cache.get(cache_key)
-        if cached and now - cached.at < timedelta(minutes=15):
+        if cached and now - cached.at < (cached.ttl or timedelta(minutes=15)):
             return cached.value
         polls: list[Poll] = []
+        failed = False
         for source in self._available("polls"):
             try:
                 values = await source.fetch_polls([key], self.http_client)
             except Exception:
                 logger.exception("Poll source %s failed", getattr(source, "name", "?"))
+                failed = True
                 continue
             polls.extend(poll for poll in values if poll.key == key)
         result = merge_polls(polls)
-        self._polls_cache[cache_key] = _CacheEntry(now, result)
+        # A failed source is retried after a minute instead of hiding its polls for 15.
+        self._polls_cache[cache_key] = _CacheEntry(now, result, timedelta(minutes=1) if failed else None)
         return result
 
     async def polls_embed(self, key: RaceKey, count: int = 5, internals: bool = True) -> discord.Embed:
