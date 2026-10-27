@@ -112,8 +112,10 @@ class Poller:
 
     @staticmethod
     def _enabled(source) -> bool:
+        """The brief asks for every *available* adapter: whether a source is enabled by
+        default is decided by whoever built the sources dict (__main__ / the replay sandbox)."""
         try:
-            return source.available() and source.enabled_by_default
+            return source.available()
         except Exception:
             logger.warning("Could not check availability of source %s", getattr(source, "name", "?"))
             return False

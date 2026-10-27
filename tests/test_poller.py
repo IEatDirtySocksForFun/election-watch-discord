@@ -354,6 +354,38 @@ def test_turnout_line_is_only_added_when_there_are_numbers():
 
 
 @pytest.mark.asyncio
+async def test_explicitly_passed_sources_are_used_even_when_not_enabled_by_default():
+    """The replay sandbox hands the poller its own source (enabled_by_default = False)."""
+
+    class SandboxResults(FakeResults):
+        name = "sandbox"
+        enabled_by_default = False
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    await poller(store, {"results": [SandboxResults()]}, poster).tick()
+    assert [post.kind for _, _, post in poster.sent] == ["results"]
+
+
+@pytest.mark.asyncio
+async def test_source_missing_its_api_key_is_skipped(monkeypatch):
+    class KeyedResults(FakeResults):
+        name = "keyed"
+        env = ("EW_TEST_MISSING_KEY",)
+
+        async def fetch(self, keys, client):
+            raise AssertionError("an unavailable adapter must not be fetched")
+
+    monkeypatch.delenv("EW_TEST_MISSING_KEY", raising=False)
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    await poller(store, {"results": [KeyedResults()]}, poster).tick()
+    assert poster.sent == []
+
+
+@pytest.mark.asyncio
 async def test_each_guild_only_gets_posts_for_its_own_watch_list():
     store = MemoryStore()
     await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))

@@ -44,3 +44,22 @@ def test_load_races_validates_and_canonicalizes(tmp_path):
     races = load_races(path)
     assert len(races) == 1
     assert str(races[0].key) == "NC-01" and races[0].label == "NC first"
+
+
+def test_build_sources_keeps_defaults_and_honours_explicit_opt_ins():
+    from electionwatch.__main__ import build_sources
+
+    class Default:
+        enabled_by_default = True
+
+    class Scrape:
+        enabled_by_default = False
+
+    registry = {"results": {"default_adapter": Default, "scrape_adapter": Scrape}, "odds": {}}
+
+    built = build_sources(registry, {})
+    assert [type(source).__name__ for source in built["results"]] == ["Default"]
+    assert built["odds"] == []
+
+    built = build_sources(registry, {"EW_ENABLED_SOURCES": " scrape_adapter "})
+    assert [type(source).__name__ for source in built["results"]] == ["Default", "Scrape"]

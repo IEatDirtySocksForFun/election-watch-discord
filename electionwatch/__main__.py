@@ -27,6 +27,25 @@ def validate_env(environ: Mapping[str, str]) -> list[str]:
     return errors
 
 
+def build_sources(registry: Mapping[str, Mapping[str, type]], environ: Mapping[str, str]) -> dict:
+    """Instantiate the adapters the poller should use.
+
+    Adapters disabled by default (HTML scrapes, untested feeds) are skipped unless the operator
+    names them in EW_ENABLED_SOURCES, e.g. EW_ENABLED_SOURCES=tx_sos,generic_clarity.
+    """
+    wanted = {
+        name.strip() for name in environ.get("EW_ENABLED_SOURCES", "").split(",") if name.strip()
+    }
+    return {
+        kind: [
+            adapter()
+            for name, adapter in adapters.items()
+            if adapter.enabled_by_default or name in wanted
+        ]
+        for kind, adapters in registry.items()
+    }
+
+
 async def check() -> int:
     errors = validate_env(os.environ)
     if errors:
@@ -62,7 +81,7 @@ async def run() -> int:
     await store.ping()
     await store.create_indexes()
     registry = load_all()
-    sources = {kind: [adapter() for adapter in adapters.values()] for kind, adapters in registry.items()}
+    sources = build_sources(registry, os.environ)
     async with httpx.AsyncClient(
         timeout=30,
         headers={"User-Agent": "election-watch-discord/0.1 (open-source election results bot)"},

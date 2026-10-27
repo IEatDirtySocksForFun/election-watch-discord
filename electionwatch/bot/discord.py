@@ -312,7 +312,7 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
             choices[str(key)] = describe(key)
             states.add(key.state)
     for source in bot.sources.get("results", []):
-        if not source.available() or not source.enabled_by_default:
+        if not source.available():
             continue
         for state in states & set(source.states):
             try:
