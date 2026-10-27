@@ -28,7 +28,15 @@ STATES = {
     "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia",
     "WA": "Washington", "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
 }
-_BY_NAME = {v.lower(): k for k, v in STATES.items()}
+# US territories elect a non-voting House member (key XX-AL, e.g. PR-AL) plus their own
+# governor and legislature. Kept apart from STATES because adapters derive their
+# coverage from STATES and no territory has a results adapter yet.
+TERRITORIES = {
+    "PR": "Puerto Rico", "GU": "Guam", "VI": "U.S. Virgin Islands",
+    "AS": "American Samoa", "MP": "Northern Mariana Islands",
+}
+ALL_JURISDICTIONS = {**STATES, **TERRITORIES}
+_BY_NAME = {v.lower(): k for k, v in ALL_JURISDICTIONS.items()}
 
 STATEWIDE = {
     "GOV": "Governor", "LTGOV": "Lieutenant Governor", "AG": "Attorney General",
@@ -45,7 +53,7 @@ class RaceKeyError(ValueError):
 
 def _state(tok: str) -> str:
     st = tok.upper()
-    if st not in STATES:
+    if st not in ALL_JURISDICTIONS:
         raise RaceKeyError(f"unknown state {tok!r}")
     return st
 
@@ -131,8 +139,11 @@ def format_key(k: RaceKey) -> str:
 
 def describe(k: RaceKey) -> str:
     """Human name: 'North Carolina Congressional District 1', 'Texas Senate'."""
-    st = STATES[k.state]
+    st = ALL_JURISDICTIONS[k.state]
     sp = " (Special)" if k.special else ""
+    if k.level is Level.HOUSE and k.state in TERRITORIES:
+        title = "Resident Commissioner" if k.state == "PR" else "Delegate to Congress"
+        return f"{st} {title}{sp}"
     if k.level is Level.HOUSE:
         if k.district == "AL":
             return f"{st} At-Large Congressional District{sp}"

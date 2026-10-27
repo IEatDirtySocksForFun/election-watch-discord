@@ -70,3 +70,20 @@ def test_normalize_party():
     from electionwatch.models import normalize_party
     assert [normalize_party(p) for p in ("GOP", "r", "Democratic", "DFL", "lib", None, "CST")] == \
         ["REP", "REP", "DEM", "DEM", "LIB", None, "CST"]
+
+
+@pytest.mark.parametrize("text,canon,name", [
+    ("PR-AL", "PR-AL", "Puerto Rico Resident Commissioner"),
+    ("GU-AL", "GU-AL", "Guam Delegate to Congress"),
+    ("PR GOV", "PR GOV", "Puerto Rico Governor"),
+    ("Guam Governor", "GU GOV", "Guam Governor"),
+    ("VI LOCAL st-thomas-senator", "VI LOCAL st-thomas-senator", "U.S. Virgin Islands local: st thomas senator"),
+])
+def test_territory_keys(text, canon, name):
+    k = parse(text)
+    assert str(k) == canon and describe(k) == name and parse(canon) == k
+
+
+def test_adapter_coverage_list_is_states_and_dc_only():
+    from electionwatch.racekeys import STATES, TERRITORIES
+    assert len(STATES) == 51 and not set(TERRITORIES) & set(STATES)
