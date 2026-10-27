@@ -65,3 +65,13 @@ def test_build_sources_keeps_defaults_and_honours_explicit_opt_ins():
     assert [type(source).__name__ for source in built["results"]] == ["Default", "Scrape"]
     built = build_sources(registry, {"EW_DISABLED_SOURCES": "default_adapter"})
     assert built["results"] == []
+
+
+def test_request_urls_with_api_keys_are_not_logged_at_info(monkeypatch):
+    import logging
+
+    from electionwatch.__main__ import configure_logging
+
+    monkeypatch.setattr(logging.getLogger("httpx"), "level", logging.NOTSET)
+    configure_logging("INFO")
+    assert not logging.getLogger("httpx").isEnabledFor(logging.INFO)
