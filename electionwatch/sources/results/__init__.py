@@ -17,12 +17,16 @@ One module per feed family; each registers a `ResultsSource` in
     ia_sos            Iowa Secretary of State Clarity feed
     ks_sos            Kansas Secretary of State HTML results pages
     la_sos            Louisiana Secretary of State graphical-results JSON blobs
-    md_sbe            Maryland State Board of Elections breakdown CSVs
+    md_sbe            Maryland State Board of Elections: unofficial election-night pages,
+                      with the certified breakdown CSVs as the fallback
     ms_sos            Mississippi Secretary of State statewide recap CSV
+    mt_sos            Montana Secretary of State resultsSW.aspx pages (id from candidate filing)
     nd_sos            North Dakota Secretary of State resultsSW.aspx pages
     nm_sos            New Mexico Secretary of State resultsSW.aspx pages
+    or_sos            Oregon Secretary of State ResultsAjax.svc JSON (GetMapData)
     ri_boe            Rhode Island Board of Elections JSON downloads
     sc_sec            South Carolina Election Commission (Clarity ENR, state host)
+    sd_sos            South Dakota Secretary of State media CSV feed
     ut_lgov           Utah Lieutenant Governor (Enhanced Voting CDN export)
     vt_sos            Vermont Secretary of State static JSON
     wa_sos            Washington Secretary of State XML export

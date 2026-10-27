@@ -28,3 +28,30 @@ legislative election in 2024 (four-year terms), so that path is unit-tested only
 The votes of a row are the sum of its district columns: the columns are a geographic
 partition of the state, so the sum is the statewide total, and for a district contest it is
 that district's total (summed across the county rows).
+
+
+Election-night pages (unofficial)
+=================================
+
+Fetched 2026-10-27 with a plain HTTP client, HTTP 200, text/html. These are the pages the
+board refreshes while counting, for the tracked election (2026-11-03 general):
+
+  2026_general_index.html
+      https://elections.maryland.gov/elections/2026/general_results/index.html
+      Trimmed to the contest anchors only: 146 <a href="gen_results_2026_*.html"> /
+      gen_qresults_2026_*.html links with their original labels ("Governor / Lt. Governor",
+      "Representative in Congress" + "1".."8", "State Senator" + districts, "House of
+      Delegates" + districts such as "1A", judges, "Question 1".."Question 3").
+
+  2026_general_governor.html         gen_results_2026_1.html — whole page, unedited
+  2026_general_house_delegates_d1.html  gen_results_2026_6_1.html — whole page
+  2026_general_question1.html        gen_qresults_2026_1.html — whole page (the option
+                                     label sits in <th>, the numbers in <td>)
+  2026_primary_congress_district1.html  ../2026/primary_results/gen_results_2026_4_1.html —
+                                     the June 2026 primary for US House District 1, kept
+                                     because it is the same generator with real numbers and
+                                     "Winner Selected" markers (the 2026 general pages all
+                                     still read "NR" = not reported)
+
+All pages carry "Last refreshed: 10/21/2026 11:01:50 PM" (the primary page
+"07/23/2026 11:05:33 AM") and "(0 of 1979 election day precincts reported)".

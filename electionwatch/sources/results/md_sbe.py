@@ -40,6 +40,7 @@ import re
 from datetime import datetime
 
 import httpx
+from selectolax.parser import HTMLParser
 
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
@@ -51,6 +52,7 @@ CONGRESSIONAL = "_CongressionalBreakDown.csv"
 LEGISLATIVE = "_LegislativeBreakDown.csv"
 
 _PARTITION = re.compile(r"^(Congressional|Legislative) District ", re.I)
+_QUESTION = re.compile(r"^QUESTION\s+0*(\d{1,3})\b", re.I)
 
 _STATEWIDE = (
     ("GOVERNOR", "GOV"),
@@ -63,7 +65,8 @@ _STATEWIDE = (
 )
 
 #: Maryland's own party labels that _common.norm_party leaves alone.
-_PARTIES = {"OTC": "OTH", "JUD": None, "NON": "NPA", "UNA": "NPA"}
+_PARTIES = {"OTC": "OTH", "JUD": None, "NON": "NPA", "UNA": "NPA",
+            "WORKINGCLASSPARTY": "WCP"}
 
 
 def _norm(text: str) -> str:
@@ -96,6 +99,9 @@ def race_key(office: str, district: str | None = None) -> RaceKey:
         return RaceKey("MD", Level.STATE, "SD", _district(district) or "00", special)
     if n.startswith(("HOUSE OF DELEGATES", "STATE DELEGATE")):
         return RaceKey("MD", Level.STATE, "HD", _district(district) or "00", special)
+    m = _QUESTION.match(n)
+    if m:
+        return RaceKey("MD", Level.LOCAL, "LOCAL", f"question-{int(m.group(1))}")
     return c.local_key("MD", f"{n} {district or ''}")
 
 
@@ -183,6 +189,119 @@ def parse_md(
     return out
 
 
+# --- election-night pages --------------------------------------------------
+# Maryland also publishes the running (unofficial) count as static HTML under the year's
+# general_results directory; see the module docstring of docs/results/alt-c.md.
+BASE = "https://elections.maryland.gov/elections"
+ENR_INDEX = BASE + "/{year}/general_results/index.html"
+ENR_PAGE = BASE + "/{year}/general_results/{}"
+
+_ENR_ANCHOR = re.compile(
+    r'(?is)<a[^>]+href="(gen_(?:q)?results_\d{4}_\d+(?:_\d+)?\.html)"[^>]*>(.*?)</a>')
+_ENR_SUBPAGE = re.compile(r"^gen_(?:q)?results_\d{4}_\d+_\d+\.html$")
+_ENR_REFRESHED = re.compile(r"Last refreshed:\s*([0-9/]+\s+[0-9:]+\s*[AP]M)", re.I)
+_ENR_PRECINCTS = re.compile(r"\(([\d,]+) of ([\d,]+) election day precincts reported\)", re.I)
+_ENR_TITLE = re.compile(r"Results for\s+(.+?)\s+Last refreshed", re.I | re.S)
+
+
+def _enr_text(value: str | None) -> str:
+    """Whitespace-collapsed text, case preserved (Maryland names are mixed case)."""
+    return re.sub(r"\s+", " ", (value or "").replace("\u00a0", " ")).strip()
+
+
+def index_entries(html: str) -> list[dict]:
+    """[{'office', 'district', 'href'}] in document order, from the results index page.
+
+    An office that is broken out by district ("State Senator" -> "State Senator, 1") has a
+    parent anchor followed by one anchor per district; the parent is dropped, because the
+    per-district pages are the contests. Offices without sub-pages (Governor, Comptroller,
+    the questions) keep their single anchor.
+    """
+    raw: list[dict] = []
+    office = ""
+    for href, label in _ENR_ANCHOR.findall(html or ""):
+        name = _enr_text(re.sub(r"(?is)<[^>]+>", " ", label))
+        if _ENR_SUBPAGE.match(href):
+            raw.append({"office": office, "district": name, "href": href, "sub": True})
+        else:
+            office = name
+            raw.append({"office": name, "district": None, "href": href, "sub": False})
+    split = {e["office"] for e in raw if e["sub"]}
+    return [{k: v for k, v in e.items() if k != "sub"} for e in raw
+            if e["sub"] or e["office"] not in split]
+
+
+def enr_page_info(html: str) -> dict:
+    """Title, refresh stamp and precinct counters of one election-night page."""
+    doc = HTMLParser(html or "")
+    text = _enr_text(doc.text(separator=" "))
+    m = _ENR_TITLE.search(text)
+    refreshed = _ENR_REFRESHED.search(text)
+    prec = _ENR_PRECINCTS.search(text)
+    return {
+        "title": _enr_text(m.group(1)) if m else None,
+        "general": "general election" in text.lower(),
+        "updated_at": c.parse_updated_at(refreshed.group(1) if refreshed else None,
+                                        tz="America/New_York"),
+        "precincts_reporting": c.to_int(prec.group(1)) if prec else None,
+        "precincts_total": c.to_int(prec.group(2)) if prec else None,
+    }
+
+
+def parse_md_enr(html: str, *, fetched_at: datetime, office: str,
+                 district: str | None = None, url: str | None = None) -> RaceResult | None:
+    """Pure parse of one unofficial election-night results page."""
+    info = enr_page_info(html)
+    doc = HTMLParser(html or "")
+    title = info["title"] or _enr_text(office)
+    if district:
+        title = f"{title}, District {district}"
+    cands: list[CandidateResult] = []
+    seen: set[tuple[str, str | None]] = set()
+    # Primary-result pages hold one table per party; their percentages are per party, so
+    # they are only kept when the page has a single (general-election) table.
+    single_table = len(doc.css("table")) <= 1
+    for row in doc.css("tr"):
+        cells = [_enr_text(td.text()) for td in row.css("td")]
+        heads = [_enr_text(th.text()) for th in row.css("th")]
+        if not cells:
+            continue  # column header row (the labels live in <th>)
+        if len(heads) == 1:
+            name, party, party_raw = heads[0], None, ""   # ballot question: <th> is the option
+        elif cells[0].upper() == "NAME":
+            continue
+        else:
+            name, party_raw = cells[0], cells[1] if len(cells) > 1 else ""
+        if not name or name.upper().startswith(("TOTAL", "TOTALS")):
+            continue
+        if len(heads) != 1:
+            party_code = re.sub(r"[^A-Za-z]", "", party_raw).upper()
+            party = _PARTIES[party_code] if party_code in _PARTIES else c.norm_party(party_raw or None)
+        if (name.lower(), party) in seen:
+            continue
+        seen.add((name.lower(), party))
+        votes_cell = cells[-2] if len(cells) >= 2 else ""
+        pct_cell = cells[-1]
+        cands.append(CandidateResult(
+            name=name,
+            party=party,
+            votes=c.to_int(votes_cell),          # "NR" (not reported) counts as 0
+            pct=c.to_pct(pct_cell) if single_table and "%" in pct_cell else None,
+            winner=bool(row.css_first('img[alt*="Winner"]')),
+        ))
+    if not cands:
+        return None
+    return c.make_result(
+        race_key(office, district), title, cands, fetched_at,
+        source=MdSbe.name,
+        url=url,
+        total_votes=sum(x.votes for x in cands),
+        precincts_reporting=info["precincts_reporting"],
+        precincts_total=info["precincts_total"],
+        source_updated_at=info["updated_at"],
+    )
+
+
 async def _files(client: httpx.AsyncClient, date: str) -> tuple[str, str | None]:
     """The two CSV URLs for the tracked election, discovered from the archive page."""
     year = date[:4]
@@ -204,23 +323,75 @@ async def _files(client: httpx.AsyncClient, date: str) -> tuple[str, str | None]
 class MdSbe(ResultsSource):
     name = "md_sbe"
     states = frozenset({"MD"})
-    scrape = False  # the results themselves are CSV files; discovery reads the archive page
+    scrape = True  # CSV files + the election-night HTML pages for discovery
 
-    async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "MD" for k in keys):
-            return []
+    async def _enr_index(self, client: httpx.AsyncClient, iso: str) -> tuple[str, list[dict]]:
+        """The election-night index page and its [(office, district, href)] entries."""
+        year = iso[:4]
+        page = ENR_INDEX.format(year=year)
+        html = await c.get_text(client, page)
+        entries = index_entries(html)
+        if not entries:
+            raise SourceUnavailable(f"MD: no contests in the {year} election-night index")
+        return page, entries
+
+    async def _fetch_enr(self, wanted: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
+        iso = c.election_date()
+        _page, entries = await self._enr_index(client, iso)
+        wanted_keys = set(wanted)
+        chosen: dict[str, dict] = {}
+        for entry in entries:
+            key = race_key(entry["office"], entry["district"])
+            if key in wanted_keys:
+                chosen.setdefault(str(key), entry)
+        results: list[RaceResult] = []
+        for entry in chosen.values():
+            url = f"{BASE}/{iso[:4]}/general_results/{entry['href']}"
+            html = await c.get_text(client, url)
+            info = enr_page_info(html)
+            if not info["general"]:
+                raise SourceUnavailable(f"MD: {entry['href']} is not a general-election page")
+            result = parse_md_enr(html, fetched_at=c.utcnow(), office=entry["office"],
+                                  district=entry["district"], url=url)
+            if result is not None:
+                results.append(result)
+        return c.select(results, wanted)
+
+    async def _fetch_files(self, wanted: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         url, legislative_url = await _files(client, c.election_date())
         text = await c.get_text(client, url)
         legislative = await c.get_text(client, legislative_url) if legislative_url else None
         parsed = parse_md(text, legislative, fetched_at=c.utcnow(),
                           url=ARCHIVE.format(year=c.election_date()[:4]))
-        return c.select(parsed, [k for k in keys if k.state == "MD"])
+        return c.select(parsed, wanted)
+
+    async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
+        wanted = [k for k in keys if k.state == "MD"]
+        if not wanted:
+            return []
+        try:
+            return await self._fetch_enr(wanted, client)
+        except SourceUnavailable:
+            # No election-night pages for the tracked election yet: the certified
+            # breakdown CSVs are the only thing Maryland publishes.
+            return await self._fetch_files(wanted, client)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "MD":
             return []
-        url, legislative_url = await _files(client, c.election_date())
-        text = await c.get_text(client, url)
-        legislative = await c.get_text(client, legislative_url) if legislative_url else None
-        return [(r.key, r.title or str(r.key))
-                for r in parse_md(text, legislative, fetched_at=c.utcnow())]
+        try:
+            _page, entries = await self._enr_index(client, c.election_date())
+        except SourceUnavailable:
+            url, legislative_url = await _files(client, c.election_date())
+            text = await c.get_text(client, url)
+            legislative = await c.get_text(client, legislative_url) if legislative_url else None
+            return [(r.key, r.title or str(r.key))
+                    for r in parse_md(text, legislative, fetched_at=c.utcnow())]
+        seen: dict[str, tuple[RaceKey, str]] = {}
+        for entry in entries:
+            key = race_key(entry["office"], entry["district"])
+            title = entry["office"]
+            if entry["district"]:
+                title = f"{title}, District {entry['district']}"
+            seen.setdefault(str(key), (key, title))
+        return list(seen.values())
