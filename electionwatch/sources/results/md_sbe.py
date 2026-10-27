@@ -138,8 +138,11 @@ def parse_md(
 
     def add(text: str, statewide_only: bool) -> None:
         for row in _rows(text):
-            if statewide_only and str(row.get("County") or "").strip() != "00":
+            is_state_row = str(row.get("County") or "").strip() == "00"
+            if statewide_only and not is_state_row:
                 continue
+            if not statewide_only and is_state_row:
+                continue  # the same state rows are in both files; count them once
             office = str(row.get("Office Name") or "").strip()
             district = str(row.get("Office District") or "").strip()
             key = race_key(office, district)
@@ -149,8 +152,7 @@ def parse_md(
             if not name or name.lower().startswith("other write-in"):
                 continue
             slot = tallies.setdefault(str(key), {
-                "key": key, "office": office, "district": district,
-                "cands": {}, "written": False})
+                "key": key, "office": office, "district": district, "cands": {}})
             tally = slot["cands"]
             raw_party = re.sub(r"[^A-Za-z]", "", str(row.get("Party") or "")).upper()
             party = _PARTIES[raw_party] if raw_party in _PARTIES else c.norm_party(row.get("Party"))

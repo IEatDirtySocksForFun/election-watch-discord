@@ -57,6 +57,14 @@ def test_other_party_label():
     assert [c.party for c in r.candidates][:4] == ["DEM", "REP", "LIB", "OTH"]  # "OTC" -> OTH
 
 
+def test_both_files_together_do_not_double_count():
+    """The two CSVs share the same state rows; the legislative pass must not add them again."""
+    text = (FIX / "2024_general_congressional_breakdown.csv").read_text(encoding="utf-8-sig")
+    single = {format_key(r.key): r.total_votes for r in parse_md(text, None, fetched_at=AT)}
+    both = {format_key(r.key): r.total_votes for r in parse_md(text, text, fetched_at=AT)}
+    assert both == single
+
+
 def test_race_key_mapping():
     assert format_key(race_key("President - Vice Pres")) == "MD LOCAL us-president"
     assert format_key(race_key("U.S. Senator")) == "MD SEN"
