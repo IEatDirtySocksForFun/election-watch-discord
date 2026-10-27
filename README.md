@@ -36,7 +36,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 |---|---|
 | **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
 | **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
-| **Race calls** | From the outlets you choose (AP, DDHQ, CNN, NBC, CBS, Fox, ABC). Posted the moment they appear, with retractions. |
+| **Race calls** | From the outlets you choose: civicAPI's own decision desk (free, on by default) plus AP, DDHQ, CNN, NBC, CBS, Fox, ABC. Posted the moment they appear, with retractions. |
 | **Odds** | Kalshi and Polymarket for every watched race. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
 | **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia. |
 | **Race browser** | `/races` is a private browser with Congressional, Senate, State and Local tabs and a state picker. Each race has Odds and Polls buttons, and it remembers your last view. |
@@ -90,13 +90,16 @@ public JSON, so they are **off by default**. Enabling them is your decision; che
 terms first. For example:
 
 ```sh
-EW_ENABLED_SOURCES=cbs_results,fox_results,cnn,nbc,cbs,fox,abc,cnn_exit_polls,270towin,wikipedia
+EW_ENABLED_SOURCES=cbs_results,fox_results,nbc,cbs,fox,abc,cnn_exit_polls,270towin,wikipedia
 ```
 
 Without that line:
 - **Results:** every state still has results through civicAPI (see below); the outlet
   fallbacks are a second opinion if civicAPI is down.
-- **Race calls:** none are posted unless you pay for AP or DDHQ.
+- **Race calls:** only civicAPI's calls are posted (AP and DDHQ need a paid key).
+
+CNN's call feed (`cnn`) is left out above: it asks once per race per minute and blocks quickly.
+Fallback sources are only asked about races that no official feed answered completely.
 - **Exit polls:** no exit-poll links are posted.
 
 ## Coverage by state
@@ -140,7 +143,8 @@ Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 - **2026 feeds aren't live yet.** Most states publish their 2026 election-night URLs or IDs
   only on, or just before, election day. The adapters discover them automatically where the
   state allows. Some need a value set by hand (`CLARITY_FEEDS`, `MT_EID`, `SD_EID`, the CA media
-  base URL). Run `python tools/health_check.py` on election morning.
+  base URL). Run `python tools/health_check.py` on election morning. Its civicAPI rows say
+  TEST while civicAPI still serves pre-election test data; they must turn OK once returns arrive.
 - **Feeds change without notice.** Adapters are tested against saved real responses. A state
   can still rename a field, move a URL or add a bot check on the night itself. One failing
   source never stops the others.
