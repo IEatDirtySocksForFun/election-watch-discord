@@ -127,7 +127,12 @@ def change_odds(
 def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
-    return _clip_lines(yaml.safe_dump(to_doc(gs), sort_keys=False).strip().splitlines())
+    # The watch list goes last so a long one can't push the other settings out, and the
+    # truncation marker is a YAML comment so the clipped dump still parses.
+    doc = to_doc(gs)
+    doc["important"] = doc.pop("important")
+    lines = yaml.safe_dump(doc, sort_keys=False).strip().splitlines()
+    return _clip_lines(lines, marker=f"# … (truncated; {len(gs.important)} watched races in total)")
 
 
 def _race_key(race: str) -> str:
@@ -167,13 +172,13 @@ def race_label(key, label: str | None = None) -> str:
     return label or describe(key)
 
 
-def _clip_lines(lines: list[str], limit: int = 1900) -> str:
+def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "… (truncated)") -> str:
     """Join lines, stopping on a line boundary so 2000-character messages stay valid YAML."""
     kept: list[str] = []
     size = 0
     for line in lines:
         if size + len(line) + 1 > limit:
-            kept.append("… (truncated)")
+            kept.append(marker)
             break
         kept.append(line)
         size += len(line) + 1
