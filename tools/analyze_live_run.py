@@ -21,7 +21,7 @@ import sys
 from collections import Counter, defaultdict
 
 LINE = re.compile(r"^(?P<dot>\S+) (?P<name>.+?)(?: \((?P<party>[^)]+)\))? (?P<votes>[\d,]+)(?: · (?P<pct>[\d.]+)%)?(?: ✓)?$")
-NON_CANDIDATE = re.compile(r"\b(write[- ]?ins?|over ?votes?|under ?votes?|blank|scattering|total|none of these"
+NON_CANDIDATE = re.compile(r"\b(over ?votes?|under ?votes?|blank|scattering|total"
                            r"|uncommitted|registered voters|ballots cast|times? (?:over|under)voted)\b", re.I)
 BAD_CASE = re.compile(r"\b(Mc[a-z]|O'[a-z]|Ii\b|Iii\b|Iv\b)")
 NO_PARTY = {"NPA", "NA", "NON", "NP", "IND", "I", "U", "UNA", "UNENROLLED", "NONPARTISAN", "NON PARTISAN",
@@ -55,7 +55,7 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
     for r in ok:
         race = r["race"]
         if r["kind"] == "call":
-            m = re.search(r"Projected winner: (.+?)(?: \(|$)", " ".join(r["lines"]))
+            m = re.search(r"Projected winner: (.+?)(?: \(|$)", r["lines"][0] if r["lines"] else "")
             if m:
                 calls[race] = m.group(1).strip()
             continue
