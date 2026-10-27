@@ -129,7 +129,7 @@ async def run(a) -> None:
     @client.event
     async def on_ready():
         try:
-            await night(client, a, timelines, posting, clock, end, sources, store)
+            await night(client, a, timelines, posting, clock, end, sources, store, src)
         finally:
             done.set()
 
@@ -140,7 +140,7 @@ async def run(a) -> None:
         task.cancel()
 
 
-async def night(client, a, timelines, posting, clock, end, sources, store) -> None:
+async def night(client, a, timelines, posting, clock, end, sources, store, src) -> None:
     from electionwatch.poller import Poller
 
     channel = await client.fetch_channel(a.channel)
@@ -169,6 +169,13 @@ async def night(client, a, timelines, posting, clock, end, sources, store) -> No
             slow = max(slow, spent)
             await asyncio.sleep(max(0.0, 60 / a.speed - spent))
             clock.advance(1)
+            # Skip quiet stretches (e.g. Dixville Notch's midnight vote, then nothing until the
+            # first polls close): jump to a minute before the next snapshot, posting nothing.
+            nxt = src.next_change(clock())
+            if nxt is not None and nxt - clock() > timedelta(minutes=a.idle_skip):
+                skipped = nxt - clock() - timedelta(minutes=1)
+                clock.advance(skipped.total_seconds() / 60)
+                log.info("no new results for %s: skipping to %s", skipped, f"{clock():%H:%M}")
             if ticks % 60 == 0:
                 log.info("sim %s, %d posts sent, slowest tick %.1fs", f"{clock():%H:%M}",
                          sum(poster.sent.values()), slow)
@@ -189,9 +196,11 @@ def main() -> None:
     ap.add_argument("--guild", type=int, required=True)
     ap.add_argument("--channel", type=int, required=True)
     ap.add_argument("--data", default=str(DEFAULT_DATA))
-    ap.add_argument("--max-hours", type=float, default=14)
+    ap.add_argument("--max-hours", type=float, default=36)
     ap.add_argument("--report", default=None, help="file to attach to the first message")
     ap.add_argument("--report-url", default=None, help="link to the full-run report")
+    ap.add_argument("--idle-skip", type=float, default=90,
+                    help="fast-forward when no race has a new snapshot for this many minutes")
     ap.add_argument("--thread", default=None, help="post in a new public thread of the channel with this name")
     ap.add_argument("--record", default=None, help="append one JSON line per Discord send here")
     ap.add_argument("--log-file", default=None, help="also write all log output (incl. discord.py) here")

@@ -168,7 +168,7 @@ def main() -> None:
     ap.add_argument("--year", required=True)
     ap.add_argument("--races", required=True)
     ap.add_argument("--data", default=str(DEFAULT_DATA))
-    ap.add_argument("--max-hours", type=float, default=14)
+    ap.add_argument("--max-hours", type=float, default=36)
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     races = [r.strip() for r in a.races.split(",") if r.strip()]

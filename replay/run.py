@@ -99,7 +99,7 @@ def render(rep: Report, title: str, gs: GuildSettings) -> str:
 KINDS = ("results", "call", "turnout", "exitpoll", "odds_swing")
 
 
-async def replay(timelines, gs: GuildSettings, speed: float | None = None, max_hours: float = 12,
+async def replay(timelines, gs: GuildSettings, speed: float | None = None, max_hours: float = 36,
                  swings: bool = True, calls: bool = True, poller_cls=None) -> Report:
     if poller_cls is None:
         from electionwatch.poller import Poller as poller_cls  # noqa: N813
@@ -129,6 +129,10 @@ async def replay(timelines, gs: GuildSettings, speed: float | None = None, max_h
             if speed:
                 time.sleep(60 / speed)
             clock.advance(1)
+            # fast-forward quiet stretches (Dixville Notch at midnight, then nothing for hours)
+            nxt = src.next_change(clock())
+            if nxt is not None and nxt - clock() > timedelta(minutes=90):
+                clock.advance((nxt - clock() - timedelta(minutes=1)).total_seconds() / 60)
     rep = check(posts, gs)
     rep.ticks, rep.start, rep.end = ticks, start, end
     return rep
@@ -142,7 +146,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--speed", default="max", help="'max' or a multiplier (60 = one sim minute per second)")
     ap.add_argument("--mode", choices=[m.value for m in PostMode], default="default")
     ap.add_argument("--interval", type=int, default=DEFAULT_INTERVAL_MIN)
-    ap.add_argument("--max-hours", type=float, default=12)
+    ap.add_argument("--max-hours", type=float, default=36)
     ap.add_argument("--no-swing", action="store_true")
     ap.add_argument("--no-calls", action="store_true")
     ap.add_argument("--out", default=None, help="output .md (default replay/out/<year>-<races>.md)")
