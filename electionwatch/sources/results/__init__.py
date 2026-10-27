@@ -21,6 +21,11 @@ One module per feed family; each registers a `ResultsSource` in
     ms_sos            Mississippi Secretary of State statewide recap CSV
     nd_sos            North Dakota Secretary of State resultsSW.aspx pages
     nm_sos            New Mexico Secretary of State resultsSW.aspx pages
+    ri_boe            Rhode Island Board of Elections JSON downloads
+    sc_sec            South Carolina Election Commission (Clarity ENR, state host)
+    ut_lgov           Utah Lieutenant Governor (Enhanced Voting CDN export)
+    vt_sos            Vermont Secretary of State static JSON
+    wa_sos            Washington Secretary of State XML export
 
 `_common` holds the shared helpers (party normalisation, dates, payload decoding,
 RaceResult construction). See docs/sources-results.md for feed URLs and status.
