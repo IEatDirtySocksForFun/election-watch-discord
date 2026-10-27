@@ -91,3 +91,17 @@ async def test_snapshots_are_stamped_with_fetch_time_not_stale_metadata_time():
         snaps = await PolymarketSource().fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
     assert snaps
     assert all(datetime.now(timezone.utc) - s.ts < timedelta(minutes=1) for s in snaps)
+
+
+def test_two_candidates_of_one_party_do_not_share_an_outcome_label():
+    from electionwatch.sources.odds.polymarket import parse_polymarket_event
+
+    def market(mid, title, price):
+        return {"id": mid, "groupItemTitle": title, "outcomes": '["Yes", "No"]',
+                "outcomePrices": f'["{price}", "{1 - price}"]'}
+
+    event = {"title": "California Governor Election Winner", "slug": "ca-gov", "markets": [
+        market(1, "Alice Adams (D)", 0.7), market(2, "Bob Brown (D)", 0.25),
+        market(3, "Carl Cole (R)", 0.05)]}
+    outcomes = {s.outcome: s.prob for s in parse_polymarket_event(event)}
+    assert outcomes == {"Alice Adams (D)": 0.7, "Bob Brown (D)": 0.25, "REP": 0.05}
