@@ -13,11 +13,68 @@ under `results`.
 | PA | `pa_dos` | https://www.electionreturns.pa.gov/api/ElectionReturn/ | verified fixture (2024 general); 2026 election id 117 published, no results yet |
 | IL (McLean Co.) | `clarity` | https://results.enr.clarityelections.com/IL/McLean/127349/ | verified fixture (2026 general sample upload) |
 | WV | `clarity` | https://results.enr.clarityelections.com/WV/126209/ | verified fixture (2026 primary, non-partisan contests) |
-| AZ, MI, WI, NV, OH, FL, NH, ME, IA, NE | — | — | not implemented in this pass; no verified feed format yet |
+| AZ | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json | configured for 2026; URL not published yet (Arizona switches to Enhanced Voting for 2026) |
+| GA | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/Georgia/export-2024NovGen.json | verified fixture (2024 general); same format as GA SOS |
+| FL | `fl_sos` | https://results.elections.myflorida.com/ResultsExtract.Asp | verified fixture (2024 general tab-delimited extract) |
+| MI, WI, NV, OH, NH, ME, IA, NE | — | — | not implemented in this pass; see notes below |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under
 `tests/fixtures/<adapter>/` (each README.txt records the URL and fetch date). Nothing in
 the tests touches the network.
+
+## Enhanced Voting / Scytl — `enhanced_voting`
+
+Many states and counties publish through Enhanced Voting's CDN export:
+
+    https://app.enhancedvoting.com/cdn/results/<State>/export-<slug>.json
+
+The export is the same JSON shape as the Georgia SOS export used by `ga_sos`,
+so this adapter reuses `parse_ga` and remaps keys to the requested state.
+
+- `ELECTIONS`: `2024-11-05` = Georgia (`2024NovGen`, verified); `2026-11-03` =
+  Arizona (`2026NovGen`, expected from Arizona's announced switch to Enhanced
+  Voting; the URL should be verified once azsos.gov publishes the 2026 general
+  results page).
+- Contest names can be hyphenated (`US House of Representatives - District 1`)
+  or unhyphenated (`US House District 1`); both map to canonical RaceKeys.
+- No precinct counts or winner flags are present in the export.
+
+## Florida — `fl_sos`
+
+Florida publishes a tab-delimited extract via a POST to `ResultsExtract.Asp`:
+
+    ElectionDate=11/5/2024&OfficialResults=Y&PartyRaces=N&DataMode=
+
+Rows are one candidate per county. The adapter aggregates county rows to
+produce statewide (or district-wide) totals.
+
+- Race codes: `PRE` -> LOCAL, `USS` -> `FL SEN`, `USR` + Juris1num -> `FL-nn`,
+  `STS` + Juris1num -> `FL SD-nn`, `STR` + Juris1num -> `FL HD-nn`, `Axx` and
+  judicial retention codes -> LOCAL.
+- Candidate names are built from `CanNameLast`/`CanNameFirst`/`CanNameMiddle`;
+  president rows encode the ticket as VP-last / president-last and are rendered
+  as "PRESIDENT / VP".
+- Precincts reporting/total are summed across counties for each race.
+
+## Skipped states (reviewer pass)
+
+These states were researched but not implemented because a verified 2024
+general-election machine-readable feed could not be confirmed before this
+commit:
+
+- **MI**: MVIC publishes `GetElectionResultFile?electionId=699` but it is an
+  Excel/CSV export behind a Cloudflare-protected endpoint; needs a browser-backed
+  download or a confirmed direct URL before writing a parser.
+- **WI**: The WEC site is HTML/ArcGIS-based. A FeatureServer endpoint exists for
+  2024 (`services1.arcgis.com/utVR6GjejYAZciWt/ArcGIS/rest/services/WisconsinElection2024/FeatureServer`)
+  but contest/candidate schema was not verified; skipping until the query URL
+  and field mapping are confirmed.
+- **NV**: SilverStateElection publishes HTML results; no public JSON/CSV API
+  endpoint was found.
+- **OH**: `liveresults.ohiosos.gov` is the election-night site; its data format
+  (likely HTML/JSON) was not verified and the 2026 general feed is not yet live.
+- **NH, ME, IA, NE**: Official SOS/BOE results pages are HTML-first for 2024;
+  no confirmed JSON/XML/CSV feed URL or stable election-id pattern was found.
 
 ## Environment
 
