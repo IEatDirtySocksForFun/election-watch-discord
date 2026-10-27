@@ -660,6 +660,9 @@ class Night:
         self.ticks: list[tuple[datetime, float]] = []
         self.tick_errors: list[tuple[datetime, str]] = []
         self.readonly_race: str | None = None
+        self.measure_stall = False
+        self.stalls: list[float] = []
+        self._stall = 0.0
 
     # -- setup
 
@@ -835,12 +838,28 @@ class Night:
 
     async def _tick(self, bot, record=True):
         t = time.perf_counter()
+        hb = asyncio.create_task(self._heartbeat()) if self.measure_stall and record else None
         try:
             await bot.poller.tick()
         except Exception as exc:       # the bot's poll_results loop logs and carries on
             self.tick_errors.append((self.clock(), f"{type(exc).__name__}: {exc}"[:200]))
+        if hb is not None:
+            hb.cancel()
         if record:
             self.ticks.append((self.clock(), time.perf_counter() - t))
+            if hb is not None:
+                self.stalls.append(self._stall)
+
+    async def _heartbeat(self) -> None:
+        """Longest stretch the event loop was blocked during a tick: an interaction arriving
+        at the worst moment waits this long before its callback even starts."""
+        self._stall = 0.0
+        last = time.perf_counter()
+        while True:
+            await asyncio.sleep(0)
+            now = time.perf_counter()
+            self._stall = max(self._stall, now - last)
+            last = now
 
     async def run(self, steps) -> NightResult:
         steps = sorted(parse_steps(steps), key=lambda s: sim_time(self.year, s.at))
@@ -1422,6 +1441,7 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
         await store.odds.drop_index("ts_1")
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx, odds_alerts=True)], calls=default_calls_for(ctx),
                   turnout=True, until="02:00", store=store)
+    night.measure_stall = True
     night.readonly_race = next((k for k in ("PA SEN", "GA SEN", "AZ SEN", "TX SEN") if k in ctx.watched),
                                sorted(ctx.watched)[0])
     try:
@@ -1439,6 +1459,13 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
             c.note(f"/{r.label} at {et(r.at)}: total {r.total_s:.2f}s (acked in {r.ack_s:.2f}s)")
     lat = latency_table(res)
     tk = [s for _, s in res.ticks]
+    st = night.stalls or [0.0]
+    worst = max(v["max"] for v in lat.values()) + max(st)
+    c.ok(worst <= DEADLINE_FLAG_S, f"worst case (slowest callback {worst - max(st):.2f}s + loop blocked "
+                                   f"{max(st):.2f}s by a tick) = {worst:.2f}s > {DEADLINE_FLAG_S}s")
+    res.extra["stall"] = {"p50": pct(st, 50), "p95": pct(st, 95), "max": max(st),
+                          "tick_p50": pct(tk, 50), "tick_p95": pct(tk, 95), "tick_max": max(tk)}
+    c.note(f"loop blocked by a tick: p50 {pct(st, 50):.3f}s p95 {pct(st, 95):.3f}s max {max(st):.3f}s")
     c.note(f"{len(res.cmds)} interactions; tick p50 {pct(tk, 50):.3f}s max {max(tk):.3f}s; "
            + "; ".join(f"{k} p50 {v['p50']:.3f} p95 {v['p95']:.3f} max {v['max']:.3f}" for k, v in lat.items()))
     res.extra["latency"] = lat
@@ -1496,8 +1523,9 @@ def write_run(out_dir: Path, name: str, res: NightResult | None, c: Checks, secs
     if res is not None:
         row.update(posts=len(res.posts), commands=len(res.cmds), ticks=len(res.ticks),
                    tick_errors=len(res.tick_errors))
-        if "latency" in res.extra:
-            row["latency"] = res.extra["latency"]
+        for k in ("latency", "stall"):
+            if k in res.extra:
+                row[k] = res.extra[k]
         with (out_dir / f"{name}.jsonl").open("w") as f:
             for p in res.posts:
                 f.write(json.dumps({"type": "post", **p.row()}, ensure_ascii=False) + "\n")
