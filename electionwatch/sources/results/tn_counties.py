@@ -1,10 +1,10 @@
 """Tennessee — Shelby County election-night export (Enhanced Voting).
 
-Tennessee's Secretary of State publishes statewide results through a GoVoteTN app that
-serves no JSON an automated client can read, and the two other big counties are not usable
-either: Davidson draws from a PDF precinct report and Knox (elections.knoxcounty.org) is a
-single-page app whose result feed is fetched with a per-session token we could not reproduce
-(see docs/results/counties.md).
+Tennessee's Secretary of State publishes statewide results through a GoVoteTN app; the results
+page answers 403 to the bot User-Agent, so a county feed is the only route a plain HTTP client
+has. The two other big counties are not usable either: Davidson draws from a PDF precinct
+report and Knox (elections.knoxcounty.org) is a single-page app whose result feed is fetched
+with a per-session token we could not reproduce (see docs/results/counties.md).
 
 Shelby County (Memphis, the state's largest county) publishes a machine-readable export:
 
