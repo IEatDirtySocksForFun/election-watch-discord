@@ -26,28 +26,38 @@ window and the latest snapshot.
 | Outlet  | Method                                         | Key needed    | Verified |
 | ------- | ---------------------------------------------- | ------------- | -------- |
 | `ap`    | AP Elections API v3 `/elections`               | `AP_API_KEY`  | Schema only |
-| `ddhq`  | DDHQ API v4 (endpoint/auth client-specific)    | `DDHQ_API_KEY`| Skeleton    |
-| `votehub`| Scrape results page                           | None          | Skeleton    |
+| `ddhq`  | DDHQ API v4 (endpoint/auth client-specific)    | `DDHQ_API_KEY`| Skeleton |
+| `votehub`| Polling API only (`/polls`); no results endpoint | None        | No results API (2026-10-27) |
 | `cnn`   | CNN politics JSON feed (`politics.api.cnn.io`) | None          | Yes (2024 fixture) |
-| `cbs`   | CBS results JSON feed (assumed)                | None          | No          |
-| `fox`   | Fox results JSON feed (assumed)                | None          | No          |
-| `nbc`   | NBC results JSON feed (assumed)                | None          | No          |
-| `abc`   | ABC results JSON feed (assumed)                | None          | No          |
-| `nyt`   | NYT results JSON feed (assumed)                | None          | No          |
+| `nbc`   | NBC firecracker results JSON (`/firecracker/api/v2/national-results/...`) | None | Yes (2024 fixture) |
+| `cbs`   | CBS election archive API (`races2/<year>/G?filter.officeCode=&filter.state=`) | None | Yes (2024 fixture) |
+| `fox`   | Fox per-state feeds (`feeds-elections.foxnews.com/archive/.../<Office>/<ST>/...`) | None | Yes (2024 fixture) |
+| `abc`   | ABC state-results widget HTML; data in `window['__abcnews__']` | None | Yes (2024 fixture) |
+| `nyt`   | NYT results feed (none found)                  | None          | No (interactive page 403) |
 
-All network outlets except CNN are skeleton adapters: they expose a parse
-function against a simple 2024 fixture and are `scrape=True`,
-`enabled_by_default=False`. CNN's feed structure was verified against live 2024
-race endpoints.
+All outlets other than AP/DDHQ are `scrape=True` and `enabled_by_default=False`.
+Their parsers are tested against trimmed real 2024 responses saved in
+`tests/fixtures/<outlet>/`; the URLs and capture dates are recorded in each
+fixture directory's `README.txt`.
+
+Call-time caveats: CNN uses `raceEmbargo.callsRelease` (falling back to
+`voteTimestamp`); CBS and ABC use the race's `lastUpdated`; NBC uses the feed's
+`lastModified`; Fox House feeds use `last_updated`, while Fox Senate/Governor
+feeds expose no timestamp and fall back to observation time.
 
 ## Exit polls
 
 | Outlet | Method                                              | Key needed | Verified |
 | ------ | --------------------------------------------------- | ---------- | -------- |
-| `cnn_exit_polls`  | Page URL + optional `.json` sidecar        | None       | URL unverified |
-| `nbc_exit_polls`  | Page URL + optional `.json` sidecar        | None       | URL unverified |
-| `cbs_exit_polls`  | Page URL + optional `.json` sidecar        | None       | URL unverified |
-| `fox_exit_polls`  | Page URL + optional `.json` sidecar        | None       | URL unverified |
+| `cnn_exit_polls`  | Per-state/race page URL + optional `.json` sidecar | None | URL yes (2024) |
+| `cbs_exit_polls`  | Per-state/race page URL + optional `.json` sidecar | None | URL yes (2024) |
+| `nbc_exit_polls`  | National exit-poll page URL                        | None       | URL yes (2024) |
+| `fox_exit_polls`  | National voter-analysis page URL                   | None       | URL yes (2024) |
+
+NBC and Fox do not publish per-state exit-poll pages (those URLs 404), so all
+races share the national page. State-level and other unsupported races return
+no URL.
 
 When a JSON sidecar is returned, the adapter builds a 1-3 line summary from the
-top demographic splits without any LLM/AI summarisation.
+top demographic splits without any LLM/AI summarisation. No outlet currently
+serves such a sidecar, so summaries are normally `None`.
