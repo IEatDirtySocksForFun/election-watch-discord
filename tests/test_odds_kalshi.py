@@ -51,3 +51,52 @@ def test_source_key_to_event_ticker():
     assert src._key_to_event_ticker(RaceKey("TX", Level.GOVERNOR, "GOV")) == "GOVPARTYTX-26"
     assert src._key_to_event_ticker(RaceKey("CA", Level.HOUSE, "HOUSE", "01")) == "HOUSECA1-26"
     assert src._key_to_event_ticker(RaceKey("AK", Level.GOVERNOR, "GOV")) == "KXGOVAK-26"
+
+
+def test_unknown_event_ticker_yields_no_snapshots():
+    # Presidential / control-of-chamber events must not be mislabelled as US SEN.
+    payload = {
+        "event": {"event_ticker": "PRES-2028", "series_ticker": "PRES"},
+        "markets": [
+            {
+                "ticker": "PRES-2028-D",
+                "title": "Will the Democratic Party win the presidency?",
+                "last_price_dollars": "0.42",
+            }
+        ],
+    }
+    assert parse_kalshi_event(payload) == []
+
+
+def test_market_prob_falls_back_to_cent_fields():
+    payload = {
+        "event": {"event_ticker": "SENATETX-26", "series_ticker": "SENATETX"},
+        "markets": [
+            {
+                "ticker": "SENATETX-26-R",
+                "title": "Will Republicans win?",
+                "last_price": 57,
+            }
+        ],
+    }
+    snaps = parse_kalshi_event(payload)
+    assert len(snaps) == 1
+    assert snaps[0].prob == pytest.approx(0.57)
+
+
+def test_out_of_range_price_is_skipped():
+    from electionwatch.sources.odds.kalshi import _market_prob
+
+    assert _market_prob({"last_price_dollars": "1.4"}) is None
+    assert _market_prob({"last_price_dollars": "nan"}) is None
+
+
+def test_suffix_wins_over_rules_mentioning_other_party():
+    from electionwatch.sources.odds.kalshi import _market_outcome
+
+    market = {
+        "ticker": "SENATETX-26-D",
+        "title": "Will the Democratic Party win the Texas Senate race?",
+        "rules_primary": "If the Republican candidate is certified...",
+    }
+    assert _market_outcome(market) == "DEM"

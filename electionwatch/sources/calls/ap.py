@@ -6,6 +6,8 @@ marked the winner.
 """
 from __future__ import annotations
 
+import re
+from datetime import datetime, timezone
 from typing import ClassVar
 
 import os
@@ -79,21 +81,24 @@ def _office_id(key: RaceKey) -> str:
 
 
 def _race_to_key(race: dict) -> RaceKey | None:
-    state = race.get("statePostal", "").strip()
+    state = race.get("statePostal", "").strip().upper()
     office = race.get("officeID", "").strip()
+    if len(state) != 2 or not state.isalpha():
+        return None
     if office == "S":
         return RaceKey(state, Level.SENATE, "SEN")
     if office == "G":
         return RaceKey(state, Level.GOVERNOR, "GOV")
     if office == "H":
         seat = race.get("seatName", "").strip()
-        if seat.upper() in ("AL", "AT LARGE"):
+        if seat.upper().replace("-", " ") in ("AL", "AT LARGE"):
             district = "AL"
         else:
-            try:
-                district = f"{int(seat):02d}"
-            except Exception:
+            # AP emits seatName as "1", "District 1" or "1st District".
+            m = re.search(r"\d{1,2}", seat)
+            if m is None:
                 return None
+            district = f"{int(m.group(0)):02d}"
         return RaceKey(state, Level.HOUSE, "HOUSE", district)
     return None
 
@@ -126,7 +131,8 @@ def parse_ap_response(payload: dict) -> list[RaceCall]:
                 outlet="AP",
                 winner=f"{winner.get('first', '')} {winner.get('last', '')}".strip(),
                 party=normalize_party(winner.get("party")),
-                called_at=parse_iso_ts(_race_ts(race)),
+                called_at=parse_iso_ts(_race_ts(race))
+                or datetime.now(timezone.utc),
                 url=None,
             )
         )

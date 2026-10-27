@@ -3,6 +3,11 @@
   "editorialStatus": "called",
   "winnerBopPartyId": "REP",
   "voteTimestamp": "2025-01-14T17:23:47.000Z",
+  "raceEmbargo": {
+    "callsRelease": 1730858400000,
+    "pollsOpen": 1730797200000,
+    "callsReleased": true
+  },
   "stateAbbreviation": "TX",
   "stateName": "Texas",
   "raceTypeCode": "S",

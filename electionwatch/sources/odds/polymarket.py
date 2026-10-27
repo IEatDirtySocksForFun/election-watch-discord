@@ -163,19 +163,41 @@ def _market_outcome(market: dict) -> str | None:
 
 
 def _market_prob(market: dict) -> float | None:
+    """Probability that the market's outcome resolves yes.
+
+    ``outcomes``/``outcomePrices`` are parallel JSON arrays; prices[0] is only
+    the yes price when outcomes[0] is "Yes". Polymarket currently always emits
+    ["Yes", "No"], but do not rely on that ordering silently.
+    """
     raw = market.get("outcomePrices")
     if not raw:
         return None
     try:
-        prices = json.loads(raw)
+        prices = json.loads(raw) if isinstance(raw, str) else raw
     except Exception:
         return None
-    if isinstance(prices, list) and len(prices) >= 1:
+    if not isinstance(prices, list) or not prices:
+        return None
+
+    outcomes = market.get("outcomes")
+    if isinstance(outcomes, str):
         try:
-            return float(prices[0])
+            outcomes = json.loads(outcomes)
         except Exception:
-            pass
-    return None
+            outcomes = None
+    index = 0
+    if isinstance(outcomes, list) and len(outcomes) == len(prices):
+        index = next(
+            (i for i, name in enumerate(outcomes) if str(name).strip().lower() == "yes"),
+            0,
+        )
+    try:
+        value = float(prices[index])
+    except (IndexError, TypeError, ValueError):
+        return None
+    if value != value or not (0.0 <= value <= 1.0):  # NaN / outside probability
+        return None
+    return value
 
 
 def _parse_ts(raw: str | None) -> datetime:

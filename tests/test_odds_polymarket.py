@@ -52,3 +52,26 @@ def test_parse_california_governor():
 def test_source_has_expected_registry_name():
     assert PolymarketSource.name == "polymarket"
     assert PolymarketSource.enabled_by_default is True
+
+
+def test_prob_aligns_with_yes_outcome():
+    from electionwatch.sources.odds.polymarket import _market_prob
+
+    reversed_market = {
+        "outcomes": json.dumps(["No", "Yes"]),
+        "outcomePrices": json.dumps(["0.3", "0.7"]),
+    }
+    assert _market_prob(reversed_market) == 0.7
+
+    normal_market = {
+        "outcomes": json.dumps(["Yes", "No"]),
+        "outcomePrices": json.dumps(["0.7", "0.3"]),
+    }
+    assert _market_prob(normal_market) == 0.7
+
+
+def test_invalid_price_is_skipped():
+    from electionwatch.sources.odds.polymarket import _market_prob
+
+    assert _market_prob({"outcomes": '["Yes","No"]', "outcomePrices": '["1.5","0"]'}) is None
+    assert _market_prob({"outcomes": '["Yes","No"]', "outcomePrices": '["x","0"]'}) is None

@@ -16,10 +16,24 @@ FIX = Path(__file__).parent / "fixtures" / "exitpolls"
 def test_exit_poll_urls():
     tx_sen = RaceKey("TX", Level.SENATE, "SEN")
     ca_gov = RaceKey("CA", Level.GOVERNOR, "GOV")
-    assert "cnn.com/election/2026/exit-polls/tx/senate" in exit_poll_url("CNN", tx_sen)
-    assert "nbcnews.com/politics/2026-elections/ca-exit-polls" in exit_poll_url("NBC", ca_gov)
-    assert "cbsnews.com/election/2026/exit-polls/ca" in exit_poll_url("CBS", ca_gov)
-    assert "foxnews.com/elections/2026/general-results/voter-analysis/tx" in exit_poll_url("FOX", tx_sen)
+    assert exit_poll_url("CNN", tx_sen) == (
+        "https://www.cnn.com/election/2026/exit-polls/tx/senate"
+    )
+    # NBC and Fox only have a national voter-analysis page.
+    assert exit_poll_url("NBC", ca_gov) == (
+        "https://www.nbcnews.com/politics/2026-elections/exit-polls"
+    )
+    assert exit_poll_url("CBS", ca_gov) == (
+        "https://www.cbsnews.com/elections/2026/ca/governor/exit-poll/"
+    )
+    assert exit_poll_url("FOX", tx_sen) == (
+        "https://www.foxnews.com/elections/2026/general-results/voter-analysis"
+    )
+
+
+def test_exit_poll_url_none_for_unsupported_race():
+    assert exit_poll_url("CNN", RaceKey("TX", Level.STATE, "STATE")) is None
+    assert exit_poll_url("UNKNOWN", RaceKey("TX", Level.SENATE, "SEN")) is None
 
 
 def test_condense_exit_poll_demographics():
