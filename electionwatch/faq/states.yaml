@@ -1,0 +1,1717 @@
+# Per-state election FAQ for the Nov 3, 2026 general election.
+# Keyed by USPS code. Text fields render in a Discord embed (<= 1024 chars).
+# Mail deadlines/processing rules: NCSL VOPP Tables 11 and 16 (updated Nov 2026).
+# Recount thresholds: NCSL "Election Recounts". Poll closings: 270toWin (EST table).
+# Where a field could not be verified from an official source it is null and
+# listed under "unverified".
+AL:
+  official_results_url: https://www.sos.alabama.gov/alabama-votes/voter/enr-current-list
+  sos_url: https://www.sos.alabama.gov/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first; absentee ballots are opened from 7 a.m.
+    and counted after polls close, so mail lands late in the night.
+  mail_deadline: >-
+    Must be received by noon on Election Day; postmarks do not extend the deadline.
+  mail_processing: >-
+    No processing before 7 a.m. on Election Day; ballots are scanned only after
+    the polls close.
+  typical_call_time: >-
+    Fast to hours: small precinct counts report quickly, but a close race may
+    wait for the noon-received absentee tally and provisional ballots.
+  recount_threshold: Automatic recount if margin is less than 0.5% of votes cast.
+  ranked_choice: "false"
+  notes: >-
+    Absentee is excuse-required and relatively light; most of the vote is
+    counted in the first few hours after 7 p.m. CT.
+  sources:
+    - https://www.sos.alabama.gov/alabama-votes/voter/enr-current-list
+    - https://www.sos.alabama.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+AK:
+  official_results_url: https://www.elections.alaska.gov/results/
+  sos_url: https://www.elections.alaska.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Anchorage, America/Adak]
+  polls_close_note: >-
+    Most of the state closes at 8 p.m. Alaska time; the Aleutians close an hour
+    later (1 a.m. ET).
+  count_order: >-
+    Absentee and early votes (processed from seven days before) report first at
+    8 p.m.; election-day precincts follow, then questioned ballots.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within 10 days (Nov 13).
+  mail_processing: >-
+    Envelope verification starts seven days before Election Day; ballots are
+    scanned after 8 p.m. on Election Day.
+  typical_call_time: >-
+    Days: first-choice results arrive on election night, but statewide races use
+    ranked-choice voting and the rounds are not run until Nov 18, after the
+    overseas absentee window closes.
+  recount_threshold: >-
+    Automatic recount only for a tie vote; otherwise a candidate or 10 voters
+    may request one.
+  ranked_choice: Statewide RCV for general elections (top-four primary).
+  notes: >-
+    RCV tabulation is the big delay: first choices on election night, final
+    rounds on Nov 18 after the last overseas absentee ballots arrive.
+  sources:
+    - https://www.elections.alaska.gov/results/
+    - https://www.elections.alaska.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+AZ:
+  official_results_url: https://results.arizona.vote/
+  sos_url: https://azsos.gov/elections
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Phoenix]
+  count_order: >-
+    Early ballots (mail plus in-person early) are released first at 7 p.m.;
+    election-day precincts follow; late early-ballot drop-offs are counted over
+    the following days.
+  mail_deadline: >-
+    Must be received by 7 p.m. on Election Day; postmarks do not count.
+  mail_processing: >-
+    Signature verification and envelope processing begin on receipt; ballots may
+    be scanned immediately and results released after polls close.
+  typical_call_time: >-
+    Days: Maricopa and other large counties drop late early ballots on election
+    day and take days to verify and count them, so close statewide races often
+    are not called for several days.
+  recount_threshold: >-
+    Automatic recount if the margin is 0.5% or less of votes cast for both
+    candidates (or on a measure).
+  ranked_choice: "false"
+  notes: >-
+    Maricopa late-earlies dropped off on E-day take days; the 2022 and 2024
+    counts were called only after those batches were processed.
+  sources:
+    - https://results.arizona.vote/
+    - https://azsos.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+AR:
+  official_results_url: https://arkansas.tally-enr.com/
+  sos_url: https://www.sos.arkansas.gov/elections
+  results_vendor: Tally ENR
+  polls_close_local: "7:30 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first; absentee ballots are opened from 8:30
+    a.m. and counted during the day, then reported after the precincts.
+  mail_deadline: >-
+    Must be received by 7:30 p.m. on Election Day; hand-delivered ballots are
+    due by close of business the Friday before.
+  mail_processing: >-
+    Envelope processing may start the Tuesday before Election Day; ballots are
+    scanned from 8:30 a.m. on Election Day.
+  typical_call_time: >-
+    Fast: a small state with quick precinct reporting; absentee is counted
+    during election day and rarely changes a clear result.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one (cost bond required).
+  ranked_choice: "false"
+  notes: >-
+    Arkansas moved to a new election-night reporting vendor (Tally ENR) for
+    2026; the statewide site carries all county returns.
+  sources:
+    - https://arkansas.tally-enr.com/
+    - https://www.sos.arkansas.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+CA:
+  official_results_url: https://electionresults.sos.ca.gov/
+  sos_url: https://www.sos.ca.gov/elections
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Los_Angeles]
+  count_order: >-
+    Mail and early ballots counted before Election Day are released first at
+    8 p.m.; election-day precincts follow; late mail, provisional and cured
+    ballots are added in the following days and weeks.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within seven days (Nov 10).
+  mail_processing: >-
+    Processing (signature check, opening, scanning) may begin when ballots are
+    mailed, up to 29 days before Election Day.
+  typical_call_time: >-
+    Days: late mail is accepted for a week and large counties count in batches,
+    so close statewide and House races often take days to resolve.
+  recount_threshold: >-
+    No automatic recount; a voter or campaign may request one within five days
+    and pay the cost.
+  ranked_choice: Local only (San Francisco, Oakland, Berkeley and other cities).
+  notes: >-
+    California is effectively a mail election: most ballots are in before
+    Election Day, but late-arriving mail keeps close races open for a week.
+  sources:
+    - https://electionresults.sos.ca.gov/
+    - https://www.sos.ca.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+CO:
+  official_results_url: https://results.enr.clarityelections.com/CO/
+  sos_url: https://www.coloradosos.gov/pubs/elections/
+  results_vendor: Clarity Elections (Scytl)
+  polls_close_local: "7:00 PM"
+  timezones: [America/Denver]
+  count_order: >-
+    Mail ballots, processed as they arrive, dominate the first release at 7 p.m.;
+    election-day precincts and late drop-offs follow.
+  mail_deadline: >-
+    Must be received by 7 p.m. on Election Day; postmarks do not count.
+  mail_processing: >-
+    Envelopes are verified on receipt; ballots may be scanned from 15 days before
+    Election Day (required by four days out in large counties).
+  typical_call_time: >-
+    Hours: most ballots are already processed when polls close, so statewide
+    races are usually called overnight; a very close race may wait for late
+    drop-offs.
+  recount_threshold: >-
+    Automatic recount if the margin is 0.5% or less of the highest vote cast;
+    completed by the 31st day after the election.
+  ranked_choice: Local only (Boulder, Denver and other municipalities).
+  notes: >-
+    Colorado is all-mail; the first 7 p.m. release is large and later batches
+    are mostly drop-box ballots delivered on Election Day.
+  sources:
+    - https://results.enr.clarityelections.com/CO/
+    - https://www.coloradosos.gov/pubs/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+CT:
+  official_results_url: https://portal.ct.gov/sots/election-services/election-results/election-results
+  sos_url: https://portal.ct.gov/sots/election-services/election-services
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Election-day precincts report first after 8 p.m.; absentee ballots are
+    delivered to polling places or central counts during the day and tallied
+    after the polls close.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day; postmarks do not
+    extend the deadline.
+  mail_processing: >-
+    Sorting and envelope checks may start the day after absentee sets are issued
+    (about three to four weeks out); ballots are scanned from 8 a.m. on Election
+    Day.
+  typical_call_time: >-
+    Fast to hours: towns report quickly and the state is small; a close race can
+    wait for absentee and same-day registration ballots counted after 8 p.m.
+  recount_threshold: >-
+    Automatic recount if margin is less than 0.5% (capped at 2,000 votes) or
+    fewer than 20 votes.
+  ranked_choice: "false"
+  notes: >-
+    Same-day voter registration can add a late batch at polling places, but
+    Connecticut counts it on election night.
+  sources:
+    - https://portal.ct.gov/sots/election-services/election-results/election-results
+    - https://portal.ct.gov/sots/election-services/election-services
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+DE:
+  official_results_url: https://elections.delaware.gov/results/
+  sos_url: https://elections.delaware.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail and early ballots, processed from 30 days out, are released first at
+    8 p.m.; election-day precincts follow and are usually complete quickly.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Envelopes are verified and ballots scanned beginning 30 days before
+    Election Day, with results held until polls close.
+  typical_call_time: >-
+    Fast: a small state with few counties; statewide races are usually clear
+    within a couple of hours of the 8 p.m. close.
+  recount_threshold: >-
+    Automatic recount for state legislative and county races if margin is under
+    1,000 votes or 0.5%, whichever is less.
+  ranked_choice: "false"
+  notes: >-
+    Delaware has no statewide automatic recount for its federal or statewide
+    offices; a candidate-requested recount is the route.
+  sources:
+    - https://elections.delaware.gov/results/
+    - https://elections.delaware.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+DC:
+  official_results_url: https://electionresults.dcboe.org/
+  sos_url: https://www.dcboe.org/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail ballots scanned from 15 days before are released first at 8 p.m.;
+    election-day precincts follow; late mail is added for up to 10 days.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within 10 days (Nov 13).
+  mail_processing: >-
+    Signature verification and envelope opening may occur before scanning, which
+    may begin 15 days before Election Day.
+  typical_call_time: >-
+    Hours to days: a small jurisdiction that reports quickly, but the 10-day
+    mail window means very close races may not be called on election night.
+  recount_threshold: >-
+    Automatic recount if the margin is less than 1% of votes cast for the office.
+  ranked_choice: "false"
+  notes: >-
+    The Board of Elections counts at a single central site; expect later mail
+    batches in the days after Election Day.
+  sources:
+    - https://electionresults.dcboe.org/
+    - https://www.dcboe.org/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+FL:
+  official_results_url: https://results.elections.myflorida.com/
+  sos_url: https://dos.fl.gov/elections/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/New_York, America/Chicago]
+  polls_close_note: >-
+    Most of the state closes at 7 p.m. ET; the western panhandle closes at 7 p.m.
+    CT (8 p.m. ET). Districts 1 and 2 close with the panhandle.
+  count_order: >-
+    Early in-person and mail ballots, canvassed before Election Day, report first
+    at 7 p.m. local; election-day precincts follow; provisionals last.
+  mail_deadline: >-
+    Must be received by 7 p.m. on Election Day; postmarks do not count.
+  mail_processing: >-
+    Signature verification starts on receipt; ballots may be scanned once
+    tabulation equipment is publicly tested, up to 25 days before early voting.
+  typical_call_time: >-
+    Fast to hours: Florida counts early and mail before election night and
+    reports county by county; most races are clear within hours, with close
+    races waiting on the panhandle's later close.
+  recount_threshold: >-
+    Automatic machine recount if margin is 0.5% or less; a manual recount
+    follows if 0.25% or less.
+  ranked_choice: "false"
+  notes: >-
+    Panhandle counties close an hour after the rest of the state, so the last
+    Florida polls close at 8 p.m. ET.
+  sources:
+    - https://results.elections.myflorida.com/
+    - https://dos.fl.gov/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+
+GA:
+  official_results_url: https://results.enr.clarityelections.com/GA/
+  sos_url: https://sos.ga.gov/elections
+  results_vendor: Clarity Elections (Scytl)
+  polls_close_local: "7:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Early in-person and mail ballots are tabulated from the third Monday before
+    and released first at 7 p.m.; election-day precincts follow.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day; postmarks do not
+    extend the deadline.
+  mail_processing: >-
+    ID and envelope checks begin on receipt; processing and scanning may start
+    the third Monday before Election Day, with results held until polls close.
+  typical_call_time: >-
+    Hours: pre-counted early and mail votes give a fast first read; most races
+    are called overnight, with very close races waiting on election-day
+    precincts and provisionals.
+  recount_threshold: >-
+    Automatic recount if margin is 0.5% or less of total votes cast; completed
+    within 17 days of the order.
+  ranked_choice: "false"
+  notes: >-
+    Georgia's early-vote head start means the first 7 p.m. numbers can look very
+    different from the final election-day tally.
+  sources:
+    - https://results.enr.clarityelections.com/GA/
+    - https://sos.ga.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+HI:
+  official_results_url: https://elections.hawaii.gov/election-results/
+  sos_url: https://elections.hawaii.gov/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [Pacific/Honolulu]
+  count_order: >-
+    All-mail state: ballots verified and scanned from 18 days out are released
+    first at 7 p.m. HST; election-day drop-offs and later mail follow.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Signature checks begin on receipt; envelopes may be opened and ballots
+    scanned from 18 days before Election Day.
+  typical_call_time: >-
+    Hours: a small all-mail state that reports soon after 7 p.m. HST; late
+    drop-offs can be added overnight but usually do not change clear races.
+  recount_threshold: >-
+    Automatic recount if margin is 100 votes or fewer, or 0.5% or less,
+    whichever is greater; completed by the fifth business day after the election.
+  ranked_choice: "false"
+  notes: >-
+    Hawaii closes at 7 p.m. HST, which is midnight ET, so its results arrive
+    after most mainland states.
+  sources:
+    - https://elections.hawaii.gov/election-results/
+    - https://elections.hawaii.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+ID:
+  official_results_url: https://voteidaho.gov/election-results/
+  sos_url: https://sos.idaho.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Boise, America/Los_Angeles]
+  polls_close_note: >-
+    All Idaho polls close at 8 p.m. local; the northern Panhandle is on Pacific
+    time, so it closes at 11 p.m. ET.
+  count_order: >-
+    Election-day precincts report first; absentee envelopes are checked on
+    receipt but ballots stay sealed until election day, so mail is counted last.
+  mail_deadline: >-
+    Must be received by 8 p.m. on Election Day.
+  mail_processing: >-
+    Signature verification on receipt, but ballots are not opened until
+    election day; scanning begins after the polls close.
+  typical_call_time: >-
+    Fast: small counties report quickly; a close race may wait for the northern
+    counties that close an hour later in ET terms.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one and pay the cost.
+  ranked_choice: "false"
+  notes: >-
+    Idaho is one of the few states that still waits until election day to open
+    absentee envelopes.
+  sources:
+    - https://voteidaho.gov/election-results/
+    - https://sos.idaho.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+IL:
+  official_results_url: https://www.elections.il.gov/electionresults.aspx
+  sos_url: https://www.elections.il.gov/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; mail ballots are opened
+    and scanned after the polls close, with late-arriving mail added over two
+    weeks.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within 14 days (Nov 17).
+  mail_processing: >-
+    Signature verification must begin within two days of receipt, but ballots
+    are not opened or scanned until after the polls close.
+  typical_call_time: >-
+    Hours to days: Chicago and Cook County count slowly and mail keeps arriving
+    for two weeks, so close races can take days.
+  recount_threshold: >-
+    No automatic recount for most offices; a candidate may petition (cost bond
+    required).
+  ranked_choice: Local only (Evanston, Oak Park and other municipalities).
+  notes: >-
+    The 14-day mail receipt window is one of the longest in the country; late
+    Chicago mail is a common source of delayed calls.
+  sources:
+    - https://www.elections.il.gov/electionresults.aspx
+    - https://www.elections.il.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+IN:
+  official_results_url: https://enr.indianavoters.in.gov/site/index.html
+  sos_url: https://www.in.gov/sos/elections/
+  results_vendor: null
+  polls_close_local: "6:00 PM"
+  timezones: [America/New_York, America/Chicago]
+  polls_close_note: >-
+    Polls close at 6 p.m. local time statewide: 6 p.m. ET in most of the state
+    and 6 p.m. CT (7 p.m. ET) in the northwest and southwest.
+  count_order: >-
+    Election-day precincts report first after 6 p.m. local; absentee ballots
+    are counted on election day; the Central-time counties report an hour later
+    in ET terms.
+  mail_deadline: >-
+    Must be received by 6 p.m. on Election Day; postmarks do not extend it.
+  mail_processing: >-
+    Signature checks on receipt; ballots may be scanned three days early only in
+    vote-center counties, otherwise from 6 a.m. on Election Day.
+  typical_call_time: >-
+    Fast: Indiana closes at 6 p.m. local and counts quickly, so most races are
+    clear by mid-evening ET; the northwestern counties lag by an hour.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    Early results look Republican-leaning in some years because the northwest
+    (Central time) counties report later.
+  sources:
+    - https://enr.indianavoters.in.gov/site/index.html
+    - https://www.in.gov/sos/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+IA:
+  official_results_url: https://sos.iowa.gov/elections/results/
+  sos_url: https://sos.iowa.gov/elections/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 8 p.m.; absentee ballots are
+    counted by a board that may start the day before, with results released
+    after the polls close.
+  mail_deadline: >-
+    Must be received before the close of polls on Election Day.
+  mail_processing: >-
+    A county board may verify and open envelopes the day before Election Day;
+    scanning may also begin then at the commissioner's discretion.
+  typical_call_time: >-
+    Fast to hours: Iowa's precincts report quickly; a close race may wait for
+    the absentee board's count later in the evening.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one (cost bond required).
+  ranked_choice: "false"
+  notes: >-
+    Iowa allows absentee processing the day before, so its election-night count
+    is usually complete.
+  sources:
+    - https://sos.iowa.gov/elections/results/
+    - https://sos.iowa.gov/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+KS:
+  official_results_url: https://sos.ks.gov/elections/election-results.html
+  sos_url: https://sos.ks.gov/elections/elections.html
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago, America/Denver]
+  polls_close_note: >-
+    Most of Kansas closes at 7 p.m. CT; four western counties on Mountain time
+    close at 7 p.m. MT (8 p.m. CT), and the 1st District closes at 8 p.m. CT.
+  count_order: >-
+    Election-day precincts report first after 7 p.m. local; advance ballots are
+    scanned as received by some counties but reported after the polls close.
+  mail_deadline: >-
+    Postmarked by Election Day and received by the third day after (Nov 6); a
+    court injunction currently blocks the older 7 p.m. Election Day rule.
+  mail_processing: >-
+    Counties set the canvass time and may scan advance ballots before Election
+    Day, holding results until polls close.
+  typical_call_time: >-
+    Hours: most counties report on election night; a close statewide race may
+    wait for western counties and late-arriving mail.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one and pay the cost.
+  ranked_choice: "false"
+  notes: >-
+    The mail-receipt rule has been in litigation; Kansas counts mail postmarked
+    by Election Day that arrives within three days for now.
+  sources:
+    - https://sos.ks.gov/elections/election-results.html
+    - https://sos.ks.gov/elections/elections.html
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+KY:
+  official_results_url: https://elect.ky.gov/results/Pages/default.aspx
+  sos_url: https://elect.ky.gov/Pages/default.aspx
+  results_vendor: null
+  polls_close_local: "6:00 PM"
+  timezones: [America/New_York, America/Chicago]
+  polls_close_note: >-
+    Polls close at 6 p.m. local: 6 p.m. ET in eastern Kentucky and 6 p.m. CT
+    (7 p.m. ET) in the west. Districts 1 and 2 close at 7 p.m. ET.
+  count_order: >-
+    Election-day precincts report first after 6 p.m. local; absentee ballots
+    are pre-processed up to two weeks out and scanned from 8 a.m. on Election
+    Day.
+  mail_deadline: >-
+    Must be received before the close of polls on Election Day.
+  mail_processing: >-
+    Envelope checks may begin 14 days before Election Day; ballots are scanned
+    from 8 a.m. on Election Day.
+  typical_call_time: >-
+    Fast: Kentucky closes early and counts fast; the western Central-time
+    counties report an hour later in ET terms.
+  recount_threshold: >-
+    Automatic recount if margin is 0.5% or less of votes cast; within 14 days.
+  ranked_choice: "false"
+  notes: >-
+    Kentucky's 6 p.m. local close makes it one of the first states to report
+    on election night.
+  sources:
+    - https://elect.ky.gov/results/Pages/default.aspx
+    - https://elect.ky.gov/Pages/default.aspx
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+LA:
+  official_results_url: https://voterportal.sos.la.gov/graphical
+  sos_url: https://www.sos.la.gov/elections-voting
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 8 p.m.; absentee ballots are
+    counted on election day; early-voting results are added later.
+  mail_deadline: >-
+    All absentee ballots must be received by 4:30 p.m. the day before Election
+    Day (Nov 2), regardless of postmark.
+  mail_processing: >-
+    Parishes may verify envelopes three days out with the secretary of state's
+    approval (one day without); scanning may begin on Election Day before the
+    polls close.
+  typical_call_time: >-
+    Fast to hours: Louisiana reports parish by parish and the secretary of
+    state posts a running statewide count; most races are clear on election
+    night.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one (cost bond required).
+  ranked_choice: "false"
+  notes: >-
+    The day-before absentee deadline means no late mail is added after election
+    night, a big reason Louisiana counts fast.
+  sources:
+    - https://voterportal.sos.la.gov/graphical
+    - https://www.sos.la.gov/elections-voting
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+ME:
+  official_results_url: https://www.maine.gov/sos/elections-voting/election-results-data
+  sos_url: https://www.maine.gov/sos/elections-voting
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Election-day precincts report first after 8 p.m.; absentee ballots are
+    processed from seven days out and counted at the polls; RCV rounds are run
+    after the first-choice totals are in.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Envelope verification and scanning may begin seven days before Election Day
+    if processing times are posted 30 days ahead.
+  typical_call_time: >-
+    Hours to days: first-choice totals come on election night, but statewide
+    races using ranked-choice voting are not final until the RCV rounds are
+    tabulated, usually a day or more later.
+  recount_threshold: >-
+    Automatic recount only for a tie vote; otherwise a candidate may request one
+    and pay a deposit.
+  ranked_choice: Statewide RCV for federal and state general elections.
+  notes: >-
+    Maine runs RCV in the general election; the round-by-round tabulation is
+    published by the secretary of state after election night.
+  sources:
+    - https://www.maine.gov/sos/elections-voting/election-results-data
+    - https://www.maine.gov/sos/elections-voting
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+
+MD:
+  official_results_url: https://elections.maryland.gov/elections/2026/general_results/index.html
+  sos_url: https://elections.maryland.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail ballots, processed from eight business days before early voting, are
+    released first at 8 p.m.; election-day precincts follow; late mail is added
+    for 10 days.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within 10 days, by 10 a.m.
+    (Nov 13).
+  mail_processing: >-
+    Envelope checks begin eight business days before early voting; accepted
+    ballots are opened and scanned from then on.
+  typical_call_time: >-
+    Days: a large mail share plus a 10-day receipt window means close statewide
+    races often are not called on election night.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: Local only (Takoma Park).
+  notes: >-
+    Maryland counts mail before Election Day, so early returns lean heavily on
+    mail; late-arriving ballots can shift close races.
+  sources:
+    - https://elections.maryland.gov/elections/2026/general_results/index.html
+    - https://elections.maryland.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+MA:
+  official_results_url: https://www.sec.state.ma.us/ele/eleres/eleresidx.htm
+  sos_url: https://www.sec.state.ma.us/divisions/elections/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail ballots, processed and tabulated on receipt, are released first at
+    8 p.m.; election-day precincts follow, then late mail and provisional
+    ballots.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received by 5 p.m. on the third day
+    after (Nov 6).
+  mail_processing: >-
+    Envelopes are opened and ballots scanned on receipt, with results held until
+    the polls close.
+  typical_call_time: >-
+    Hours to days: most cities and towns report on election night, but the
+    three-day mail window can delay very close races.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one with a deposit.
+  ranked_choice: Local only (Cambridge).
+  notes: >-
+    Massachusetts scans mail as it arrives, so the first release includes most
+    of the mail vote.
+  sources:
+    - https://www.sec.state.ma.us/ele/eleres/eleresidx.htm
+    - https://www.sec.state.ma.us/divisions/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+MI:
+  official_results_url: https://mielections.us/election/results/
+  sos_url: https://www.michigan.gov/sos/elections
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York, America/Chicago]
+  polls_close_note: >-
+    Most of Michigan closes at 8 p.m. ET; four Upper Peninsula counties on
+    Central time close at 8 p.m. CT (9 p.m. ET).
+  count_order: >-
+    Absentee ballots pre-processed by large jurisdictions report first after
+    8 p.m.; election-day precincts follow; the remaining absentee count,
+    especially Detroit's, lands late.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Signature checks on receipt; jurisdictions of 5,000+ may process eight days
+    out (others the Monday before); ballots may be scanned from then in early
+    tabulation boards.
+  typical_call_time: >-
+    Hours to days: most of the state reports overnight, but Detroit and other
+    large absentee counts can take until Wednesday to finish.
+  recount_threshold: >-
+    Automatic recount if the statewide margin is 2,000 votes or less; a
+    candidate may also petition.
+  ranked_choice: Local only (Ann Arbor, Eastpointe).
+  notes: >-
+    Michigan's early tabulation boards were created to speed up absentee
+    counting; Detroit's central count is still the slowest large batch.
+  sources:
+    - https://mielections.us/election/results/
+    - https://www.michigan.gov/sos/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+MN:
+  official_results_url: https://electionresults.sos.state.mn.us/
+  sos_url: https://www.sos.state.mn.us/elections-voting/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Absentee ballots, opened from 19 days before, are released first at 8 p.m.;
+    election-day precincts follow.
+  mail_deadline: >-
+    Mailed ballots must be received by 8 p.m. on Election Day; hand-delivered
+    ballots by 5 p.m.
+  mail_processing: >-
+    Envelopes are verified on receipt; accepted ballots may be opened and
+    scanned after close of business on the 19th day before Election Day.
+  typical_call_time: >-
+    Hours: Minnesota counts absentee early and precincts report quickly; most
+    races are clear overnight.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one and pay the cost.
+  ranked_choice: Local only (Minneapolis, St. Paul).
+  notes: >-
+    Minneapolis and St. Paul use RCV for city offices, which can delay local
+    results even when state races are clear.
+  sources:
+    - https://electionresults.sos.state.mn.us/
+    - https://www.sos.state.mn.us/elections-voting/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+MS:
+  official_results_url: https://www.sos.ms.gov/elections-voting/election-results
+  sos_url: https://www.sos.ms.gov/elections-voting
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; absentee envelopes are
+    checked when polls open and ballots are counted after they close.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within five business days.
+  mail_processing: >-
+    No processing before polls open on Election Day; absentee ballots are
+    scanned after the polls close.
+  typical_call_time: >-
+    Fast: a small state with quick precinct reporting; late mail can add a
+    little but rarely changes a clear race.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    Mississippi's five-business-day mail window is generous for a state that
+    otherwise counts on election night.
+  sources:
+    - https://www.sos.ms.gov/elections-voting/election-results
+    - https://www.sos.ms.gov/elections-voting
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+MO:
+  official_results_url: https://enr.sos.mo.gov/
+  sos_url: https://www.sos.mo.gov/elections
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; absentee ballots are
+    prepared from five days out and counted on Election Day.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Ballot preparation may begin five days before Election Day; counting and
+    scanning happen on Election Day.
+  typical_call_time: >-
+    Fast to hours: Missouri reports quickly; a close race may wait for absentee
+    and provisional ballots counted after the precincts.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one and pay the cost.
+  ranked_choice: "false"
+  notes: >-
+    St. Louis uses approval voting for its city primaries, not ranked-choice.
+  sources:
+    - https://enr.sos.mo.gov/
+    - https://www.sos.mo.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+MT:
+  official_results_url: https://electionresults.mt.gov/
+  sos_url: https://sosmt.gov/elections/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Denver]
+  count_order: >-
+    Mail and early ballots, opened from three days out, are released first at
+    8 p.m.; election-day precincts follow; late drop-offs are added after.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Signature checks on receipt; secrecy envelopes may be opened three days
+    before, and ballots scanned the day before Election Day.
+  typical_call_time: >-
+    Hours: Montana is mostly mail and small counties report quickly; a close
+    race may wait for late drop-offs and same-day registrants.
+  recount_threshold: >-
+    Automatic recount only for a tie vote; otherwise a candidate may request one
+    and pay the cost.
+  ranked_choice: "false"
+  notes: >-
+    Most Montana counties run all-mail elections, so election-night totals are
+    mail-heavy and late drop-offs matter.
+  sources:
+    - https://electionresults.mt.gov/
+    - https://sosmt.gov/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+NE:
+  official_results_url: https://electionresults.nebraska.gov/
+  sos_url: https://sos.nebraska.gov/elections
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Chicago, America/Denver]
+  polls_close_note: >-
+    Most of Nebraska closes at 8 p.m. CT; the western panhandle on Mountain time
+    closes at 7 p.m. MT (8 p.m. CT).
+  count_order: >-
+    Early and mail ballots, scanned from 24 hours before, are released first at
+    8 p.m. CT; election-day precincts follow; western counties report last.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Envelope verification may begin the second Friday before Election Day;
+    ballots may be scanned starting 24 hours before polls open.
+  typical_call_time: >-
+    Hours: Omaha and Lincoln report on election night; a close statewide race
+    may wait for the western panhandle's later local close.
+  recount_threshold: >-
+    Automatic recount if margin is 1% or less (2% or less in contests with 500
+    or fewer votes).
+  ranked_choice: "false"
+  notes: >-
+    Nebraska splits its Electoral College vote by district, but its state
+    contests are counted centrally like other states.
+  sources:
+    - https://electionresults.nebraska.gov/
+    - https://sos.nebraska.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+NV:
+  official_results_url: https://silverstateelection.nv.gov/
+  sos_url: https://www.nvsos.gov/sos/elections
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Los_Angeles]
+  count_order: >-
+    Mail and early ballots, scanned from 15 days out, are released first at
+    7 p.m.; election-day precincts follow; late mail is added for four days.
+  mail_deadline: >-
+    Postmarked by Election Day and received by 5 p.m. on the fourth day after
+    (Nov 7); ballots with unclear postmarks arriving by day three count.
+  mail_processing: >-
+    Signature verification on receipt; scanning may begin 15 days before
+    Election Day, and counting must finish by the seventh day after.
+  typical_call_time: >-
+    Days: Clark County's late mail and the four-day receipt window mean close
+    statewide and House races usually take several days to call.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one and pay the cost.
+  ranked_choice: "false"
+  notes: >-
+    Nevada counts mail before Election Day but accepts late-arriving ballots
+    for days, so first-night leads can narrow or flip.
+  sources:
+    - https://silverstateelection.nv.gov/
+    - https://www.nvsos.gov/sos/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+NH:
+  official_results_url: https://www.sos.nh.gov/elections/election-results
+  sos_url: https://www.sos.nh.gov/elections
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/New_York]
+  polls_close_note: >-
+    Most towns close at 7 p.m.; some close at 8 p.m., so the last New Hampshire
+    polls close at 8 p.m. ET.
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; absentee envelopes are
+    opened from 1 p.m. and ballots counted after the polls close.
+  mail_deadline: >-
+    Must be received by 5 p.m. on Election Day.
+  mail_processing: >-
+    No processing until 1 p.m. on Election Day (or two hours after polls open);
+    ballots are scanned after the polls close.
+  typical_call_time: >-
+    Fast: small towns hand-count and report quickly; the handful of 8 p.m.
+    towns are the last in.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    New Hampshire still counts ballots by hand in many towns, which is fast in
+    small places but can slow a close statewide race.
+  sources:
+    - https://www.sos.nh.gov/elections/election-results
+    - https://www.sos.nh.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+
+NJ:
+  official_results_url: https://www.nj.gov/state/elections/election-results.shtml
+  sos_url: https://www.nj.gov/state/elections/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail ballots, opened from five days out, are released first at 8 p.m.;
+    election-day precincts follow; late mail is added for six days.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within 144 hours (six
+    days); mail without a postmark counts if it arrives within 48 hours.
+  mail_processing: >-
+    Signature checks on receipt; inner envelopes may be opened and ballots
+    scanned from five days before Election Day.
+  typical_call_time: >-
+    Days: New Jersey's six-day mail window and late county reporting mean close
+    races often are not called on election night.
+  recount_threshold: >-
+    No automatic recount; a candidate or voter may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    Mail is a large share of the vote and can be accepted for six days, so
+    election-night leads are provisional in close races.
+  sources:
+    - https://www.nj.gov/state/elections/election-results.shtml
+    - https://www.nj.gov/state/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+NM:
+  official_results_url: https://www.sos.nm.gov/voting-and-elections/election-results/
+  sos_url: https://www.sos.nm.gov/voting-and-elections/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Denver]
+  count_order: >-
+    Absentee ballots verified on receipt and scanned early are released first at
+    7 p.m.; election-day precincts follow.
+  mail_deadline: >-
+    Must be received by 7 p.m. on Election Day.
+  mail_processing: >-
+    Envelopes are verified within one day of receipt; counties with 10,000+
+    absentee ballots may scan two weeks out, smaller counties five days out.
+  typical_call_time: >-
+    Hours: New Mexico reports county by county and is usually clear overnight;
+    a very close race may wait for absentee and provisional counts.
+  recount_threshold: >-
+    Automatic recount if margin is under 0.25% for federal/statewide races or
+    under 1% for other offices; within 10 days of the order.
+  ranked_choice: Local only (Santa Fe).
+  notes: >-
+    New Mexico's county-level results are posted by the secretary of state and
+    usually fill in quickly after 7 p.m. MT.
+  sources:
+    - https://www.sos.nm.gov/voting-and-elections/election-results/
+    - https://www.sos.nm.gov/voting-and-elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+NY:
+  official_results_url: https://www.elections.ny.gov/electionresults.html
+  sos_url: https://elections.ny.gov/
+  results_vendor: null
+  polls_close_local: "9:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail and early ballots, scanned from before early voting, are released first
+    after 9 p.m.; election-day precincts follow; late mail is added for a week.
+  mail_deadline: >-
+    Postmarked by Election Day and received within seven days (Nov 10).
+  mail_processing: >-
+    Envelopes are checked within four days of receipt; valid ballots may be
+    scanned beginning the day before early voting.
+  typical_call_time: >-
+    Days: New York City and upstate boards count mail slowly and accept it for a
+    week, so close races often take days to call.
+  recount_threshold: >-
+    Automatic recount if margin is 20 votes or less, 0.5% or less, or under
+    5,000 votes in a contest with 1 million+ ballots.
+  ranked_choice: Local only (New York City primaries).
+  notes: >-
+    New York's 9 p.m. close is the latest in the Northeast, and its mail count
+    is slow even by big-state standards.
+  sources:
+    - https://www.elections.ny.gov/electionresults.html
+    - https://elections.ny.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+NC:
+  official_results_url: https://er.ncsbe.gov/
+  sos_url: https://www.ncsbe.gov/
+  results_vendor: null
+  polls_close_local: "7:30 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Absentee and early-voting results, counted from the fifth Tuesday before,
+    are released first at 7:30 p.m.; election-day precincts follow; provisional
+    and late-arriving absentee ballots come last.
+  mail_deadline: >-
+    Must be received by 7:30 p.m. on Election Day; postmarks do not extend it
+    (military/overseas excepted).
+  mail_processing: >-
+    County boards may verify and scan absentee ballots beginning the fifth
+    Tuesday before Election Day.
+  typical_call_time: >-
+    Hours to days: North Carolina reports early and mail first and is usually
+    clear overnight, but close races wait for provisional ballots and the
+    county canvass.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one if the margin is 0.5% or
+    less, or 100 votes or less.
+  ranked_choice: "false"
+  notes: >-
+    The first 7:30 p.m. numbers include a large share of early votes, which can
+    make the race look different from the final precinct count.
+  sources:
+    - https://er.ncsbe.gov/
+    - https://www.ncsbe.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+ND:
+  official_results_url: https://sos.nd.gov/elections/election-results
+  sos_url: https://vip.sos.nd.gov/PortalList.aspx
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago, America/Denver]
+  polls_close_note: >-
+    Counties set closing times between 7 and 9 p.m. local; most close at 7 p.m.
+    CT, and southwestern counties on Mountain time close an hour later in ET.
+  count_order: >-
+    Absentee ballots, scanned from three business days out, are released first;
+    election-day precincts follow as counties report.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Envelope verification and scanning may begin three business days before
+    Election Day.
+  typical_call_time: >-
+    Fast: a small state with quick county reporting; the later-closing western
+    counties can push a close race into the early morning.
+  recount_threshold: >-
+    Automatic recount if the general-election margin is 0.5% or less (1% in
+    primaries, 0.25% on measures).
+  ranked_choice: "false"
+  notes: >-
+    North Dakota has no voter registration, which speeds up check-in and
+    reporting at the polls.
+  sources:
+    - https://sos.nd.gov/elections/election-results
+    - https://vip.sos.nd.gov/PortalList.aspx
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+OH:
+  official_results_url: https://www.ohiosos.gov/elections/election-results-and-data/
+  sos_url: https://www.ohiosos.gov/elections/
+  results_vendor: null
+  polls_close_local: "7:30 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Absentee ballots, scanned before Election Day without tabulating, are
+    released first at 7:30 p.m.; election-day precincts follow; provisional and
+    overseas ballots come last.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day; postmarks do not
+    extend the deadline.
+  mail_processing: >-
+    Boards may verify envelopes and scan ballots before Election Day, but votes
+    cannot be counted until the polls close.
+  typical_call_time: >-
+    Hours: Ohio reports most counties overnight; under the 2026 receipt rule
+    there is no post-election mail grace period, so only provisional and
+    overseas ballots can delay a close call.
+  recount_threshold: >-
+    Automatic recount if margin is 0.25% or less for statewide races (0.5% for
+    other offices).
+  ranked_choice: "false"
+  notes: >-
+    Ohio's secretary of state runs a statewide results site fed by county
+    boards, so county upload delays show up as incomplete statewide numbers.
+  sources:
+    - https://www.ohiosos.gov/elections/election-results-and-data/
+    - https://www.ohiosos.gov/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+OK:
+  official_results_url: https://results.okelections.gov/
+  sos_url: https://oklahoma.gov/elections.html
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; absentee ballots are
+    opened from the Thursday before and counted on Election Day.
+  mail_deadline: >-
+    Must be received by 7 p.m. on Election Day; hand-delivered ballots are due
+    by end of business the day before.
+  mail_processing: >-
+    Envelopes are opened and verified from 10 a.m. the Thursday before;
+    ballots are scanned on Election Day (or the day before with approval).
+  typical_call_time: >-
+    Fast: a small state with quick county reporting; most races are clear
+    within a few hours of the 7 p.m. close.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    Oklahoma requires absentee ballots to be notarized or witnessed, which
+    keeps mail volume relatively low.
+  sources:
+    - https://results.okelections.gov/
+    - https://oklahoma.gov/elections.html
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+OR:
+  official_results_url: https://sos.oregon.gov/elections/pages/historical-data.aspx
+  sos_url: https://sos.oregon.gov/elections/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Los_Angeles, America/Denver]
+  polls_close_note: >-
+    Oregon is all-mail: ballots are due by 8 p.m. local, 8 p.m. PT in most of
+    the state and 8 p.m. MT (10 p.m. ET) in Malheur County.
+  count_order: >-
+    All-mail state: ballots counted as they arrive are released first at 8 p.m.;
+    drop-box ballots delivered on Election Day and later mail are added over the
+    following days.
+  mail_deadline: >-
+    Postmarked on or before Election Day and received within seven days (Nov 10).
+  mail_processing: >-
+    Envelopes are verified and ballots scanned on receipt, with results held
+    until 8 p.m. on Election Day.
+  typical_call_time: >-
+    Days: the first 8 p.m. release is large, but late mail and drop-box ballots
+    keep counting for a week, so close races can take days.
+  recount_threshold: >-
+    Automatic recount for a tie or a margin of 0.2% or less of total votes for
+    both candidates.
+  ranked_choice: Local only (Portland and Multnomah County).
+  notes: >-
+    Oregon counts mail as it arrives; election-night totals are mostly mail and
+    late drop-offs are the main source of shifts.
+  sources:
+    - https://sos.oregon.gov/elections/pages/historical-data.aspx
+    - https://sos.oregon.gov/elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+PA:
+  official_results_url: https://www.electionreturns.pa.gov/
+  sos_url: https://www.pa.gov/agencies/dos
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Election-day precincts report first after 8 p.m.; mail ballots cannot be
+    opened until 7 a.m. on Election Day, so they are counted after the precincts
+    and often over several days.
+  mail_deadline: >-
+    Must be received by 8 p.m. on Election Day; postmarks do not count.
+  mail_processing: >-
+    No processing before 7 a.m. on Election Day; envelope checks and scanning
+    start then.
+  typical_call_time: >-
+    Days: Pennsylvania bars pre-canvassing of mail, so a large mail vote is
+    counted after election-day results and close statewide races can take days.
+  recount_threshold: >-
+    Automatic recount if margin is 0.5% or less for statewide candidates and
+    ballot questions; completed by the first Tuesday after the third Wednesday
+    following the election.
+  ranked_choice: "false"
+  notes: >-
+    The 7 a.m. Election Day pre-canvass rule is why Pennsylvania is slow: no
+    mail is opened before polls open.
+  sources:
+    - https://www.electionreturns.pa.gov/
+    - https://www.pa.gov/agencies/dos
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+RI:
+  official_results_url: https://www.ri.gov/election/results/
+  sos_url: https://elections.ri.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail and early ballots, processed from 20 days out, are released first at
+    8 p.m.; election-day precincts follow.
+  mail_deadline: >-
+    Must be received by 8 p.m. on Election Day.
+  mail_processing: >-
+    Envelopes are verified and ballots scanned beginning 20 days before
+    Election Day.
+  typical_call_time: >-
+    Fast: a small state with centralized reporting; statewide races are usually
+    clear within a couple of hours of the 8 p.m. close.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    Rhode Island counts mail early, so its election-night totals are close to
+    final.
+  sources:
+    - https://www.ri.gov/election/results/
+    - https://elections.ri.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+
+SC:
+  official_results_url: https://www.enr-scvotes.org/SC/
+  sos_url: https://www.scvotes.gov/
+  results_vendor: Clarity Elections (Scytl)
+  polls_close_local: "7:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; absentee envelopes are
+    verified two days out and ballots counted on Election Day.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Envelope verification begins 7 a.m. two days before Election Day; ballots
+    are scanned from 7 a.m. on Election Day.
+  typical_call_time: >-
+    Fast: a small state with quick county reporting; most races are clear
+    within a few hours of the 7 p.m. close.
+  recount_threshold: >-
+    Automatic recount if the margin is less than 1% of total votes cast.
+  ranked_choice: "false"
+  notes: >-
+    South Carolina requires an excuse for absentee voting, so mail is a small
+    share of the count.
+  sources:
+    - https://www.enr-scvotes.org/SC/
+    - https://www.scvotes.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+SD:
+  official_results_url: https://electionresults.sd.gov/
+  sos_url: https://sdsos.gov/elections-voting/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago, America/Denver]
+  polls_close_note: >-
+    Most of South Dakota closes at 7 p.m. CT; the western half on Mountain time
+    closes at 7 p.m. MT (8 p.m. CT).
+  count_order: >-
+    Election-day precincts report first after 7 p.m. local; absentee ballots are
+    opened the day before if the auditor chooses and counted on Election Day.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Auditors may review and open absentee envelopes the day before Election Day;
+    ballots are scanned on Election Day before the polls close.
+  typical_call_time: >-
+    Fast: small counties report quickly; the Mountain-time counties land an hour
+    later in ET terms.
+  recount_threshold: >-
+    Automatic recount only for a tie vote; otherwise a candidate may request one.
+  ranked_choice: "false"
+  notes: >-
+    South Dakota's western counties are on Mountain time, so the statewide count
+    finishes later than the 7 p.m. CT close suggests.
+  sources:
+    - https://electionresults.sd.gov/
+    - https://sdsos.gov/elections-voting/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+TN:
+  official_results_url: https://sos.tn.gov/elections/results
+  sos_url: https://sos.tn.gov/elections
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago, America/New_York]
+  polls_close_note: >-
+    Polls close at 7 p.m. CT in most of Tennessee and 8 p.m. ET in the eastern
+    counties, which is 7 p.m. CT statewide.
+  count_order: >-
+    Absentee ballots are opened no later than four hours before the close and
+    counted first; election-day precinct totals follow after 7 p.m. CT.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Signature checks on receipt; absentee envelopes are opened on Election Day
+    no later than four hours before the polls close.
+  typical_call_time: >-
+    Fast: Tennessee counts quickly and reports county by county; most races are
+    clear within a few hours.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    East Tennessee's 8 p.m. ET close is the same moment as 7 p.m. CT, so the
+    whole state closes at once.
+  sources:
+    - https://sos.tn.gov/elections/results
+    - https://sos.tn.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+TX:
+  official_results_url: https://results.texas-election.com/
+  sos_url: https://www.sos.texas.gov/elections/index.shtml
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Chicago, America/Denver]
+  polls_close_note: >-
+    Most of Texas closes at 7 p.m. CT; El Paso-area counties on Mountain time
+    close at 7 p.m. MT (8 p.m. CT), and Districts 16 and 23 close with them.
+  count_order: >-
+    Early in-person results are released first at 7 p.m.; election-day precincts
+    follow; mail and provisional ballots come last.
+  mail_deadline: >-
+    Postmarked by Election Day and received by 5 p.m. the next day (Nov 4).
+  mail_processing: >-
+    Signature verification from 20 days out; ballots may be scanned from the
+    fourth day before in counties of 100,000+, otherwise when polls open.
+  typical_call_time: >-
+    Hours to days: the state is large and county reporting is uneven; close
+    races can wait for El Paso-area returns, late mail and provisionals.
+  recount_threshold: >-
+    Automatic recount only for a tie vote; otherwise a candidate may request one
+    and pay the cost.
+  ranked_choice: "false"
+  notes: >-
+    Texas runs its own statewide results site fed by county returns; the
+    Mountain-time El Paso area is the last to close.
+  sources:
+    - https://results.texas-election.com/
+    - https://www.sos.texas.gov/elections/index.shtml
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+UT:
+  official_results_url: https://electionresults.utah.gov/results/public/Utah
+  sos_url: https://vote.utah.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Denver]
+  count_order: >-
+    All-mail state: ballots counted as they arrive are released first after
+    8 p.m.; election-day drop-offs and later mail are added in the following
+    days.
+  mail_deadline: >-
+    Must be received by 8 p.m. on Election Day.
+  mail_processing: >-
+    Envelopes are verified on receipt and ballots may be scanned immediately,
+    with results held until the polls close.
+  typical_call_time: >-
+    Hours to days: the first release is large, but late drop-offs and mail can
+    keep close races open for a day or two.
+  recount_threshold: >-
+    Automatic recount only for a tie vote; otherwise a candidate may request one
+    and pay the cost.
+  ranked_choice: Local only (a few cities).
+  notes: >-
+    Utah is all-mail and counts as ballots arrive; election-night totals are
+    mostly mail.
+  sources:
+    - https://electionresults.utah.gov/results/public/Utah
+    - https://vote.utah.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+VT:
+  official_results_url: https://electionresults.vermont.gov/
+  sos_url: https://sos.vermont.gov/elections
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; early and absentee ballots
+    are processed ahead of time and counted at the polls.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day; hand-delivered
+    ballots are due by close of business the day before.
+  mail_processing: >-
+    Envelope verification may begin 45 days out; towns may scan from 30 days out
+    if they vote to, otherwise on Election Day.
+  typical_call_time: >-
+    Fast: small towns with hand counts report quickly; a close statewide race is
+    usually clear the same night.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: Local only (Burlington).
+  notes: >-
+    Vermont's results are town-by-town and can be slow to aggregate even though
+    individual towns count fast.
+  sources:
+    - https://electionresults.vermont.gov/
+    - https://sos.vermont.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+VA:
+  official_results_url: https://www.elections.virginia.gov/results/
+  sos_url: https://www.elections.virginia.gov/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Mail and early ballots, processed on receipt, are released first at 7 p.m.;
+    election-day precincts follow; late mail is added for three days.
+  mail_deadline: >-
+    Postmarked by Election Day and received by noon on the third day after
+    (Nov 6); from 2027 the deadline moves to 5 p.m. that day.
+  mail_processing: >-
+    Envelopes are verified on receipt; ballots may be scanned after processing,
+    with results held until polls close.
+  typical_call_time: >-
+    Days: the three-day mail window and slow county reporting mean close
+    statewide and House races often take a day or more.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one (cost bond required).
+  ranked_choice: Local only (Arlington County).
+  notes: >-
+    Virginia counts mail before Election Day, so early returns include a large
+    mail batch; late mail can shift close races.
+  sources:
+    - https://www.elections.virginia.gov/results/
+    - https://www.elections.virginia.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+WA:
+  official_results_url: https://results.votewa.gov/results/public/washington
+  sos_url: https://www.sos.wa.gov/elections
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Los_Angeles]
+  count_order: >-
+    All-mail state: ballots counted as they arrive are released first at 8 p.m.;
+    drop-box ballots delivered on Election Day and later mail are added over the
+    following days.
+  mail_deadline: >-
+    Postmarked by Election Day and received by certification, 21 days after a
+    general election (Nov 24).
+  mail_processing: >-
+    Signature checks on receipt; accepted ballots are scanned immediately, with
+    results held until 8 p.m. on Election Day.
+  typical_call_time: >-
+    Days: Washington's 21-day receipt window means counting continues for
+    weeks; close races are usually called days after Election Day, not on the
+    night.
+  recount_threshold: >-
+    Automatic recount if the margin is under 2,000 votes and under 0.5% of
+    total votes cast for both candidates.
+  ranked_choice: Local only (Seattle, San Juan County).
+  notes: >-
+    Washington counts mail as it arrives; election-night leads are partial and
+    later batches can change close races.
+  sources:
+    - https://results.votewa.gov/results/public/washington
+    - https://www.sos.wa.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.ncsl.org/elections-and-campaigns/ranked-choice-voting
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+WV:
+  official_results_url: https://results.enr.clarityelections.com/WV/
+  sos_url: https://sos.wv.gov/elections
+  results_vendor: Clarity Elections (Scytl)
+  polls_close_local: "7:30 PM"
+  timezones: [America/New_York]
+  count_order: >-
+    Election-day precincts report first after 7:30 p.m.; absentee ballots are
+    delivered to precincts or central counts on Election Day and counted after
+    the polls close.
+  mail_deadline: >-
+    Postmarked by Election Day and received before the canvass begins on the
+    fifth day after (Nov 8).
+  mail_processing: >-
+    Absentee ballots are held sealed until Election Day and processed at the
+    precincts or a central count; scanning starts after polls close.
+  typical_call_time: >-
+    Fast: a small state with quick county reporting; most races are clear within
+    a few hours of the 7:30 p.m. close.
+  recount_threshold: >-
+    No automatic recount; a candidate may petition for one.
+  ranked_choice: "false"
+  notes: >-
+    West Virginia's small counties report early, but late-arriving mail can be
+    added through the canvass.
+  sources:
+    - https://results.enr.clarityelections.com/WV/
+    - https://sos.wv.gov/elections
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+WI:
+  official_results_url: https://elections.wi.gov/elections-voting/results
+  sos_url: https://elections.wi.gov/
+  results_vendor: null
+  polls_close_local: "8:00 PM"
+  timezones: [America/Chicago]
+  count_order: >-
+    Election-day precincts report first after 8 p.m.; absentee ballots are
+    processed at polling places during the day and at central counts in
+    Milwaukee and other cities, often late.
+  mail_deadline: >-
+    Must be received by 8 p.m. on Election Day.
+  mail_processing: >-
+    No processing before polls open on Election Day; envelopes are opened and
+    ballots counted during the day at polling places or central count sites.
+  typical_call_time: >-
+    Hours to days: most of Wisconsin reports overnight, but Milwaukee's central
+    count can take until early Wednesday, so close statewide races may wait.
+  recount_threshold: >-
+    No automatic recount; a candidate may request one (state pays if margin is
+    0.25% or less).
+  ranked_choice: "false"
+  notes: >-
+    Milwaukee counts absentee ballots centrally and reports them in one late
+    batch, a common source of big shifts in close races.
+  sources:
+    - https://elections.wi.gov/elections-voting/results
+    - https://elections.wi.gov/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
+WY:
+  official_results_url: https://sos.wyo.gov/Elections/ElectionResults.aspx
+  sos_url: https://sos.wyo.gov/Elections/
+  results_vendor: null
+  polls_close_local: "7:00 PM"
+  timezones: [America/Denver]
+  count_order: >-
+    Election-day precincts report first after 7 p.m.; absentee ballots, opened
+    the Thursday or Friday before, are counted on Election Day.
+  mail_deadline: >-
+    Must be received by the close of polls on Election Day.
+  mail_processing: >-
+    Clerks may verify and scan absentee ballots the Thursday or Friday before
+    Election Day if they notify the secretary of state.
+  typical_call_time: >-
+    Fast: a small state with quick county reporting; most races are clear
+    within a couple of hours of the 7 p.m. close.
+  recount_threshold: >-
+    Automatic recount if the margin is less than 1% of the winner's vote total.
+  ranked_choice: "false"
+  notes: >-
+    Wyoming has one of the smallest electorates in the country, so its count is
+    fast even with absentee processing.
+  sources:
+    - https://sos.wyo.gov/Elections/ElectionResults.aspx
+    - https://sos.wyo.gov/Elections/
+    - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
+    - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin
+    - https://www.ncsl.org/elections-and-campaigns/election-recounts
+    - https://www.270towin.com/poll-closing-times/
+  unverified: [results_vendor]
