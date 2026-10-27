@@ -484,3 +484,25 @@ async def test_results_sources_are_fetched_concurrently_in_priority_order():
     assert time.monotonic() - started < 0.8      # 3 x 0.3 s if fetched one after another
     assert (await store.latest_result(KEY)).source == "first"
     assert poster.sent[0][2].footer == "Source: first"
+
+
+@pytest.mark.asyncio
+async def test_outlet_call_without_special_flag_reaches_a_watched_special_race():
+    # OH/FL Senate 2026 are specials: state results key them "OH SEN S", but outlets and
+    # markets have no special flag and answer for "OH SEN".
+    special, plain = parse("OH SEN S"), parse("OH SEN")
+    asked = []
+
+    class PlainCalls(CallSource):
+        name, outlet = "plain", "AP"
+
+        async def fetch_calls(self, keys, client):
+            asked.extend(keys)
+            return [RaceCall(plain, "AP", "Jon Husted", "REP", NOW)] if plain in keys else []
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=["OH SEN S"]))
+    poster = RecordingPoster()
+    await poller(store, {"calls": [PlainCalls()]}, poster).tick()
+    assert special in asked and plain in asked
+    assert [(p.kind, p.race) for _, _, p in poster.sent] == [("call", "OH SEN S")]
