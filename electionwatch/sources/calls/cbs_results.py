@@ -38,7 +38,8 @@ class CBSResultsSource(ResultsSource):
     states = frozenset(STATES)
 
     BASE = CBSSource.BASE
-    YEAR = CBSSource.YEAR
+    # 2026 archive URLs are not yet populated; 2024 is the latest available cycle.
+    YEAR = 2024
 
     async def _get(self, client: httpx.AsyncClient, office: str, state: str) -> list:
         try:
