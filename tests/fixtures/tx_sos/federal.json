@@ -1,0 +1,246 @@
+{
+ "OffType": "FEDERAL OFFICES",
+ "OffTypeID": 1001,
+ "Races": [
+  {
+   "id": 1001,
+   "N": "PRESIDENT/VICE-PRESIDENT",
+   "Candidates": [
+    {
+     "ID": 340748,
+     "N": "CHASE OLIVER/MIKE TER MAAT",
+     "P": "LIB",
+     "V": 68557,
+     "PE": 0.6,
+     "C": "#e0b30e",
+     "O": 3,
+     "EV": 47217
+    },
+    {
+     "ID": 340858,
+     "N": "CHERUNDA FOX/HARLAN MCVAY",
+     "P": "W",
+     "V": 26,
+     "PE": 0.0,
+     "C": "#e0b30e",
+     "O": 8,
+     "EV": 14
+    },
+    {
+     "ID": 340805,
+     "N": "CLAUDIA DE LA CRUZ/KARINA GARCIA",
+     "P": "W",
+     "V": 2374,
+     "PE": 0.02,
+     "C": "#e0b30e",
+     "O": 7,
+     "EV": 1641
+    },
+    {
+     "ID": 340825,
+     "N": "CORNEL WEST/MELINA ABDULLAH",
+     "P": "W",
+     "V": 1858,
+     "PE": 0.02,
+     "C": "#e0b30e",
+     "O": 10,
+     "EV": 1306
+    },
+    {
+     "ID": 9240,
+     "N": "DONALD J. TRUMP/JD VANCE",
+     "P": "REP",
+     "V": 6393597,
+     "PE": 56.14,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 5113725
+    },
+    {
+     "ID": 335549,
+     "N": "JESSIE CUELLAR/WESLEY LASLEY",
+     "P": "W",
+     "V": 98,
+     "PE": 0.0,
+     "C": "#e0b30e",
+     "O": 6,
+     "EV": 78
+    },
+    {
+     "ID": 340851,
+     "N": "JILL STEIN/RUDOLPH WARE",
+     "P": "GRE",
+     "V": 82701,
+     "PE": 0.73,
+     "C": "#e0b30e",
+     "O": 4,
+     "EV": 54535
+    },
+    {
+     "ID": 340860,
+     "N": "KAMALA D. HARRIS/TIM WALZ",
+     "P": "DEM",
+     "V": 4835250,
+     "PE": 42.46,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3911742
+    },
+    {
+     "ID": 340806,
+     "N": "PETER SONSKI/LAUREN ONAK",
+     "P": "W",
+     "V": 3780,
+     "PE": 0.03,
+     "C": "#e0b30e",
+     "O": 9,
+     "EV": 2680
+    },
+    {
+     "ID": 340845,
+     "N": "SHIVA AYYADURAI/CRYSTAL ELLIS",
+     "P": "W",
+     "V": 433,
+     "PE": 0.0,
+     "C": "#e0b30e",
+     "O": 5,
+     "EV": 300
+    }
+   ],
+   "T": 11388674,
+   "RTEV": 9133238
+  },
+  {
+   "id": 7958,
+   "N": "U. S. SENATOR ",
+   "Candidates": [
+    {
+     "ID": 337598,
+     "N": "COLIN ALLRED",
+     "P": "DEM",
+     "V": 5031249,
+     "PE": 44.56,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 4027614
+    },
+    {
+     "ID": 340741,
+     "N": "TRACY ANDRUS",
+     "P": "W",
+     "V": 919,
+     "PE": 0.01,
+     "C": "#e0b30e",
+     "O": 4,
+     "EV": 648
+    },
+    {
+     "ID": 339653,
+     "N": "TED BROWN",
+     "P": "LIB",
+     "V": 267039,
+     "PE": 2.36,
+     "C": "#e0b30e",
+     "O": 3,
+     "EV": 173719
+    },
+    {
+     "ID": 336558,
+     "N": "TED CRUZ (I)",
+     "P": "REP",
+     "V": 5990741,
+     "PE": 53.05,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 4872636
+    },
+    {
+     "ID": 340777,
+     "N": "ANALISA ROCHE",
+     "P": "W",
+     "V": 1906,
+     "PE": 0.02,
+     "C": "#e0b30e",
+     "O": 5,
+     "EV": 1316
+    }
+   ],
+   "T": 11291854,
+   "RTEV": 9075933
+  },
+  {
+   "id": 2006,
+   "N": "U. S. REPRESENTATIVE DISTRICT 1",
+   "Candidates": [
+    {
+     "ID": 333146,
+     "N": "NATHANIEL MORAN (I)",
+     "P": "REP",
+     "V": 258523,
+     "PE": 100.0,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 203590
+    }
+   ],
+   "T": 258523,
+   "RTEV": 203590
+  },
+  {
+   "id": 2010,
+   "N": "U. S. REPRESENTATIVE DISTRICT 2",
+   "Candidates": [
+    {
+     "ID": 4846,
+     "N": "DAN CRENSHAW (I)",
+     "P": "REP",
+     "V": 214631,
+     "PE": 65.66,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 174824
+    },
+    {
+     "ID": 337639,
+     "N": "PETER FILLER",
+     "P": "DEM",
+     "V": 112252,
+     "PE": 34.34,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 90239
+    }
+   ],
+   "T": 326883,
+   "RTEV": 265063
+  },
+  {
+   "id": 2028,
+   "N": "U. S. REPRESENTATIVE DISTRICT 34",
+   "Candidates": [
+    {
+     "ID": 332442,
+     "N": "MAYRA FLORES",
+     "P": "REP",
+     "V": 97603,
+     "PE": 48.71,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 72782
+    },
+    {
+     "ID": 336100,
+     "N": "VICENTE GONZALEZ (I)",
+     "P": "DEM",
+     "V": 102780,
+     "PE": 51.29,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 78377
+    }
+   ],
+   "T": 200383,
+   "RTEV": 151159
+  }
+ ]
+}

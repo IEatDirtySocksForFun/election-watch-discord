@@ -1,0 +1,58 @@
+{
+ "OfficeTypes": [
+  {
+   "OfficeType": "FEDERAL OFFICES",
+   "OfficeTypeID": 1001,
+   "Races": [
+    {
+     "id": 1001,
+     "N": "PRESIDENT/VICE-PRESIDENT"
+    },
+    {
+     "id": 7958,
+     "N": "U. S. SENATOR "
+    },
+    {
+     "id": 2006,
+     "N": "U. S. REPRESENTATIVE DISTRICT 1"
+    }
+   ]
+  },
+  {
+   "OfficeType": "STATEWIDE OFFICES",
+   "OfficeTypeID": 1002,
+   "Races": [
+    {
+     "id": 7956,
+     "N": "RAILROAD COMMISSIONER "
+    },
+    {
+     "id": 1015,
+     "N": "JUSTICE, SUPREME COURT, PLACE 2"
+    },
+    {
+     "id": 1017,
+     "N": "JUSTICE, SUPREME COURT, PLACE 4"
+    }
+   ]
+  },
+  {
+   "OfficeType": "DISTRICT OFFICES",
+   "OfficeTypeID": 1003,
+   "Races": [
+    {
+     "id": 2047,
+     "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 1"
+    },
+    {
+     "id": 2045,
+     "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 3"
+    },
+    {
+     "id": 2040,
+     "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 4"
+    }
+   ]
+  }
+ ]
+}
