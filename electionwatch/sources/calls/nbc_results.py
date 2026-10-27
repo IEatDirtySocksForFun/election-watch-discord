@@ -30,6 +30,7 @@ class NBCResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
+    fallback = True   # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = "https://www.nbcnews.com/firecracker/api/v2/national-results"

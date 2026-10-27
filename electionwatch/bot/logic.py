@@ -7,7 +7,7 @@ from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
-OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"}
+OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT", "CIVICAPI"}
 #: Longest race text accepted by /watch and /favorite: Discord's limit for an autocomplete
 #: choice value. A free-form LOCAL slug could otherwise be thousands of characters long,
 #: overflowing every later reply (/watch list, /settings) that shows it.

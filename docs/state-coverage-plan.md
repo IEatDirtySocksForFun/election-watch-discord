@@ -226,7 +226,7 @@ races from the official county feeds.
 | Decision Desk HQ | paid API; free widgets only for qualifying newsrooms | contract | owner decision (source-sweep.md) |
 | AP | paid; public pages are licensed data | contract | no free route |
 | Google Civic API | no results | free | n/a |
-| civicAPI.org | claims live results, keyless, attribution | unverified, unknown sourcing | not recommended without verifying where its numbers come from |
+| civicAPI.org | **yes**: live results for every state + DC down to county and local races, plus its own race calls (`/api/v2/race/search`, `/api/v2/race/{id}`) | keyless; free for commercial and non-commercial use with attribution. Its FAQ says the data is aggregated from Secretaries of State and state/county boards (local media only for some small or foreign elections); calls come from its own decision desk | **adopted** (`civicapi`, on by default, ranked after official feeds; test data dropped). Verified 2026-10-27: 2024 TX SEN/TX-28 match the official totals; every 2026 federal race is currently `test_data: true` (fake winners) and is dropped |
 | Newspapers' JSON (NYT, WaPo, Houston Chronicle, KPRC) | AP-licensed data | site terms | not recommended (redistribution of AP data) |
 | tnfirefly.com | mirror of TN SOS | unknown | not recommended |
 

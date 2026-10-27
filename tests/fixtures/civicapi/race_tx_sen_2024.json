@@ -1,0 +1,193 @@
+{
+ "election_name": "Texas US Senate",
+ "election_type": "US Senate",
+ "election_scope": "General",
+ "election_date": "2024-11-05T05:00:00.000Z",
+ "country": "US",
+ "province": "TX",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2024-11-05T12:00:00.000Z",
+ "polls_close": "2024-11-06T00:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 100,
+ "test_data": false,
+ "last_updated": "2026-09-16T03:32:03.083Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "Texas",
+   "map": "assets/Texas.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "Ted Cruz",
+   "candidate_id": 272093,
+   "party": "Republican",
+   "incumbent": true,
+   "major_candidate": false,
+   "winner": true,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 5990741,
+   "percent": 53.05
+  },
+  {
+   "name": "Colin Allred",
+   "candidate_id": 272094,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 5031249,
+   "percent": 44.56
+  },
+  {
+   "name": "Ted Brown",
+   "candidate_id": 272095,
+   "party": "Libertarian",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#d4c029",
+   "votes": 267039,
+   "percent": 2.36
+  },
+  {
+   "name": "Analisa Roche",
+   "candidate_id": 272096,
+   "party": "American Solidarity",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#DC9646",
+   "votes": 1906,
+   "percent": 0.02
+  },
+  {
+   "name": "Tracy Andrus",
+   "candidate_id": 272097,
+   "party": "Independent Democrat",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#007ACC",
+   "votes": 919,
+   "percent": 0.01
+  }
+ ],
+ "region_results": {
+  "anderson": {
+   "name": "Anderson",
+   "type": "County",
+   "fill": "#c6606b",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Ted Cruz",
+     "party": "Republican",
+     "incumbent": true,
+     "major_candidate": false,
+     "winner": true,
+     "color": "#c6606b",
+     "votes": 15022,
+     "percent": 78.17,
+     "advanced": false
+    },
+    {
+     "name": "Colin Allred",
+     "party": "Democratic",
+     "incumbent": false,
+     "major_candidate": false,
+     "winner": false,
+     "color": "#4874a3",
+     "votes": 3872,
+     "percent": 20.15,
+     "advanced": false
+    },
+    {
+     "name": "Ted Brown",
+     "party": "Libertarian",
+     "incumbent": false,
+     "major_candidate": false,
+     "winner": false,
+     "color": "#d4c029",
+     "votes": 317,
+     "percent": 1.65,
+     "advanced": false
+    },
+    {
+     "name": "Tracy Andrus",
+     "party": "Independent Democrat",
+     "incumbent": false,
+     "major_candidate": false,
+     "winner": false,
+     "color": "#007ACC",
+     "votes": 4,
+     "percent": 0.02,
+     "advanced": false
+    },
+    {
+     "name": "Analisa Roche",
+     "party": "American Solidarity",
+     "incumbent": false,
+     "major_candidate": false,
+     "winner": false,
+     "color": "#DC9646",
+     "votes": 1,
+     "percent": 0.01,
+     "advanced": false
+    }
+   ]
+  },
+  "andrews": {
+   "name": "Andrews",
+   "type": "County",
+   "fill": "#c6606b",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Ted Cruz",
+     "party": "Republican",
+     "incumbent": true,
+     "major_candidate": false,
+     "winner": true,
+     "color": "#c6606b",
+     "votes": 4976,
+     "percent": 83.32,
+     "advanced": false
+    },
+    {
+     "name": "Colin Allred",
+     "party": "Democratic",
+     "incumbent": false,
+     "major_candidate": false,
+     "winner": false,
+     "color": "#4874a3",
+     "votes": 873,
+     "percent": 14.62,
+     "advanced": false
+    },
+    {
+     "name": "Ted Brown",
+     "party": "Libertarian",
+     "incumbent": false,
+     "major_candidate": false,
+     "winner": false,
+     "color": "#d4c029",
+     "votes": 123,
+     "percent": 2.06,
+     "advanced": false
+    }
+   ]
+  }
+ }
+}

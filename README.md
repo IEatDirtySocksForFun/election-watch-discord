@@ -34,7 +34,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 
 | | |
 |---|---|
-| **Results** | Official state and county election-night feeds for 40 states + DC, with optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
+| **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
 | **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
 | **Race calls** | From the outlets you choose (AP, DDHQ, CNN, NBC, CBS, Fox, ABC). Posted the moment they appear, with retractions. |
 | **Odds** | Kalshi and Polymarket for every watched race. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
@@ -94,8 +94,8 @@ EW_ENABLED_SOURCES=cbs_results,fox_results,cnn,nbc,cbs,fox,abc,cnn_exit_polls,27
 ```
 
 Without that line:
-- **Results:** the 8 states that have no official election-night feed (see below) get no results,
-  and TX, TN, AL and the other county-only states get only their counties' partial totals.
+- **Results:** every state still has results through civicAPI (see below); the outlet
+  fallbacks are a second opinion if civicAPI is down.
 - **Race calls:** none are posted unless you pay for AP or DDHQ.
 - **Exit polls:** no exit-poll links are posted.
 
@@ -109,18 +109,29 @@ Status as of 2026-10-27, checked with `tools/health_check.py` against the 2024 g
 | **Official statewide feed** (the state's own election-night data) | AR, AZ, CA, CO, CT, DC, DE, FL, GA, HI, IA, ID, IL, IN, KS, LA, MD, MN, MT, NC, ND, NM, OH, OR, PA, RI, SC, SD, UT, VA, VT, WA, WV |
 | **Official feed, opt-in scraper** | NE (`ne_sos`) |
 | **Official county feeds only** (partial state) | TX (Harris, Tarrant, Bexar, Travis, Fort Bend + 15 more Clarity counties: about 49% of the 2024 vote; backup for the state site), MI (Ottawa), WI (Dane, opt-in), NJ (14 counties), MO (St. Louis Co.), NY (NYC, opt-in), TN (Shelby), AL (Madison) |
-| **No official feed reachable**: national fallbacks only | KY, MA, ME, MS*, NH, NV, OK, WY |
+| **No official feed reachable**: civicAPI + national fallbacks | KY, MA, ME, MS*, NH, NV, OK, WY |
+| **civicAPI** (free API, no key, on by default; every state, federal + statewide + legislature + local) | all 50 + DC; fills every gap above |
 | **Known problems right now** | AK: the state site's TLS certificate chain fails verification. TX: results.texas-election.com sometimes returns a Cloudflare challenge. |
 
 \* MS publishes certified results only, days after the election.
 
-With the national fallbacks on, **every state + DC** has Senate, Governor and US House results.
+[civicAPI](https://civicapi.org) is a free, documented results API (no key; attribution
+required, which the bot gives by linking every civicAPI result to its race page and naming the
+source in the footer). It covers **every state + DC** down to county level, including
+down-ballot races, so it fills the states above without an official feed. It ranks after every
+official feed (`fallback = True`), so a working state feed still wins. civicAPI publishes test
+data before election night (fake winners flagged `test_data`); the adapter drops it, and drops
+any votes reported before the polls open. Its race calls are available as the `CIVICAPI`
+outlet (`/calls outlets:CIVICAPI enabled:on`); they are off by default. Its 2024 archive is
+partial (e.g. TX yes, NV no), so the replay tests don't use it.
+
+With the national fallbacks on as well, every state + DC has a second source for Senate, Governor and US House.
 A complete statewide result always wins over a `(partial: N counties)` county tally for the same
 race. To use a fallback only where it is needed, narrow it with `EW_SOURCE_STATES`, e.g.
 `EW_SOURCE_STATES=fox_results=AL,KY,MA,ME,MI,MO,MS,NH,NJ,NV,NY,OK,TN,TX,WI,WY`. The plan
 and evidence for the states without a complete feed are in
 [docs/state-coverage-plan.md](docs/state-coverage-plan.md).
-Down-ballot races (state legislature, local) come only from official state and county feeds.
+Down-ballot races (state legislature, local) come from official state and county feeds and civicAPI.
 Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 [docs/results/](docs/results/).
 
@@ -150,6 +161,9 @@ Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 - **Discord rate limits:** one channel accepts about 5 messages every 5 seconds. A server
   watching dozens of races in "every update" mode will see posts queue up at peak. The default
   5-minute mode, or a few channels/servers, avoids that.
+- **civicAPI is a third party.** It aggregates official returns but is not itself official, and
+  it is one service: if it goes down on the night, the states without an official feed fall
+  back to the outlet fallbacks (if enabled) or show nothing.
 - **It's not an official source.** Numbers are only as good as the feeds. Calls come from the
   outlets that made them, not from the bot.
 

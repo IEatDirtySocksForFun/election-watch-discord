@@ -50,6 +50,9 @@ def build_sources(registry: Mapping[str, Mapping[str, type]], environ: Mapping[s
                 # Instance attribute: narrows this adapter only, the class keeps its states.
                 instance.states = frozenset(instance.states) & only[name]
             built[kind].append(instance)
+        # Adapter order is priority order (the poller takes the first complete answer):
+        # national fallbacks go after every official feed, whatever order modules imported in.
+        built[kind].sort(key=lambda source: bool(getattr(source, "fallback", False)))
     return built
 
 

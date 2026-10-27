@@ -35,6 +35,7 @@ class CNNResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
+    fallback = True   # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = "https://politics.api.cnn.io/results/race"
