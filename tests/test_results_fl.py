@@ -77,3 +77,15 @@ def test_fetch_posts_extract_form(monkeypatch):
 
 def test_empty_text_is_not_an_error():
     assert parse_fl("", fetched_at=AT) == []
+
+
+def test_precincts_are_counted_once_per_county_not_once_per_candidate():
+    import csv as _csv
+
+    rows = list(_csv.DictReader(load().splitlines(), delimiter="\t"))
+    expected = sum({
+        r["CountyCode"]: int(r["Precincts"]) for r in rows
+        if r["RaceCode"] == "USS"
+    }.values())
+    sen = by_key(parse_fl(load(), fetched_at=AT))["FL SEN"]
+    assert sen.precincts_total == expected
