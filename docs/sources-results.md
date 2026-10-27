@@ -19,6 +19,8 @@ under `results`.
 | MN | `mn_sos` | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt | **verified fixture** — 2026 general text exports; live 2026-10-27 returns 871 contests (statewide) |
 | MI | `mi_county` | https://results.enr.clarityelections.com/MI/<County>/ | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)` |
 | WI | `wi_dane` | https://elections.countyofdane.com/Election-Result | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)` |
+| TN (Shelby Co.) | `tn_counties` | https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export-<slug>.json | **verified fixture** — Shelby 2024 general (142 precincts); 2026 export 404 on 2026-10-27; `TN_COUNTY_FEEDS` pins another county/slug |
+| TX (counties) | `tx_counties` | https://results.enr.clarityelections.com/TX/<County>/ | **verified fixtures** — 17 configured, 2024 for 12 counties, 2026 for Denton/Galveston/Kaufman; per-county 2024 shares in docs/results/counties.md |
 | NV, NH, ME | — | — | blocked / PDF-only; see docs/results/alt-a.md |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under
@@ -91,6 +93,10 @@ commit:
 - `ENHANCED_VOTING_FEEDS` — JSON list overriding the built-in Enhanced Voting
   feeds, e.g. `[{"state":"AZ","slug":"2026NovGen"}]`. Entries need `state` and
   `slug`; `date` limits an entry to one election date.
+- `TX_COUNTY_FEEDS` / `NJ_COUNTY_FEEDS` — JSON list pinning a county election id, e.g.
+  `[{"county":"Harris","election_id":"123456","date":"2026-11-03"}]`.
+- `TN_COUNTY_FEEDS` — JSON list pinning a county's Enhanced Voting export slug, e.g.
+  `[{"county":"Shelby","slug":"General11032026","date":"2026-11-03"}]`.
 
 No adapter needs an API key. All of them are plain HTTP GETs; the poller owns the
 User-Agent, timeout and retry policy.

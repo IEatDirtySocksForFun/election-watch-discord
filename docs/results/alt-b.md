@@ -8,7 +8,7 @@ certified-only (see `states-*.md`). Status is what was verified against live res
 
 | State | Adapter | Feed | Coverage | Status |
 |-------|---------|------|----------|--------|
-| TX | `tx_counties` | `https://results.enr.clarityelections.com/TX/<County>/elections.json` → `/<EID>/<ver>/json/en/summary.json` | 6 counties configured (Dallas, Denton, El Paso, Fort Bend, Tarrant, Travis); 2024 verified for Denton + El Paso = 693,583 Senate votes = **6.1%** of Texas's 2024 Senate vote (11,291,854) | verified fixture (2024 general Denton + El Paso; 2026 general Denton) |
+| TX | `tx_counties` | `https://results.enr.clarityelections.com/TX/<County>/elections.json` → `/<EID>/<ver>/json/en/summary.json` | 17 counties configured; 13 published a 2024 Senate contest = 1,439,415 Senate votes = **12.75%** of Texas's 2024 Senate vote (11,291,854). Per-county table in `docs/results/counties.md` | verified fixtures (2024 general for 12 counties, 2026 general for Denton, Galveston, Kaufman) |
 | NJ | `nj_counties` | `https://results.enr.clarityelections.com/NJ/<County>/…` (same vendor layout) | 14 counties configured, all answering; 2024 verified for Mercer + Cumberland = 208,807 Senate votes; 8 counties have pinned 2024 ids | verified fixture (2024 general Mercer + Cumberland; 2026 general Cumberland) |
 | NY | `ny_nycboe` (scrape, off by default) | `https://vote.nyc/page/election-results-summary[-<year>]` → `https://www.vote.nyc/sites/default/files/pdf/election_results/<YYYY>/<YYYYMMDD><Stage>/<code><County> <Contest> Recap.csv` | New York City = 5 counties (New York, Bronx, Kings, Queens, Richmond); 2024 Senate citywide total 2,680,944 votes; 840 recap files listed for the 2024 general, downloaded only for subscribed races | verified fixture (2024 general Senate citywide, CD-10 Manhattan + Brooklyn) |
 | MO | `mo_stlouis` | `https://extcontent.stlouisco.com/BOE/eResults/el<YYMMDD>/CSV.csv` (per-precinct CSV, cp1252) | St. Louis County only: 2024 Senate 502,494 votes, 965 precincts, 89 contests | verified fixture (2024 general) |
@@ -28,6 +28,13 @@ plain GET:
     /TX/Denton/122426/355989/json/en/summary.json      2024 general (Denton)
     /TX/El_Paso/122595/355580/json/en/summary.json     2024 general (El Paso)
     /TX/Denton/127398/382120/json/en/summary.json      2026 general (zero votes, pre-election)
+
+Seventeen counties are configured: Bastrop, Bell, Comal, Dallas, Denton, El Paso, Fort Bend,
+Galveston, Gregg, Hood, Kaufman, Lamar, Midland, Rockwall, Rusk, Tarrant and Travis. Thirteen of
+them published a 2024 Senate contest (1,439,415 votes = 12.75% of the statewide Senate vote);
+the per-county 2024 numbers and shares are in `docs/results/counties.md`. The remaining large
+Texas counties (Harris, Bexar, Collin, Hidalgo, Williamson, Montgomery, Brazoria, Nueces,
+Cameron, Lubbock, Webb, McLennan, Hays, Smith, Jefferson) have no directory on this CDN.
 
 Discovery is per county from `elections.json` (`EID`, `ElectionName`, `Date`); verified 2024
 ids are pinned because Dallas, Tarrant and Fort Bend publish no `elections.json` at all (they
