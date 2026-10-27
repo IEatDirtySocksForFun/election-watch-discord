@@ -3,8 +3,53 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 
 from electionwatch.models import Level, RaceKey
+from electionwatch.racekeys import STATES
+
+_STATE_BY_NAME = {name.lower(): code for code, name in STATES.items()}
+
+
+def state_from_name(name: str | None) -> str | None:
+    """'Texas' -> 'TX'; None when the name is unknown."""
+    if not name:
+        return None
+    return _STATE_BY_NAME.get(name.strip().lower())
+
+
+def district_key(value) -> str | None:
+    """Normalise a district number to a RaceKey district ('01', 'AL')."""
+    text = str(value).strip().upper()
+    if text in ("", "0", "00", "AL", "AT-LARGE", "AT LARGE"):
+        return "AL"
+    m = re.fullmatch(r"(\d{1,3})", text)
+    if not m:
+        return None
+    return f"{int(m.group(1)):02d}"
+
+
+def epoch_ms_to_dt(value) -> datetime | None:
+    """Epoch milliseconds (CNN call timestamps) -> aware UTC datetime."""
+    if value is None:
+        return None
+    try:
+        return datetime.fromtimestamp(int(value) / 1000, tz=timezone.utc)
+    except (TypeError, ValueError, OverflowError, OSError):
+        return None
+
+
+def parse_http_date(value) -> datetime | None:
+    """RFC 2822 / HTTP date (e.g. NBC's ``lastModified``) -> aware datetime."""
+    if not value:
+        return None
+    try:
+        parsed = parsedate_to_datetime(str(value))
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
 
 
 def cnn_code_to_key(code: str) -> RaceKey | None:
@@ -36,17 +81,18 @@ def key_to_cnn_code(key: RaceKey, year: int = 2026) -> str | None:
 def normalize_party(party: str | None) -> str | None:
     if not party:
         return None
-    low = party.strip().lower()
-    if low in ("dem", "democrat", "democratic", "d"):
-        return "DEM"
-    if low in ("gop", "rep", "republican", "r"):
-        return "REP"
-    if low in ("ind", "independent"):
-        return "IND"
-    if low in ("lib", "libertarian"):
-        return "LIB"
-    if low in ("grn", "green"):
-        return "GRN"
+    low = party.strip().lower().rstrip(".")
+    mapping = {
+        "dem": "DEM", "democrat": "DEM", "democratic": "DEM", "democrats": "DEM", "d": "DEM",
+        "gop": "REP", "rep": "REP", "republican": "REP", "republicans": "REP", "r": "REP",
+        "ind": "IND", "independent": "IND", "i": "IND",
+        "lib": "LIB", "libertarian": "LIB", "lb": "LIB", "l": "LIB",
+        "grn": "GRN", "green": "GRN", "g": "GRN",
+        "wri": "WRI", "write-in": "WRI", "write-ins": "WRI",
+        "other": "OTH", "others": "OTH",
+    }
+    if low in mapping:
+        return mapping[low]
     return party.strip().upper()
 
 

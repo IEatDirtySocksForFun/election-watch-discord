@@ -1,7 +1,9 @@
 """VoteHub race-call adapter (unverified scraper skeleton).
 
-VoteHub does not publish a documented public API for race calls, so this adapter
-is disabled by default and consumes a simple JSON fixture schema.
+VoteHub exposes a public polling API (``api.votehub.com/polls``) but no
+results/race-call endpoint: ``/results`` returns 404 and the site is behind a
+Cloudflare challenge. This adapter therefore remains a fixture-only skeleton,
+disabled by default.
 """
 from __future__ import annotations
 
