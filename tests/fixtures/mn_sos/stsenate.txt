@@ -1,0 +1,7 @@
+MN;;;0121;State Senator District 1;1;0301;Mark Johnson;;;R;54;315;189;16.68;1133
+MN;;;0121;State Senator District 1;1;0402;Bjorn Solberg;;;DFL;54;315;377;33.27;1133
+MN;;;0121;State Senator District 1;1;9901;WRITE-IN;;;WI;54;315;567;50.04;1133
+MN;;;0122;State Senator District 2;2;0401;Dan R. Rogers;;;DFL;17;189;19;9.84;193
+MN;;;0122;State Senator District 2;2;0302;Steve Green;;;R;17;189;41;21.24;193
+MN;;;0122;State Senator District 2;2;1203;Calvin Larson Jr;;;UNI;17;189;57;29.53;193
+

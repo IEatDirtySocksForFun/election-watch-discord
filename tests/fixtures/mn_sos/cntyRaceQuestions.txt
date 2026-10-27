@@ -1,0 +1,6 @@
+MN;01;;0391;County Commissioner District 1;01;9001;Timothy Catlin;;;NP;0;2;0;0.00;0
+MN;01;;0391;County Commissioner District 1;01;9003;J. Mark Wedel;;;NP;0;2;0;0.00;0
+MN;01;;0391;County Commissioner District 1;01;9901;WRITE-IN;;;WI;0;2;0;0.00;0
+MN;01;;0393;County Commissioner District 3;03;9001;Patrick Murphy;;;NP;0;19;0;0.00;0
+MN;01;;0393;County Commissioner District 3;03;9002;Travis J. Leiviska;;;NP;0;19;0;0.00;0
+MN;01;;0393;County Commissioner District 3;03;9901;WRITE-IN;;;WI;0;19;0;0.00;0
