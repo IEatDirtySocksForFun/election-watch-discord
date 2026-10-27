@@ -73,8 +73,12 @@ def test_race_key_mapping():
     assert format_key(race_key("Governor")) == "ID GOV"
     assert format_key(race_key("Lieutenant Governor")) == "ID LTGOV"
     assert format_key(race_key("Secretary of State")) == "ID SOS"
-    assert format_key(race_key("State Controller")) == "ID CTRLR"
-    assert format_key(race_key("Superintendent of Public Instruction")) == "ID SPI"
+    assert format_key(race_key("State Controller")) == "ID COMP"
+    # Only offices racekeys.parse understands can be watched with /watch add.
+    from electionwatch.racekeys import parse as parse_key
+    for office in ("State Controller", "Superintendent of Public Instruction"):
+        assert race_key(office) == parse_key(format_key(race_key(office)))
+    assert format_key(race_key("Superintendent of Public Instruction")) == "ID SUPT"
     assert format_key(race_key("District 12 Representative B")) == "ID HD-12B"
     assert format_key(race_key("District 2 Senator")) == "ID SD-02"
     assert format_key(race_key("President and Vice President")) == "ID LOCAL us-president"
