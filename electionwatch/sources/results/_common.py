@@ -181,9 +181,19 @@ async def get_text(client: httpx.AsyncClient, url: str) -> str:
         raise SourceUnavailable(f"GET {url} failed: {exc}") from exc
     if resp.status_code >= 400:
         raise SourceUnavailable(f"GET {url} -> HTTP {resp.status_code}")
-    if resp.content[:2] == b"\x1f\x8b":
-        return gzip.decompress(resp.content).decode("utf-8", "replace")
+    body = resp.content
+    if body[:2] == b"\x1f\x8b":
+        return decode_text(gzip.decompress(body))
+    if body[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return decode_text(body)
     return resp.text
+
+
+def decode_text(body: bytes) -> str:
+    """Bytes -> text honouring a byte-order mark: Hawaii's 2024 summary.txt is UTF-16 LE."""
+    if body[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return body.decode("utf-16", "replace")
+    return body.decode("utf-8-sig", "replace")
 
 
 def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | None:

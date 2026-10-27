@@ -64,8 +64,34 @@ async def main() -> int:
             async with sem:
                 rows.append(await check(name, cls, st, client, a.timeout))
 
-        await asyncio.gather(*(one(n, c, st) for n, c in reg.items()
-                               if not only or n in only for st in sorted(c.states)))
+        async def national(name, cls):
+            # National outlets serve every state from one feed; asking per state would send
+            # ~150 requests in a burst, and NBC/CNN then block the address for a while.
+            async with sem:
+                t0 = time.monotonic()
+                keys = [k for st in sorted(cls.states) for k in probe_keys(st)]
+                try:
+                    got = await asyncio.wait_for(cls().fetch(keys, client), a.timeout * 3)
+                    by_state = {}
+                    for r in got:
+                        by_state.setdefault(r.key.state, []).append(r)
+                    for st in sorted(cls.states):
+                        res = by_state.get(st, [])
+                        rows.append({"adapter": name, "state": st, "default": cls.enabled_by_default,
+                                     "status": "OK" if res else "EMPTY", "secs": round(time.monotonic() - t0, 1),
+                                     "detail": ", ".join(f"{r.key}: {r.candidates[0].name if r.candidates else '-'}"
+                                                         f" {r.total_votes or 0:,}" for r in res[:3])})
+                except Exception as e:  # noqa: BLE001
+                    status = "UNAVAILABLE" if isinstance(e, SourceUnavailable) else "ERROR"
+                    for st in sorted(cls.states):
+                        rows.append({"adapter": name, "state": st, "default": cls.enabled_by_default,
+                                     "status": status, "secs": round(time.monotonic() - t0, 1),
+                                     "detail": f"{type(e).__name__}: {str(e)[:150]}"})
+
+        nat = {n: c for n, c in reg.items() if n.endswith("_results") and len(c.states) > 40}
+        await asyncio.gather(*(national(n, c) for n, c in nat.items() if not only or n in only),
+                             *(one(n, c, st) for n, c in reg.items() if n not in nat
+                               and (not only or n in only) for st in sorted(c.states)))
     rows.sort(key=lambda r: (r["state"], r["adapter"]))
     for r in rows:
         print(f"{r['state']}  {r['adapter']:<16} {r['status']:<11} {r['secs']:>5}s  {r['detail']}")

@@ -76,3 +76,11 @@ def test_governor_and_lieutenant_governor_are_statewide_keys():
 
     assert race_key("GOVERNOR") == parse_key("HI GOV")
     assert race_key("LIEUTENANT GOVERNOR") == parse_key("HI LTGOV")
+
+
+def test_utf16_summary_decodes():
+    from electionwatch.sources.results._common import decode_text
+    from electionwatch.sources.results.hi_soe import _rows
+    raw = '"Format#1"\r\n1,"U.S. Senator",1,0,,0,0,0,0,0,0,900000,200,200,1,"HIRONO, Mazie",2,,1,2,3\r\n'
+    rows = _rows(decode_text(b"\xff\xfe" + raw.encode("utf-16-le")))
+    assert rows[0]["office"] == "U.S. Senator"
