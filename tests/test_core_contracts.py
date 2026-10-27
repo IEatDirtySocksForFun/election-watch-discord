@@ -87,3 +87,13 @@ def test_territory_keys(text, canon, name):
 def test_adapter_coverage_list_is_states_and_dc_only():
     from electionwatch.racekeys import STATES, TERRITORIES
     assert len(STATES) == 51 and not set(TERRITORIES) & set(STATES)
+
+
+def test_single_seat_states_key_as_at_large(monkeypatch):
+    assert str(RaceKey("AK", Level.HOUSE, "HOUSE", "01")) == "AK-AL"
+    assert str(RaceKey("WY", Level.HOUSE, "HOUSE", "1")) == "WY-AL"
+    assert str(parse("DE-01")) == "DE-AL"
+    assert str(RaceKey("MT", Level.HOUSE, "HOUSE", "01")) == "MT-01"      # two seats since 2022
+    monkeypatch.setenv("ELECTION_DATE", "2018-11-06")
+    assert str(RaceKey("MT", Level.HOUSE, "HOUSE", "01")) == "MT-AL"
+    assert str(RaceKey("TX", Level.HOUSE, "HOUSE", "01")) == "TX-01"

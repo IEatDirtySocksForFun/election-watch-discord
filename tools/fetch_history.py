@@ -10,7 +10,7 @@ DATA_DIR defaults to ~/Downloads/election-test-data. Output layout:
     <data>/timelines/<year>/<KEY>.jsonl  real NYT election-night series (when published)
     <data>/_cache/...                  raw downloads (kept so reruns are offline + resumable)
 
-<year> is 2018, 2020, 2022, 2024 (generals) or 2024-primary. <level> is one of
+<year> is 2014, 2016, 2018, 2020, 2022, 2024 (generals) or 2024-primary. <level> is one of
 senate, house, governor (statewide executive), state (legislature), local.
 
 Sources, in priority order per (year, state, level) -- the first one with rows wins:
@@ -50,8 +50,8 @@ from electionwatch.racekeys import STATES, RaceKeyError, parse  # noqa: E402
 
 UA = "election-watch-discord/0.1 (history fetcher for replay tests; +https://github.com/IEatDirtySocksForFun/election-watch-discord)"
 DEFAULT_DATA = Path.home() / "Downloads" / "election-test-data"
-GENERAL_DATES = {"2018": "20181106", "2020": "20201103", "2022": "20221108", "2024": "20241105"}
-YEARS = ["2018", "2020", "2022", "2024", "2024-primary"]
+GENERAL_DATES = {"2014": "20141104", "2016": "20161108", "2018": "20181106", "2020": "20201103", "2022": "20221108", "2024": "20241105"}
+YEARS = ["2014", "2016", "2018", "2020", "2022", "2024", "2024-primary"]
 LEVELS = ["senate", "house", "governor", "state", "local"]
 FIELDS = ["race_key", "candidate", "party", "votes", "county"]
 

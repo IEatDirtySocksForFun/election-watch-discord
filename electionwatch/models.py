@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from dataclasses import asdict, dataclass
 from datetime import date, datetime
 from enum import Enum
@@ -29,9 +30,27 @@ class RaceKey:
     district: str | None = None   # "01", "AL" (at-large), "12", local sub-key
     special: bool = False         # special election (second race for the same seat)
 
+    def __post_init__(self) -> None:
+        # Single-seat states: feeds number the seat "1" / "01" / "0", the bot calls it AL.
+        # Normalising here makes every adapter, user input and history row agree.
+        if (self.level is Level.HOUSE and self.district in _SEAT_ONE
+                and self.state in at_large_states()):
+            object.__setattr__(self, "district", "AL")
+
     def __str__(self) -> str:
         from electionwatch.racekeys import format_key
         return format_key(self)
+
+
+_SEAT_ONE = frozenset({"0", "00", "1", "01"})
+# One House seat (DC and territories: one non-voting member). Montana had one seat until
+# the 2022 reapportionment; the election year comes from ELECTION_DATE (default 2026).
+_AT_LARGE = frozenset({"AK", "DE", "ND", "SD", "VT", "WY", "DC", "PR", "GU", "VI", "AS", "MP"})
+
+
+def at_large_states() -> frozenset[str]:
+    year = int((os.environ.get("ELECTION_DATE") or "2026")[:4])
+    return _AT_LARGE | {"MT"} if year < 2022 else _AT_LARGE
 
 
 @dataclass
