@@ -52,7 +52,7 @@ class Report:
 
 def check(posts: list[tuple[datetime, Post]], gs: GuildSettings) -> Report:
     rep = Report(posts=posts)
-    last_results: dict[str, tuple[datetime, list[str]]] = {}
+    last_results: dict[str, tuple[datetime, tuple]] = {}
     seen_once: set[tuple] = set()
     minutes = (0 if gs.post_mode is PostMode.IMMEDIATE else
                DEFAULT_INTERVAL_MIN if gs.post_mode is PostMode.DEFAULT else max(1, gs.interval_minutes))
@@ -65,9 +65,9 @@ def check(posts: list[tuple[datetime, Post]], gs: GuildSettings) -> Report:
                 if gap < minutes:
                     rep.problems.append(f"{at:%H:%M} {p.race}: results {gap:.0f} min after the last "
                                         f"one (rule: >= {minutes})")
-                if prev[1] == p.lines:
+                if prev[1] == (p.lines, p.footer, p.fields):
                     rep.problems.append(f"{at:%H:%M} {p.race}: results post identical to the previous one")
-            last_results[p.race] = (at, p.lines)
+            last_results[p.race] = (at, (p.lines, p.footer, p.fields))
         elif p.kind in ("call", "exitpoll"):
             ident = (p.kind, p.race, tuple(p.lines))
             if ident in seen_once:
