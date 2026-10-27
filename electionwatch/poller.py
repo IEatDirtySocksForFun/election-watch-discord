@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict
+from dataclasses import replace
 from datetime import datetime, timedelta
 
 import httpx
@@ -194,7 +195,9 @@ class Poller:
                     selected[race] = result
         for race, result in selected.items():
             try:
-                await self.store.upsert_result(result)
+                # The store's change time is compared with mark_posted() times, which are on
+                # the poller's clock; adapters stamp fetched_at with the wall clock mid-tick.
+                await self.store.upsert_result(replace(result, fetched_at=now))
             except Exception:
                 logger.exception("Could not store results for %s", race)
 

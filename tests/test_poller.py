@@ -418,3 +418,43 @@ def test_results_post_shows_only_top_five():
     post = format_result(RaceResult(parse("TX SEN"), cands, "t", datetime.now(timezone.utc)).finalize())
     names = [l for l in post.lines if l.split(" ", 1)[1].startswith("C")]
     assert [l.split()[1] for l in names] == ["C0", "C1", "C2", "C3", "C4"]
+
+
+@pytest.mark.asyncio
+async def test_unchanged_result_fetched_after_tick_start_is_not_reposted():
+    # Adapters stamp fetched_at with the wall clock *during* the tick, i.e. after the tick's
+    # `now`. That must not make an unchanged result look "changed since the last post".
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    clock = {"now": NOW}
+    source = FakeResults(result(at=NOW + timedelta(seconds=5)))
+    p = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
+
+    await p.tick()
+    assert len(poster.sent) == 1
+    for minutes in range(1, 16):
+        clock["now"] = NOW + timedelta(minutes=minutes)
+        source.value = result(at=clock["now"] + timedelta(seconds=5))   # same votes
+        await p.tick()
+    assert len(poster.sent) == 1
+
+
+@pytest.mark.asyncio
+async def test_immediate_mode_posts_each_change_once():
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(1, channel_id=10, important=[str(KEY)], post_mode=PostMode.IMMEDIATE)
+    )
+    poster = RecordingPoster()
+    clock = {"now": NOW}
+    source = FakeResults(result(at=NOW + timedelta(seconds=5)))
+    p = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
+    await p.tick()
+    clock["now"] = NOW + timedelta(minutes=1)
+    source.value = result(at=clock["now"] + timedelta(seconds=5))
+    await p.tick()
+    clock["now"] = NOW + timedelta(minutes=2)
+    source.value = result(votes=2_200_000, at=clock["now"] + timedelta(seconds=5))
+    await p.tick()
+    assert len(poster.sent) == 2
