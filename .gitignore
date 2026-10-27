@@ -13,4 +13,6 @@ venv/
 .pytest_cache/
 # local test data (historical results live outside the repo, see docs/testing.md)
 data/
+# ...except the party table shipped with the package
+!electionwatch/data/
 replay/out/
