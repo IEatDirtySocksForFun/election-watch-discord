@@ -171,6 +171,11 @@ def parse_contests(
     return out
 
 
+def _cand_id(name: str) -> str:
+    """County feeds differ in punctuation only ("HARRIS & WALZ" vs "HARRIS - WALZ")."""
+    return re.sub(r"[^A-Z0-9]+", " ", (name or "").upper()).strip()
+
+
 def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[RaceResult]:
     """Sum the same race across counties into one partial result.
 
@@ -185,10 +190,10 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
 
     out: list[RaceResult] = []
     for parts in groups.values():
-        tally: dict[tuple[str, str | None], CandidateResult] = {}
+        tally: dict[str, CandidateResult] = {}
         for part in parts:
             for cand in part.candidates:
-                ident = (cand.name.strip().casefold(), cand.party)
+                ident = _cand_id(cand.name)
                 merged = tally.get(ident)
                 if merged is None:
                     tally[ident] = CandidateResult(
@@ -196,6 +201,8 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
                         pct=None, incumbent=cand.incumbent, winner=cand.winner)
                 else:
                     merged.votes += cand.votes
+                    # Counties disagree on whether a minor candidate has a party code.
+                    merged.party = merged.party or cand.party
                     merged.winner = merged.winner and cand.winner
                     merged.incumbent = merged.incumbent or cand.incumbent
         cands = list(tally.values())

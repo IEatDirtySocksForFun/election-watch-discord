@@ -1,0 +1,340 @@
+[
+ {
+  "C": "United States Senator",
+  "CAT": "Federal",
+  "K": "1",
+  "VF": 1,
+  "TP": 106,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Cory BOOKER",
+   "Justin MURPHY",
+   "Joanne KUNIANSKY",
+   "Veronica FERNANDEZ",
+   "Write-In"
+  ],
+  "P": [
+   "DEM",
+   "REP",
+   "SOC",
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "United States House of Representatives",
+  "CAT": "Federal",
+  "K": "2",
+  "VF": 1,
+  "TP": 106,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Zack MULLOCK",
+   "Jeff VAN DREW",
+   "Ramon MORA, Jr.",
+   "Write-In"
+  ],
+  "P": [
+   "DEM",
+   "REP",
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Sheriff",
+  "CAT": "County",
+  "K": "3",
+  "VF": 1,
+  "TP": 106,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Robert A. AUSTINO",
+   "Michael DONATO",
+   "Write-In"
+  ],
+  "P": [
+   "DEM",
+   "REP",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Board of County Commissioners",
+  "CAT": "County",
+  "K": "4",
+  "VF": 3,
+  "TP": 106,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Larae H. SMITH",
+   "Joseph PEPITONE",
+   "Ronald J. FRANCESCHINI, Jr.",
+   "Sandra J. TAYLOR",
+   "Arthur L. MARCHAND II",
+   "James R. SAURO",
+   "Write-In"
+  ],
+  "P": [
+   "DEM",
+   "DEM",
+   "DEM",
+   "REP",
+   "REP",
+   "REP",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Bridgeton Mayor",
+  "CAT": "Municipal",
+  "K": "41",
+  "VF": 1,
+  "TP": 13,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "James C EDWARDS",
+   "Teodoro MARTINEZ",
+   "Write-In"
+  ],
+  "P": [
+   "",
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Bridgeton Binding Referendum Question",
+  "CAT": "Municipal",
+  "K": "43",
+  "VF": 1,
+  "TP": 13,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "YES",
+   "NO"
+  ],
+  "P": [
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Millville Board of Education",
+  "CAT": "BOE",
+  "K": "30",
+  "VF": 3,
+  "TP": 19,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Robert W. MCQUADE, Jr.",
+   "Lauryn M. VAN HOOK",
+   "Jeffrey P. LAMBERT",
+   "Michael J. BEATTY",
+   "Write-In"
+  ],
+  "P": [
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Vineland Board of Education",
+  "CAT": "BOE",
+  "K": "38",
+  "VF": 3,
+  "TP": 39,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Isaiah L. WHITE",
+   "Dennis RIVERA",
+   "Robert G. BUONO, Jr.",
+   "Paul Praful THAKKAR",
+   "Write-In"
+  ],
+  "P": [
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+]
