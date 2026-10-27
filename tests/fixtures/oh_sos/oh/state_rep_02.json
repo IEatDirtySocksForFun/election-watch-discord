@@ -1,0 +1,57 @@
+{
+ "contestStatistics": null,
+ "contestDisplayName": "State Representative - District 02",
+ "contestName": "State Representative",
+ "contestId": "_55A742EA589909A3E0633390EE0AE290",
+ "contestSubHeader": null,
+ "contestPartyCode": "",
+ "isPartisan": true,
+ "isPrimaryElection": false,
+ "hasWriteIns": false,
+ "isElectionOfficial": true,
+ "contestList": [
+  {
+   "objectId": "_55A742EA502C09A3E0633390EE0AE290",
+   "jurisdictionalScopeId": "",
+   "name": "Franklin",
+   "reportedPrecincts": 0,
+   "totalPrecincts": 889,
+   "candidatesRunning": [
+    {
+     "primaryCandidate": "Charity Martin King",
+     "primaryCandidateDisplayOrder": "Martin King, Charity",
+     "runningMate": null,
+     "runningMateDisplayOrder": null,
+     "candidateParty": "D",
+     "displayCandidateParty": true,
+     "candidatePartyDisclaimer": {
+      "disclaimerSymbol": "",
+      "disclaimerMessage": "",
+      "partyCode": "D",
+      "displayPartyDisclaimer": false
+     },
+     "votePercentage": "0.00%",
+     "votePercentageNum": 0.0,
+     "totalVotes": 0.0,
+     "partyColor": "#0476b0",
+     "isWriteIn": false,
+     "voteCount": "0",
+     "vCount": 0.0
+    }
+   ],
+   "linkText": "Franklin",
+   "precinctReportingStats": "",
+   "selectionType": "District",
+   "enableRegionLink": false,
+   "enableSummaryLink": true,
+   "enablePrecinctLink": false,
+   "enableCountyLink": false,
+   "isPartisan": true,
+   "hasWriteIns": false,
+   "totalContestVotes": "0",
+   "raceTypeID": "_55A742EA589909A3E0633390EE0AE290",
+   "tcVotes": 0.0
+  }
+ ],
+ "partyDisclaimers": []
+}

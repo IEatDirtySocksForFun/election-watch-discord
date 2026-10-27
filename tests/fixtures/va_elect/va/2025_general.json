@@ -1,0 +1,1270 @@
+{
+ "election": {
+  "publicElectionId": null,
+  "electionDate": "2025-11-04",
+  "name": [
+   {
+    "languageId": "en",
+    "text": "2025 November General"
+   },
+   {
+    "languageId": "1",
+    "text": "Elecciones generales de noviembre de 2025"
+   },
+   {
+    "languageId": "2",
+    "text": "2025년 총선거"
+   },
+   {
+    "languageId": "5",
+    "text": "Tổng tuyển cử tháng 11 năm 2025"
+   }
+  ]
+ },
+ "jurisdiction": {
+  "shortName": "virginia"
+ },
+ "ballotItems": [
+  {
+   "id": "01000000-1238-16ac-ab58-08ddfb9ff9ea",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Governor"
+    },
+    {
+     "languageId": "1",
+     "text": "Gobernador"
+    },
+    {
+     "languageId": "2",
+     "text": "주지사"
+    },
+    {
+     "languageId": "5",
+     "text": "Thống đốc"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 133,
+    "totalUnits": 133,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 3433340,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-acf5-08ddfb9ff9ea",
+      "nativeId": "cs852",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Abigail D. Spanberger"
+       },
+       {
+        "languageId": "1",
+        "text": "Abigail D. Spanberger"
+       },
+       {
+        "languageId": "2",
+        "text": "Abigail D. Spanberger"
+       },
+       {
+        "languageId": "5",
+        "text": "Abigail D. Spanberger"
+       }
+      ],
+      "voteCount": 1976857,
+      "party": {
+       "id": "01000000-1238-16ac-9579-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "1",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "2",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "5",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "D",
+       "standardName": null,
+       "color": "#2039c5",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-ad2e-08ddfb9ff9ea",
+      "nativeId": "cs853",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Winsome Earle-Sears"
+       },
+       {
+        "languageId": "1",
+        "text": "Winsome Earle-Sears"
+       },
+       {
+        "languageId": "2",
+        "text": "Winsome Earle-Sears"
+       },
+       {
+        "languageId": "5",
+        "text": "Winsome Earle-Sears"
+       }
+      ],
+      "voteCount": 1449586,
+      "party": {
+       "id": "01000000-1238-16ac-9c53-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        },
+        {
+         "languageId": "1",
+         "text": "Republican"
+        },
+        {
+         "languageId": "2",
+         "text": "Republican"
+        },
+        {
+         "languageId": "5",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "R",
+       "standardName": null,
+       "color": "#d92d20",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-ad53-08ddfb9ff9ea",
+      "nativeId": "wi-cc535",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 6897,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-1238-16ac-00de-08ddfb9ffa49",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Lieutenant Governor"
+    },
+    {
+     "languageId": "1",
+     "text": "Vicegobernador"
+    },
+    {
+     "languageId": "2",
+     "text": "부지사"
+    },
+    {
+     "languageId": "5",
+     "text": "Phó Thống đốc"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 133,
+    "totalUnits": 133,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 3414177,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-0187-08ddfb9ffa49",
+      "nativeId": "cs329",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Ghazala F. Hashmi"
+       },
+       {
+        "languageId": "1",
+        "text": "Ghazala F. Hashmi"
+       },
+       {
+        "languageId": "2",
+        "text": "Ghazala F. Hashmi"
+       },
+       {
+        "languageId": "5",
+        "text": "Ghazala F. Hashmi"
+       }
+      ],
+      "voteCount": 1900104,
+      "party": {
+       "id": "01000000-1238-16ac-9579-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "1",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "2",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "5",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "D",
+       "standardName": null,
+       "color": "#2039c5",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-0152-08ddfb9ffa49",
+      "nativeId": "cs328",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "John J. Reid, II"
+       },
+       {
+        "languageId": "1",
+        "text": "John J. Reid, II"
+       },
+       {
+        "languageId": "2",
+        "text": "John J. Reid, II"
+       },
+       {
+        "languageId": "5",
+        "text": "John J. Reid, II"
+       }
+      ],
+      "voteCount": 1505395,
+      "party": {
+       "id": "01000000-1238-16ac-9c53-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        },
+        {
+         "languageId": "1",
+         "text": "Republican"
+        },
+        {
+         "languageId": "2",
+         "text": "Republican"
+        },
+        {
+         "languageId": "5",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "R",
+       "standardName": null,
+       "color": "#d92d20",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-01a0-08ddfb9ffa49",
+      "nativeId": "wi-cc216",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 8678,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-1238-16ac-8712-08ddfb9ffaa7",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Attorney General"
+    },
+    {
+     "languageId": "1",
+     "text": "Ministro de justicia"
+    },
+    {
+     "languageId": "2",
+     "text": "법무 장관"
+    },
+    {
+     "languageId": "5",
+     "text": "Tổng chưởng lý"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 133,
+    "totalUnits": 133,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 3396499,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-87aa-08ddfb9ffaa7",
+      "nativeId": "cs838",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Jay C. Jones"
+       },
+       {
+        "languageId": "1",
+        "text": "Jay C. Jones"
+       },
+       {
+        "languageId": "2",
+        "text": "Jay C. Jones"
+       },
+       {
+        "languageId": "5",
+        "text": "Jay C. Jones"
+       }
+      ],
+      "voteCount": 1804940,
+      "party": {
+       "id": "01000000-1238-16ac-9579-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "1",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "2",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "5",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "D",
+       "standardName": null,
+       "color": "#2039c5",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-8778-08ddfb9ffaa7",
+      "nativeId": "cs837",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Jason S. Miyares"
+       },
+       {
+        "languageId": "1",
+        "text": "Jason S. Miyares"
+       },
+       {
+        "languageId": "2",
+        "text": "Jason S. Miyares"
+       },
+       {
+        "languageId": "5",
+        "text": "Jason S. Miyares"
+       }
+      ],
+      "voteCount": 1577843,
+      "party": {
+       "id": "01000000-1238-16ac-9c53-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        },
+        {
+         "languageId": "1",
+         "text": "Republican"
+        },
+        {
+         "languageId": "2",
+         "text": "Republican"
+        },
+        {
+         "languageId": "5",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "R",
+       "standardName": null,
+       "color": "#d92d20",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-87bf-08ddfb9ffaa7",
+      "nativeId": "wi-cc524",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 13716,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-1238-16ac-b31f-08ddfb9ffbcd",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Member, House of Delegates (1st District)"
+    },
+    {
+     "languageId": "1",
+     "text": "Miembro de la Cámara de Delegados (Distrito 1)"
+    },
+    {
+     "languageId": "2",
+     "text": "일원, 대의원 (1지구)"
+    },
+    {
+     "languageId": "5",
+     "text": "Thành viên, Hạ viện Virginia (Quận 1)"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 1,
+    "totalUnits": 1,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 41541,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-b374-08ddfb9ffbcd",
+      "nativeId": "cs548",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Patrick A. Hope"
+       },
+       {
+        "languageId": "1",
+        "text": "Patrick A. Hope"
+       },
+       {
+        "languageId": "2",
+        "text": "Patrick A. Hope"
+       },
+       {
+        "languageId": "5",
+        "text": "Patrick A. Hope"
+       }
+      ],
+      "voteCount": 33850,
+      "party": {
+       "id": "01000000-1238-16ac-9579-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "1",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "2",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "5",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "D",
+       "standardName": null,
+       "color": "#2039c5",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-b358-08ddfb9ffbcd",
+      "nativeId": "cs547",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "William J. \"Bill\" Moher III"
+       },
+       {
+        "languageId": "1",
+        "text": "William J. \"Bill\" Moher III"
+       },
+       {
+        "languageId": "2",
+        "text": "William J. \"Bill\" Moher III"
+       },
+       {
+        "languageId": "5",
+        "text": "William J. \"Bill\" Moher III"
+       }
+      ],
+      "voteCount": 7595,
+      "party": {
+       "id": "01000000-1238-16ac-9c53-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        },
+        {
+         "languageId": "1",
+         "text": "Republican"
+        },
+        {
+         "languageId": "2",
+         "text": "Republican"
+        },
+        {
+         "languageId": "5",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "R",
+       "standardName": null,
+       "color": "#d92d20",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-b388-08ddfb9ffbcd",
+      "nativeId": "wi-cc347",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 96,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-1238-16ac-4cb6-08ddfb9ffb76",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Member, House of Delegates (100th District)"
+    },
+    {
+     "languageId": "1",
+     "text": "Miembro de la Cámara de Delegados (Distrito 100)"
+    },
+    {
+     "languageId": "2",
+     "text": "일원, 대의원 (100지구)"
+    },
+    {
+     "languageId": "5",
+     "text": "Thành viên, Hạ viện Virginia (Quận 100)"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 3,
+    "totalUnits": 3,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 33835,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-4d16-08ddfb9ffb76",
+      "nativeId": "cs731",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Liz W. Richardson"
+       },
+       {
+        "languageId": "1",
+        "text": "Liz W. Richardson"
+       },
+       {
+        "languageId": "2",
+        "text": "Liz W. Richardson"
+       },
+       {
+        "languageId": "5",
+        "text": "Liz W. Richardson"
+       }
+      ],
+      "voteCount": 15905,
+      "party": {
+       "id": "01000000-1238-16ac-9579-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "1",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "2",
+         "text": "Democratic"
+        },
+        {
+         "languageId": "5",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "D",
+       "standardName": null,
+       "color": "#2039c5",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-4d4c-08ddfb9ffb76",
+      "nativeId": "cs732",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Robert S. Bloxom Jr."
+       },
+       {
+        "languageId": "1",
+        "text": "Robert S. Bloxom Jr."
+       },
+       {
+        "languageId": "2",
+        "text": "Robert S. Bloxom Jr."
+       },
+       {
+        "languageId": "5",
+        "text": "Robert S. Bloxom Jr."
+       }
+      ],
+      "voteCount": 17887,
+      "party": {
+       "id": "01000000-1238-16ac-9c53-08ddfb9ff9ea",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        },
+        {
+         "languageId": "1",
+         "text": "Republican"
+        },
+        {
+         "languageId": "2",
+         "text": "Republican"
+        },
+        {
+         "languageId": "5",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "R",
+       "standardName": null,
+       "color": "#d92d20",
+       "textColor": "#FFFFFF"
+      },
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-4d65-08ddfb9ffb76",
+      "nativeId": "wi-cc463",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 43,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-1238-16ac-78d2-08ddfb9ffbf2",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Sheriff (Lexington City, Rockbridge County)"
+    },
+    {
+     "languageId": "1",
+     "text": "Alguacil (Ciudad de Lexington, Condado de Rockbridge)"
+    },
+    {
+     "languageId": "2",
+     "text": "보안관 (시 Lexington, 카운티 Rockbridge)"
+    },
+    {
+     "languageId": "5",
+     "text": "Cảnh sát rộng quyền (Thành phố Lexington, Quận Rockbridge)"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 2,
+    "totalUnits": 2,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 11591,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-790a-08ddfb9ffbf2",
+      "nativeId": "cs934",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Tony A. McFaddin Jr."
+       },
+       {
+        "languageId": "1",
+        "text": "Tony A. McFaddin Jr."
+       },
+       {
+        "languageId": "2",
+        "text": "Tony A. McFaddin Jr."
+       },
+       {
+        "languageId": "5",
+        "text": "Tony A. McFaddin Jr."
+       }
+      ],
+      "voteCount": 7240,
+      "party": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-791d-08ddfb9ffbf2",
+      "nativeId": "cs935",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "C. J. \"Chris\" Norris"
+       },
+       {
+        "languageId": "1",
+        "text": "C. J. \"Chris\" Norris"
+       },
+       {
+        "languageId": "2",
+        "text": "C. J. \"Chris\" Norris"
+       },
+       {
+        "languageId": "5",
+        "text": "C. J. \"Chris\" Norris"
+       }
+      ],
+      "voteCount": 3396,
+      "party": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-7923-08ddfb9ffbf2",
+      "nativeId": "cs936",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "F. W. \"Fred\" Smith Sr"
+       },
+       {
+        "languageId": "1",
+        "text": "F. W. \"Fred\" Smith Sr"
+       },
+       {
+        "languageId": "2",
+        "text": "F. W. \"Fred\" Smith Sr"
+       },
+       {
+        "languageId": "5",
+        "text": "F. W. \"Fred\" Smith Sr"
+       }
+      ],
+      "voteCount": 871,
+      "party": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     },
+     {
+      "id": "01000000-1238-16ac-7927-08ddfb9ffbf2",
+      "nativeId": "wi-cc584",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 84,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-1238-16ac-1ad4-08ddfb9ffbf6",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "2025-November-General",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Mayor (Town of Brodnax)"
+    },
+    {
+     "languageId": "1",
+     "text": "Alcalde (Town de Brodnax)"
+    },
+    {
+     "languageId": "2",
+     "text": "시장 (타운 Brodnax)"
+    },
+    {
+     "languageId": "5",
+     "text": "Thị trưởng (Thị trấn Brodnax)"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for only one"
+    },
+    {
+     "languageId": "1",
+     "text": "Votar por uno solo"
+    },
+    {
+     "languageId": "2",
+     "text": "1명에만 투표"
+    },
+    {
+     "languageId": "5",
+     "text": "Chỉ bỏ phiếu cho 1"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 2,
+    "totalUnits": 2,
+    "asOf": "2025-12-01T18:15:08.0669878Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 73,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": null,
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-1238-16ac-1b08-08ddfb9ffbf6",
+      "nativeId": "cs892",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Don E. Dugger"
+       },
+       {
+        "languageId": "1",
+        "text": "Don E. Dugger"
+       },
+       {
+        "languageId": "2",
+        "text": "Don E. Dugger"
+       },
+       {
+        "languageId": "5",
+        "text": "Don E. Dugger"
+       }
+      ],
+      "voteCount": 66,
+      "party": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "01000000-1238-16ac-1b17-08ddfb9ffbf6",
+      "nativeId": "wi-cc558",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Write-In"
+       },
+       {
+        "languageId": "1",
+        "text": "Votar por un candidato por nombre escrito a mano"
+       },
+       {
+        "languageId": "2",
+        "text": "기재"
+       },
+       {
+        "languageId": "5",
+        "text": "Viết ra"
+       }
+      ],
+      "voteCount": 7,
+      "party": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "isCloseRace": false,
+   "partyName": null
+  }
+ ]
+}
