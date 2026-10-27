@@ -137,13 +137,14 @@ async def _csv_url(client: httpx.AsyncClient, date: str) -> str:
     filename = ELECTIONS.get(date)
     if filename:
         return f"{BASE}/{filename}"
-    # Discovery: scrape the reports archive page for the newest general CSV.
+    # Discovery: the reports archive page lists this year's general CSV once it exists.
+    # Only that year's file will do: an older GEYYYY.csv would be served as tonight's results.
     text = await c.get_text(client, f"{BASE}/")
-    m = re.search(r"href=\"(GE\d{4}\.csv)\"", text)
+    m = re.search(rf"href=\"(GE{date[:4]}\.csv)\"", text)
     if not m:
         raise SourceUnavailable(
             f"DE: no CSV filename configured for {date} and the reports page "
-            f"does not list a GEYYYY.csv file")
+            f"does not list GE{date[:4]}.csv yet")
     return f"{BASE}/{m.group(1)}"
 
 

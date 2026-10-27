@@ -65,3 +65,19 @@ def test_race_key_mapping():
     assert format_key(race_key("State Representative District 10")) == "DE HD-10"
     assert format_key(race_key("New Castle County Clerk of the Peace")) == \
         "DE LOCAL new-castle-county-clerk-of-the-peace"
+
+
+async def test_discovery_never_serves_an_older_year_as_this_election():
+    import httpx
+    import pytest
+
+    from electionwatch.sources.base import SourceUnavailable
+    from electionwatch.sources.results import de_doe
+
+    page = '<a href="GE2022.csv">2022</a> <a href="GE2024.csv">2024</a>'
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, text=page))
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(SourceUnavailable):
+            await de_doe._csv_url(client, "2030-11-05")
+        page += ' <a href="GE2030.csv">2030</a>'
+        assert (await de_doe._csv_url(client, "2030-11-05")).endswith("/GE2030.csv")
