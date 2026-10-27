@@ -81,8 +81,12 @@ def _search_json(year: int) -> str:
     })
 
 
-def parse_ct(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
-    """Pure parse of the Connecticut ElectionStats search CSV rows."""
+def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None) -> list[RaceResult]:
+    """Pure parse of the Connecticut ElectionStats search CSV rows.
+
+    The search covers the whole year (August primaries included): pass `date` to keep only
+    that election's rows, otherwise whichever contest comes first claims a key like CT GOV.
+    """
     # Aggregate by contest + candidate across all divisions and vote channels.
     by_contest: dict[tuple[str, str], dict] = {}
     totals: dict[tuple[str, str, str, str, str, str], int] = defaultdict(int)
@@ -93,6 +97,8 @@ def parse_ct(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
         cand_id = (row.get("candidate_id") or "").strip()
         cand_name = (row.get("candidate_name") or "").strip()
         if not cid or not office or not cand_name:
+            continue
+        if date and not (row.get("election_date") or "").startswith(date):
             continue
         if cand_name.lower() in ("total votes cast", "total ballots cast"):
             continue
@@ -155,7 +161,7 @@ class CtSots(ResultsSource):
             return []
         text = await _search_csv(client, c.election_date())
         rows = list(csv.DictReader(text.splitlines()))
-        return c.select(parse_ct(rows, fetched_at=c.utcnow()), ct_keys)
+        return c.select(parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date()), ct_keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "CT":
@@ -164,5 +170,5 @@ class CtSots(ResultsSource):
         rows = list(csv.DictReader(text.splitlines()))
         return [
             (r.key, r.title or str(r.key))
-            for r in parse_ct(rows, fetched_at=c.utcnow())
+            for r in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())
         ]

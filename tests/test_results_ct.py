@@ -59,3 +59,17 @@ def test_race_key_mapping():
     assert format_key(race_key("State Senator", "State Senate District 12")) == "CT SD-12"
     assert format_key(race_key("State Representative", "State Representative District 42")) == "CT HD-42"
     assert format_key(race_key("Constitutional Amendment 1")) == "CT LOCAL constitutional-amendment-1"
+
+
+def test_primary_rows_in_the_year_search_do_not_claim_the_general_key():
+    def row(date, etype, name, votes):
+        return {"contest_id": "1" if etype == "Primary" else "2", "election_date": date,
+                "election_type": etype, "office_name": "Governor", "district_name": "",
+                "candidate_id": name, "candidate_name": name, "candidate_party_name": "Democratic",
+                "votes": str(votes)}
+
+    rows = [row("2026-08-11T00:00:00Z", "Primary", "Dem Primary Guy", 1000),
+            row("2026-11-03T00:00:00Z", "General", "General Winner", 900000)]
+    at = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
+    (gov,) = parse_ct(rows, fetched_at=at, date="2026-11-03")
+    assert [c.name for c in gov.candidates] == ["General Winner"]
