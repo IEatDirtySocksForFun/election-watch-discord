@@ -20,7 +20,9 @@ from electionwatch.sources.base import SourceUnavailable
 DEFAULT_ELECTION_DATE = "2026-11-03"
 
 _PARTY_MAP = {
-    "DEM": "DEM", "D": "DEM", "DEMOCRAT": "DEM", "DEMOCRATIC": "DEM",
+    "DEM": "DEM", "D": "DEM", "DFL": "DEM",
+    "DEMOCRAT": "DEM", "DEMOCRATIC": "DEM",
+    "DEMOCRATICFARMERLABOR": "DEM",
     "REP": "REP", "R": "REP", "GOP": "REP", "REPUBLICAN": "REP",
     "LIB": "LIB", "L": "LIB", "LIBERTARIAN": "LIB",
     "GRE": "GRN", "GRN": "GRN", "GREEN": "GRN",
@@ -60,7 +62,7 @@ def us_date(iso: str) -> str:
 def norm_party(value: str | None) -> str | None:
     if value is None:
         return None
-    p = re.sub(r"[^A-Za-z-]", "", str(value)).upper()
+    p = re.sub(r"[^A-Za-z]", "", str(value)).upper()
     if not p:
         return None
     return _PARTY_MAP.get(p, p)
