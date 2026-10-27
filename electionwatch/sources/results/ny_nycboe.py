@@ -83,7 +83,8 @@ def race_key(name: str) -> RaceKey:
         district = _district(n, "CONGRESSIONAL")
         if district:
             return RaceKey("NY", Level.HOUSE, "HOUSE", district)
-    if n.endswith("GOVERNOR") and "LIEUTENANT" not in n:
+    # NY elects governor and lieutenant governor on one ticket: "Governor/Lieutenant Governor".
+    if n.startswith("GOVERNOR") or (n.endswith("GOVERNOR") and "LIEUTENANT" not in n):
         return RaceKey("NY", Level.GOVERNOR, "GOV")
     if "LIEUTENANT GOVERNOR" in n:
         return RaceKey("NY", Level.GOVERNOR, "LTGOV")

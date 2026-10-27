@@ -151,3 +151,10 @@ def test_fetch_raises_when_nothing_is_published(monkeypatch):
 
     with pytest.raises(SourceUnavailable):
         asyncio.run(go())
+
+
+@pytest.mark.parametrize("name", [
+    "Governor/Lieutenant Governor", "Governor Lieutenant Governor", "Governor and Lieutenant Governor",
+])
+def test_joint_governor_ticket_is_the_governor_race(name):
+    assert format_key(ny_nycboe.race_key(name)) == "NY GOV"
