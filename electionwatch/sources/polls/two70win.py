@@ -30,7 +30,6 @@ from electionwatch.sources.base import PollSource, SourceUnavailable, register
 from ._common import (
     clean_name,
     node_text,
-    norm_space,
     parse_date_range,
     parse_percent,
     parse_sample,

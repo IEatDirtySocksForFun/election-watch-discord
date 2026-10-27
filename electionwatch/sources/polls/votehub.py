@@ -29,11 +29,11 @@ log = logging.getLogger(__name__)
 
 API_URL = "https://api.votehub.com/polls"
 
-# poll_type -> (Level, office)
-_TYPES: dict[str, tuple[Level, str]] = {
-    "us-senator": (Level.SENATE, "SEN"),
-    "governor": (Level.GOVERNOR, "GOV"),
-    "us-representative": (Level.HOUSE, "HOUSE"),
+# poll_type -> Level the race belongs to
+_TYPES: dict[str, Level] = {
+    "us-senator": Level.SENATE,
+    "governor": Level.GOVERNOR,
+    "us-representative": Level.HOUSE,
 }
 
 _POPULATION = {"lv": "LV", "rv": "RV", "a": "A"}
@@ -96,7 +96,7 @@ def parse_votehub_polls(payload: list[dict], keys: list[RaceKey]) -> list[Poll]:
         kind = record.get("poll_type")
         if kind not in _TYPES:
             continue
-        level, office = _TYPES[kind]
+        level = _TYPES[kind]
         subject = parse_subject(record.get("subject"))
         if not subject:
             continue
