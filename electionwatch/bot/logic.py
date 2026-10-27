@@ -112,7 +112,13 @@ def change_odds(
 def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
-    return _clip_lines(yaml.safe_dump(to_doc(gs), sort_keys=False).strip().splitlines())
+    # The watch list goes last: with hundreds of watched races it used to push post_mode,
+    # paused, calls etc. past the clip, so /settings could not show them at all.
+    doc = to_doc(gs)
+    important = doc.pop("important", [])
+    lines = yaml.safe_dump(doc, sort_keys=False).strip().splitlines()
+    lines += yaml.safe_dump({"important": important}, sort_keys=False).strip().splitlines()
+    return _clip_lines(lines)
 
 
 def change_favorite(us: UserSettings, action: str, race: str) -> str:

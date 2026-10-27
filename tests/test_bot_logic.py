@@ -120,3 +120,19 @@ def test_settings_dump_and_watch_list_fit_in_one_discord_message():
     gs = GuildSettings(1, important=[f"TX HD-{n:02d}" for n in range(1, 151)])
     assert len(f"```yaml\n{settings_dump(gs)}\n```") <= 2000
     assert len(change_watch(gs, "list")) <= 2000
+
+
+def test_settings_dump_shows_every_setting_even_with_hundreds_of_watched_races():
+    # Found by replay/command_sim (2020/2024, all races watched): the important list came
+    # before post_mode/paused and the 1900-character clip cut them off.
+    import yaml
+
+    from electionwatch.bot.logic import settings_dump
+
+    gs = GuildSettings(1, channel_id=2, important=[f"TX HD-{n:03d}" for n in range(1, 151)],
+                       post_mode=PostMode.INTERVAL, interval_minutes=10, paused=True)
+    text = settings_dump(gs)
+    assert len(f"```yaml\n{text}\n```") <= 2000
+    head = yaml.safe_load(text.split("\nimportant:")[0])
+    assert head["post_mode"] == "interval" and head["interval_minutes"] == 10 and head["paused"] is True
+    assert "important:\n- TX HD-001" in text
