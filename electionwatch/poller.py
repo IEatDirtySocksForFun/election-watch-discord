@@ -123,6 +123,10 @@ class Poller:
         self.http = http
         self.fetch_timeout = fetch_timeout
         self.default_races = load_races()
+        # (guild, kind, race) -> body of the last results post. Only the top candidates are
+        # shown, so a vote change further down (multi-seat races) can render an identical
+        # post; those are skipped. In memory: at most one repeat after a restart.
+        self._last_body: dict[tuple[int, str, str], tuple[str, ...]] = {}
 
     def _watched(self, guild: GuildSettings) -> set[str]:
         return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
@@ -144,9 +148,13 @@ class Poller:
     async def _post(self, guild: GuildSettings, kind: str, ref: str, post: Post, now: datetime) -> None:
         if guild.channel_id is None or guild.paused:
             return
+        ident, body = (guild.guild_id, kind, ref), tuple(post.lines)
+        if kind == "results" and self._last_body.get(ident) == body:
+            return
         try:
             await self.poster.post(guild.guild_id, guild.channel_id, post)
             await self.store.mark_posted(guild.guild_id, kind, ref, now)
+            self._last_body[ident] = body
         except Exception:
             logger.exception("Could not deliver %s post to guild %s", kind, guild.guild_id)
 

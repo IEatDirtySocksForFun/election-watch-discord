@@ -521,3 +521,22 @@ def test_outlet_timestamps_without_offset_are_aware_utc():
 
     assert parse_iso_ts("2026-11-04T01:30:00") == datetime(2026, 11, 4, 1, 30, tzinfo=timezone.utc)
     assert parse_iso_ts("2026-11-03T21:30:00-05:00").tzinfo == timezone.utc
+
+
+async def test_identical_results_post_is_skipped():
+    from datetime import datetime, timezone
+    from electionwatch.poller import Poller
+    from electionwatch.poster import Post, RecordingPoster
+    from electionwatch.settings import GuildSettings, PostMode
+    from electionwatch.store.memory import MemoryStore
+    import httpx
+    poster = RecordingPoster()
+    now = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
+    async with httpx.AsyncClient() as http:
+        p = Poller(MemoryStore(), {}, poster, lambda: now, http)
+        gs = GuildSettings(guild_id=1, channel_id=2, post_mode=PostMode.IMMEDIATE)
+        post = Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 10 · 60.0%"])
+        await p._post(gs, "results", "TX SEN", post, now)
+        await p._post(gs, "results", "TX SEN", post, now)
+        await p._post(gs, "results", "TX SEN", Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 11 · 61.0%"]), now)
+    assert len(poster.sent) == 2
