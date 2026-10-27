@@ -22,7 +22,9 @@ def is_admin(member, guild_settings: GuildSettings) -> bool:
     if permissions is not None and permissions.manage_guild:
         return True
     role_id = guild_settings.admin_role_id
-    return role_id is not None and any(getattr(role, "id", None) == role_id for role in member.roles)
+    # A discord.User (DMs, user-installed app contexts) has no roles at all.
+    roles = getattr(member, "roles", None) or ()
+    return role_id is not None and any(getattr(role, "id", None) == role_id for role in roles)
 
 
 def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str:
