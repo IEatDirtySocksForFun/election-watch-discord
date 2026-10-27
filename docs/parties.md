@@ -18,7 +18,7 @@ parties pass through uppercased with the ⚪ marker.
 
 This page is generated — edit the YAML, then run `python tools/parties_table.py`.
 
-93 parties, 488 aliases.
+94 parties, 491 aliases.
 
 ## Buckets
 
@@ -32,7 +32,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `far_right` | parties that reliable sources call neo-Nazi, white nationalist or fascist — a distinct emoji each (5) |
 | `constitution` | Constitution Party, its state affiliates and ballot lines — 📜 (3) |
 | `independent` | independent and no-party labels — ⚪ (10) |
-| `centrist` | centrist and big-tent reform parties (14) |
+| `centrist` | centrist and big-tent reform parties (15) |
 | `other` | everything else: progressive, conservative, single-issue and regional parties (39) |
 
 ## Table
@@ -82,6 +82,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `FWD` | Forward Party | centrist | ➡️ | FWD, Forward, Forward Party, Forward Party USA, Forward Party of Utah, Serve America Movement, SAM, Renew America Movement |
 | `REF` | Reform Party | centrist | 🔧 | REF, Reform, Reform Party, Reform Party USA, Reform Party of the United States, Reform Party of the United States of America, Reform Party of Florida |
 | `ALN` | Alliance Party | centrist | 🤝 | ALN, Alliance, Alliance Party, Alliance Party USA, Alliance Party of South Carolina |
+| `AEL` | Americans Elect | centrist | 🎩 | AEL, Americans Elect, Americans Elect Party |
 | `NOL` | No Labels | centrist | 🏷️ | NOL, No Labels, No Labels Party, No Labels Party of Arizona, No Labels Arizona |
 | `UNT` | Unity Party of America | centrist | 🤲 | UNT, Unity, Unity Party, Unity Party of America |
 | `UUT` | United Utah Party | centrist | 🏔️ | UUT, United Utah, United Utah Party |
