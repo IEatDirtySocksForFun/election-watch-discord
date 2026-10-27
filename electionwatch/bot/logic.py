@@ -8,6 +8,10 @@ from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"}
+#: Longest race text accepted by /watch and /favorite: Discord's limit for an autocomplete
+#: choice value. A free-form LOCAL slug could otherwise be thousands of characters long,
+#: overflowing every later reply (/watch list, /settings) that shows it.
+MAX_RACE_TEXT = 100
 LEVELS = {
     "congressional": {Level.HOUSE},
     "senate": {Level.SENATE},
@@ -37,7 +41,7 @@ def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str
         raise ValueError("action must be add, remove, or list")
     if not race:
         raise ValueError("race is required")
-    key = str(parse(race))
+    key = _race_key(race)
     if not gs.important:
         gs.important = [str(item.key) for item in _default_races()]
     if action == "add":
@@ -117,8 +121,14 @@ def settings_dump(gs: GuildSettings) -> str:
     return _clip_lines(yaml.safe_dump(to_doc(gs), sort_keys=False).strip().splitlines())
 
 
+def _race_key(race: str) -> str:
+    if len(race.strip()) > MAX_RACE_TEXT:
+        raise ValueError(f"race is too long ({MAX_RACE_TEXT} characters at most)")
+    return str(parse(race))
+
+
 def change_favorite(us: UserSettings, action: str, race: str) -> str:
-    key = str(parse(race))
+    key = _race_key(race)
     if action == "add":
         if key not in us.favorites:
             us.favorites.append(key)
