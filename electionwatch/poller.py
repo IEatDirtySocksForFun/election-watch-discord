@@ -20,14 +20,22 @@ logger = logging.getLogger(__name__)
 _PARTY_COLOR = {"REP": 0xE03C31, "DEM": 0x2F6FDB}
 
 
+TOP_CANDIDATES = 5   # results posts show only the leading five candidates
+
+
 def _party_marker(party: str | None) -> str:
-    return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
+    try:  # full party table (electionwatch/data/parties.yaml) when installed
+        from electionwatch.parties import party_emoji
+        return party_emoji(party)
+    except ImportError:
+        return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
 
 
 def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
     """Render a compact, source-neutral race result."""
     lines = []
-    for candidate in result.candidates:
+    leaders = sorted(result.candidates, key=lambda c: c.votes, reverse=True)[:TOP_CANDIDATES]
+    for candidate in leaders:
         pct = f" · {candidate.pct:.1f}%" if candidate.pct is not None else ""
         party = f" ({candidate.party})" if candidate.party else ""
         winner = " ✓" if candidate.winner else ""

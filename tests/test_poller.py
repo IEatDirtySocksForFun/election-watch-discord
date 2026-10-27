@@ -407,3 +407,14 @@ async def test_empty_watch_list_falls_back_to_config_races():
     await poller(store, {"results": [MultiResults()]}, poster).tick()
     # config/races.yaml ships only TX SEN.
     assert [post.race for _, _, post in poster.sent] == ["TX SEN"]
+
+
+def test_results_post_shows_only_top_five():
+    from datetime import datetime, timezone
+    from electionwatch.models import CandidateResult, RaceResult
+    from electionwatch.poller import format_result
+    from electionwatch.racekeys import parse
+    cands = [CandidateResult(f"C{i}", "IND", 100 - i) for i in range(8)]
+    post = format_result(RaceResult(parse("TX SEN"), cands, "t", datetime.now(timezone.utc)).finalize())
+    names = [l for l in post.lines if l.split(" ", 1)[1].startswith("C")]
+    assert [l.split()[1] for l in names] == ["C0", "C1", "C2", "C3", "C4"]
