@@ -50,6 +50,10 @@ HUMAN = BASE + "/"
 
 #: date -> list of feeds.  jurisdiction None = statewide feed (/<ST>/<id>).
 ELECTIONS: dict[str, list[dict]] = {
+    "2024-11-05": [
+        # West Virginia 2024 general (129 contests; precincts 55/53 reporting at capture).
+        {"state": "WV", "election_id": "122766"},
+    ],
     "2026-11-03": [
         # McLean County, IL — 2026 general ("2026 General Election - Nov 3"),
         # electionsettings websiteupdatedat 10/26/2026.
