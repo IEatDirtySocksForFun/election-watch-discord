@@ -195,10 +195,24 @@ def party_code(raw: str | None) -> str:
     text = str(raw).strip()
     if not text:
         return ""
-    code = _index().get(normalize_key(text))
+    key = normalize_key(text)
+    code = _index().get(key) or _truncated(key)
     if code:
         return code
     return text.upper().rstrip(".")
+
+
+# Some feeds cut party names to a fixed width ("DEMOCRATIC P", "WORKING FAMI", "UNITED CITIZ").
+# A label at least this long that starts exactly one party's name/alias maps to that party.
+_MIN_PREFIX = 6
+
+
+@lru_cache(maxsize=512)
+def _truncated(key: str) -> str | None:
+    if len(key) < _MIN_PREFIX:
+        return None
+    codes = {code for label, code in _index().items() if len(label) > len(key) and label.startswith(key)}
+    return codes.pop() if len(codes) == 1 else None
 
 
 def party_info(code: str | None) -> Party | None:

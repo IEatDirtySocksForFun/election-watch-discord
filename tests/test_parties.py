@@ -260,3 +260,12 @@ def test_malformed_table_is_rejected(tmp_path, monkeypatch):
         parties.load_parties.cache_clear()
         parties._index.cache_clear()
     assert party_code("GOP") == "REP"
+
+
+def test_truncated_feed_names_map_to_their_party():
+    from electionwatch.parties import party_code, party_emoji
+    assert party_code("DEMOCRATIC P") == "DEM" and party_emoji("REPUBLICAN P") == "🔴"
+    assert party_code("WORKING FAMI") == "WFP"
+    assert party_code("WOR") == "WFP" and party_code("LBN") == "LIB"
+    assert party_emoji("NON PARTISAN") == "⚪"        # no party stays white
+    assert party_code("Green") in {"GRN"}             # exact alias wins over prefix

@@ -69,6 +69,7 @@ parties:
     bucket: libertarian
     emoji: "🟡"
     aliases:
+      - LBN
       - L
       - LIB
       - LBT
@@ -135,9 +136,9 @@ parties:
     bucket: green
     emoji: "🟢"
     aliases:
+      - Green-Rainbow
       - GRP
       - Green Rainbow
-      - Green-Rainbow
       - Massachusetts Green-Rainbow Party
     source: https://en.wikipedia.org/wiki/Green-Rainbow_Party
   - code: MTP
@@ -145,6 +146,7 @@ parties:
     bucket: green
     emoji: "🟢"
     aliases:
+      - MTN
       - MTP
       - Mountain Party of West Virginia
       - West Virginia Mountain Party
@@ -154,6 +156,7 @@ parties:
     bucket: green
     emoji: "🟢"
     aliases:
+      - PGP
       - PACG
       - Pacific Green
       - Pacific Green Party of Oregon
@@ -352,6 +355,7 @@ parties:
     bucket: constitution
     emoji: "📜"
     aliases:
+      - IAP
       - CST
       - CON
       - Constitution
@@ -391,9 +395,9 @@ parties:
     bucket: constitution
     emoji: "📜"
     aliases:
+      - Independent American Party
       - UIAP
       - Independent American
-      - Independent American Party
       - Independent American Party of Nevada
       - Utah Independent American
     source: https://en.wikipedia.org/wiki/Utah_Independent_American_Party
@@ -677,6 +681,7 @@ parties:
     bucket: other
     emoji: "🧰"
     aliases:
+      - WOR
       - WFP
       - Working Families
       - Working Families Party
@@ -773,6 +778,7 @@ parties:
     bucket: other
     emoji: "🍃"
     aliases:
+      - LMN
       - MJN
       - Legal Marijuana Now
       - Legal Marijuana Now Party
@@ -838,6 +844,8 @@ parties:
     bucket: other
     emoji: "🌿"
     aliases:
+      - Progressive
+      - PRO-VT
       - VPP
       - Vermont Progressive
       - Vermont Progressive Party

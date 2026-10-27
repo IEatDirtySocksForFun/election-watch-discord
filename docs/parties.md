@@ -18,7 +18,7 @@ parties pass through uppercased with the ⚪ marker.
 
 This page is generated — edit the YAML, then run `python tools/parties_table.py`.
 
-93 parties, 480 aliases.
+93 parties, 488 aliases.
 
 ## Buckets
 
@@ -41,12 +41,12 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | --- | --- | --- | --- | --- |
 | `DEM` | Democratic Party | dem | 🔵 | D, DEM, Democrat, Democrats, Democratic, Democratic Party, DFL, D-F-L, DFL Party, Minnesota DFL, Minnesota Democratic-Farmer-Labor Party, Democratic-Farmer-Labor, Democratic-Farmer-Labor Party, Democratic-NPL, D-NPL, North Dakota Democratic-Nonpartisan League Party, Democratic Nonpartisan League, NPL |
 | `REP` | Republican Party | rep | 🔴 | R, REP, GOP, Republican, Republicans, Republican Party, Grand Old Party |
-| `LIB` | Libertarian Party | libertarian | 🟡 | L, LIB, LBT, LP, Libertarian, Libertarian Party, Libertarian Party USA, Libertarian Party of New York, Libertarian Party of Pennsylvania, Libertarian Party of Texas, Libertarian Party of Florida, Libertarian Party of Ohio, Libertarian Party of Michigan, Libertarian Party of Virginia, Libertarian Party of Connecticut, Libertarian Party of New Hampshire, Libertarian Party of Wisconsin, Libertarian Association of Massachusetts |
+| `LIB` | Libertarian Party | libertarian | 🟡 | LBN, L, LIB, LBT, LP, Libertarian, Libertarian Party, Libertarian Party USA, Libertarian Party of New York, Libertarian Party of Pennsylvania, Libertarian Party of Texas, Libertarian Party of Florida, Libertarian Party of Ohio, Libertarian Party of Michigan, Libertarian Party of Virginia, Libertarian Party of Connecticut, Libertarian Party of New Hampshire, Libertarian Party of Wisconsin, Libertarian Association of Massachusetts |
 | `GRN` | Green Party of the United States | green | 🟢 | G, GRE, GRN, GP, GPUS, GP-US, Green, Greens, Green Party, Green Party USA, Green Party of the United States, Green Party of New York, Green Party of Pennsylvania, Green Party of Michigan, Green Party of California, Green Party of Texas, Green Party of Ohio, Green Party of Wisconsin, Green Party of Alaska, Green Party of Connecticut, Connecticut Green Party, Green Party of Rhode Island, DC Statehood Green Party, D.C. Statehood Green Party, Statehood Green |
 | `MGIP` | Maine Green Independent Party | green | 🟢 | MGIP, Maine Green Independent, Green Independent Party, Maine Greens |
-| `GRP` | Green-Rainbow Party | green | 🟢 | GRP, Green Rainbow, Massachusetts Green-Rainbow Party |
-| `MTP` | Mountain Party | green | 🟢 | MTP, Mountain Party of West Virginia, West Virginia Mountain Party |
-| `PACG` | Pacific Green Party | green | 🟢 | PACG, Pacific Green, Pacific Green Party of Oregon |
+| `GRP` | Green-Rainbow Party | green | 🟢 | Green-Rainbow, GRP, Massachusetts Green-Rainbow Party |
+| `MTP` | Mountain Party | green | 🟢 | MTN, MTP, Mountain Party of West Virginia, West Virginia Mountain Party |
+| `PACG` | Pacific Green Party | green | 🟢 | PGP, PACG, Pacific Green, Pacific Green Party of Oregon |
 | `DSA` | Democratic Socialists of America | socialist | ✊ | DSA, DSA-USA, Democratic Socialists, Democratic Socialists of America |
 | `PSL` | Party for Socialism and Liberation | socialist | 🌹 | PSL, Party for Socialism and Liberation, Socialism and Liberation, Socialism & Liberation, Party for Socialism & Liberation, Liberation Party |
 | `CPUSA` | Communist Party USA | socialist | ☭ | CPUSA, CP, Communist, Communist Party, Communist Party USA, Communist Party of the USA, Communist Party of the United States |
@@ -66,9 +66,9 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `AFP` | American Freedom Party | far_right | 🚔 | AFP, American Freedom Party, American Third Position Party, Third Position Party |
 | `TWP` | Traditionalist Worker Party | far_right | 🏴 | TWP, Traditionalist Worker Party, Traditionalist Workers Party |
 | `NRP` | National Renaissance Party | far_right | ⚠️ | NRP, National Renaissance Party |
-| `CST` | Constitution Party | constitution | 📜 | CST, CON, Constitution, Constitution Party, U.S. Constitution Party, US Constitution Party, Constitution Party USA, Constitution Party of Oregon, Constitution Party of Pennsylvania, Constitution Party of Idaho, Constitution Party of Michigan, Constitution Party of Wisconsin, Constitution Party of Virginia, Constitution Party of Nevada, Constitution Party of Missouri, American Constitution Party, Taxpayers Party, U.S. Taxpayers Party, US Taxpayers Party, U.S. Taxpayers, Taxpayers Party of New York |
+| `CST` | Constitution Party | constitution | 📜 | IAP, CST, CON, Constitution, Constitution Party, U.S. Constitution Party, US Constitution Party, Constitution Party USA, Constitution Party of Oregon, Constitution Party of Pennsylvania, Constitution Party of Idaho, Constitution Party of Michigan, Constitution Party of Wisconsin, Constitution Party of Virginia, Constitution Party of Nevada, Constitution Party of Missouri, American Constitution Party, Taxpayers Party, U.S. Taxpayers Party, US Taxpayers Party, U.S. Taxpayers, Taxpayers Party of New York |
 | `AIP` | American Independent Party | constitution | 📜 | AIP, AI, American Independent, American Independent Party, American Independent Party of California, California American Independent Party |
-| `UIAP` | Utah Independent American Party | constitution | 📜 | UIAP, Independent American, Independent American Party, Independent American Party of Nevada, Utah Independent American |
+| `UIAP` | Utah Independent American Party | constitution | 📜 | Independent American Party, UIAP, Independent American, Independent American Party of Nevada, Utah Independent American |
 | `IND` | Independent | independent | ⚪ | I, IND, Independent, Independents, Independent Candidate, Independent Party |
 | `NP` | No Party / Nonpartisan | independent | ⚪ | NP, NOP, NPA, NPP, U, UNA, UNK, No Party, No Party Affiliation, No Party Preference, No Affiliation, Nonpartisan, Non-Partisan, Unaffiliated, Unenrolled, Decline to State, Blank, None, Not Affiliated, Unknown |
 | `IPNY` | Independence Party of New York | independent | ⚪ | IPNY, Independence Party of New York, NY Independence Party |
@@ -93,7 +93,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `RMA` | Republican Moderate Party of Alaska | centrist | 🌨️ | RMA, Republican Moderate, Republican Moderate Party, Republican Moderate Party of Alaska, Alaskan Republican Moderate Party |
 | `FIP` | Forward Independence Party | centrist | ↔️ | FIP, Forward Independence, Forward Independence Party, Independence Party of Minnesota, Independence-Alliance Party, Independence Party, Minnesota Independence Party, IPM |
 | `UKS` | United Kansas | centrist | 🔷 | UKS, United Kansas, United Kansas Party, Free State Party |
-| `WFP` | Working Families Party | other | 🧰 | WFP, Working Families, Working Families Party, Working Families Party of New York, Connecticut Working Families Party |
+| `WFP` | Working Families Party | other | 🧰 | WOR, WFP, Working Families, Working Families Party, Working Families Party of New York, Connecticut Working Families Party |
 | `PFP` | Peace and Freedom Party | other | 🕊️ | PFP, PAF, PF, Peace and Freedom, Peace & Freedom, Peace and Freedom Party |
 | `WCP` | Working Class Party | other | 🏭 | WCP, Working Class, Working Class Party, Working Class Party of Michigan |
 | `NLP` | Natural Law Party | other | 🧘 | NLP, Natural Law, Natural Law Party, Natural Law Party of Michigan |
@@ -102,13 +102,13 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `BTP` | Boston Tea Party | other | 🫖 | BTP, Boston Tea, Boston Tea Party |
 | `TRA` | Transhumanist Party | other | 🧬 | TRA, Transhumanist, Transhumanist Party, US Transhumanist Party, U.S. Transhumanist Party |
 | `PIR` | United States Pirate Party | other | ⚓ | PIR, USPP, Pirate, Pirate Party, United States Pirate Party, US Pirate Party |
-| `MJN` | Legal Marijuana Now Party | other | 🍃 | MJN, Legal Marijuana Now, Legal Marijuana Now Party, Marijuana Now Party |
+| `MJN` | Legal Marijuana Now Party | other | 🍃 | LMN, MJN, Legal Marijuana Now, Legal Marijuana Now Party, Marijuana Now Party |
 | `GLC` | Grassroots-Legalize Cannabis Party | other | 🌱 | GLC, Grassroots, Grassroots Party, Grassroots-Legalize Cannabis, Grassroots-Legalize Cannabis Party, Legalize Cannabis |
 | `USMJ` | U.S. Marijuana Party | other | 🍁 | USMJ, Marijuana Party, U.S. Marijuana Party, US Marijuana Party, United States Marijuana Party |
 | `GMPJ` | Green Mountain Peace and Justice Party | other | 🌲 | GMPJ, Green Mountain Peace and Justice, Green Mountain Peace and Justice Party, Green Mountain Party, Liberty Union, Liberty Union Party |
 | `OPP` | Oregon Progressive Party | other | 🌳 | OPP, Oregon Progressive, Oregon Progressive Party, Progressive Party of Oregon |
 | `WAP` | Washington Progressive Party | other | 🌄 | WAP, WAPP, Washington Progressive, Washington Progressive Party |
-| `VPP` | Vermont Progressive Party | other | 🌿 | VPP, Vermont Progressive, Vermont Progressive Party, Progressive Party of Vermont |
+| `VPP` | Vermont Progressive Party | other | 🌿 | Progressive, PRO-VT, VPP, Vermont Progressive, Vermont Progressive Party, Progressive Party of Vermont |
 | `CPNY` | Conservative Party of New York State | other | 🗽 | CPNY, Conservative, Conservative Party, Conservative Party of New York, Conservative Party of New York State, NY Conservative Party, New York Conservative Party |
 | `LPNY` | Liberal Party of New York | other | 🏙️ | LPNY, Liberal, Liberal Party, Liberal Party of New York, NY Liberal Party |
 | `WEP` | Women's Equality Party | other | ♀️ | WEP, Women's Equality, Women's Equality Party, Womens Equality Party, Women's Equality Party of New York |
