@@ -1,0 +1,1 @@
+[{"cid":"0","cnm":"STATE","tle":"11/05/2024 OFFICIAL GENERAL ELECTION RESULTS - STATEWIDE","prt":"2658","ptl":"2658","ppt":"100.00%","bct":"5723987","rtl":"7763502","bpt":"73.73%","imp":"December 4, 2024 8:59 pm","sub":"December 2, 2024 5:29 pm","vwp":"-8 -9 403 166"}]

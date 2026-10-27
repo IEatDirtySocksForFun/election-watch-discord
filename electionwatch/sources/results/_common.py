@@ -122,6 +122,7 @@ def make_result(
     precincts_total: int | None = None,
     expected_vote_pct: float | None = None,
     registered_voters: int | None = None,
+    turnout_pct: float | None = None,
     source_updated_at: datetime | None = None,
 ) -> RaceResult:
     if expected_vote_pct is None and precincts_reporting and precincts_total:
@@ -137,6 +138,7 @@ def make_result(
         expected_vote_pct=expected_vote_pct,
         total_votes=total_votes,
         registered_voters=registered_voters,
+        turnout_pct=turnout_pct,
         url=url,
         title=title,
     ).finalize()
@@ -190,7 +192,8 @@ def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | N
     raw = re.sub(r"^(?:" + "|".join(_WEEKDAYS) + r"),?\s+", "", raw, flags=re.I)
     formats = (
         "%m/%d/%Y %I:%M:%S %p", "%m/%d/%Y %H:%M:%S", "%m/%d/%Y %I:%M %p",
-        "%b %d, %Y %H:%M:%S", "%B %d, %Y %I:%M:%S %p", "%Y-%m-%dT%H:%M:%S",
+        "%b %d, %Y %H:%M:%S", "%B %d, %Y %I:%M:%S %p", "%B %d, %Y %I:%M %p",
+        "%Y-%m-%dT%H:%M:%S",
     )
     for fmt in formats:
         try:
