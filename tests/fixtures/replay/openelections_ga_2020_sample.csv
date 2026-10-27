@@ -1,0 +1,11 @@
+county,precinct,office,district,party,candidate,election_day_votes,advanced_votes,absentee_by_mail_votes,provisional_votes
+Appling,1B,U.S. Senate (Special),,Republican,A. Wayne Johnson,5,10,0,0
+Appling,1C,U.S. Senate (Special),,Republican,A. Wayne Johnson,1,5,0,0
+Appling,2,U.S. Senate (Special),,Republican,A. Wayne Johnson,4,3,0,0
+Banks,Anderson,U.S. House,9,Republican,Andrew Clyde,213,575,100,1
+Banks,Baldwin,U.S. House,9,Republican,Andrew Clyde,79,318,119,0
+Banks,Berlin,U.S. House,9,Republican,Andrew Clyde,45,188,29,1
+Bryan,Black Creek,State Senate,1,Republican,Ben Watson,394,984,190,1
+Bryan,Danielsiding,State Senate,1,Republican,Ben Watson,266,926,218,0
+Appling,1B,President,,Republican,Donald J. Trump,253,493,123,1
+Appling,1C,President,,Republican,Donald J. Trump,178,349,65,2
