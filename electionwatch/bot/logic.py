@@ -94,9 +94,16 @@ def change_calls(gs: GuildSettings, outlets: str, enabled: bool) -> str:
     unknown = set(selected) - OUTLETS
     if not selected or unknown:
         raise ValueError("unknown outlets: " + (", ".join(sorted(unknown)) or "none"))
-    gs.call_outlets = selected
-    gs.post_calls = enabled
-    return f"Race calls {'on' if enabled else 'off'}; outlets: {', '.join(selected)}"
+    if enabled:
+        gs.call_outlets = selected
+        gs.post_calls = True
+        return f"Race calls on; outlets: {', '.join(selected)}"
+    # "off" stops the named outlets only; race calls go off once no outlet is left.
+    gs.call_outlets = [outlet for outlet in gs.call_outlets if outlet not in selected]
+    gs.post_calls = bool(gs.call_outlets) and gs.post_calls
+    if gs.post_calls:
+        return f"Race calls off for {', '.join(selected)}; still posting: {', '.join(gs.call_outlets)}"
+    return f"Race calls off (stopped {', '.join(selected)}; no outlets left)"
 
 
 def change_odds(
