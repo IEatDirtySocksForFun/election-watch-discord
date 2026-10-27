@@ -161,7 +161,10 @@ async def watch_command(
     except ValueError as exc:
         await _error(interaction, exc)
         return
-    await interaction.client.store.save_guild(gs)
+    if action != "list":
+        # list is read-only and open to everyone: writing back the copy it read would
+        # overwrite a concurrent admin change (and create a document for the guild).
+        await interaction.client.store.save_guild(gs)
     await interaction.response.send_message(message, ephemeral=True)
 
 
