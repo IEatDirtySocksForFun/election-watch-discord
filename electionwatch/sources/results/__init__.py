@@ -26,6 +26,9 @@ One module per feed family; each registers a `ResultsSource` in
     ut_lgov           Utah Lieutenant Governor (Enhanced Voting CDN export)
     vt_sos            Vermont Secretary of State static JSON
     wa_sos            Washington Secretary of State XML export
+    mn_sos            Minnesota Secretary of State results file host (plain text exports)
+    mi_county         Michigan Clarity county feeds, merged (partial state)
+    wi_dane           Dane County, Wisconsin unofficial results page (scraper, opt-in)
 
 Alternates for states whose statewide site is blocked (docs/results/alt-b.md):
 

@@ -1,0 +1,6 @@
+MN;;;7002;Associate Justice - Supreme Court 1;;9001;Sarah Hennesy;;;NP;1517;4105;8859;39.08;22667
+MN;;;7002;Associate Justice - Supreme Court 1;;9901;WRITE-IN;;;WI;1517;4105;13808;60.92;22667
+MN;;;7005;Associate Justice - Supreme Court 4;;9001;Paul Thissen;;;NP;1517;4105;13637;42.36;32194
+MN;;;7005;Associate Justice - Supreme Court 4;;9901;WRITE-IN;;;WI;1517;4105;18557;57.64;32194
+MN;;;7010;Judge - Court of Appeals 1;;9001;Elizabeth Bentley;;;NP;1517;4105;18385;44.33;41474
+MN;;;7010;Judge - Court of Appeals 1;;9901;WRITE-IN;;;WI;1517;4105;23089;55.67;41474

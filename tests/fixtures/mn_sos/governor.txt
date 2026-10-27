@@ -1,0 +1,4 @@
+MN;;;0331;Governor & Lt Governor;;0901;Steven Young and Jane Kirby;;;GP;1517;4105;8500;12.39;68628
+MN;;;0331;Governor & Lt Governor;;0402;Amy Klobuchar and Ben Schierer;;;DFL;1517;4105;14837;21.62;68628
+MN;;;0331;Governor & Lt Governor;;0303;Lisa Demuth and Ryan Wilson;;;R;1517;4105;20929;30.50;68628
+MN;;;0331;Governor & Lt Governor;;9901;WRITE-IN;;;WI;1517;4105;24362;35.50;68628
