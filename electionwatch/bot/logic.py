@@ -1,11 +1,9 @@
 """Pure command and navigator logic, kept separate from Discord I/O for testing."""
 from __future__ import annotations
 
-from dataclasses import asdict
-
 import yaml
 
-from electionwatch.models import ImportantRace, Level
+from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
@@ -98,7 +96,8 @@ def change_odds(
 
 
 def settings_dump(gs: GuildSettings) -> str:
-    return yaml.safe_dump(asdict(gs), sort_keys=False).strip()
+    # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
+    return yaml.safe_dump(to_doc(gs), sort_keys=False).strip()
 
 
 def change_favorite(us: UserSettings, action: str, race: str) -> str:

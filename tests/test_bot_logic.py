@@ -52,6 +52,17 @@ def test_watch_posting_calls_and_odds_validation():
     assert gs.odds_alerts and gs.odds_swing_pts == 7.5 and gs.odds_window_minutes == 30
 
 
+def test_settings_dump_is_plain_yaml():
+    import yaml
+
+    from electionwatch.bot.logic import settings_dump
+
+    gs = GuildSettings(1, channel_id=2, post_mode=PostMode.INTERVAL, interval_minutes=15)
+    data = yaml.safe_load(settings_dump(gs))
+    assert data["guild_id"] == 1 and data["post_mode"] == "interval"
+    assert data["interval_minutes"] == 15
+
+
 def test_favorites_navigation_and_faq_are_pure_data_operations():
     us = UserSettings(9)
     change_favorite(us, "add", "Texas Senate")
