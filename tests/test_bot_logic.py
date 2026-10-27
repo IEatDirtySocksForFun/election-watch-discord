@@ -78,3 +78,22 @@ def test_favorites_navigation_and_faq_are_pure_data_operations():
     text = faq_text({"TX": {"voting": "Bring ID"}}, {"AP": "Associated Press"}, "TX")
     assert "Bring ID" in text and "Associated Press" in text
     assert faq_text({}, {}, "TX").startswith("No FAQ data for Texas")
+
+
+def test_faq_without_a_state_lists_available_states_and_fits_one_message():
+    from electionwatch.racekeys import STATES
+
+    states = {
+        code: {"official_results_url": "https://example.test", "notes": "n" * 300}
+        for code in STATES
+    }
+    outlets = {"AP": {"name": "Associated Press", "results_url": "https://ap.test"}}
+    text = faq_text(states, outlets)
+    assert len(text) <= 2000
+    for code in ("AL", "CA", "DC", "TX", "WY"):
+        assert code in text
+    assert "Associated Press" in text
+    assert "n" * 300 not in text  # not a squeezed dump of every state
+
+    one = faq_text(states, outlets, "TX")
+    assert len(one) <= 2000 and "official_results_url" in one
