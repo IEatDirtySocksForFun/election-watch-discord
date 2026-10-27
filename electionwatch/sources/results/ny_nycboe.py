@@ -207,8 +207,10 @@ async def _one(client: httpx.AsyncClient, entry: dict, fetched_at: datetime) -> 
 class NyNycBoe(ResultsSource):
     name = "ny_nycboe"
     states = frozenset({"NY"})
-    scrape = False
-    enabled_by_default = True
+    # The votes come from CSV files, but finding them means reading the vote.nyc HTML index,
+    # so this is treated as a scrape: off unless an operator enables it.
+    scrape = True
+    enabled_by_default = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         if not any(k.state == "NY" for k in keys):

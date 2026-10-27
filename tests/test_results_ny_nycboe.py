@@ -90,6 +90,12 @@ def test_selection_prefers_citywide_and_matches_keys():
     assert [e["county"] for e in both] == ["New York", "Kings"]
 
 
+def test_it_is_marked_as_a_scrape_and_off_by_default():
+    # The vote.nyc index is HTML, so AGENTS.md treats this adapter as a scraper.
+    assert ny_nycboe.NyNycBoe.scrape is True
+    assert ny_nycboe.NyNycBoe.enabled_by_default is False
+
+
 def test_race_key_mapping():
     key = lambda name: format_key(ny_nycboe.race_key(name))  # noqa: E731
     assert key("United States Senator") == "NY SEN"
