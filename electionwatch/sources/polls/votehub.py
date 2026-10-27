@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from datetime import date
 
 import httpx
@@ -153,21 +154,27 @@ class VoteHubPollSource(PollSource):
     enabled_by_default = True
     scrape = False
 
+    CACHE_SECONDS = 30 * 60   # the instance lives for the whole process: refresh periodically
+
     def __init__(self) -> None:
         self._cache: list[dict] | None = None
+        self._cached_at = 0.0
 
     async def _payload(self, client: httpx.AsyncClient) -> list[dict]:
-        if self._cache is None:
+        if self._cache is None or time.monotonic() - self._cached_at >= self.CACHE_SECONDS:
             try:
                 resp = await client.get(API_URL, headers={"Accept": "application/json"})
             except httpx.HTTPError as exc:
                 raise SourceUnavailable(f"votehub: {exc}") from exc
             if resp.status_code >= 400:
                 raise SourceUnavailable(f"votehub: HTTP {resp.status_code}")
-            data = resp.json()
+            try:
+                data = resp.json()
+            except ValueError as exc:   # an HTML error/challenge page instead of JSON
+                raise SourceUnavailable("votehub: response is not JSON") from exc
             if not isinstance(data, list):
                 raise SourceUnavailable("votehub: unexpected payload")
-            self._cache = data
+            self._cache, self._cached_at = data, time.monotonic()
         return self._cache
 
     async def fetch_polls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[Poll]:

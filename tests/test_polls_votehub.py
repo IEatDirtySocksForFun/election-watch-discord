@@ -146,3 +146,31 @@ def test_fetch_without_keys_does_not_call_the_api():
             return await votehub.VoteHubPollSource().fetch_polls([], client)
 
     assert asyncio.run(go()) == []
+
+
+async def test_payload_cache_expires_and_html_is_source_unavailable(monkeypatch):
+    import httpx
+    import pytest
+
+    from electionwatch.sources.base import SourceUnavailable
+    from electionwatch.sources.polls import votehub
+
+    hits = []
+
+    def handler(request):
+        hits.append(1)
+        return httpx.Response(200, json=[]) if len(hits) < 3 else httpx.Response(200, text="<html>")
+
+    clock = [1000.0]
+    monkeypatch.setattr(votehub.time, "monotonic", lambda: clock[0])
+    source = votehub.VoteHubPollSource()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        await source._payload(client)
+        await source._payload(client)
+        assert len(hits) == 1
+        clock[0] += source.CACHE_SECONDS
+        await source._payload(client)
+        assert len(hits) == 2
+        clock[0] += source.CACHE_SECONDS
+        with pytest.raises(SourceUnavailable):
+            await source._payload(client)
