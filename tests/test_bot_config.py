@@ -67,6 +67,24 @@ def test_build_sources_keeps_defaults_and_honours_explicit_opt_ins():
     assert built["results"] == []
 
 
+def test_source_states_narrows_one_adapter_to_the_listed_states():
+    from electionwatch.__main__ import build_sources, source_states
+
+    class National:
+        enabled_by_default = False
+        states = frozenset({"TX", "TN", "CA", "NY"})
+
+    registry = {"results": {"fox_results": National}}
+    env = {"EW_ENABLED_SOURCES": "fox_results",
+           "EW_SOURCE_STATES": "fox_results=tx, tn,WY; other=CA"}
+    (fox,) = build_sources(registry, env)["results"]
+    assert fox.states == frozenset({"TX", "TN"})          # WY is not one of its states
+    assert National.states == frozenset({"TX", "TN", "CA", "NY"})
+    # Listing states never enables an adapter by itself.
+    assert build_sources(registry, {"EW_SOURCE_STATES": "fox_results=TX"})["results"] == []
+    assert source_states("bad;=TX;a=") == {"a": frozenset()}
+
+
 def test_request_urls_with_api_keys_are_not_logged_at_info(monkeypatch):
     import logging
 
