@@ -73,3 +73,9 @@ async def test_fetch_404_is_empty():
     )
     async with httpx.AsyncClient() as client:
         assert await NBCResultsSource().fetch([TX_SEN], client) == []
+
+
+def test_house_title_handles_at_large():
+    from electionwatch.sources.calls._common import house_title
+    assert house_title("07") == "U.S. House District 7"
+    assert house_title("AL") == "U.S. House At-Large"

@@ -117,7 +117,7 @@ def _tooltip_key(geo: str, tooltip: dict) -> RaceKey | None:
     if level is None:
         return None
     if level is Level.HOUSE:
-        m = re.fullmatch(r"(.+?)\s+District\s+(\d{1,2})", tooltip.get("raceName") or "")
+        m = re.fullmatch(r"(.+?)\s+District\s+(\d{1,2})(?:\s+RCV)?", tooltip.get("raceName") or "")
         if not m:
             return None
         state = state_from_name(m.group(1))

@@ -17,7 +17,7 @@ from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 
-from ._common import cnn_code_to_key, epoch_ms_to_dt, key_to_cnn_code, normalize_party, parse_iso_ts
+from ._common import cnn_code_to_key, epoch_ms_to_dt, key_to_cnn_code, normalize_party, parse_iso_ts, house_title
 
 
 @register
@@ -114,7 +114,7 @@ def parse_cnn_results(payload: dict, fetched_at: datetime | None = None) -> Race
         return None
 
     title = "U.S. Senate" if key.level is Level.SENATE else (
-        "Governor" if key.level is Level.GOVERNOR else f"U.S. House District {int(key.district)}"
+        "Governor" if key.level is Level.GOVERNOR else house_title(key.district)
     )
     embargo = payload.get("raceEmbargo") or {}
     return RaceResult(

@@ -17,7 +17,7 @@ from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 
-from ._common import normalize_party, parse_http_date
+from ._common import normalize_party, parse_http_date, house_title
 from .nbc import _results_url, _tooltip_key
 
 _LEVEL_OFFICES = {Level.SENATE: "senate", Level.GOVERNOR: "governor", Level.HOUSE: "house"}
@@ -107,7 +107,7 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
                 continue
             title = _OFFICE_TITLES.get(_LEVEL_OFFICES.get(key.level, ""))
             if key.level is Level.HOUSE and key.district:
-                title = f"U.S. House District {int(key.district)}"
+                title = house_title(key.district)
             out.append(
                 RaceResult(
                     key=key,

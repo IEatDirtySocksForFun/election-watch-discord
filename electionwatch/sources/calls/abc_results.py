@@ -17,7 +17,7 @@ from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 
-from ._common import district_key, normalize_party, parse_iso_ts
+from ._common import district_key, normalize_party, parse_iso_ts, house_title
 from .abc import extract_abc_config
 
 _CHAMBERS: dict[Level, str] = {
@@ -171,7 +171,7 @@ def _race_result(
     reporting = race.get("reporting") or {}
     title = _CHAMBER_TITLES.get(chamber)
     if key.level is Level.HOUSE and key.district:
-        title = f"U.S. House District {int(key.district)}"
+        title = house_title(key.district)
     updated = parse_iso_ts((race.get("lastUpdated") or {}).get("value")) or page_updated
     return RaceResult(
         key=key,

@@ -105,3 +105,10 @@ def parse_iso_ts(raw: str | None) -> datetime:
         except Exception:
             pass
     return datetime.now(timezone.utc)
+
+
+def house_title(district: str | None) -> str:
+    """'U.S. House District 7', or 'U.S. House At-Large' for single-seat states (district 'AL')."""
+    if not district or not district.isdigit():
+        return "U.S. House At-Large"
+    return f"U.S. House District {int(district)}"

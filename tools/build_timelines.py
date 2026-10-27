@@ -14,6 +14,7 @@ Every line carries "synthetic": true. Real (NYT) files are never overwritten.
 from __future__ import annotations
 
 import argparse
+import os
 import csv
 import json
 import random
@@ -30,7 +31,7 @@ if str(ROOT) not in sys.path:
 from electionwatch.racekeys import RaceKeyError, parse  # noqa: E402
 
 DEFAULT_DATA = Path.home() / "Downloads" / "election-test-data"
-ELECTION_DAY = {"2018": "2018-11-06", "2020": "2020-11-03", "2022": "2022-11-08", "2024": "2024-11-05"}
+ELECTION_DAY = {"2014": "2014-11-04", "2016": "2016-11-08", "2018": "2018-11-06", "2020": "2020-11-03", "2022": "2022-11-08", "2024": "2024-11-05"}
 BATCHES = ("early", "eday", "mail")
 WEIGHT = {"early": 0.35, "eday": 0.45, "mail": 0.20}
 LEAN = {"early": {"DEM": 1.1, "REP": 0.9}, "eday": {"DEM": 0.8, "REP": 1.2}, "mail": {"DEM": 1.4, "REP": 0.6}}
@@ -131,9 +132,12 @@ def is_real(path: Path) -> bool:
 
 def run(data: Path, years: list[str], states: list[str] | None, levels: list[str],
         races: list[str] | None = None, force: bool = False, seed: int = 0) -> int:
-    want = {str(parse(r)) for r in races} if races else None
     n = 0
     for year in years:
+        # Race keys depend on the year (Montana had one House seat until 2022), so parse
+        # every key, file name included, as of that election.
+        os.environ["ELECTION_DATE"] = ELECTION_DAY[year]
+        want = {str(parse(r)) for r in races} if races else None
         for level_csv in sorted((data / year).glob("*/*.csv")):
             st, level = level_csv.parent.name, level_csv.stem
             if level not in levels or (states and st not in states):
@@ -162,7 +166,7 @@ def run(data: Path, years: list[str], states: list[str] | None, levels: list[str
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("data_dir", nargs="?", default=str(DEFAULT_DATA))
-    ap.add_argument("--years", default="2018,2020,2022,2024")
+    ap.add_argument("--years", default=",".join(ELECTION_DAY))
     ap.add_argument("--states", default="", help="comma-separated USPS codes (default all present)")
     ap.add_argument("--levels", default="senate,governor,house")
     ap.add_argument("--races", default="", help='only these keys, e.g. "PA SEN,GA-06"')
