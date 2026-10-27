@@ -67,3 +67,19 @@ def test_house_seat_name_with_district_word():
 
 def test_source_requires_key():
     assert APSource.env == ("AP_API_KEY",)
+
+
+async def test_at_large_key_does_not_abort_the_fetch(monkeypatch):
+    import httpx
+
+    monkeypatch.setenv("AP_API_KEY", "test-key")
+    params = []
+
+    def handler(request):
+        params.append(dict(request.url.params))
+        return httpx.Response(200, json={"races": []})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        keys = [RaceKey("AK", Level.HOUSE, "HOUSE", "AL"), RaceKey("TX", Level.SENATE, "SEN")]
+        assert await APSource().fetch_calls(keys, client) == []
+    assert len(params) == 2 and "SeatNum" not in params[0]

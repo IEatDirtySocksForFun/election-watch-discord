@@ -69,7 +69,7 @@ class KalshiSource(OddsSource):
             series = f"SENATE{state}"
         elif key.level is Level.GOVERNOR and key.office == "GOV":
             series = self._GOV_OVERRIDES.get(state, f"GOVPARTY{state}")
-        elif key.level is Level.HOUSE and key.district is not None:
+        elif key.level is Level.HOUSE and key.district is not None and key.district.isdigit():
             # Kalshi House series omit leading zeros in the district.
             series = f"HOUSE{state}{int(key.district)}"
         else:

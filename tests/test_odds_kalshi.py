@@ -100,3 +100,19 @@ def test_suffix_wins_over_rules_mentioning_other_party():
         "rules_primary": "If the Republican candidate is certified...",
     }
     assert _market_outcome(market) == "DEM"
+
+
+@pytest.mark.asyncio
+async def test_at_large_key_does_not_abort_the_fetch():
+    import httpx
+
+    seen = []
+
+    def handler(request):
+        seen.append(request.url.path)
+        return httpx.Response(404)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        keys = [RaceKey("AK", Level.HOUSE, "HOUSE", "AL"), RaceKey("TX", Level.SENATE, "SEN")]
+        assert await KalshiSource().fetch_odds(keys, client) == []
+    assert any(path.endswith("/SENATETX-26") for path in seen)
