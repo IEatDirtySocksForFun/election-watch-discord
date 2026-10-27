@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Results>
+  <Result>
+    <RaceName>Initiative Measure No. 2066</RaceName>
+    <Candidate>Yes</Candidate>
+    <Party> </Party>
+    <Votes>1941474</Votes>
+    <PercentageOfTotalVote>51.71</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Initiative Measure No. 2066</RaceName>
+    <Candidate>No</Candidate>
+    <Party> </Party>
+    <Votes>1813169</Votes>
+    <PercentageOfTotalVote>48.29</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>U.S. Senator</RaceName>
+    <Candidate>Maria Cantwell</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>2252577</Votes>
+    <PercentageOfTotalVote>59.09</PercentageOfTotalVote>
+    <JurisdictionName>United States</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>U.S. Senator</RaceName>
+    <Candidate>Dr Raul Garcia</Candidate>
+    <Party>(Prefers GOP Party)</Party>
+    <Votes>1549187</Votes>
+    <PercentageOfTotalVote>40.64</PercentageOfTotalVote>
+    <JurisdictionName>United States</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>U.S. Senator</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>10627</Votes>
+    <PercentageOfTotalVote>0.28</PercentageOfTotalVote>
+    <JurisdictionName>United States</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Congressional District 1 - U.S. Representative</RaceName>
+    <Candidate>Suzan DelBene</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>227213</Votes>
+    <PercentageOfTotalVote>63</PercentageOfTotalVote>
+    <JurisdictionName>Congressional</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Congressional District 1 - U.S. Representative</RaceName>
+    <Candidate>Jeb Brewer</Candidate>
+    <Party>(Prefers Republican Party)</Party>
+    <Votes>132538</Votes>
+    <PercentageOfTotalVote>36.75</PercentageOfTotalVote>
+    <JurisdictionName>Congressional</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Congressional District 1 - U.S. Representative</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>907</Votes>
+    <PercentageOfTotalVote>0.25</PercentageOfTotalVote>
+    <JurisdictionName>Congressional</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Governor</RaceName>
+    <Candidate>Bob Ferguson</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>2143368</Votes>
+    <PercentageOfTotalVote>55.51</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Governor</RaceName>
+    <Candidate>Dave Reichert</Candidate>
+    <Party>(Prefers Republican Party)</Party>
+    <Votes>1709818</Votes>
+    <PercentageOfTotalVote>44.28</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Governor</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>8202</Votes>
+    <PercentageOfTotalVote>0.21</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Attorney General</RaceName>
+    <Candidate>Pete Serrano</Candidate>
+    <Party>(Prefers Republican Party)</Party>
+    <Votes>1669884</Votes>
+    <PercentageOfTotalVote>44.33</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Attorney General</RaceName>
+    <Candidate>Nick Brown</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>2093570</Votes>
+    <PercentageOfTotalVote>55.58</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Attorney General</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>3616</Votes>
+    <PercentageOfTotalVote>0.1</PercentageOfTotalVote>
+    <JurisdictionName>State Executive</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>LEGISLATIVE DISTRICT 1 - State Senator</RaceName>
+    <Candidate>Derek Stanford</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>60591</Votes>
+    <PercentageOfTotalVote>96.05</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>LEGISLATIVE DISTRICT 1 - State Senator</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>2490</Votes>
+    <PercentageOfTotalVote>3.95</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>LEGISLATIVE DISTRICT 1 - State Representative Pos. 1</RaceName>
+    <Candidate>Davina Duerr</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>55168</Votes>
+    <PercentageOfTotalVote>69.18</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>LEGISLATIVE DISTRICT 1 - State Representative Pos. 1</RaceName>
+    <Candidate>Mark Davies</Candidate>
+    <Party>(Prefers Republican Party)</Party>
+    <Votes>24467</Votes>
+    <PercentageOfTotalVote>30.68</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>LEGISLATIVE DISTRICT 1 - State Representative Pos. 1</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>106</Votes>
+    <PercentageOfTotalVote>0.13</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Legislative District 1 - State Representative Pos. 2</RaceName>
+    <Candidate>Shelley Kloba</Candidate>
+    <Party>(Prefers Democratic Party)</Party>
+    <Votes>59587</Votes>
+    <PercentageOfTotalVote>96.15</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Legislative District 1 - State Representative Pos. 2</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>2388</Votes>
+    <PercentageOfTotalVote>3.85</PercentageOfTotalVote>
+    <JurisdictionName>Legislative</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Adams Superior Court  - Judge Position 1</RaceName>
+    <Candidate>K. Peter Palubicki</Candidate>
+    <Party />
+    <Votes>3882</Votes>
+    <PercentageOfTotalVote>96.98</PercentageOfTotalVote>
+    <JurisdictionName>Judicial</JurisdictionName>
+  </Result>
+  <Result>
+    <RaceName>Adams Superior Court  - Judge Position 1</RaceName>
+    <Candidate>WRITE-IN</Candidate>
+    <Party> </Party>
+    <Votes>121</Votes>
+    <PercentageOfTotalVote>3.02</PercentageOfTotalVote>
+    <JurisdictionName>Judicial</JurisdictionName>
+  </Result>
+</Results>
