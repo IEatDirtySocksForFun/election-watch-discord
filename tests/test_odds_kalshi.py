@@ -130,3 +130,43 @@ async def test_snapshots_are_stamped_with_fetch_time_not_stale_metadata_time():
         snaps = await KalshiSource().fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
     assert snaps
     assert all(datetime.now(timezone.utc) - s.ts < timedelta(minutes=1) for s in snaps)
+
+
+def test_parse_house_at_large_ak():
+    # Real HOUSEAKAL-26 payload: the at-large seat's ticker spells the district out.
+    payload = _load("houseakal-26.json")
+    snaps = parse_kalshi_event(payload)
+    assert len(snaps) == 2
+    assert all(s.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for s in snaps)
+    by_outcome = {s.outcome: s for s in snaps}
+    assert by_outcome["REP"].prob == pytest.approx(0.78, abs=1e-6)
+    assert by_outcome["DEM"].prob == pytest.approx(0.03, abs=1e-6)
+    assert by_outcome["REP"].url == "https://kalshi.com/markets/houseakal"
+
+
+def test_source_key_to_event_ticker_at_large():
+    src = KalshiSource()
+    assert src._key_to_event_ticker(RaceKey("AK", Level.HOUSE, "HOUSE", "AL")) == "HOUSEAKAL-26"
+    assert src._key_to_event_ticker(RaceKey("DE", Level.HOUSE, "HOUSE", "AL")) == "HOUSEDEAL-26"
+    # A single-seat state's seat 1 is normalised to AL by RaceKey itself.
+    assert src._key_to_event_ticker(RaceKey("AK", Level.HOUSE, "HOUSE", "01")) == "HOUSEAKAL-26"
+    assert src._key_to_event_ticker(RaceKey("TX", Level.HOUSE, "HOUSE", "01")) == "HOUSETX1-26"
+
+
+@pytest.mark.asyncio
+async def test_fetch_odds_requests_the_at_large_event():
+    import httpx
+
+    payload = _load("houseakal-26.json")
+    seen = []
+
+    def handler(request):
+        seen.append(request.url.path)
+        return httpx.Response(200, json=payload)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        snaps = await KalshiSource().fetch_odds(
+            [RaceKey("AK", Level.HOUSE, "HOUSE", "AL")], client)
+    assert seen == ["/trade-api/v2/events/HOUSEAKAL-26"]
+    assert {s.outcome for s in snaps} == {"REP", "DEM"}
+    assert all(s.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for s in snaps)
