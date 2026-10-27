@@ -868,7 +868,7 @@ parties:
       - CTRY
       - Country
       - Country Party
-    source: https://sos.wyo.gov/Elections/Docs/2016/Results/General/2016_Statewide_Candidates_Summary.pdf
+    source: https://github.com/openelections/openelections-data-wy
   - code: OPP
     name: Oregon Progressive Party
     bucket: other
