@@ -140,3 +140,20 @@ def test_unavailable_when_index_has_no_entry(monkeypatch):
 
     with pytest.raises(SourceUnavailable, match="no 2026-11-03 entry"):
         asyncio.run(go())
+
+
+@pytest.mark.parametrize("name,key", [
+    ("Governor and Lieutenant Governor", "SC GOV"), ("Attorney General", "SC AG"),
+    ("Secretary of State", "SC SOS"), ("State Treasurer", "SC TREAS"),
+    ("Comptroller General", "SC COMP"), ("State Superintendent of Education", "SC SUPT"),
+    ("Commissioner of Agriculture", "SC AGCOM"),
+])
+def test_statewide_offices_are_not_local(name, key):
+    assert format_key(race_key(name)) == key
+    assert race_key(name) == parse_key(key)
+
+
+def test_election_id_is_found_in_a_clarity_shaped_index():
+    index = [{"EID": "120000", "ElectionName": "2026 Primary", "Date": "6/9/2026 12:00:00 AM"},
+             {"EID": "125555", "ElectionName": "2026 General Election", "Date": "11/3/2026 12:00:00 AM"}]
+    assert sc_sec._match_index(index, "2026-11-03") == "125555"

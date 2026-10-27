@@ -39,6 +39,7 @@ from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 
 from . import _common as c
+from ._county import find_election, parse_elections
 
 BASE = "https://results.enr.clarityelections.com/SC"
 HUMAN = "https://www.enr-scvotes.org/SC/"
@@ -61,8 +62,18 @@ def _norm(name: str) -> str:
     return re.sub(r"\s+", " ", str(name or "")).strip().upper()
 
 
+_STATEWIDE = {
+    "GOVERNOR": "GOV", "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
+    "LIEUTENANT GOVERNOR": "LTGOV", "ATTORNEY GENERAL": "AG", "SECRETARY OF STATE": "SOS",
+    "STATE TREASURER": "TREAS", "COMPTROLLER GENERAL": "COMP",
+    "STATE SUPERINTENDENT OF EDUCATION": "SUPT", "COMMISSIONER OF AGRICULTURE": "AGCOM",
+}
+
+
 def race_key(name: str) -> RaceKey:
     n = _norm(name)
+    if n in _STATEWIDE:
+        return RaceKey("SC", Level.GOVERNOR, _STATEWIDE[n])
     if n in ("PRESIDENT AND VICE PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
         return c.local_key("SC", "us-president")
     if n in ("U.S. SENATE", "UNITED STATES SENATE"):
@@ -142,6 +153,10 @@ def summary_url(election_id: str, version: str) -> str:
 
 def _match_index(payload, date: str) -> str | None:
     """Pick the election id for `date` from /SC/elections.json (shape varies)."""
+    # Clarity's own index shape ({"EID", "Date": "11/3/2026 12:00:00 AM"}), as for the counties.
+    found = find_election(parse_elections(payload), date)
+    if found:
+        return found
     if not isinstance(payload, list):
         return None
     for entry in payload:
