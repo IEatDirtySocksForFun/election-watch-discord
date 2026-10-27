@@ -1,7 +1,7 @@
 """Replay a past election night into a real Discord channel, sped up.
 
     python -m replay.discord_live --year 2022 --races "$(cat races.txt)" \
-        --post "PA SEN,PA-07,senate" --speed 10 --guild 123 --channel 456 --report full.html
+        --post "PA SEN,PA-07,senate"   (or "top-per-state") --speed 10 --guild 123 --channel 456 --report full.html
 
 Every race in --races is tracked (as one hidden guild, recorded for the report); only the
 --post subset is posted to the channel (the word "senate" adds every US Senate race).
@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import dataclasses
+import json
 import logging
 import os
 import time
@@ -47,10 +48,17 @@ HIDDEN_GUILD = -1   # tracks every race; its posts are only counted
 class SplitPoster:
     """Real guild -> Discord channel (sequential, labelled). Hidden guild -> counted only."""
 
-    def __init__(self, channel, year: str, clock: FakeClock):
+    def __init__(self, channel, year: str, clock: FakeClock, record: Path | None = None):
         self.channel, self.year, self.clock = channel, year, clock
         self.sent: Counter = Counter()
         self.hidden: Counter = Counter()
+        self.failed: Counter = Counter()
+        self.record = record.open("a", encoding="utf-8") if record else None
+
+    def _log(self, **row) -> None:
+        if self.record:
+            self.record.write(json.dumps(row, ensure_ascii=False) + "\n")
+            self.record.flush()
 
     async def post(self, guild_id: int, channel_id: int, post: Post) -> None:
         if guild_id == HIDDEN_GUILD:
@@ -60,14 +68,39 @@ class SplitPoster:
         post = dataclasses.replace(
             post, title=f"[SIM {self.year}] {post.title}",
             footer=((post.footer + " · ") if post.footer else "") + f"sim {sim:%b %d %H:%M} UTC")
-        await self.channel.send(embed=render_embed(post))
+        t0 = time.monotonic()
+        try:
+            await self.channel.send(embed=render_embed(post))
+        except Exception as e:  # recorded for the run analysis, then re-raised to the poller
+            self.failed[type(e).__name__] += 1
+            self._log(sim=f"{sim:%H:%M}", kind=post.kind, race=post.race, ok=False,
+                      error=f"{type(e).__name__}: {e}"[:300], lines=post.lines)
+            raise
         self.sent[post.kind] += 1
+        self._log(sim=f"{sim:%H:%M}", kind=post.kind, race=post.race, ok=True,
+                  secs=round(time.monotonic() - t0, 2), lines=post.lines)
+
+
+def top_race_per_state(timelines: dict) -> list[str]:
+    """Each state's headline race: Senate (regular before special), else Governor, else its
+    first House seat, else anything statewide."""
+    by_state: dict[str, list[str]] = {}
+    for k in timelines:
+        by_state.setdefault(parse(k).state, []).append(k)
+
+    def rank(k: str):
+        key = parse(k)
+        order = {Level.SENATE: 0, Level.GOVERNOR: 1, Level.HOUSE: 2}.get(key.level, 3)
+        return (order, key.special, key.office != "GOV", k)
+    return [min(ks, key=rank) for _, ks in sorted(by_state.items())]
 
 
 def post_subset(timelines: dict, spec: str) -> list[str]:
     out = []
     for item in (s.strip() for s in spec.split(",") if s.strip()):
-        if item.lower() == "senate":
+        if item.lower() == "top-per-state":
+            out += top_race_per_state(timelines)
+        elif item.lower() == "senate":
             out += [k for k in timelines if parse(k).level is Level.SENATE]
         elif item in timelines:
             out.append(item)
@@ -111,7 +144,10 @@ async def night(client, a, timelines, posting, clock, end, sources, store) -> No
     from electionwatch.poller import Poller
 
     channel = await client.fetch_channel(a.channel)
-    poster = SplitPoster(channel, a.year, clock)
+    if a.thread:
+        channel = await channel.create_thread(name=a.thread, type=discord.ChannelType.public_thread,
+                                              auto_archive_duration=1440)
+    poster = SplitPoster(channel, a.year, clock, Path(a.record) if a.record else None)
     hours = (end - clock()).total_seconds() / 3600
     intro = (f"**[SIM {a.year}] Election-night replay starting** ({a.speed:g}x, ~{hours / a.speed * 60:.0f} min).\n"
              f"Tracking **{len(timelines)}** races; posting **{len(posting)}** here "
@@ -139,7 +175,8 @@ async def night(client, a, timelines, posting, clock, end, sources, store) -> No
     real = (time.monotonic() - t0) / 60
     await channel.send(
         f"**[SIM {a.year}] Replay finished** after {real:.0f} min real time ({ticks} simulated minutes).\n"
-        f"Posted here: {dict(poster.sent)} · all tracked races: {dict(poster.hidden)} · "
+        f"Posted here: {dict(poster.sent)} · failed sends: {dict(poster.failed) or 0} · "
+        f"all tracked races: {dict(poster.hidden)} · "
         f"slowest tick incl. Discord sends: {slow:.1f}s")
 
 
@@ -155,8 +192,13 @@ def main() -> None:
     ap.add_argument("--max-hours", type=float, default=14)
     ap.add_argument("--report", default=None, help="file to attach to the first message")
     ap.add_argument("--report-url", default=None, help="link to the full-run report")
+    ap.add_argument("--thread", default=None, help="post in a new public thread of the channel with this name")
+    ap.add_argument("--record", default=None, help="append one JSON line per Discord send here")
+    ap.add_argument("--log-file", default=None, help="also write all log output (incl. discord.py) here")
     a = ap.parse_args()
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    handlers = [logging.StreamHandler()] + ([logging.FileHandler(a.log_file)] if a.log_file else [])
+    logging.basicConfig(level=logging.INFO, handlers=handlers,
+                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     load_env()
     asyncio.run(run(a))
 
