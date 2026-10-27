@@ -55,3 +55,32 @@ def test_condense_unknown_format_returns_none():
 def test_exit_poll_source_metadata(source):
     assert source.scrape is True
     assert source.enabled_by_default is False
+
+
+@pytest.mark.asyncio
+async def test_fetch_exit_polls_returns_a_link_per_race_on_election_night(monkeypatch):
+    import httpx
+
+    from electionwatch.sources.exitpolls import _common
+
+    monkeypatch.setattr(_common, "_utcnow", lambda: __import__("datetime").datetime(
+        2026, 11, 4, 1, 0, tzinfo=__import__("datetime").timezone.utc))
+    transport = httpx.MockTransport(lambda request: httpx.Response(404))
+    async with httpx.AsyncClient(transport=transport) as client:
+        polls = await CNNExitPollSource().fetch_exit_polls([RaceKey("TX", Level.SENATE, "SEN")], client)
+    assert [(p.outlet, p.summary) for p in polls] == [("CNN", None)]
+    assert polls[0].url.startswith("https://www.cnn.com/election/2026/exit-polls/")
+
+
+@pytest.mark.asyncio
+async def test_no_exit_poll_links_before_election_day(monkeypatch):
+    import httpx
+
+    from electionwatch.sources.exitpolls import _common
+
+    monkeypatch.setattr(_common, "_utcnow", lambda: __import__("datetime").datetime(
+        2026, 10, 27, 12, 0, tzinfo=__import__("datetime").timezone.utc))
+    transport = httpx.MockTransport(lambda request: httpx.Response(404))
+    async with httpx.AsyncClient(transport=transport) as client:
+        polls = await CNNExitPollSource().fetch_exit_polls([RaceKey("TX", Level.SENATE, "SEN")], client)
+    assert polls == []

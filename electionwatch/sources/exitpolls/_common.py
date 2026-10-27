@@ -1,7 +1,8 @@
 """Shared helpers for exit-poll adapters."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import os
+from datetime import date, datetime, timezone
 from typing import ClassVar
 
 import httpx
@@ -72,6 +73,16 @@ def condense_exit_poll(payload: dict) -> str | None:
     return None
 
 
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _before_election_day() -> bool:
+    """Exit polls only exist from election day on (ELECTION_DATE, default 2026-11-03)."""
+    day = date.fromisoformat(os.environ.get("ELECTION_DATE", "2026-11-03"))
+    return _utcnow().date() < day
+
+
 def make_exit_poll_source(source_name: str, source_outlet: str):
     """Factory for an ExitPollSource that generates outlet page URLs."""
 
@@ -85,8 +96,10 @@ def make_exit_poll_source(source_name: str, source_outlet: str):
             self, keys: list[RaceKey], client: httpx.AsyncClient
         ) -> list[ExitPoll]:
             polls: list[ExitPoll] = []
+            if _before_election_day():
+                return polls
             for key in keys:
-                url = exit_poll_url(outlet, key, self.YEAR)
+                url = exit_poll_url(self.outlet, key, self.YEAR)
                 if not url:
                     continue
                 summary: str | None = None
@@ -102,10 +115,10 @@ def make_exit_poll_source(source_name: str, source_outlet: str):
                 polls.append(
                     ExitPoll(
                         key=key,
-                        outlet=outlet,
+                        outlet=self.outlet,
                         url=url,
                         summary=summary,
-                        fetched_at=datetime.now(timezone.utc),
+                        fetched_at=_utcnow(),
                     )
                 )
             return polls
