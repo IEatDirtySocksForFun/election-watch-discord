@@ -24,3 +24,6 @@ testpaths = ["tests"]
 
 [tool.setuptools.packages.find]
 include = ["electionwatch*"]
+
+[tool.setuptools.package-data]
+electionwatch = ["data/certs/*.pem", "data/certs/README.txt"]

@@ -20,22 +20,26 @@ Note: Alaska runs ranked-choice general elections. These are the first-choice
 totals the Division publishes on election night; the final RCV round is in the
 Election Summary Report PDF, not in this CSV.
 
-Caveat (checked 2026-10-27): the host currently serves an incomplete TLS chain
-(leaf signed by "GlobalSign GCC R46 OV TLS CA 2025", but the server sends the
-older "GlobalSign RSA OV SSL CA 2018" intermediate), so strict verification fails
-with "unable to verify the first certificate". Browsers paper over it with AIA
-fetching; httpx does not. The parse below is verified against the real file, and
-the fetch will start working as soon as the Division fixes its chain (or the
-deployment trusts the missing intermediate).
+Caveat (checked 2026-10-27): the host serves an incomplete chain — the leaf is issued by
+"GlobalSign GCC R46 OV TLS CA 2025", but the server sends the older "GlobalSign RSA OV
+SSL CA 2018" intermediate, so strict verification fails with "unable to verify the first
+certificate". Browsers paper over it with AIA fetching; httpx does not. The missing public
+intermediate is therefore shipped in ``electionwatch/data/certs/`` and trusted on top of the
+normal CA bundle *for this host only* (see ``_tls_client``); certificate verification is
+never disabled.
 """
 from __future__ import annotations
 
 import csv
 import io
 import re
+import ssl
 from collections import OrderedDict
 from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
 
+import certifi
 import httpx
 
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
@@ -44,6 +48,13 @@ from electionwatch.sources.base import ResultsSource, SourceUnavailable, registe
 from . import _common as c
 
 BASE = "https://www.elections.alaska.gov"
+
+#: Public intermediate the served leaf is issued by (fetched from the AIA URL printed in
+#: the leaf: http://secure.globalsign.com/cacert/gsgccr46ovtlsca2025.crt, 2026-10-27).
+EXTRA_INTERMEDIATE = (
+    Path(__file__).resolve().parent.parent.parent / "data" / "certs"
+    / "globalsign-gcc-r46-ov-tls-ca-2025.pem"
+)
 
 #: date -> results folder (the Division's own <YY><TYPE> id, e.g. 24GENR).
 #: 2026 general is not published yet; the folder follows the same pattern and the
@@ -149,6 +160,37 @@ def csv_url(date: str) -> str:
     return f"{BASE}/results/{folder}/ENRbyPrecinct.csv"
 
 
+@lru_cache(maxsize=1)
+def tls_context() -> ssl.SSLContext:
+    """The public CA bundle plus the intermediate the Division's host fails to send."""
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    ctx.load_verify_locations(cafile=str(EXTRA_INTERMEDIATE))
+    return ctx
+
+
+def tls_client(client: httpx.AsyncClient) -> httpx.AsyncClient:
+    """Client that verifies this host against :func:`tls_context`.
+
+    httpx only takes ``verify`` at client level, so the shared poller client (which
+    verifies against the normal bundle) cannot fetch this host; this one mirrors its
+    timeout and User-Agent. Verification stays on — only the CA set differs.
+    """
+    return httpx.AsyncClient(
+        verify=tls_context(),
+        timeout=client.timeout,
+        follow_redirects=True,
+        headers=dict(client.headers),
+    )
+
+
+async def get_text(client: httpx.AsyncClient, url: str) -> str:
+    """GET a results URL, adding the extra intermediate for the Division's host."""
+    if not url.startswith(BASE + "/"):
+        return await c.get_text(client, url)
+    async with tls_client(client) as own:
+        return await c.get_text(own, url)
+
+
 @register
 class AkDoe(ResultsSource):
     name = "ak_doe"
@@ -159,11 +201,11 @@ class AkDoe(ResultsSource):
         ak_keys = [k for k in keys if k.state == "AK"]
         if not ak_keys:
             return []
-        text = await c.get_text(client, csv_url(c.election_date()))
+        text = await get_text(client, csv_url(c.election_date()))
         return c.select(parse_ak(text, fetched_at=c.utcnow()), ak_keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "AK":
             return []
-        text = await c.get_text(client, csv_url(c.election_date()))
+        text = await get_text(client, csv_url(c.election_date()))
         return [(r.key, r.title or str(r.key)) for r in parse_ak(text, fetched_at=c.utcnow())]
