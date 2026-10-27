@@ -10,6 +10,11 @@ One module per feed family; each registers a `ResultsSource` in
     clarity           Clarity / Scytl county feeds (CLARITY_FEEDS)
     enhanced_voting   Enhanced Voting / Scytl CDN export (AZ, GA)
     fl_sos            Florida Department of State tab-delimited extract
+    va_elect          Virginia Department of Elections ENR JSON API
+    oh_sos            Ohio Secretary of State live-results JSON API
+    ne_sos            Nebraska Secretary of State server-rendered HTML (scraper)
+    co_sos            Colorado Secretary of State Clarity feed
+    ia_sos            Iowa Secretary of State Clarity feed
 
 `_common` holds the shared helpers (party normalisation, dates, payload decoding,
 RaceResult construction). See docs/sources-results.md for feed URLs and status.
