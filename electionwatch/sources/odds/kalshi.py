@@ -84,6 +84,8 @@ def parse_kalshi_event(payload: dict) -> list[OddsSnapshot]:
     event_ticker = event.get("event_ticker", "")
     series_ticker = event.get("series_ticker", "")
     key = _event_ticker_to_key(event_ticker)
+    if key is None:
+        return []
     url = f"https://kalshi.com/markets/{series_ticker.lower()}"
 
     snapshots: list[OddsSnapshot] = []
@@ -112,44 +114,49 @@ def parse_kalshi_event(payload: dict) -> list[OddsSnapshot]:
     return snapshots
 
 
-def _event_ticker_to_key(event_ticker: str) -> RaceKey:
-    """Best-effort mapping from a Kalshi event ticker to a RaceKey.
+def _event_ticker_to_key(event_ticker: str) -> RaceKey | None:
+    """Map a Kalshi event ticker to a RaceKey, or None if it is not a race.
 
     Supports SENATE<ST>-26, GOVPARTY<ST>-26 / KXGOV<ST>-26, HOUSE<ST><DIST>-26.
-    Falls back to a placeholder key if the pattern is unknown.
+    Unknown tickers (presidential, control-of-chamber, ...) return None rather
+    than being mislabelled as a Senate race.
     """
     parts = event_ticker.rsplit("-", 1)
     base = parts[0]
-    if base.startswith("SENATE"):
-        state = base[6:]
-        return RaceKey(state, Level.SENATE, "SEN")
-    if base.startswith("GOVPARTY"):
-        state = base[8:]
-        return RaceKey(state, Level.GOVERNOR, "GOV")
-    if base.startswith("KXGOV"):
-        state = base[5:]
-        return RaceKey(state, Level.GOVERNOR, "GOV")
-    if base.startswith("HOUSE"):
-        tail = base[5:]
-        state = tail[:2]
-        district = tail[2:]
-        return RaceKey(state, Level.HOUSE, "HOUSE", f"{int(district):02d}")
-    return RaceKey("US", Level.SENATE, "SEN")
+    try:
+        if base.startswith("SENATE"):
+            return RaceKey(base[6:], Level.SENATE, "SEN")
+        if base.startswith("GOVPARTY"):
+            return RaceKey(base[8:], Level.GOVERNOR, "GOV")
+        if base.startswith("KXGOV"):
+            return RaceKey(base[5:], Level.GOVERNOR, "GOV")
+        if base.startswith("HOUSE"):
+            tail = base[5:]
+            return RaceKey(tail[:2], Level.HOUSE, "HOUSE", f"{int(tail[2:]):02d}")
+    except (ValueError, TypeError):
+        return None
+    return None
 
 
 def _market_outcome(market: dict) -> str | None:
-    title = market.get("title", "")
-    subtitle = market.get("subtitle", "")
-    rules = market.get("rules_primary", "")
-    text = f"{title} {subtitle} {rules}".lower()
-    if "republican" in text:
-        return "REP"
-    if "democrat" in text:
-        return "DEM"
-    # Fallback to ticker suffix (e.g. SENATETX-26-R)
-    ticker = market.get("ticker", "")
-    suffix = ticker.rsplit("-", 1)[-1].upper()
-    return {"R": "REP", "D": "DEM", "I": "IND", "L": "LIB", "G": "GRN"}.get(suffix)
+    # The ticker suffix is Kalshi's canonical outcome; rules text often names
+    # the opposing party too ("if the Republican is certified...").
+    suffix = (market.get("ticker") or "").rsplit("-", 1)[-1].upper()
+    by_suffix = {"R": "REP", "D": "DEM", "I": "IND", "L": "LIB", "G": "GRN"}
+    if suffix in by_suffix:
+        return by_suffix[suffix]
+
+    stem = f"{market.get('title', '')} {market.get('subtitle', '')}".lower()
+    for text in (stem, market.get("rules_primary", "").lower()):
+        if "republican" in text:
+            return "REP"
+        if "democrat" in text:
+            return "DEM"
+        if "libertarian" in text:
+            return "LIB"
+        if "green party" in text:
+            return "GRN"
+    return None
 
 
 def _market_prob(market: dict) -> float | None:
@@ -157,10 +164,24 @@ def _market_prob(market: dict) -> float | None:
         val = market.get(field)
         if val:
             try:
-                return float(val)
-            except Exception:
+                return _unit_interval(float(val))
+            except (TypeError, ValueError):
+                pass
+    # Older payloads quote integer cents rather than *_dollars strings.
+    for field in ("last_price", "yes_bid", "yes_ask"):
+        val = market.get(field)
+        if val is not None:
+            try:
+                return _unit_interval(float(val) / 100.0)
+            except (TypeError, ValueError):
                 pass
     return None
+
+
+def _unit_interval(value: float) -> float | None:
+    if value != value or not (0.0 <= value <= 1.0):  # NaN / out of range
+        return None
+    return value
 
 
 def _market_ts(market: dict, event: dict) -> datetime:
