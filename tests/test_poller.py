@@ -7,6 +7,7 @@ import pytest
 from electionwatch.models import (
     CandidateResult,
     ExitPoll,
+    OddsSnapshot,
     RaceCall,
     RaceResult,
 )
@@ -14,7 +15,7 @@ from electionwatch.poller import Poller
 from electionwatch.poster import RecordingPoster
 from electionwatch.racekeys import parse
 from electionwatch.settings import GuildSettings, PostMode
-from electionwatch.sources.base import CallSource, ExitPollSource, ResultsSource
+from electionwatch.sources.base import CallSource, ExitPollSource, OddsSource, ResultsSource
 from electionwatch.store.memory import MemoryStore
 
 NOW = datetime(2026, 11, 3, 23, 0, tzinfo=timezone.utc)
@@ -81,6 +82,13 @@ class FakeExitPolls(ExitPollSource):
 
     async def fetch_exit_polls(self, keys, client):
         return [ExitPoll(KEY, "AP", "https://example.test/poll", "Women: 52% Doe")]
+
+
+class FakeOdds(OddsSource):
+    name = "odds"
+
+    async def fetch_odds(self, keys, client):
+        return [OddsSnapshot(KEY, "kalshi", "REP", 0.70, NOW)]
 
 
 def poller(store, sources, poster):
@@ -175,6 +183,35 @@ async def test_exit_poll_posts_once_per_guild_race_and_outlet():
     await poller(store, sources, poster).tick()
     assert len(poster.sent) == 1
     assert poster.sent[0][2].kind == "exitpoll"
+
+
+@pytest.mark.asyncio
+async def test_odds_swing_uses_lazy_detector_and_posts_once_per_window(monkeypatch):
+    import sys
+    import types
+
+    swings = types.ModuleType("electionwatch.swings")
+    swings.detect_swing = lambda history, pts, window: history[-1].prob - history[0].prob >= pts / 100
+    monkeypatch.setitem(sys.modules, "electionwatch.swings", swings)
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(
+            1,
+            channel_id=10,
+            important=[str(KEY)],
+            odds_alerts=True,
+            odds_swing_pts=20,
+            odds_window_minutes=60,
+        )
+    )
+    await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", 0.40, NOW - timedelta(minutes=5)))
+    poster = RecordingPoster()
+    sources = {"odds": [FakeOdds()]}
+    await poller(store, sources, poster).tick()
+    await poller(store, sources, poster).tick()
+    assert len(poster.sent) == 1
+    assert poster.sent[0][2].kind == "odds_swing"
+    assert "70.0%" in poster.sent[0][2].lines[0]
 
 
 @pytest.mark.asyncio

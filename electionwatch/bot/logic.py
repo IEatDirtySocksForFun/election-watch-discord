@@ -6,7 +6,7 @@ from dataclasses import asdict
 import yaml
 
 from electionwatch.models import ImportantRace, Level
-from electionwatch.racekeys import STATES, RaceKeyError, describe, parse
+from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"}

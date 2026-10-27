@@ -25,7 +25,7 @@ from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.bot.poster import DiscordPoster
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
-from electionwatch.racekeys import STATES, describe
+from electionwatch.racekeys import describe
 from electionwatch.settings import GuildSettings, UserSettings
 
 logger = logging.getLogger(__name__)

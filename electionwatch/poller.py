@@ -5,7 +5,6 @@ import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Iterable
 
 import httpx
 

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import yaml
 
 from electionwatch.config import load_env, load_races, parse_env_line
