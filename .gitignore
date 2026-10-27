@@ -1,0 +1,16 @@
+# secrets: never commit
+.env
+*.env
+!.env.example
+.env
+.env
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+# local test data (historical results live outside the repo, see docs/testing.md)
+data/
+replay/out/
