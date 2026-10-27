@@ -571,3 +571,27 @@ async def test_failing_source_backs_off_then_recovers():
         Flaky.fail = False
         assert await p._fetch(src, "fetch", []) == ["ok"] and Flaky.calls == 2
         assert "flaky" not in p._backoff
+
+
+@pytest.mark.asyncio
+async def test_outlet_flagging_specials_does_not_alias_the_regular_race():
+    # 2024: California had a regular and a special Senate race on one ballot. A guild that
+    # watches only "CA SEN S" must not get the regular race's call filed under the special;
+    # before the fix the two calls alternated as "new" and were re-posted every minute.
+    special, plain = parse("CA SEN S"), parse("CA SEN")
+
+    class BothCalls(CallSource):
+        name, outlet = "both", "FOX"
+
+        async def fetch_calls(self, keys, client):
+            return [RaceCall(plain, "FOX", "Adam B Schiff", "DEM", NOW),
+                    RaceCall(special, "FOX", "Adam Schiff", "DEM", NOW)]
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=["CA SEN S"]))
+    poster = RecordingPoster()
+    p = poller(store, {"calls": [BothCalls()]}, poster)
+    for _ in range(3):
+        await p.tick()
+    assert [(p.race, p.lines[0]) for _, _, p in poster.sent] == [
+        ("CA SEN S", "🔵 Projected winner: Adam Schiff (DEM)")]
