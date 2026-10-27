@@ -225,6 +225,7 @@ def format_polls(
 class _CacheEntry:
     at: datetime
     value: list
+    ttl: timedelta | None = None   # None = the caller's normal TTL
 
 
 class CommandData:
@@ -320,18 +321,21 @@ class CommandData:
         cache_key = str(key)
         now = self._now()
         cached = self._polls_cache.get(cache_key)
-        if cached and now - cached.at < timedelta(minutes=15):
+        if cached and now - cached.at < (cached.ttl or timedelta(minutes=15)):
             return cached.value
         polls: list[Poll] = []
+        failed = False
         for source in self._available("polls"):
             try:
                 values = await source.fetch_polls([key], self.http_client)
             except Exception:
                 logger.exception("Poll source %s failed", getattr(source, "name", "?"))
+                failed = True
                 continue
             polls.extend(poll for poll in values if poll.key == key)
         result = merge_polls(polls)
-        self._polls_cache[cache_key] = _CacheEntry(now, result)
+        # A failed source is retried after a minute instead of hiding its polls for 15.
+        self._polls_cache[cache_key] = _CacheEntry(now, result, timedelta(minutes=1) if failed else None)
         return result
 
     async def polls_embed(self, key: RaceKey, count: int = 5, internals: bool = True) -> discord.Embed:
