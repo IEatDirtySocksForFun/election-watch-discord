@@ -29,8 +29,8 @@ id across every row. `wc` write-ins are lumped into a single "Write-In" candidat
 Statewide races have no `dc`; legislative districts are named ("ADD 1",
 "ADD RUT", "CHI SE 1"), so the RaceKey district is the slugified district code
 (VT HD-add-1, VT SD-add-1). Vermont has a single at-large U.S. House seat, keyed
-VT-00. Precinct counts are not published (reporting units are towns), so they are
-left None; per-race winners are computed from the summed vote totals.
+VT-AL. Precinct counts are not published (reporting units are towns), so they are
+left None; winners are only those the feed flags with isWinner.
 """
 from __future__ import annotations
 
@@ -105,7 +105,7 @@ def race_key(office: str, district_code: str | None = None) -> RaceKey:
         return RaceKey("VT", Level.SENATE, "SEN")
     if n in ("REPRESENTATIVE TO CONGRESS", "US REPRESENTATIVE", "US HOUSE"):
         # Vermont has one at-large seat.
-        return RaceKey("VT", Level.HOUSE, "HOUSE", "00")
+        return RaceKey("VT", Level.HOUSE, "HOUSE", "AL")
     if n in _STATEWIDE:
         return RaceKey("VT", Level.GOVERNOR, _STATEWIDE[n])
     if n == "STATE SENATOR" and district_code:
@@ -160,8 +160,10 @@ def parse_vt(docs, *, fetched_at: datetime,
                         "name": str(choice.get("cn") or "").strip(),
                         "party": _party(choice.get("pn")),
                         "votes": 0,
+                        "winner": False,
                     })
                     entry["votes"] += c.to_int(choice.get("vc"))
+                    entry["winner"] = entry["winner"] or choice.get("isWinner") is True
                 for choice in row.get("wc") or []:
                     write_ins += c.to_int(choice.get("vc"))
 
@@ -169,17 +171,13 @@ def parse_vt(docs, *, fetched_at: datetime,
                 name=re.sub(r"\s+", " ", entry["name"]).strip(),
                 party=entry["party"],
                 votes=entry["votes"],
+                # Only the source declares winners: ranking a partial count would "call" races.
+                winner=entry["winner"],
             ) for entry in totals.values() if entry["name"]]
             if write_ins:
                 cands.append(CandidateResult(name="Write-In", party=None, votes=write_ins))
             if not cands:
                 continue
-
-            seats = c.to_int(contest.get("vf")) or 1
-            ranked = sorted(cands, key=lambda x: x.votes, reverse=True)
-            winners = {id(x) for x in ranked[:seats] if x.votes > 0}
-            for cand in cands:
-                cand.winner = id(cand) in winners
 
             title = office
             if district:

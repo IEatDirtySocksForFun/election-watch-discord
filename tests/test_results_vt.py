@@ -34,7 +34,9 @@ def by_key(results):
 def test_keys_cover_federal_statewide_legislature():
     got = by_key(parse())
     assert got["VT SEN"].key.level is Level.SENATE
-    assert got["VT-00"].key.level is Level.HOUSE       # single at-large seat
+    assert got["VT-AL"].key.level is Level.HOUSE       # single at-large seat
+    from electionwatch.racekeys import parse as parse_key
+    assert got["VT-AL"].key == parse_key("VT-AL")      # what /watch add VT-AL stores
     assert got["VT GOV"].key.level is Level.GOVERNOR
     assert got["VT LTGOV"].key.level is Level.GOVERNOR
     assert got["VT TREAS"].key.level is Level.GOVERNOR
@@ -169,3 +171,11 @@ def test_unavailable_when_date_missing_from_index(monkeypatch):
 
     with pytest.raises(SourceUnavailable, match="no 2026-11-03"):
         asyncio.run(go())
+
+
+def test_winners_come_only_from_the_feed_not_from_ranking_a_partial_count():
+    doc = {"d": [{"o": [{"on": "GOVERNOR", "vf": 1, "cs": [{"rc": [
+        {"cid": 1, "cn": "A", "pn": "REPUBLICAN", "vc": 10, "isWinner": False},
+        {"cid": 2, "cn": "B", "pn": "DEMOCRATIC", "vc": 9, "isWinner": False}]}]}]}]}
+    (gov,) = parse_vt([doc], fetched_at=AT)
+    assert not any(c.winner for c in gov.candidates)
