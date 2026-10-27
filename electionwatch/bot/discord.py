@@ -348,12 +348,19 @@ async def favorite_command(
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
 async def faq_command(interaction: discord.Interaction, state: str | None = None) -> None:
     try:
-        from electionwatch.faq.loader import load_outlets, load_states
+        from electionwatch.faq.loader import FAQDataError, load_outlets, load_states
     except ImportError:
         await interaction.response.send_message("FAQ data not installed", ephemeral=True)
         return
     try:
-        text = faq_text(load_states(), load_outlets(), state)
+        states, outlets = load_states(), load_outlets()
+    except FAQDataError:
+        # The loader's message names the server's file path: log it, don't show it.
+        logger.exception("Could not load the FAQ data")
+        await interaction.response.send_message("FAQ data not installed", ephemeral=True)
+        return
+    try:
+        text = faq_text(states, outlets, state)
     except ValueError as exc:
         await _error(interaction, exc)
         return
