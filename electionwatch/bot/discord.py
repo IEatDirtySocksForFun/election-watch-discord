@@ -123,7 +123,12 @@ async def _user(interaction: discord.Interaction) -> UserSettings:
 
 
 async def _error(interaction: discord.Interaction, exc: Exception) -> None:
-    await interaction.response.send_message(str(exc), ephemeral=True)
+    # Parse errors quote the user's input, which can be up to 6000 characters: Discord
+    # rejects messages over 2000, and the user would get the generic failure instead.
+    message = str(exc)
+    if len(message) > 2000:
+        message = message[:1999] + "…"
+    await interaction.response.send_message(message, ephemeral=True)
 
 
 @app_commands.command(name="setup", description="Choose the channel for election posts")
@@ -156,7 +161,10 @@ async def watch_command(
     except ValueError as exc:
         await _error(interaction, exc)
         return
-    await interaction.client.store.save_guild(gs)
+    if action != "list":
+        # list is read-only and open to everyone: writing back the copy it read would
+        # overwrite a concurrent admin change (and create a document for the guild).
+        await interaction.client.store.save_guild(gs)
     await interaction.response.send_message(message, ephemeral=True)
 
 

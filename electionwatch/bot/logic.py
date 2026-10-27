@@ -8,6 +8,10 @@ from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"}
+#: Longest race text accepted by /watch and /favorite: Discord's limit for an autocomplete
+#: choice value. A free-form LOCAL slug could otherwise be thousands of characters long,
+#: overflowing every later reply (/watch list, /settings) that shows it.
+MAX_RACE_TEXT = 100
 LEVELS = {
     "congressional": {Level.HOUSE},
     "senate": {Level.SENATE},
@@ -22,7 +26,9 @@ def is_admin(member, guild_settings: GuildSettings) -> bool:
     if permissions is not None and permissions.manage_guild:
         return True
     role_id = guild_settings.admin_role_id
-    return role_id is not None and any(getattr(role, "id", None) == role_id for role in member.roles)
+    # A discord.User (DMs, user-installed app contexts) has no roles at all.
+    roles = getattr(member, "roles", None) or ()
+    return role_id is not None and any(getattr(role, "id", None) == role_id for role in roles)
 
 
 def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str:
@@ -35,15 +41,17 @@ def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str
         raise ValueError("action must be add, remove, or list")
     if not race:
         raise ValueError("race is required")
-    key = str(parse(race))
-    if not gs.important:
-        gs.important = [str(item.key) for item in _default_races()]
+    key = _race_key(race)
+    current = gs.important or [str(item.key) for item in _default_races()]
+    if action == "remove" and key not in current:
+        # Nothing to do: don't claim a removal or materialize the default list.
+        return f"{key} is not watched"
+    gs.important = list(current)
     if action == "add":
         if key not in gs.important:
             gs.important.append(key)
         return f"Watching {key}"
-    if key in gs.important:
-        gs.important.remove(key)
+    gs.important.remove(key)
     return f"Removed {key}" + ("; using default races" if not gs.important else "")
 
 
@@ -86,9 +94,16 @@ def change_calls(gs: GuildSettings, outlets: str, enabled: bool) -> str:
     unknown = set(selected) - OUTLETS
     if not selected or unknown:
         raise ValueError("unknown outlets: " + (", ".join(sorted(unknown)) or "none"))
-    gs.call_outlets = selected
-    gs.post_calls = enabled
-    return f"Race calls {'on' if enabled else 'off'}; outlets: {', '.join(selected)}"
+    if enabled:
+        gs.call_outlets = selected
+        gs.post_calls = True
+        return f"Race calls on; outlets: {', '.join(selected)}"
+    # "off" stops the named outlets only; race calls go off once no outlet is left.
+    gs.call_outlets = [outlet for outlet in gs.call_outlets if outlet not in selected]
+    gs.post_calls = bool(gs.call_outlets) and gs.post_calls
+    if gs.post_calls:
+        return f"Race calls off for {', '.join(selected)}; still posting: {', '.join(gs.call_outlets)}"
+    return f"Race calls off (stopped {', '.join(selected)}; no outlets left)"
 
 
 def change_odds(
@@ -112,11 +127,22 @@ def change_odds(
 def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
-    return _clip_lines(yaml.safe_dump(to_doc(gs), sort_keys=False).strip().splitlines())
+    # The watch list goes last so a long one can't push the other settings out, and the
+    # truncation marker is a YAML comment so the clipped dump still parses.
+    doc = to_doc(gs)
+    doc["important"] = doc.pop("important")
+    lines = yaml.safe_dump(doc, sort_keys=False).strip().splitlines()
+    return _clip_lines(lines, marker=f"# … (truncated; {len(gs.important)} watched races in total)")
+
+
+def _race_key(race: str) -> str:
+    if len(race.strip()) > MAX_RACE_TEXT:
+        raise ValueError(f"race is too long ({MAX_RACE_TEXT} characters at most)")
+    return str(parse(race))
 
 
 def change_favorite(us: UserSettings, action: str, race: str) -> str:
-    key = str(parse(race))
+    key = _race_key(race)
     if action == "add":
         if key not in us.favorites:
             us.favorites.append(key)
@@ -146,13 +172,13 @@ def race_label(key, label: str | None = None) -> str:
     return label or describe(key)
 
 
-def _clip_lines(lines: list[str], limit: int = 1900) -> str:
+def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "… (truncated)") -> str:
     """Join lines, stopping on a line boundary so 2000-character messages stay valid YAML."""
     kept: list[str] = []
     size = 0
     for line in lines:
         if size + len(line) + 1 > limit:
-            kept.append("… (truncated)")
+            kept.append(marker)
             break
         kept.append(line)
         size += len(line) + 1
