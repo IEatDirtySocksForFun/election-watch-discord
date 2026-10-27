@@ -4,7 +4,7 @@ from __future__ import annotations
 import yaml
 
 from electionwatch.models import ImportantRace, Level, to_doc
-from electionwatch.racekeys import STATES, describe, parse
+from electionwatch.racekeys import STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"}
@@ -152,15 +152,39 @@ def _clip_lines(lines: list[str], limit: int = 1900) -> str:
     size = 0
     for line in lines:
         if size + len(line) + 1 > limit:
-            kept.append("… (truncated)")
+            kept.append("# … (truncated)")  # a YAML comment keeps the block parseable
             break
         kept.append(line)
         size += len(line) + 1
     return "\n".join(kept)
 
 
+#: /faq is sent as ```yaml\n<text>\n``` in one 2000-character message.
+FAQ_LIMIT = 2000 - len("```yaml\n\n```") - 8
+
+
+def _yaml_lines(data) -> list[str]:
+    return yaml.safe_dump(data, sort_keys=False).strip().splitlines()
+
+
+def _first_fit(*candidates: list[str]) -> str:
+    """The first candidate that fits whole; otherwise the last one clipped on a line boundary."""
+    for lines in candidates:
+        if len("\n".join(lines)) <= FAQ_LIMIT:
+            return "\n".join(lines)
+    return _clip_lines(candidates[-1], FAQ_LIMIT)
+
+
+def _outlet_names(outlets) -> dict:
+    return {code: rec.get("name", code) if isinstance(rec, dict) else rec for code, rec in outlets.items()}
+
+
 def faq_text(states, outlets, state: str | None = None) -> str:
-    """Serialize installed FAQ data deterministically, without a model or paraphrasing."""
+    """Serialize installed FAQ data deterministically, without a model or paraphrasing.
+
+    The result is valid YAML (it is shown in a ```yaml block): outlet details are shortened
+    to fit one message rather than being cut off in the middle of a record.
+    """
     data = states
     if state is None:
         # All 51 states never fit in one message: point at what is installed instead of
@@ -169,15 +193,20 @@ def faq_text(states, outlets, state: str | None = None) -> str:
             sorted(states) if isinstance(states, dict)
             else sorted({getattr(entry, "state", "") for entry in states} - {""})
         )
-        lines = [
-            ("State FAQs: " + ", ".join(codes)) if codes else "No state FAQ data installed.",
-            "",
-            "Use /faq state:<code> for one state.",
+        head = [
+            ("State FAQs: " + ", ".join(codes)) if codes else "# No state FAQ data installed.",
+            "# Use /faq state:<code> for one state.",
         ]
-        if outlets:
-            lines += ["", "Outlets:"] + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
-        return _clip_lines(lines)
-    code = state.upper()
+        if not outlets:
+            return _first_fit(head)
+        brief = {
+            code: {k: v for k, v in rec.items() if k != "notes"} if isinstance(rec, dict) else rec
+            for code, rec in outlets.items()
+        }
+        return _first_fit(head + _yaml_lines({"Outlets": outlets}), head + _yaml_lines({"Outlets": brief}))
+    code = state.strip().upper()
+    if code in TERRITORIES:
+        return f"# No FAQ data for {TERRITORIES[code]}: territories are not covered yet."
     if code not in STATES:
         raise ValueError("unknown state")
     if isinstance(states, dict):
@@ -187,7 +216,13 @@ def faq_text(states, outlets, state: str | None = None) -> str:
                 [f"No FAQ data for {STATES[code]}", ""]
                 + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
             )
+        body = _yaml_lines({code: data})
     else:
-        data = [entry for entry in states if getattr(entry, "state", None) == code]
-    text = yaml.safe_dump({"states": data, "outlets": outlets}, sort_keys=False).strip()
-    return _clip_lines(text.splitlines())
+        body = _yaml_lines({"states": [entry for entry in states if getattr(entry, "state", None) == code]})
+    # Every state record plus all ten outlet records never fits: fall back to outlet names,
+    # then to a pointer at /faq without a state, which lists the outlet details.
+    return _first_fit(
+        body + _yaml_lines({"outlets": outlets}),
+        body + _yaml_lines({"outlets": _outlet_names(outlets)}),
+        body + ["# Outlet details: /faq without a state."],
+    )
