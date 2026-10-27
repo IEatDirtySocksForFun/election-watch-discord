@@ -64,7 +64,7 @@ def _norm(name: str) -> str:
 def race_key(name: str) -> RaceKey:
     n = _norm(name)
     if n in ("PRESIDENT AND VICE PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
-        return c.local_key("SC", n)
+        return c.local_key("SC", "us-president")
     if n in ("U.S. SENATE", "UNITED STATES SENATE"):
         return RaceKey("SC", Level.SENATE, "SEN")
     m = _HOUSE.match(n)

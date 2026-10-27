@@ -70,7 +70,7 @@ def test_double_spaces_in_contest_names_are_normalised():
     assert format_key(race_key("State House of Representatives, District 35")) == "SC HD-35"
     assert format_key(race_key("U.S. Senate")) == "SC SEN"
     assert format_key(race_key("President and Vice President")) == \
-        "SC LOCAL president-and-vice-president"
+        "SC LOCAL us-president"
 
 
 def test_parse_tolerates_junk():
