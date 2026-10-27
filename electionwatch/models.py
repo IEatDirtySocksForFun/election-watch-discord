@@ -234,7 +234,9 @@ _SUFFIX = {"ii": "II", "iii": "III", "iv": "IV", "jr": "Jr.", "sr": "Sr."}
 def pretty_name(name: str) -> str:
     """Display form of a candidate name from a feed: ALL-CAPS feeds get title case, and
     title-casing mistakes are repaired ("Mcsally" -> "McSally", "Iii" -> "III", "Jr" -> "Jr.")."""
-    n = " ".join(name.split())
+    # U+FFFD = a character the source already lost (OpenElections' 2014 Indiana file has
+    # "Andr\ufffd Carson"); drop it rather than post a replacement box.
+    n = " ".join(name.replace("\ufffd", "").split())
     # "Begich, Nick" -> "Nick Begich" (Alaska and others list surname first); keep
     # "Angus King, Jr." as is.
     if n.count(",") == 1:

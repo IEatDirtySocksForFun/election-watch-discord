@@ -502,16 +502,23 @@ class Net:
         return None
 
 
+def _decode(raw: bytes) -> str:
+    """UTF-8, else Windows-1252: several OpenElections files (IN, MA 2014) are cp1252, and
+    decoding them as UTF-8 turned "André Carson" into "Andr\ufffd Carson"."""
+    try:
+        return raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return raw.decode("cp1252", errors="replace")
+
+
 def _iter_text(path: Path):
     if path.suffix == ".zip":
         with zipfile.ZipFile(path) as z:
             for name in z.namelist():
                 if name.lower().endswith(".csv") and not name.startswith("__MACOSX"):
-                    with z.open(name) as f:
-                        yield from io.TextIOWrapper(f, encoding="utf-8", errors="replace", newline="")
+                    yield from io.StringIO(_decode(z.read(name)), newline="")
     else:
-        with path.open(encoding="utf-8", errors="replace", newline="") as f:
-            yield from f
+        yield from io.StringIO(_decode(path.read_bytes()), newline="")
 
 
 # ---------------------------------------------------------------------------------------------

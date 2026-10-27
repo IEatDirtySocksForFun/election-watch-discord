@@ -104,7 +104,7 @@ def test_single_seat_states_key_as_at_large(monkeypatch):
 @pytest.mark.parametrize("raw,shown", [
     ("Martha Mcsally", "Martha McSally"), ("DAVE MCCORMICK", "Dave McCormick"),
     ("Thomas J Kennedy Iii", "Thomas J Kennedy III"), ("JD VANCE", "JD Vance"),
-    ("Angus S King Jr", "Angus S King Jr."), ("Mack Mackey", "Mack Mackey"), ("Begich, Nick", "Nick Begich"), ("King, Jr.", "King, Jr."), ("BEGICH, NICK", "Nick Begich"), ("HARRIS, Kamala D.", "Kamala D. Harris"), ("Donald J. Trump, \"JD\" Vance", "Donald J. Trump, \"JD\" Vance"), ("Yes, In Favor", "Yes, In Favor"), ("Ng Lee", "Ng Lee"),
+    ("Angus S King Jr", "Angus S King Jr."), ("Mack Mackey", "Mack Mackey"), ("Begich, Nick", "Nick Begich"), ("Andr\ufffd Carson", "Andr Carson"), ("King, Jr.", "King, Jr."), ("BEGICH, NICK", "Nick Begich"), ("HARRIS, Kamala D.", "Kamala D. Harris"), ("Donald J. Trump, \"JD\" Vance", "Donald J. Trump, \"JD\" Vance"), ("Yes, In Favor", "Yes, In Favor"), ("Ng Lee", "Ng Lee"),
 ])
 def test_pretty_name(raw, shown):
     from electionwatch.models import pretty_name

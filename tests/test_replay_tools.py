@@ -278,3 +278,10 @@ def test_count_order_from_faq(tmp_path):
     y.write_text("AZ:\n  count_order: Mail ballots first, then election-day votes, early in-person last\n")
     assert bt.count_order("AZ", y) == ["mail", "eday", "early"]
     assert bt.count_order("ZZ", y) == bt.DEFAULT_ORDER
+
+
+def test_history_text_falls_back_to_cp1252(tmp_path):
+    from tools.fetch_history import _iter_text
+    f = tmp_path / "in.csv"
+    f.write_bytes("district,candidate\n7,André Carson\n".encode("cp1252"))
+    assert "André Carson" in "".join(_iter_text(f))
