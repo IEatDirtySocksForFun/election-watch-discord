@@ -78,7 +78,8 @@ def test_race_key_mapping():
 def test_scraper_flags():
     assert ne_sos.NeSos.scrape is True
     assert ne_sos.NeSos.states == frozenset({"NE"})
-    assert ne_sos.NeSos.enabled_by_default is True
+    # AGENTS.md: scrapers of sites without an API are opt-in.
+    assert ne_sos.NeSos.enabled_by_default is False
 
 
 def test_empty_html_is_not_an_error():

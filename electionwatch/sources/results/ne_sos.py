@@ -202,6 +202,9 @@ class NeSos(ResultsSource):
     name = "ne_sos"
     states = frozenset({"NE"})
     scrape = True
+    # Nebraska's own site, but an HTML scraper: opt-in, per AGENTS.md (one page per
+    # contest family, so a poll costs up to 15 requests).
+    enabled_by_default = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         wanted = [k for k in keys if k.state == "NE"]
