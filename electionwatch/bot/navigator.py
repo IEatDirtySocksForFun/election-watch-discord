@@ -71,12 +71,20 @@ class RaceNavigator(discord.ui.View):
             select.callback = self._state_callback
             self.add_item(select)
         visible = filter_races(self.races, self.state, self.level)[:25]
-        if visible:
+        if self.selected_race:
+            for label in ("Odds", "Polls"):
+                button = discord.ui.Button(label=label, style=discord.ButtonStyle.secondary, row=4)
+                button.callback = self._race_tool_callback(label.casefold())
+                self.add_item(button)
+            button = discord.ui.Button(label="Choose race", style=discord.ButtonStyle.secondary, row=4)
+            button.callback = self._choose_race_callback
+            self.add_item(button)
+        elif visible:
             select = discord.ui.Select(
                 placeholder="Race",
                 options=[
                     discord.SelectOption(
-                        label=(label or str(key))[:100], value=str(key), default=str(key) == self.selected_race
+                        label=(label or str(key))[:100], value=str(key), default=False
                     )
                     for key, label in visible
                 ],
@@ -106,6 +114,28 @@ class RaceNavigator(discord.ui.View):
         if not await self._owns(interaction):
             return
         self.selected_race = interaction.data["values"][0]
+        self._build_controls()
+        await interaction.response.edit_message(embed=await self.embed(), view=self)
+
+    def _race_tool_callback(self, tool: str):
+        async def callback(interaction: discord.Interaction):
+            if not await self._owns(interaction) or not self.selected_race:
+                return
+            key = parse(self.selected_race)
+            await interaction.response.defer(ephemeral=True)
+            if tool == "odds":
+                embed = await self.client.command_data.odds_embed(key)
+            else:
+                embed = await self.client.command_data.polls_embed(key)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+
+        return callback
+
+    async def _choose_race_callback(self, interaction: discord.Interaction):
+        if not await self._owns(interaction):
+            return
+        self.selected_race = None
+        self._build_controls()
         await interaction.response.edit_message(embed=await self.embed(), view=self)
 
     async def _save_and_refresh(self, interaction: discord.Interaction) -> None:
