@@ -1,0 +1,114 @@
+{
+  "id": "57672",
+  "title": "Texas Senate Election Winner",
+  "slug": "texas-senate-election-winner",
+  "updatedAt": "2026-10-27T14:38:34.62281Z",
+  "markets": [
+    {
+      "id": "630963",
+      "question": "Will the Democrats win the Texas Senate race in 2026?",
+      "slug": "will-the-democrats-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.675\", \"0.325\"]",
+      "groupItemTitle": "James Talarico (D)",
+      "updatedAt": "2026-10-27T14:38:21.968509Z"
+    },
+    {
+      "id": "630964",
+      "question": "Will the Republicans win the Texas Senate race in 2026?",
+      "slug": "will-the-republicans-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.325\", \"0.675\"]",
+      "groupItemTitle": "Ken Paxton (R)",
+      "updatedAt": "2026-10-27T14:38:21.968509Z"
+    },
+    {
+      "id": "630965",
+      "question": "Will Person A win the Texas Senate race in 2026?",
+      "slug": "will-person-a-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person A",
+      "updatedAt": "2026-09-30T21:41:59.140038Z"
+    },
+    {
+      "id": "630966",
+      "question": "Will Person B win the Texas Senate race in 2026?",
+      "slug": "will-person-b-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person B",
+      "updatedAt": "2026-09-30T21:42:00.571664Z"
+    },
+    {
+      "id": "630967",
+      "question": "Will Person C win the Texas Senate race in 2026?",
+      "slug": "will-person-c-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person C",
+      "updatedAt": "2026-09-30T21:42:01.981332Z"
+    },
+    {
+      "id": "630968",
+      "question": "Will Person D win the Texas Senate race in 2026?",
+      "slug": "will-person-d-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person D",
+      "updatedAt": "2026-09-30T21:42:03.399489Z"
+    },
+    {
+      "id": "630969",
+      "question": "Will Person E win the Texas Senate race in 2026?",
+      "slug": "will-person-e-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person E",
+      "updatedAt": "2026-09-30T21:42:04.790785Z"
+    },
+    {
+      "id": "630970",
+      "question": "Will Person F win the Texas Senate race in 2026?",
+      "slug": "will-person-f-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person F",
+      "updatedAt": "2026-09-30T21:42:06.340416Z"
+    },
+    {
+      "id": "630971",
+      "question": "Will Person G win the Texas Senate race in 2026?",
+      "slug": "will-person-g-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person G",
+      "updatedAt": "2026-09-30T21:42:07.744244Z"
+    },
+    {
+      "id": "630972",
+      "question": "Will Person H win the Texas Senate race in 2026?",
+      "slug": "will-person-h-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person H",
+      "updatedAt": "2026-09-30T21:42:09.158805Z"
+    },
+    {
+      "id": "630973",
+      "question": "Will Person I win the Texas Senate race in 2026?",
+      "slug": "will-person-i-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person I",
+      "updatedAt": "2026-09-30T21:42:10.56733Z"
+    },
+    {
+      "id": "630974",
+      "question": "Will Person J win the Texas Senate race in 2026?",
+      "slug": "will-person-j-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Person J",
+      "updatedAt": "2026-09-30T21:42:11.968967Z"
+    },
+    {
+      "id": "630975",
+      "question": "Will a candidate not listed above win the Texas Senate race in 2026?",
+      "slug": "will-a-candidate-not-listed-above-win-the-texas-senate-race-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Other",
+      "updatedAt": "2026-09-30T21:42:13.360686Z"
+    }
+  ]
+}

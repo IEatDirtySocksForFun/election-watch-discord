@@ -1,0 +1,130 @@
+{
+  "electionDate": "2024-11-05",
+  "electionName": "November General Election",
+  "createdAt": "2025-01-30T13:59:59.5881725Z",
+  "results": {
+    "id": "09378a07-e6cf-4f66-be7c-ca4aa534f99a",
+    "name": "Georgia",
+    "ballotItems": [
+      {
+        "type": "State",
+        "id": "5100",
+        "name": "President of the US",
+        "voteFor": 1,
+        "ballotOrder": 5100,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "1",
+            "name": "Donald J. Trump (Rep)",
+            "ballotOrder": 1,
+            "voteCount": 2663117,
+            "politicalParty": "Rep"
+          },
+          {
+            "id": "2",
+            "name": "Kamala D. Harris (Dem)",
+            "ballotOrder": 2,
+            "voteCount": 2548017,
+            "politicalParty": "Dem"
+          },
+          {
+            "id": "3",
+            "name": "Chase Oliver (Lib)",
+            "ballotOrder": 3,
+            "voteCount": 20684,
+            "politicalParty": "Lib"
+          },
+          {
+            "id": "4",
+            "name": "Jill Stein (Grn)",
+            "ballotOrder": 4,
+            "voteCount": 18229,
+            "politicalParty": "Grn"
+          }
+        ]
+      },
+      {
+        "type": "State",
+        "id": "30100",
+        "name": "US House of Representatives - District 1",
+        "voteFor": 1,
+        "ballotOrder": 30100,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "7",
+            "name": "Earl L. \"Buddy\" Carter (I) (Rep)",
+            "ballotOrder": 8,
+            "voteCount": 220576,
+            "politicalParty": "Rep"
+          },
+          {
+            "id": "8",
+            "name": "Patti Hewitt (Dem)",
+            "ballotOrder": 9,
+            "voteCount": 135281,
+            "politicalParty": "Dem"
+          }
+        ]
+      },
+      {
+        "type": "State",
+        "id": "50100",
+        "name": "State House of Representatives - District 1",
+        "voteFor": 1,
+        "ballotOrder": 50100,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "14",
+            "name": "Mike Cameron (I) (Rep)",
+            "ballotOrder": 14,
+            "voteCount": 21227,
+            "politicalParty": "Rep"
+          },
+          {
+            "id": "15",
+            "name": "John B. Zibluk (Dem)",
+            "ballotOrder": 15,
+            "voteCount": 5195,
+            "politicalParty": "Dem"
+          }
+        ]
+      },
+      {
+        "type": "State",
+        "id": "801000",
+        "name": "Proposed Constitutional Amendment 1",
+        "voteFor": 1,
+        "ballotOrder": 801000,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "21",
+            "name": "Yes",
+            "ballotOrder": 35,
+            "voteCount": 3094322,
+            "politicalParty": ""
+          },
+          {
+            "id": "22",
+            "name": "No",
+            "ballotOrder": 36,
+            "voteCount": 1823529,
+            "politicalParty": ""
+          }
+        ]
+      }
+    ],
+    "reportingStatuses": []
+  }
+}

@@ -1,0 +1,100 @@
+ElectionDate	PartyCode	PartyName	RaceCode	OfficeDesc	CountyCode	CountyName	Juris1num	Juris2num	Precincts	PrecinctsReporting	CanNameLast	CanNameFirst	CanNameMiddle	CanVotes
+11/5/2024	REP	Republican	PRE	President of the United States	ALA	Alachua			63	63	Vance	Trump	/	52939
+11/5/2024	REP	Republican	PRE	President of the United States	BAK	Baker			9	9	Vance	Trump	/	12926
+11/5/2024	REP	Republican	PRE	President of the United States	BAY	Bay			29	29	Vance	Trump	/	71497
+11/5/2024	REP	Republican	PRE	President of the United States	BRA	Bradford			13	13	Vance	Trump	/	10920
+11/5/2024	REP	Republican	PRE	President of the United States	BRE	Brevard			163	163	Vance	Trump	/	216533
+11/5/2024	DEM	Democrat	PRE	President of the United States	ALA	Alachua			63	63	Walz	Harris	/	81578
+11/5/2024	DEM	Democrat	PRE	President of the United States	BAK	Baker			9	9	Walz	Harris	/	1982
+11/5/2024	DEM	Democrat	PRE	President of the United States	BAY	Bay			29	29	Walz	Harris	/	25201
+11/5/2024	DEM	Democrat	PRE	President of the United States	BRA	Bradford			13	13	Walz	Harris	/	2946
+11/5/2024	DEM	Democrat	PRE	President of the United States	BRE	Brevard			163	163	Walz	Harris	/	141233
+11/5/2024	LPF	Libertarian Party of Florida	PRE	President of the United States	ALA	Alachua			63	63	ter Maat	Oliver	/	619
+11/5/2024	LPF	Libertarian Party of Florida	PRE	President of the United States	BAK	Baker			9	9	ter Maat	Oliver	/	36
+11/5/2024	LPF	Libertarian Party of Florida	PRE	President of the United States	BAY	Bay			29	29	ter Maat	Oliver	/	388
+11/5/2024	LPF	Libertarian Party of Florida	PRE	President of the United States	BRA	Bradford			13	13	ter Maat	Oliver	/	27
+11/5/2024	LPF	Libertarian Party of Florida	PRE	President of the United States	BRE	Brevard			163	163	ter Maat	Oliver	/	1462
+11/5/2024	PSL	Party for Socialism and Liberation - Florida	PRE	President of the United States	ALA	Alachua			63	63	Garcia	De la Cruz	/	293
+11/5/2024	PSL	Party for Socialism and Liberation - Florida	PRE	President of the United States	BAK	Baker			9	9	Garcia	De la Cruz	/	6
+11/5/2024	PSL	Party for Socialism and Liberation - Florida	PRE	President of the United States	BAY	Bay			29	29	Garcia	De la Cruz	/	99
+11/5/2024	PSL	Party for Socialism and Liberation - Florida	PRE	President of the United States	BRA	Bradford			13	13	Garcia	De la Cruz	/	8
+11/5/2024	PSL	Party for Socialism and Liberation - Florida	PRE	President of the United States	BRE	Brevard			163	163	Garcia	De la Cruz	/	316
+11/5/2024	CPF	Constitution Party of Florida	PRE	President of the United States	ALA	Alachua			63	63	Broden	Terry	/	82
+11/5/2024	CPF	Constitution Party of Florida	PRE	President of the United States	BAK	Baker			9	9	Broden	Terry	/	3
+11/5/2024	CPF	Constitution Party of Florida	PRE	President of the United States	BAY	Bay			29	29	Broden	Terry	/	66
+11/5/2024	CPF	Constitution Party of Florida	PRE	President of the United States	BRA	Bradford			13	13	Broden	Terry	/	10
+11/5/2024	CPF	Constitution Party of Florida	PRE	President of the United States	BRE	Brevard			163	163	Broden	Terry	/	228
+11/5/2024	ASP	ASP	PRE	President of the United States	ALA	Alachua			63	63	Onak	Sonski	/	150
+11/5/2024	ASP	ASP	PRE	President of the United States	BAK	Baker			9	9	Onak	Sonski	/	9
+11/5/2024	ASP	ASP	PRE	President of the United States	BAY	Bay			29	29	Onak	Sonski	/	77
+11/5/2024	ASP	ASP	PRE	President of the United States	BRA	Bradford			13	13	Onak	Sonski	/	5
+11/5/2024	ASP	ASP	PRE	President of the United States	BRE	Brevard			163	163	Onak	Sonski	/	361
+11/5/2024	GRE	Green Party	PRE	President of the United States	ALA	Alachua			63	63	Ware	Stein	/	887
+11/5/2024	GRE	Green Party	PRE	President of the United States	BAK	Baker			9	9	Ware	Stein	/	15
+11/5/2024	GRE	Green Party	PRE	President of the United States	BAY	Bay			29	29	Ware	Stein	/	447
+11/5/2024	GRE	Green Party	PRE	President of the United States	BRA	Bradford			13	13	Ware	Stein	/	16
+11/5/2024	GRE	Green Party	PRE	President of the United States	BRE	Brevard			163	163	Ware	Stein	/	1316
+11/5/2024	WRI	Write-In	PRE	President of the United States	ALA	Alachua			63	63	Ellis	Ayyadurai	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BAK	Baker			9	9	Ellis	Ayyadurai	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BAY	Bay			29	29	Ellis	Ayyadurai	/	2
+11/5/2024	WRI	Write-In	PRE	President of the United States	BRA	Bradford			13	13	Ellis	Ayyadurai	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BRE	Brevard			163	163	Ellis	Ayyadurai	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	ALA	Alachua			63	63	McVay	Fox	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BAK	Baker			9	9	McVay	Fox	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BAY	Bay			29	29	McVay	Fox	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BRA	Bradford			13	13	McVay	Fox	/	0
+11/5/2024	WRI	Write-In	PRE	President of the United States	BRE	Brevard			163	163	McVay	Fox	/	0
+11/5/2024	REP	Republican	USS	United States Senator	ALA	Alachua			63	63	Scott	Rick		54458
+11/5/2024	REP	Republican	USS	United States Senator	BAK	Baker			9	9	Scott	Rick		12415
+11/5/2024	REP	Republican	USS	United States Senator	BAY	Bay			29	29	Scott	Rick		72045
+11/5/2024	REP	Republican	USS	United States Senator	BRA	Bradford			13	13	Scott	Rick		10363
+11/5/2024	REP	Republican	USS	United States Senator	BRE	Brevard			163	163	Scott	Rick		209204
+11/5/2024	DEM	Democrat	USS	United States Senator	ALA	Alachua			63	63	Mucarsel-Powell	Debbie		78314
+11/5/2024	DEM	Democrat	USS	United States Senator	BAK	Baker			9	9	Mucarsel-Powell	Debbie		2161
+11/5/2024	DEM	Democrat	USS	United States Senator	BAY	Bay			29	29	Mucarsel-Powell	Debbie		22988
+11/5/2024	DEM	Democrat	USS	United States Senator	BRA	Bradford			13	13	Mucarsel-Powell	Debbie		3005
+11/5/2024	DEM	Democrat	USS	United States Senator	BRE	Brevard			163	163	Mucarsel-Powell	Debbie		140412
+11/5/2024	LPF	Libertarian Party of Florida	USS	United States Senator	ALA	Alachua			63	63	Bonoan	Feena		902
+11/5/2024	LPF	Libertarian Party of Florida	USS	United States Senator	BAK	Baker			9	9	Bonoan	Feena		85
+11/5/2024	LPF	Libertarian Party of Florida	USS	United States Senator	BAY	Bay			29	29	Bonoan	Feena		540
+11/5/2024	LPF	Libertarian Party of Florida	USS	United States Senator	BRA	Bradford			13	13	Bonoan	Feena		63
+11/5/2024	LPF	Libertarian Party of Florida	USS	United States Senator	BRE	Brevard			163	163	Bonoan	Feena		2370
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	ALA	Alachua			63	63	Nguyen	Tuan	TQ	886
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BAK	Baker			9	9	Nguyen	Tuan	TQ	46
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BAY	Bay			29	29	Nguyen	Tuan	TQ	943
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BRA	Bradford			13	13	Nguyen	Tuan	TQ	60
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BRE	Brevard			163	163	Nguyen	Tuan	TQ	2940
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	ALA	Alachua			63	63	Everidge	Ben		648
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BAK	Baker			9	9	Everidge	Ben		90
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BAY	Bay			29	29	Everidge	Ben		549
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BRA	Bradford			13	13	Everidge	Ben		126
+11/5/2024	NPA	No Party Affiliation	USS	United States Senator	BRE	Brevard			163	163	Everidge	Ben		2712
+11/5/2024	WRI	Write-In	USS	United States Senator	ALA	Alachua			63	63	Knepper	Howard		0
+11/5/2024	WRI	Write-In	USS	United States Senator	BAK	Baker			9	9	Knepper	Howard		0
+11/5/2024	WRI	Write-In	USS	United States Senator	BAY	Bay			29	29	Knepper	Howard		0
+11/5/2024	WRI	Write-In	USS	United States Senator	BRA	Bradford			13	13	Knepper	Howard		0
+11/5/2024	WRI	Write-In	USS	United States Senator	BRE	Brevard			163	163	Knepper	Howard		0
+11/5/2024	REP	Republican	USR	United States Representative	ALA	Alachua	003		63	63	Cammack	Kat		54872
+11/5/2024	REP	Republican	USR	United States Representative	BAK	Baker	003		9	9	Cammack	Kat		12680
+11/5/2024	REP	Republican	USR	United States Representative	BRA	Bradford	003		13	13	Cammack	Kat		10682
+11/5/2024	DEM	Democrat	USR	United States Representative	ALA	Alachua	003		63	63	Wells	Tom		78904
+11/5/2024	DEM	Democrat	USR	United States Representative	BAK	Baker	003		9	9	Wells	Tom		2014
+11/5/2024	DEM	Democrat	USR	United States Representative	BRA	Bradford	003		13	13	Wells	Tom		2805
+11/5/2024	REP	Republican	STS	State Senator	BRE	Brevard	019		147	147	Fine	Randy		184731
+11/5/2024	DEM	Democrat	STS	State Senator	BRE	Brevard	019		147	147	Ahrens	Vance		126487
+11/5/2024	REP	Republican	STR	State Representative	ALA	Alachua	010		13	13	Brannan	Chuck		13111
+11/5/2024	REP	Republican	STR	State Representative	BAK	Baker	010		9	9	Brannan	Chuck		12729
+11/5/2024	REP	Republican	STR	State Representative	BRA	Bradford	010		13	13	Brannan	Chuck		10355
+11/5/2024	DEM	Democrat	STR	State Representative	ALA	Alachua	010		13	13	Brady	Robert  'Bobby'	J.	9668
+11/5/2024	DEM	Democrat	STR	State Representative	BAK	Baker	010		9	9	Brady	Robert  'Bobby'	J.	1964
+11/5/2024	DEM	Democrat	STR	State Representative	BRA	Bradford	010		13	13	Brady	Robert  'Bobby'	J.	2785
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	ALA	Alachua			63	63	Yes for Approval			52106
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BAK	Baker			9	9	Yes for Approval			8926
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BAY	Bay			29	29	Yes for Approval			55235
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BRA	Bradford			13	13	Yes for Approval			7399
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BRE	Brevard			163	163	Yes for Approval			184439
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	ALA	Alachua			63	63	No for Rejection			77869
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BAK	Baker			9	9	No for Rejection			5256
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BAY	Bay			29	29	No for Rejection			37825
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BRA	Bradford			13	13	No for Rejection			4906
+11/5/2024	NOP	Non-Partisan	A01	Partisan Election of Members of District School Boards	BRE	Brevard			163	163	No for Rejection			149266

@@ -1,0 +1,22 @@
+{
+  "state": "GA",
+  "race": "SEN",
+  "demographics": {
+    "Gender": {
+      "Men": "55% Rep",
+      "Women": "52% Dem"
+    },
+    "Age": {
+      "18-29": "60% Dem",
+      "65+": "58% Rep"
+    },
+    "Education": {
+      "College grad": "54% Dem",
+      "No degree": "56% Rep"
+    },
+    "Race": {
+      "White": "57% Rep",
+      "Black": "86% Dem"
+    }
+  }
+}

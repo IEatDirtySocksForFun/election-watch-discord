@@ -1,0 +1,74 @@
+# National outlets and decision desks that call US races.
+# results_url: where the outlet publishes live results / race calls.
+# exit_poll_url: where it publishes its voter survey (null if it does not run one).
+AP:
+  name: Associated Press
+  results_url: https://apnews.com/projects/elections-2026/
+  exit_poll_url: https://apnews.com/hub/ap-votecast
+  notes: >-
+    AP's Elections Analytics team calls races when trailing candidates have no
+    path to victory; it uses AP VoteCast, a large voter survey, not a
+    traditional precinct exit poll.
+NBC:
+  name: NBC News
+  results_url: https://www.nbcnews.com/politics/2026-election
+  exit_poll_url: https://www.nbcnews.com/politics/elections
+  notes: >-
+    NBC News Decision Desk projects state by state after polls close and
+    publishes National Election Pool exit-poll analysis during the night.
+CBS:
+  name: CBS News
+  results_url: https://www.cbsnews.com/elections/
+  exit_poll_url: https://www.cbsnews.com/elections/
+  notes: >-
+    CBS News Decision Desk; uses the National Election Pool exit poll and
+    calls races once a state's polls have closed.
+ABC:
+  name: ABC News
+  results_url: https://abcnews.com/elections
+  exit_poll_url: https://abcnews.com/elections
+  notes: >-
+    ABC News Decision Desk uses the National Election Pool exit poll and calls
+    races as polls close in each state.
+CNN:
+  name: CNN
+  results_url: https://www.cnn.com/election/2026
+  exit_poll_url: https://www.cnn.com/election/2026
+  notes: >-
+    CNN Decision Desk; projects races only after polls close and publishes
+    National Election Pool exit-poll results alongside live counts.
+FOX:
+  name: Fox News
+  results_url: https://www.foxnews.com/elections
+  exit_poll_url: https://www.foxnews.com/elections/polls/voter-analysis-results-2018-2024
+  notes: >-
+    Fox News Decision Desk; uses the Fox News Voter Analysis survey instead of
+    the traditional exit poll; 2026 results are added to the voter-analysis hub.
+NYT:
+  name: The New York Times
+  results_url: https://www.nytimes.com/interactive/2026/us/elections/results.html
+  exit_poll_url: null
+  notes: >-
+    Uses AP race calls plus its own modelling and "needle" in close races;
+    does not field a separate exit poll.
+DDHQ:
+  name: Decision Desk HQ
+  results_url: https://votes.decisiondeskhq.com/
+  exit_poll_url: null
+  notes: >-
+    Independent decision desk selling race calls and vote counts; calls
+    races in its own right and does no exit polling.
+VOTEHUB:
+  name: VoteHub
+  results_url: https://votehub.com/
+  exit_poll_url: null
+  notes: >-
+    Aggregator that surfaces AP and Decision Desk HQ calls and results; it
+    does not operate its own decision desk or exit poll.
+REUTERS:
+  name: Reuters
+  results_url: https://www.reuters.com/world/us/elections/
+  exit_poll_url: null
+  notes: >-
+    Relies on AP race calls and National Election Pool exit-poll data for
+    its results graphics and state-by-state pages.

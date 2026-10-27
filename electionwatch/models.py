@@ -78,7 +78,7 @@ class RaceResult:
             "k": str(self.key),
             "c": sorted((c.name, c.votes) for c in self.candidates),
             "p": self.precincts_reporting,
-            "e": self.expected_vote_pct,
+            "e": None if self.expected_vote_pct is None else round(self.expected_vote_pct, 1),  # as displayed
         }
         return hashlib.sha1(json.dumps(core, sort_keys=True).encode()).hexdigest()
 
@@ -139,3 +139,19 @@ def to_doc(obj) -> dict:
     )
 
 
+
+
+_PARTY_ALIASES = {
+    "R": "REP", "GOP": "REP", "REPUBLICAN": "REP", "REP": "REP",
+    "D": "DEM", "DEMOCRAT": "DEM", "DEMOCRATIC": "DEM", "DFL": "DEM", "DEM": "DEM",
+    "L": "LIB", "LIBERTARIAN": "LIB", "G": "GRN", "GREEN": "GRN",
+    "I": "IND", "INDEPENDENT": "IND", "NONPARTISAN": "NP",
+}
+
+
+def normalize_party(party: str | None) -> str | None:
+    """Canonical party code (REP/DEM/LIB/GRN/IND/...). Adapters should store this form."""
+    if not party:
+        return None
+    p = party.strip().upper().rstrip(".")
+    return _PARTY_ALIASES.get(p, p)

@@ -64,3 +64,9 @@ async def test_memory_store_change_detection():
     r.candidates[1].votes += 1
     assert await s.upsert_result(r) is True
     assert len(s.history) == 2
+
+
+def test_normalize_party():
+    from electionwatch.models import normalize_party
+    assert [normalize_party(p) for p in ("GOP", "r", "Democratic", "DFL", "lib", None, "CST")] == \
+        ["REP", "REP", "DEM", "DEM", "LIB", None, "CST"]

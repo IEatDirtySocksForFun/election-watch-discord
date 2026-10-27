@@ -1,0 +1,172 @@
+"""MongoDB persistence using pymongo's native asyncio client."""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any
+
+from pymongo import ASCENDING
+from pymongo.asynchronous.mongo_client import AsyncMongoClient
+
+from electionwatch.models import (
+    CandidateResult,
+    OddsSnapshot,
+    RaceCall,
+    RaceKey,
+    RaceResult,
+    to_doc,
+)
+from electionwatch.racekeys import parse
+from electionwatch.settings import GuildSettings, PostMode, UserSettings
+
+_ODDS_TTL_SECONDS = 3 * 24 * 60 * 60
+
+
+def _utc(value: datetime) -> datetime:
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+
+
+def _guild(doc: dict[str, Any]) -> GuildSettings:
+    data = {key: value for key, value in doc.items() if key != "_id"}
+    data["guild_id"] = doc["_id"]
+    data["post_mode"] = PostMode(data.get("post_mode", PostMode.DEFAULT.value))
+    return GuildSettings(**data)
+
+
+def _user(doc: dict[str, Any]) -> UserSettings:
+    data = {key: value for key, value in doc.items() if key != "_id"}
+    data["user_id"] = doc["_id"]
+    return UserSettings(**data)
+
+
+def _result(doc: dict[str, Any]) -> RaceResult:
+    data = {key: value for key, value in doc.items() if not key.startswith("_") and key != "changed_at"}
+    data["key"] = parse(data["key"])
+    data["fetched_at"] = _utc(data["fetched_at"])
+    if data.get("source_updated_at"):
+        data["source_updated_at"] = _utc(data["source_updated_at"])
+    data["candidates"] = [CandidateResult(**candidate) for candidate in data["candidates"]]
+    return RaceResult(**data)
+
+
+def _call(doc: dict[str, Any]) -> RaceCall:
+    data = {key: value for key, value in doc.items() if key != "_id"}
+    data["key"] = parse(data["key"])
+    data["called_at"] = _utc(data["called_at"])
+    return RaceCall(**data)
+
+
+def _odds(doc: dict[str, Any]) -> OddsSnapshot:
+    data = {key: value for key, value in doc.items() if key != "_id"}
+    data["key"] = parse(data["key"])
+    data["ts"] = _utc(data["ts"])
+    return OddsSnapshot(**data)
+
+
+class MongoStore:
+    def __init__(self, uri: str, database: str = "electionwatch", *, client: AsyncMongoClient | None = None):
+        self.client = client or AsyncMongoClient(uri, tz_aware=True)
+        self.db = self.client[database]
+        self.guilds = self.db.guilds
+        self.users = self.db.users
+        self.results = self.db.results
+        self.result_history = self.db.result_history
+        self.calls = self.db.calls
+        self.odds = self.db.odds
+        self.posts = self.db.posts
+        self._indexes_ready = False
+
+    async def create_indexes(self) -> None:
+        await self.results.create_index([("key", ASCENDING)], unique=True)
+        await self.result_history.create_index([("key", ASCENDING), ("fetched_at", ASCENDING)])
+        await self.calls.create_index([("key", ASCENDING), ("outlet", ASCENDING)], unique=True)
+        await self.odds.create_index([("ts", ASCENDING)], expireAfterSeconds=_ODDS_TTL_SECONDS)
+        await self.odds.create_index([("key", ASCENDING), ("market", ASCENDING), ("outcome", ASCENDING), ("ts", ASCENDING)])
+        await self.posts.create_index(
+            [("guild_id", ASCENDING), ("kind", ASCENDING), ("ref", ASCENDING)], unique=True
+        )
+        self._indexes_ready = True
+
+    async def ping(self) -> None:
+        await self.client.admin.command("ping")
+
+    async def close(self) -> None:
+        await self.client.close()
+
+    async def get_guild(self, guild_id: int) -> GuildSettings | None:
+        doc = await self.guilds.find_one({"_id": guild_id})
+        return _guild(doc) if doc else None
+
+    async def save_guild(self, gs: GuildSettings) -> None:
+        doc = to_doc(gs)
+        doc.pop("guild_id", None)
+        await self.guilds.replace_one({"_id": gs.guild_id}, doc, upsert=True)
+
+    async def all_guilds(self) -> list[GuildSettings]:
+        return [_guild(doc) async for doc in self.guilds.find()]
+
+    async def get_user(self, user_id: int) -> UserSettings | None:
+        doc = await self.users.find_one({"_id": user_id})
+        return _user(doc) if doc else None
+
+    async def save_user(self, us: UserSettings) -> None:
+        doc = to_doc(us)
+        doc.pop("user_id", None)
+        await self.users.replace_one({"_id": us.user_id}, doc, upsert=True)
+
+    async def upsert_result(self, result: RaceResult) -> bool:
+        key, fingerprint = str(result.key), result.fingerprint()
+        old = await self.results.find_one({"key": key})
+        changed = not old or old.get("_fingerprint") != fingerprint
+        doc = to_doc(result)
+        doc["_fingerprint"] = fingerprint
+        doc["changed_at"] = result.fetched_at if changed else old.get("changed_at", result.fetched_at)
+        await self.results.replace_one({"key": key}, doc, upsert=True)
+        if changed:
+            await self.result_history.insert_one(to_doc(result))
+        return changed
+
+    async def latest_result(self, key: RaceKey) -> RaceResult | None:
+        doc = await self.results.find_one({"key": str(key)})
+        return _result(doc) if doc else None
+
+    async def result_changed_at(self, key: RaceKey) -> datetime | None:
+        doc = await self.results.find_one({"key": str(key)}, {"changed_at": 1})
+        if not doc or doc.get("changed_at") is None:
+            return None
+        return _utc(doc["changed_at"])
+
+    async def record_call(self, call: RaceCall) -> bool:
+        query = {"key": str(call.key), "outlet": call.outlet}
+        old = await self.calls.find_one(query)
+        if old and old.get("winner") == call.winner and old.get("retracted", False) == call.retracted:
+            return False
+        await self.calls.replace_one(query, to_doc(call), upsert=True)
+        return True
+
+    async def calls_for(self, key: RaceKey) -> list[RaceCall]:
+        cursor = self.calls.find({"key": str(key)}).sort("called_at", ASCENDING)
+        return [_call(doc) async for doc in cursor]
+
+    async def add_odds(self, snapshot: OddsSnapshot) -> None:
+        await self.odds.insert_one(to_doc(snapshot))
+
+    async def odds_since(
+        self, key: RaceKey, market: str, outcome: str, since: datetime
+    ) -> list[OddsSnapshot]:
+        cursor = self.odds.find(
+            {"key": str(key), "market": market, "outcome": outcome, "ts": {"$gte": since}}
+        ).sort("ts", ASCENDING)
+        return [_odds(doc) async for doc in cursor]
+
+    async def last_posted(self, guild_id: int, kind: str, ref: str) -> datetime | None:
+        doc = await self.posts.find_one(
+            {"guild_id": guild_id, "kind": kind, "ref": ref}, {"at": 1}
+        )
+        return _utc(doc["at"]) if doc else None
+
+    async def mark_posted(self, guild_id: int, kind: str, ref: str, at: datetime) -> None:
+        await self.posts.update_one(
+            {"guild_id": guild_id, "kind": kind, "ref": ref},
+            {"$set": {"at": at}},
+            upsert=True,
+        )

@@ -1,0 +1,391 @@
+{
+  "id": "57096",
+  "title": "California Governor Election Winner",
+  "slug": "california-governor-election-2026",
+  "updatedAt": "2026-10-27T14:38:34.62281Z",
+  "markets": [
+    {
+      "id": "628936",
+      "question": "Will Rick Caruso win the California Governor Election in 2026?",
+      "slug": "will-rick-caruso-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Rick Caruso",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628937",
+      "question": "Will Alex Padilla win the California Governor Election in 2026?",
+      "slug": "will-alex-padilla-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Alex Padilla",
+      "updatedAt": "2026-10-27T14:36:20.164964Z"
+    },
+    {
+      "id": "628938",
+      "question": "Will Katie Porter win the California Governor Election in 2026?",
+      "slug": "will-katie-porter-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Katie Porter",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628939",
+      "question": "Will Antonio Villaraigosa win the California Governor Election in 2026?",
+      "slug": "will-antonio-villaraigosa-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Antonio Villaraigosa",
+      "updatedAt": "2026-10-27T14:30:20.427929Z"
+    },
+    {
+      "id": "628940",
+      "question": "Will Steve Hilton win the California Governor Election in 2026?",
+      "slug": "will-steve-hilton-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.031\", \"0.969\"]",
+      "groupItemTitle": "Steve Hilton",
+      "updatedAt": "2026-10-27T14:38:21.968509Z"
+    },
+    {
+      "id": "628941",
+      "question": "Will Xavier Becerra win the California Governor Election in 2026?",
+      "slug": "will-xavier-becerra-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.966\", \"0.034\"]",
+      "groupItemTitle": "Xavier Becerra",
+      "updatedAt": "2026-10-27T14:38:21.968509Z"
+    },
+    {
+      "id": "628942",
+      "question": "Will Stephen Cloobeck win the California Governor Election in 2026?",
+      "slug": "will-stephen-cloobeck-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Stephen Cloobeck",
+      "updatedAt": "2026-10-27T14:36:20.164964Z"
+    },
+    {
+      "id": "628943",
+      "question": "Will Butch Ware win the California Governor Election in 2026?",
+      "slug": "will-butch-ware-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Butch Ware",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628944",
+      "question": "Will Betty Yee win the California Governor Election in 2026?",
+      "slug": "will-betty-yee-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Betty Yee",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628945",
+      "question": "Will Toni Atkins win the California Governor Election in 2026?",
+      "slug": "will-toni-atkins-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Toni Atkins",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628946",
+      "question": "Will Kyle Langford win the California Governor Election in 2026?",
+      "slug": "will-kyle-langford-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Kyle Langford",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628947",
+      "question": "Will Chad Bianco win the California Governor Election in 2026?",
+      "slug": "will-chad-bianco-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Chad Bianco",
+      "updatedAt": "2026-10-27T14:38:21.968509Z"
+    },
+    {
+      "id": "628948",
+      "question": "Will Eleni Kounalakis win the California Governor Election in 2026?",
+      "slug": "will-eleni-kounalakis-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Eleni Kounalakis",
+      "updatedAt": "2026-10-27T14:34:19.913035Z"
+    },
+    {
+      "id": "628949",
+      "question": "Will Daniel Mercuri win the California Governor Election in 2026?",
+      "slug": "will-daniel-mercuri-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Daniel Mercuri",
+      "updatedAt": "2026-10-27T14:32:20.133122Z"
+    },
+    {
+      "id": "628950",
+      "question": "Will Tony Thurmond win the California Governor Election in 2026?",
+      "slug": "will-tony-thurmond-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Tony Thurmond",
+      "updatedAt": "2026-10-27T14:34:19.913035Z"
+    },
+    {
+      "id": "628951",
+      "question": "Will Michael Younger win the California Governor Election in 2026?",
+      "slug": "will-michael-younger-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Michael Younger",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628952",
+      "question": "Will Leo Zacky win the California Governor Election in 2026?",
+      "slug": "will-leo-zacky-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Leo Zacky",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628953",
+      "question": "Will Nicole Shanahan win the California Governor Election in 2026?",
+      "slug": "will-nicole-shanahan-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Nicole Shanahan",
+      "updatedAt": "2026-10-27T14:36:20.164964Z"
+    },
+    {
+      "id": "628954",
+      "question": "Will Eric Swalwell win the California Governor Election in 2026?",
+      "slug": "will-eric-swalwell-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Eric Swalwell",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628955",
+      "question": "Will Tom Steyer win the California Governor Election in 2026?",
+      "slug": "will-tom-steyer-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Tom Steyer",
+      "updatedAt": "2026-10-27T14:36:20.164964Z"
+    },
+    {
+      "id": "628956",
+      "question": "Will Kamala Harris win the California Governor Election in 2026?",
+      "slug": "will-kamala-harris-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Kamala Harris",
+      "updatedAt": "2026-10-27T14:26:21.882611Z"
+    },
+    {
+      "id": "628957",
+      "question": "Will Matt Mahan win the California Governor Election in 2026?",
+      "slug": "will-matt-mahan-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Matt Mahan",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628958",
+      "question": "Will Elaine Culotti win the California Governor Election in 2026?",
+      "slug": "will-elaine-culotti-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+      "groupItemTitle": "Elaine Culotti",
+      "updatedAt": "2026-10-27T14:28:20.755092Z"
+    },
+    {
+      "id": "628959",
+      "question": "Will Option F win the California Governor Election in 2026?",
+      "slug": "will-option-f-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option F",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628960",
+      "question": "Will Option G win the California Governor Election in 2026?",
+      "slug": "will-option-g-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option G",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628961",
+      "question": "Will Option H win the California Governor Election in 2026?",
+      "slug": "will-option-h-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option H",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628962",
+      "question": "Will Option I win the California Governor Election in 2026?",
+      "slug": "will-option-i-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option I",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628963",
+      "question": "Will Option J win the California Governor Election in 2026?",
+      "slug": "will-option-j-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option J",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628964",
+      "question": "Will Option K win the California Governor Election in 2026?",
+      "slug": "will-option-k-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option K",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628965",
+      "question": "Will Option L win the California Governor Election in 2026?",
+      "slug": "will-option-l-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option L",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628966",
+      "question": "Will Option M win the California Governor Election in 2026?",
+      "slug": "will-option-m-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option M",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628967",
+      "question": "Will Option N win the California Governor Election in 2026?",
+      "slug": "will-option-n-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option N",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628968",
+      "question": "Will Option O win the California Governor Election in 2026?",
+      "slug": "will-option-o-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option O",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628969",
+      "question": "Will Option P win the California Governor Election in 2026?",
+      "slug": "will-option-p-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option P",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628970",
+      "question": "Will Option Q win the California Governor Election in 2026?",
+      "slug": "will-option-q-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option Q",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628971",
+      "question": "Will Option R win the California Governor Election in 2026?",
+      "slug": "will-option-r-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option R",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628972",
+      "question": "Will Option S win the California Governor Election in 2026?",
+      "slug": "will-option-s-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option S",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628973",
+      "question": "Will Option T win the California Governor Election in 2026?",
+      "slug": "will-option-t-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option T",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628974",
+      "question": "Will Option U win the California Governor Election in 2026?",
+      "slug": "will-option-u-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option U",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628975",
+      "question": "Will Option V win the California Governor Election in 2026?",
+      "slug": "will-option-v-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option V",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628976",
+      "question": "Will Option W win the California Governor Election in 2026?",
+      "slug": "will-option-w-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option W",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628977",
+      "question": "Will Option X win the California Governor Election in 2026?",
+      "slug": "will-option-x-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option X",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628978",
+      "question": "Will Option Y win the California Governor Election in 2026?",
+      "slug": "will-option-y-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option Y",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628979",
+      "question": "Will Option Z win the California Governor Election in 2026?",
+      "slug": "will-option-z-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Option Z",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    },
+    {
+      "id": "628980",
+      "question": "Will Other win the California Governor Election in 2026?",
+      "slug": "will-other-win-the-california-governor-election-in-2026",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "groupItemTitle": "Other",
+      "updatedAt": "2026-04-28T13:33:33.33929Z"
+    }
+  ]
+}
