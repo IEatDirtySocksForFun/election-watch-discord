@@ -181,6 +181,8 @@ def opt(name: str, value, kind: int = 3) -> dict:
 # --------------------------------------------------------------------------- fake sources
 
 TX_SEN = RaceKey("TX", Level.SENATE, "SEN")
+LONG_SLUG = ("advisory-vote-no-10-engrossed-second-substitute-senate-bill-5096-concerning-"
+             "an-excise-tax-on-capital-gains")
 NOW = datetime(2026, 11, 3, 22, 0, tzinfo=timezone.utc)
 
 
@@ -196,6 +198,8 @@ class FakeResults:
                  (RaceKey(state, Level.GOVERNOR, "GOV"), f"{state} Governor")]
         races += [(RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"), f"{state}-{n:02d} " + "x" * 120)
                   for n in range(1, 31)]
+        # Adapters slug the full contest name into LOCAL keys: these can exceed 100 characters.
+        races += [(RaceKey(state, Level.LOCAL, "LOCAL", LONG_SLUG), "Advisory Vote No. 10")]
         return races
 
 
@@ -519,7 +523,7 @@ async def test_failing_odds_source_still_renders_an_ephemeral_embed(harness):
 
 
 @pytest.mark.parametrize("command", ["watch", "favorite", "odds", "polls"])
-@pytest.mark.parametrize("typed", ["", "tx", "x" * 50])
+@pytest.mark.parametrize("typed", ["", "tx", "x" * 50, "advisory"])
 async def test_race_autocomplete_payload(harness, command, typed):
     options = [opt("race", typed) | {"focused": True}]
     if command in ("watch", "favorite"):
@@ -600,6 +604,23 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert len(sent) == 1 and sent[0].payload["type"] == UPDATE_MESSAGE
     check_message_limits(sent[0].payload["data"])
     assert button(sent[0].payload, "Odds")
+
+
+async def test_navigator_selects_a_race_whose_key_exceeds_100_characters(harness):
+    # Found live: Discord rejected the race select (400 "Must be between 1 and 100 in length")
+    # when a LOCAL key was used as the option value.
+    sent = await harness.dispatch(command_payload("races"))
+    message = sent[-1].payload
+    sent = await harness.dispatch(component_payload(button(message, "Local")["custom_id"], 2))
+    message = sent[-1].payload
+    sent = await harness.dispatch(component_payload(button(message, "Choose race")["custom_id"], 2))
+    check_message_limits(sent[0].payload["data"])
+    race_select = next(s for s in selects(sent[0].payload) if s.get("placeholder") == "Race")
+    option = next(o for o in race_select["options"] if o["label"] == "Advisory Vote No. 10")
+    sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
+    assert sent[0].payload["type"] == UPDATE_MESSAGE
+    view = next(v for v in harness.views() if v.selected_race)
+    assert view.selected_race == f"TX LOCAL {LONG_SLUG}"
 
 
 async def test_navigator_shows_stored_result_embed(harness):
