@@ -26,7 +26,7 @@ NON_CANDIDATE = re.compile(r"\b(over ?votes?|under ?votes?|blank|scattering|tota
 BAD_CASE = re.compile(r"\b(Mc[a-z]|O'[a-z]|Ii\b|Iii\b|Iv\b)")
 NO_PARTY = {"NPA", "NA", "NON", "NP", "IND", "I", "U", "UNA", "UNENROLLED", "NONPARTISAN", "NON PARTISAN",
             "NO PARTY PRE", "STATES NO PA", "OTHER", "OTH", "WRI", "UNAFFILIATED", "NOM", "NONC", "NONI", "NONW",
-            "ONA", "A", "NONE", "NPD"}
+            "ONA", "A", "NONE", "NPD", "PC", "WI", "UNENROLLED"}
 
 
 def candidates(lines: list[str]):
