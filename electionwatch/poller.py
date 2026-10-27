@@ -74,6 +74,19 @@ def format_exit_poll(poll: ExitPoll) -> Post:
     return Post("exitpoll", str(poll.key), f"Exit poll · {describe(poll.key)}", lines, url=poll.url)
 
 
+def swing_detail(swing, history: list[OddsSnapshot], fallback: OddsSnapshot):
+    """Turn detect_swing()'s answer into (move in points or None, latest snapshot).
+
+    electionwatch/swings.py (a separate package) returns (move, earlier, latest); accept a
+    plain truthy value too so a simpler detector still works.
+    """
+    if isinstance(swing, tuple) and len(swing) == 3:
+        move, _earlier, latest = swing
+        return float(move), latest
+    latest = max(history, key=lambda snapshot: snapshot.ts) if history else fallback
+    return None, latest
+
+
 class Poller:
     def __init__(
         self,
@@ -275,18 +288,19 @@ class Poller:
                     history = await self.store.odds_since(
                         snapshot.key, snapshot.market, snapshot.outcome, now - window
                     )
-                    swing = detect_swing(history, guild.odds_swing_pts, guild.odds_window_minutes)
+                    # detect_swing takes a timedelta window (see electionwatch/swings.py).
+                    swing = detect_swing(history, guild.odds_swing_pts, window)
                     if not swing:
                         continue
-                    latest = history[-1] if history else snapshot
+                    move, latest = swing_detail(swing, history, snapshot)
+                    headline = f"{snapshot.market} · {snapshot.outcome}: {latest.prob:.1%}"
+                    if move is not None:
+                        headline += f" ({move:+.1f} pts)"
                     post = Post(
                         "odds_swing",
                         str(snapshot.key),
                         f"Odds swing · {describe(snapshot.key)}",
-                        [
-                            f"{snapshot.market} · {snapshot.outcome}: {latest.prob:.1%}",
-                            f"Move detected within {guild.odds_window_minutes} minutes",
-                        ],
+                        [headline, f"Swing within {guild.odds_window_minutes} minutes"],
                         url=snapshot.url,
                     )
                     await self._post(guild, "odds_swing", ref, post, now)

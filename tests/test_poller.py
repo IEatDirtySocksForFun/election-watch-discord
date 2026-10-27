@@ -20,6 +20,7 @@ from electionwatch.store.memory import MemoryStore
 
 NOW = datetime(2026, 11, 3, 23, 0, tzinfo=timezone.utc)
 KEY = parse("TX SEN")
+NC_KEY = parse("NC-01")
 
 
 def result(votes: int = 2_104_331, at: datetime = NOW, source: str = "good") -> RaceResult:
@@ -50,6 +51,29 @@ class FakeResults(ResultsSource):
     async def fetch(self, keys, client):
         self.calls += 1
         return [self.value]
+
+
+class MultiResults(ResultsSource):
+    """Returns one result per requested race (TX SEN and NC-01 are covered)."""
+
+    name = "multi"
+    states = frozenset({"TX", "NC"})
+
+    async def fetch(self, keys, client):
+        found = []
+        for key in keys:
+            if key == KEY:
+                found.append(result())
+            elif key == NC_KEY:
+                found.append(
+                    RaceResult(
+                        NC_KEY,
+                        [CandidateResult("Pat Roy", "DEM", 1_000), CandidateResult("Lee Ann", "REP", 900)],
+                        self.name,
+                        NOW,
+                    ).finalize()
+                )
+        return found
 
 
 class BrokenResults(FakeResults):
@@ -225,3 +249,88 @@ async def test_paused_guild_suppresses_all_posts():
     sources = {"results": [FakeResults()], "calls": [FakeCalls(call)], "exitpolls": [FakeExitPolls()]}
     await poller(store, sources, poster).tick()
     assert poster.sent == []
+
+
+@pytest.mark.asyncio
+async def test_odds_swing_matches_the_real_detector_signature(monkeypatch):
+    """electionwatch/swings.py takes a timedelta window and returns (move, earlier, latest)."""
+    import sys
+    import types
+
+    seen = {}
+
+    def detect_swing(history, pts, window):
+        seen["window"] = window
+        assert isinstance(window, timedelta), "swings.detect_swing expects a timedelta"
+        latest = max(history, key=lambda snapshot: snapshot.ts)
+        earlier = min(history, key=lambda snapshot: snapshot.ts)
+        move = round((latest.prob - earlier.prob) * 100.0, 2)
+        return None if abs(move) < pts else (move, earlier, latest)
+
+    swings = types.ModuleType("electionwatch.swings")
+    swings.detect_swing = detect_swing
+    monkeypatch.setitem(sys.modules, "electionwatch.swings", swings)
+
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(
+            1, channel_id=10, important=[str(KEY)], odds_alerts=True,
+            odds_swing_pts=20, odds_window_minutes=45,
+        )
+    )
+    await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", 0.40, NOW - timedelta(minutes=5)))
+    poster = RecordingPoster()
+    await poller(store, {"odds": [FakeOdds()]}, poster).tick()
+
+    assert seen["window"] == timedelta(minutes=45)
+    assert len(poster.sent) == 1
+    post = poster.sent[0][2]
+    assert post.lines[0] == "kalshi · REP: 70.0% (+30.0 pts)"
+    assert post.lines[1] == "Swing within 45 minutes"
+
+
+@pytest.mark.asyncio
+async def test_slow_source_times_out_and_the_rest_of_the_tick_survives():
+    import asyncio
+
+    class SlowResults(FakeResults):
+        name = "slow"
+
+        async def fetch(self, keys, client):
+            await asyncio.sleep(5)
+            return [self.value]
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    good = FakeResults()
+    race_poller = Poller(
+        store, {"results": [SlowResults(), good]}, poster, lambda: NOW, object(), fetch_timeout=0.05
+    )
+    await race_poller.tick()
+    assert good.calls == 1
+    assert len(poster.sent) == 1
+
+
+@pytest.mark.asyncio
+async def test_each_guild_only_gets_posts_for_its_own_watch_list():
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    await store.save_guild(GuildSettings(2, channel_id=20, important=[str(NC_KEY)]))
+    poster = RecordingPoster()
+    await poller(store, {"results": [MultiResults()]}, poster).tick()
+
+    by_guild: dict[int, set[str]] = {}
+    for guild_id, _, post in poster.sent:
+        by_guild.setdefault(guild_id, set()).add(post.race)
+    assert by_guild == {1: {"TX SEN"}, 2: {"NC-01"}}
+
+
+@pytest.mark.asyncio
+async def test_empty_watch_list_falls_back_to_config_races():
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10))
+    poster = RecordingPoster()
+    await poller(store, {"results": [MultiResults()]}, poster).tick()
+    # config/races.yaml ships only TX SEN.
+    assert [post.race for _, _, post in poster.sent] == ["TX SEN"]
