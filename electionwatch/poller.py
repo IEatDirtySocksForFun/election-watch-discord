@@ -174,16 +174,22 @@ class Poller:
     async def _results(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         by_race: dict[str, list[RaceResult]] = defaultdict(list)
         selected: dict[str, RaceResult] = {}
+        jobs = []
         for source in self.sources.get("results", []):
             if not self._enabled(source):
                 continue
             source_keys = [key for key in keys if key.state in source.states]
-            if not source_keys:
-                continue
-            try:
-                fetched = await self._fetch(source, "fetch", source_keys)
-            except Exception:
-                logger.exception("Results source %s failed", source.name)
+            if source_keys:
+                jobs.append((source, source_keys))
+        # One slow state site must not hold up the others: fetch concurrently, then walk the
+        # answers in adapter (priority) order.
+        answers = await asyncio.gather(
+            *(self._fetch(source, "fetch", source_keys) for source, source_keys in jobs),
+            return_exceptions=True,
+        )
+        for (source, source_keys), fetched in zip(jobs, answers):
+            if isinstance(fetched, BaseException):
+                logger.error("Results source %s failed", source.name, exc_info=fetched)
                 continue
             for result in fetched:
                 race = str(result.key)

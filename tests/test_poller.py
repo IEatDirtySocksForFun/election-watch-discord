@@ -458,3 +458,29 @@ async def test_immediate_mode_posts_each_change_once():
     source.value = result(votes=2_200_000, at=clock["now"] + timedelta(seconds=5))
     await p.tick()
     assert len(poster.sent) == 2
+
+
+@pytest.mark.asyncio
+async def test_results_sources_are_fetched_concurrently_in_priority_order():
+    import asyncio
+    import time
+
+    class Slow(ResultsSource):
+        states = frozenset({"TX"})
+
+        def __init__(self, name, votes):
+            self.name, self.votes = name, votes
+
+        async def fetch(self, keys, client):
+            await asyncio.sleep(0.3)
+            return [result(votes=self.votes, source=self.name)]
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    sources = [Slow("first", 2_300_000), Slow("second", 2_200_000), Slow("third", 2_100_000)]
+    started = time.monotonic()
+    await poller(store, {"results": sources}, poster).tick()
+    assert time.monotonic() - started < 0.8      # 3 x 0.3 s if fetched one after another
+    assert (await store.latest_result(KEY)).source == "first"
+    assert poster.sent[0][2].footer == "Source: first"
