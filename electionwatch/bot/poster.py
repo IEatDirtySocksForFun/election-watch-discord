@@ -12,6 +12,7 @@ MAX_DESCRIPTION = 4096
 MAX_FIELD_NAME = 256
 MAX_FIELD_VALUE = 1024
 MAX_FOOTER = 2048
+MAX_EMBED_TOTAL = 6000      # title + description + fields + footer + author, combined
 
 
 def clip(text: str, limit: int) -> str:
