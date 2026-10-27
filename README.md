@@ -84,7 +84,7 @@ important:
 ## Slash commands
 
 Admin commands need **Manage Server**, or the admin role if one is configured. The navigator,
-`/faq` and `/settings` replies are ephemeral (only you see them).
+`/odds`, `/polls`, `/faq` and `/settings` replies are ephemeral (only you see them).
 
 | command | who | what |
 |---|---|---|
@@ -92,12 +92,14 @@ Admin commands need **Manage Server**, or the admin role if one is configured. T
 | `/watch add <race>` / `/watch remove <race>` / `/watch list` | admin | important races (autocomplete) |
 | `/posting mode:<default\|interval\|immediate> [minutes]` | admin | results timing (see above) |
 | `/calls outlets:<...> on\|off` | admin | which outlets' calls are posted |
-| `/odds on\|off [threshold] [window]` | admin | prediction-market swing alerts |
+| `/oddsalerts on\|off [threshold] [window]` | admin | prediction-market swing alerts |
 | `/turnout on\|off` | admin | turnout lines in results posts |
 | `/exitpolls on\|off` | admin | exit-poll posts |
 | `/pause`, `/resume` | admin | stop / restart all posting |
 | `/settings` | admin | show this server's settings |
-| `/races` | everyone | private navigator: Congressional / Senate / State / Local tabs, state picker, race picker; remembers your last state and tab |
+| `/odds [race]` | everyone | private Kalshi/Polymarket probabilities and 1 h/24 h moves; omit race for watched races |
+| `/polls race:<race> [count] [internals]` | everyone | private recent polls, newest first; optionally exclude partisan internals |
+| `/races` | everyone | private navigator: Congressional / Senate / State / Local tabs, state picker, race picker, Odds and Polls buttons; remembers your last state and tab |
 | `/favorite add <race>` / `/favorite remove <race>` | everyone | pin races in your navigator |
 | `/faq [state]` | everyone | when polls close, what is counted first, mail deadlines, typical call times |
 

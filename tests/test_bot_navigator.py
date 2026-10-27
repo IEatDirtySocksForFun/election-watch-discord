@@ -46,3 +46,8 @@ async def test_navigator_lists_races_and_all_states_within_discord_limits():
     assert all(child.row <= 4 for child in view.children)
     embed = await view.embed()
     assert embed.title == "Texas Senate" and "Doe" in embed.description
+    labels = {child.label for child in view.children if isinstance(child, discord.ui.Button)}
+    assert {"Odds", "Polls", "Choose race"} <= labels
+    assert not any(
+        isinstance(child, discord.ui.Select) and child.placeholder == "Race" for child in view.children
+    )
