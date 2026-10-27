@@ -16,6 +16,7 @@ from electionwatch.bot.logic import (
     change_favorite,
     change_odds,
     change_posting,
+    change_setup,
     change_watch,
     faq_text,
     is_admin,
@@ -31,6 +32,20 @@ from electionwatch.settings import GuildSettings, UserSettings
 logger = logging.getLogger(__name__)
 
 
+async def handle_app_command_error(interaction: discord.Interaction, error: Exception) -> None:
+    """Log a failing command and tell the user, instead of leaving the interaction hanging."""
+    name = getattr(getattr(interaction, "command", None), "name", "command")
+    logger.error("Command /%s failed: %s", name, type(error).__name__, exc_info=error)
+    message = "Something went wrong running that command. Try again in a moment."
+    try:
+        if interaction.response.is_done():
+            await interaction.followup.send(message, ephemeral=True)
+        else:
+            await interaction.response.send_message(message, ephemeral=True)
+    except discord.HTTPException:
+        logger.exception("Could not tell the user that /%s failed", name)
+
+
 class ElectionBot(commands.Bot):
     def __init__(self, store, sources: dict[str, list], http_client: httpx.AsyncClient, clock=None):
         super().__init__(command_prefix=commands.when_mentioned, intents=discord.Intents.default())
@@ -44,6 +59,7 @@ class ElectionBot(commands.Bot):
             clock or (lambda: datetime.now(timezone.utc)),
             http_client,
         )
+        self.tree.on_error = handle_app_command_error
         for command in (
             setup_command,
             watch_command,
@@ -107,14 +123,21 @@ async def _error(interaction: discord.Interaction, exc: Exception) -> None:
 
 
 @app_commands.command(name="setup", description="Choose the channel for election posts")
-@app_commands.describe(channel="Channel which will receive election posts")
-async def setup_command(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
+@app_commands.describe(
+    channel="Channel which will receive election posts",
+    admin_role="Optional role (besides Manage Server) allowed to change settings",
+)
+async def setup_command(
+    interaction: discord.Interaction,
+    channel: discord.TextChannel,
+    admin_role: discord.Role | None = None,
+) -> None:
     gs = await _guild(interaction, admin=True)
     if gs is None:
         return
-    gs.channel_id = channel.id
+    message = change_setup(gs, channel.id, admin_role.id if admin_role else None)
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message(f"Election posts will go to {channel.mention}.", ephemeral=True)
+    await interaction.response.send_message(message, ephemeral=True)
 
 
 @app_commands.command(name="watch", description="Add, remove, or list important races")
@@ -289,7 +312,7 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
             choices[str(key)] = describe(key)
             states.add(key.state)
     for source in bot.sources.get("results", []):
-        if not source.available() or not source.enabled_by_default:
+        if not source.available():
             continue
         for state in states & set(source.states):
             try:

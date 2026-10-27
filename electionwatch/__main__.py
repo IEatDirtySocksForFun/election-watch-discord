@@ -16,15 +16,6 @@ from electionwatch.sources.base import load_all
 from electionwatch.store.mongo import MongoStore
 
 
-def source_wanted(adapter, environ: Mapping[str, str]) -> bool:
-    """Adapters run if enabled by default or listed in EW_ENABLE_SOURCES, unless in EW_DISABLE_SOURCES."""
-    def names(var):
-        return {n.strip() for n in environ.get(var, "").split(",") if n.strip()}
-    if adapter.name in names("EW_DISABLE_SOURCES"):
-        return False
-    return adapter.enabled_by_default or adapter.name in names("EW_ENABLE_SOURCES")
-
-
 def validate_env(environ: Mapping[str, str]) -> list[str]:
     """Return names of invalid/missing settings, never their values."""
     errors = [name for name in ("DISCORD_TOKEN", "MONGODB_URI") if not environ.get(name)]
@@ -34,6 +25,27 @@ def validate_env(environ: Mapping[str, str]) -> list[str]:
         except ValueError:
             errors.append("DEV_GUILD_ID")
     return errors
+
+
+def build_sources(registry: Mapping[str, Mapping[str, type]], environ: Mapping[str, str]) -> dict:
+    """Instantiate the adapters the poller should use.
+
+    Adapters disabled by default (HTML scrapes, untested feeds) are skipped unless the operator
+    names them in EW_ENABLED_SOURCES, e.g. EW_ENABLED_SOURCES=cbs,fox; EW_DISABLED_SOURCES
+    turns off default adapters.
+    """
+    def names(var: str) -> set[str]:
+        return {name.strip() for name in environ.get(var, "").split(",") if name.strip()}
+
+    wanted, unwanted = names("EW_ENABLED_SOURCES"), names("EW_DISABLED_SOURCES")
+    return {
+        kind: [
+            adapter()
+            for name, adapter in adapters.items()
+            if name not in unwanted and (adapter.enabled_by_default or name in wanted)
+        ]
+        for kind, adapters in registry.items()
+    }
 
 
 async def check() -> int:
@@ -71,8 +83,7 @@ async def run() -> int:
     await store.ping()
     await store.create_indexes()
     registry = load_all()
-    sources = {kind: [adapter() for name, adapter in adapters.items() if source_wanted(adapter, os.environ)]
-               for kind, adapters in registry.items()}
+    sources = build_sources(registry, os.environ)
     async with httpx.AsyncClient(
         timeout=30,
         headers={"User-Agent": "election-watch-discord/0.1 (open-source election results bot)"},

@@ -1,11 +1,9 @@
 """Pure command and navigator logic, kept separate from Discord I/O for testing."""
 from __future__ import annotations
 
-from dataclasses import asdict
-
 import yaml
 
-from electionwatch.models import ImportantRace, Level
+from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
@@ -54,6 +52,19 @@ def _default_races() -> list[ImportantRace]:
     return load_races()
 
 
+def change_setup(gs: GuildSettings, channel_id: int, admin_role_id: int | None = None) -> str:
+    """Point the guild at a post channel; optionally restrict admin commands to one role."""
+    if not channel_id:
+        raise ValueError("channel is required")
+    gs.channel_id = int(channel_id)
+    if admin_role_id is not None:
+        gs.admin_role_id = int(admin_role_id)
+    message = f"Election posts will go to <#{gs.channel_id}>."
+    if gs.admin_role_id is not None:
+        message += f" Admin commands: Manage Server or <@&{gs.admin_role_id}>."
+    return message
+
+
 def change_posting(gs: GuildSettings, mode: str, minutes: int | None = None) -> str:
     try:
         selected = PostMode(mode.lower())
@@ -98,7 +109,8 @@ def change_odds(
 
 
 def settings_dump(gs: GuildSettings) -> str:
-    return yaml.safe_dump(asdict(gs), sort_keys=False).strip()
+    # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
+    return yaml.safe_dump(to_doc(gs), sort_keys=False).strip()
 
 
 def change_favorite(us: UserSettings, action: str, race: str) -> str:
@@ -132,18 +144,48 @@ def race_label(key, label: str | None = None) -> str:
     return label or describe(key)
 
 
+def _clip_lines(lines: list[str], limit: int = 1900) -> str:
+    """Join lines, stopping on a line boundary so 2000-character messages stay valid YAML."""
+    kept: list[str] = []
+    size = 0
+    for line in lines:
+        if size + len(line) + 1 > limit:
+            kept.append("… (truncated)")
+            break
+        kept.append(line)
+        size += len(line) + 1
+    return "\n".join(kept)
+
+
 def faq_text(states, outlets, state: str | None = None) -> str:
     """Serialize installed FAQ data deterministically, without a model or paraphrasing."""
     data = states
-    if state:
-        code = state.upper()
-        if code not in STATES:
-            raise ValueError("unknown state")
-        if isinstance(states, dict):
-            data = states.get(code) or states.get(STATES[code])
-            if data is None:
-                return f"No FAQ data for {STATES[code]}\n\n{yaml.safe_dump(outlets, sort_keys=False)}"
-        else:
-            data = [entry for entry in states if getattr(entry, "state", None) == code]
+    if state is None:
+        # All 51 states never fit in one message: point at what is installed instead of
+        # dumping a truncated YAML blob.
+        codes = (
+            sorted(states) if isinstance(states, dict)
+            else sorted({getattr(entry, "state", "") for entry in states} - {""})
+        )
+        lines = [
+            ("State FAQs: " + ", ".join(codes)) if codes else "No state FAQ data installed.",
+            "",
+            "Use /faq state:<code> for one state.",
+        ]
+        if outlets:
+            lines += ["", "Outlets:"] + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
+        return _clip_lines(lines)
+    code = state.upper()
+    if code not in STATES:
+        raise ValueError("unknown state")
+    if isinstance(states, dict):
+        data = states.get(code) or states.get(STATES[code])
+        if data is None:
+            return _clip_lines(
+                [f"No FAQ data for {STATES[code]}", ""]
+                + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
+            )
+    else:
+        data = [entry for entry in states if getattr(entry, "state", None) == code]
     text = yaml.safe_dump({"states": data, "outlets": outlets}, sort_keys=False).strip()
-    return text[:1950]
+    return _clip_lines(text.splitlines())

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import httpx
 
 from electionwatch.config import load_races
-from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult, normalize_party
+from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult
 from electionwatch.poster import Post, Poster
 from electionwatch.racekeys import describe
 from electionwatch.settings import GuildSettings, post_due
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def _party_marker(party: str | None) -> str:
-    return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
+    return {"REP": "🔴", "DEM": "🔵"}.get((party or "").upper(), "⚪")
 
 
 def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
@@ -42,13 +42,14 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
         reporting.append(f"{precincts} precincts")
     if reporting:
         lines.append(" · ".join(reporting))
-    if turnout and (result.turnout_pct is not None or result.registered_voters is not None):
-        text = "Turnout"
+    if turnout:
+        numbers = []
         if result.turnout_pct is not None:
-            text += f": {result.turnout_pct:g}%"
-        if result.registered_voters is not None and result.total_votes is not None:
-            text += f" · {result.total_votes:,}/{result.registered_voters:,} registered"
-        lines.append(text)
+            numbers.append(f"{result.turnout_pct:g}%")
+        if result.total_votes is not None and result.registered_voters is not None:
+            numbers.append(f"{result.total_votes:,}/{result.registered_voters:,} ballots")
+        if numbers:
+            lines.append("Turnout: " + " · ".join(numbers))
     return Post(
         "results",
         str(result.key),
@@ -72,6 +73,19 @@ def format_exit_poll(poll: ExitPoll) -> Post:
     lines = poll.summary.splitlines() if poll.summary else ["Exit poll available"]
     lines.append(f"Outlet: {poll.outlet}")
     return Post("exitpoll", str(poll.key), f"Exit poll · {describe(poll.key)}", lines, url=poll.url)
+
+
+def swing_detail(swing, history: list[OddsSnapshot], fallback: OddsSnapshot):
+    """Turn detect_swing()'s answer into (move in points or None, latest snapshot).
+
+    electionwatch/swings.py (a separate package) returns (move, earlier, latest); accept a
+    plain truthy value too so a simpler detector still works.
+    """
+    if isinstance(swing, tuple) and len(swing) == 3:
+        move, _earlier, latest = swing
+        return float(move), latest
+    latest = max(history, key=lambda snapshot: snapshot.ts) if history else fallback
+    return None, latest
 
 
 class Poller:
@@ -98,9 +112,9 @@ class Poller:
 
     @staticmethod
     def _enabled(source) -> bool:
+        """The brief asks for every *available* adapter: whether a source is enabled by
+        default is decided by whoever built the sources dict (__main__ / the replay sandbox)."""
         try:
-            # enabled_by_default only decides which adapters __main__ builds; anything
-            # handed to the poller (opt-in scrapers, the replay source) is in use.
             return source.available()
         except Exception:
             logger.warning("Could not check availability of source %s", getattr(source, "name", "?"))
@@ -277,18 +291,19 @@ class Poller:
                     history = await self.store.odds_since(
                         snapshot.key, snapshot.market, snapshot.outcome, now - window
                     )
-                    swing = detect_swing(history, guild.odds_swing_pts, guild.odds_window_minutes)
+                    # detect_swing takes a timedelta window (see electionwatch/swings.py).
+                    swing = detect_swing(history, guild.odds_swing_pts, window)
                     if not swing:
                         continue
-                    latest = history[-1] if history else snapshot
+                    move, latest = swing_detail(swing, history, snapshot)
+                    headline = f"{snapshot.market} · {snapshot.outcome}: {latest.prob:.1%}"
+                    if move is not None:
+                        headline += f" ({move:+.1f} pts)"
                     post = Post(
                         "odds_swing",
                         str(snapshot.key),
                         f"Odds swing · {describe(snapshot.key)}",
-                        [
-                            f"{snapshot.market} · {snapshot.outcome}: {latest.prob:.1%}",
-                            f"Move detected within {guild.odds_window_minutes} minutes",
-                        ],
+                        [headline, f"Swing within {guild.odds_window_minutes} minutes"],
                         url=snapshot.url,
                     )
                     await self._post(guild, "odds_swing", ref, post, now)

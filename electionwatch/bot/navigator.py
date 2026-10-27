@@ -29,7 +29,7 @@ class RaceNavigator(discord.ui.View):
     async def refresh(self) -> None:
         found: dict[str, tuple] = {}
         for source in self.client.sources.get("results", []):
-            if self.state not in source.states or not source.available() or not source.enabled_by_default:
+            if self.state not in source.states or not source.available():
                 continue
             try:
                 for key, label in await source.list_races(self.state, self.client.http_client):

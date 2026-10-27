@@ -1,9 +1,14 @@
-"""The same Store behaviour suite runs against memory and (when configured) Mongo."""
+"""The same Store behaviour suite runs against memory and (when configured) Mongo.
+
+The ``fake`` parameter runs MongoStore against a tiny in-memory stand-in for pymongo so the
+document round-trips are exercised even on a machine without a MongoDB server.
+"""
 from __future__ import annotations
 
 import os
 import uuid
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 
 import pytest
 
@@ -17,10 +22,118 @@ NOW = datetime(2026, 11, 3, 23, 0, tzinfo=timezone.utc)
 KEY = parse("TX SEN")
 
 
-@pytest.fixture(params=["memory", "mongo"])
+def _match(doc: dict, query: dict) -> bool:
+    for field, expected in query.items():
+        actual = doc.get(field)
+        if isinstance(expected, dict) and "$gte" in expected:
+            if actual is None or actual < expected["$gte"]:
+                return False
+        elif actual != expected:
+            return False
+    return True
+
+
+class _Cursor:
+    def __init__(self, docs: list[dict]):
+        self._docs = docs
+
+    def sort(self, field: str, direction: int = 1):
+        self._docs.sort(key=lambda doc: doc.get(field), reverse=direction < 0)
+        return self
+
+    async def _iterate(self):
+        for doc in self._docs:
+            yield doc
+
+    def __aiter__(self):
+        return self._iterate()
+
+
+class FakeCollection:
+    """Only the operations MongoStore uses, with Mongo's upsert/document semantics."""
+
+    def __init__(self) -> None:
+        self.docs: list[dict] = []
+        self.indexes: list[tuple[list, dict]] = []
+
+    async def create_index(self, keys, **options):
+        self.indexes.append((list(keys), options))
+
+    async def find_one(self, query, projection=None):
+        for doc in self.docs:
+            if _match(doc, query):
+                if projection:
+                    return {field: doc[field] for field in projection if field in doc}
+                return dict(doc)
+        return None
+
+    def find(self, query=None):
+        return _Cursor([dict(doc) for doc in self.docs if _match(doc, query or {})])
+
+    def _stored(self, query, body):
+        stored = {key: value for key, value in query.items() if not isinstance(value, dict)}
+        stored.update(body)
+        stored.setdefault("_id", len(self.docs) + 1)
+        return stored
+
+    async def replace_one(self, query, doc, upsert=False):
+        for index, existing in enumerate(self.docs):
+            if _match(existing, query):
+                stored = dict(doc)
+                stored.setdefault("_id", existing.get("_id"))
+                self.docs[index] = stored
+                return
+        if upsert:
+            self.docs.append(self._stored(query, dict(doc)))
+
+    async def insert_one(self, doc):
+        self.docs.append(self._stored({}, dict(doc)))
+
+    async def update_one(self, query, update, upsert=False):
+        for existing in self.docs:
+            if _match(existing, query):
+                existing.update(update.get("$set", {}))
+                return
+        if upsert:
+            self.docs.append(self._stored(query, dict(update.get("$set", {}))))
+
+
+class FakeDatabase:
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.collections: dict[str, FakeCollection] = {}
+
+    def __getattr__(self, item: str) -> FakeCollection:
+        return self.collections.setdefault(item, FakeCollection())
+
+
+class FakeMongoClient:
+    """Client-shaped stand-in so MongoStore can run without a server."""
+
+    def __init__(self) -> None:
+        self.databases: dict[str, FakeDatabase] = {}
+        self.admin = SimpleNamespace(command=self._ping)
+        self.closed = False
+
+    async def _ping(self, name: str):
+        return {"ok": 1}
+
+    def __getitem__(self, name: str) -> FakeDatabase:
+        return self.databases.setdefault(name, FakeDatabase(name))
+
+    async def close(self) -> None:
+        self.closed = True
+
+
+@pytest.fixture(params=["memory", "fake", "mongo"])
 async def store(request):
     if request.param == "memory":
         yield MemoryStore()
+        return
+    if request.param == "fake":
+        fake = MongoStore("mongodb://unused", database="ew_test", client=FakeMongoClient())
+        await fake.create_indexes()
+        yield fake
         return
     uri = os.environ.get("EW_TEST_MONGO_URI")
     if not uri:
@@ -82,3 +195,53 @@ async def test_calls_and_odds(store):
     for snapshot in (old, recent, other):
         await store.add_odds(snapshot)
     assert await store.odds_since(KEY, "kalshi", "REP", NOW - timedelta(hours=1)) == [recent]
+
+
+def fake_store() -> MongoStore:
+    return MongoStore("mongodb://unused", database="ew_test", client=FakeMongoClient())
+
+
+@pytest.mark.asyncio
+async def test_create_indexes_covers_the_documented_indexes():
+    store = fake_store()
+    await store.create_indexes()
+
+    def indexes(collection):
+        return {tuple(fields): options for fields, options in collection.indexes}
+
+    results = indexes(store.results)
+    assert results[(("key", 1),)]["unique"] is True
+    assert (("key", 1), ("fetched_at", 1)) in indexes(store.result_history)
+    assert indexes(store.calls)[(("key", 1), ("outlet", 1))]["unique"] is True
+    assert indexes(store.posts)[(("guild_id", 1), ("kind", 1), ("ref", 1))]["unique"] is True
+    ttl = [options for options in indexes(store.odds).values() if "expireAfterSeconds" in options]
+    assert ttl and ttl[0]["expireAfterSeconds"] == 3 * 24 * 60 * 60
+
+
+@pytest.mark.asyncio
+async def test_mongo_keeps_one_history_snapshot_per_change_and_round_trips_keys():
+    store = fake_store()
+    await store.create_indexes()
+    special = parse("NC-01 S")
+    first = RaceResult(
+        special,
+        [CandidateResult("A", "DEM", 10), CandidateResult("B", "REP", 20)],
+        "fake",
+        NOW,
+        url="https://example.test/results",
+        title="North Carolina CD 1 (Special)",
+        registered_voters=1_000,
+    ).finalize()
+    assert await store.upsert_result(first) is True
+    assert await store.upsert_result(first) is False
+    assert len(store.result_history.docs) == 1
+
+    latest = await store.latest_result(special)
+    assert latest.key == special and latest.title == "North Carolina CD 1 (Special)"
+    assert latest.url == "https://example.test/results"
+    assert [candidate.name for candidate in latest.candidates] == ["B", "A"]
+
+    second = RaceResult(special, [CandidateResult("B", "REP", 30)], "fake", NOW + timedelta(minutes=1))
+    assert await store.upsert_result(second.finalize()) is True
+    assert len(store.result_history.docs) == 2
+    assert await store.result_changed_at(special) == NOW + timedelta(minutes=1)

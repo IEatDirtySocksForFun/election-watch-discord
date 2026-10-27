@@ -28,5 +28,21 @@ async def test_discord_poster_sends_one_embed():
     assert len(messages) == 1 and isinstance(messages[0]["embed"], discord.Embed)
 
 
+def test_huge_posts_are_clipped_to_discord_limits():
+    post = Post(
+        "results",
+        "TX LOCAL harris-county-judge",
+        "L" * 300,
+        ["candidate " + str(index) + " " + "x" * 60 for index in range(200)],
+        footer="f" * 3000,
+        fields=[("n" * 300, "v" * 2000)],
+    )
+    embed = render_embed(post)
+    assert len(embed.title) <= 256 and embed.title.endswith("…")
+    assert len(embed.description) <= 4096 and embed.description.endswith("…")
+    assert len(embed.footer.text) <= 2048
+    assert len(embed.fields[0].name) <= 256 and len(embed.fields[0].value) <= 1024
+
+
 async def send(messages, kwargs):
     messages.append(kwargs)

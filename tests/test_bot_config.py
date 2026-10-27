@@ -46,16 +46,22 @@ def test_load_races_validates_and_canonicalizes(tmp_path):
     assert str(races[0].key) == "NC-01" and races[0].label == "NC first"
 
 
-def test_source_wanted_respects_opt_in_and_out():
-    from electionwatch.__main__ import source_wanted
+def test_build_sources_keeps_defaults_and_honours_explicit_opt_ins():
+    from electionwatch.__main__ import build_sources
 
-    class Scraper:
-        name, enabled_by_default = "cbs", False
+    class Default:
+        enabled_by_default = True
 
-    class Api:
-        name, enabled_by_default = "kalshi", True
+    class Scrape:
+        enabled_by_default = False
 
-    assert not source_wanted(Scraper, {})
-    assert source_wanted(Scraper, {"EW_ENABLE_SOURCES": "fox, cbs"})
-    assert source_wanted(Api, {})
-    assert not source_wanted(Api, {"EW_DISABLE_SOURCES": "kalshi"})
+    registry = {"results": {"default_adapter": Default, "scrape_adapter": Scrape}, "odds": {}}
+
+    built = build_sources(registry, {})
+    assert [type(source).__name__ for source in built["results"]] == ["Default"]
+    assert built["odds"] == []
+
+    built = build_sources(registry, {"EW_ENABLED_SOURCES": " scrape_adapter "})
+    assert [type(source).__name__ for source in built["results"]] == ["Default", "Scrape"]
+    built = build_sources(registry, {"EW_DISABLED_SOURCES": "default_adapter"})
+    assert built["results"] == []
