@@ -85,6 +85,9 @@ commit:
   and `election_id`; `jurisdiction` is optional (omit for a statewide feed) and `date`
   limits an entry to one election date. Without a matching feed for the requested state,
   the Clarity adapter raises `SourceUnavailable` instead of guessing URLs.
+- `ENHANCED_VOTING_FEEDS` — JSON list overriding the built-in Enhanced Voting
+  feeds, e.g. `[{"state":"AZ","slug":"2026NovGen"}]`. Entries need `state` and
+  `slug`; `date` limits an entry to one election date.
 
 No adapter needs an API key. All of them are plain HTTP GETs; the poller owns the
 User-Agent, timeout and retry policy.

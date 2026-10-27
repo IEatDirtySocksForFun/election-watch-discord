@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
+import json
 import pytest
 
 from electionwatch.models import Level
@@ -48,9 +49,24 @@ def test_race_key_rewrites_state():
 
 def test_feed_configuration(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
+    monkeypatch.delenv("ENHANCED_VOTING_FEEDS", raising=False)
     assert feeds("2026-11-03", "AZ") == ELECTIONS["2026-11-03"]
     assert export_url("AZ", "2026NovGen") == \
         "https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json"
+
+    monkeypatch.setenv("ENHANCED_VOTING_FEEDS", json.dumps([
+        {"state": "GA", "slug": "2024NovGen", "date": "2024-11-05"},
+        {"state": "AZ", "slug": "custom", "date": "2026-11-03"},
+    ]))
+    assert [f["state"] for f in feeds("2024-11-05")] == ["GA"]
+    assert [f["slug"] for f in feeds("2026-11-03")] == ["custom"]
+
+    with pytest.raises(SourceUnavailable):
+        monkeypatch.setenv("ENHANCED_VOTING_FEEDS", "{not json")
+        feeds("2026-11-03")
+    with pytest.raises(SourceUnavailable):
+        monkeypatch.setenv("ENHANCED_VOTING_FEEDS", '[{"state": "AZ"}]')
+        feeds("2026-11-03")
 
 
 def test_fetch_uses_cdn_export(monkeypatch):

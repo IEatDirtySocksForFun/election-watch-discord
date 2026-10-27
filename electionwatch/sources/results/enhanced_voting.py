@@ -17,6 +17,9 @@ verified once the state publishes the URL.
 """
 from __future__ import annotations
 
+import json
+import os
+
 import httpx
 
 from electionwatch.models import RaceKey, RaceResult
@@ -56,7 +59,30 @@ def race_key(state: str, name: str) -> RaceKey:
 
 
 def feeds(date: str, state: str | None = None) -> list[dict]:
-    """Configured Enhanced Voting feeds for a date (and optionally state)."""
+    """Configured Enhanced Voting feeds for a date (and optionally state).
+
+    Override with ``ENHANCED_VOTING_FEEDS`` as a JSON list of
+    ``{"state": "...", "slug": "...", "date": "..."}`` objects. Entries need
+    ``state`` and ``slug``; ``date`` limits an entry to one election date.
+    """
+    raw = os.environ.get("ENHANCED_VOTING_FEEDS")
+    if raw:
+        try:
+            entries = json.loads(raw)
+        except ValueError as exc:
+            raise SourceUnavailable("ENHANCED_VOTING_FEEDS is not valid JSON") from exc
+        if not isinstance(entries, list):
+            raise SourceUnavailable("ENHANCED_VOTING_FEEDS must be a JSON list")
+        out = []
+        for entry in entries:
+            if not isinstance(entry, dict) or not entry.get("state") or not entry.get("slug"):
+                raise SourceUnavailable(
+                    "ENHANCED_VOTING_FEEDS entries need state and slug")
+            if entry.get("date") and entry["date"] != date:
+                continue
+            out.append(entry)
+        return out
+
     out = []
     for entry in ELECTIONS.get(date, []):
         if state is None or entry["state"].upper() == state.upper():
