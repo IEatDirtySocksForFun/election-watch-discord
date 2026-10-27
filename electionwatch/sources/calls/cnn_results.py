@@ -4,6 +4,15 @@ CNN's public race JSON (the same feed used by ``cnn.py`` for calls) carries
 ``totalVote``, ``percentReporting`` and per-candidate ``voteNum`` /
 ``votePercentNum``. It is the site's own JSON rather than a documented API, so
 ``scrape=True`` and disabled by default.
+
+At-large House seats: the code is built as ``<year>-HG-<state>-AL`` (see
+``calls._common.key_to_cnn_code``) and the parser accepts that suffix. Checked
+2026-10-27 with plain unauthenticated GETs: ``2024-HG-AK-AL.json`` answers 404,
+while a control for a race CNN did carry (``2024-SG-TX.json``) answers 200, and
+``2024-HG-AK-00`` / ``-01`` are 404 as well — so CNN's code for a single-seat
+state cannot be confirmed from outside today, and the mapping is left as is
+rather than guessed at. If CNN rate-limits (406) the fetch reports
+SourceUnavailable once and the poller backs off; it never retries in a loop.
 """
 from __future__ import annotations
 

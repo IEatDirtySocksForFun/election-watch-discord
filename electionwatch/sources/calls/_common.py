@@ -53,8 +53,13 @@ def parse_http_date(value) -> datetime | None:
 
 
 def cnn_code_to_key(code: str) -> RaceKey | None:
-    """Convert a CNN race code like '2026-SG-TX' or '2026-HG-CA-12' to a RaceKey."""
-    m = re.fullmatch(r"\d{4}-([A-Z]+)-([A-Z]{2})(?:-(\d{2}))?", code)
+    """Convert a CNN race code like '2026-SG-TX', '2026-HG-CA-12' or '2026-HG-AK-AL'.
+
+    A single-seat state's district is "AL" (see RaceKey), and key_to_cnn_code emits
+    that, so the parser must accept it too — otherwise an at-large response parses to
+    None and is dropped.
+    """
+    m = re.fullmatch(r"\d{4}-([A-Z]+)-([A-Z]{2})(?:-(AL|\d{2}))?", code)
     if not m:
         return None
     office, state, district = m.groups()

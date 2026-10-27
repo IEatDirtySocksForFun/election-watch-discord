@@ -3,7 +3,7 @@ from pathlib import Path
 
 from electionwatch.models import Level, RaceKey, RaceCall
 from electionwatch.sources.calls.cnn import CNNSource, parse_cnn_race
-from electionwatch.sources.calls._common import key_to_cnn_code
+from electionwatch.sources.calls._common import cnn_code_to_key, key_to_cnn_code
 
 FIX = Path(__file__).parent / "fixtures" / "cnn"
 
@@ -44,6 +44,9 @@ def test_key_to_cnn_code():
     assert key_to_cnn_code(RaceKey("TX", Level.SENATE, "SEN")) == "2026-SG-TX"
     assert key_to_cnn_code(RaceKey("CA", Level.GOVERNOR, "GOV")) == "2026-GO-CA"
     assert key_to_cnn_code(RaceKey("CA", Level.HOUSE, "HOUSE", "12")) == "2026-HG-CA-12"
+    # At-large seats keep the XX-AL key; the code round-trips through the parser.
+    assert key_to_cnn_code(RaceKey("AK", Level.HOUSE, "HOUSE", "AL")) == "2026-HG-AK-AL"
+    assert cnn_code_to_key("2026-HG-AK-AL") == RaceKey("AK", Level.HOUSE, "HOUSE", "AL")
 
 
 def test_source_registry():
