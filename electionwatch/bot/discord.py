@@ -391,10 +391,11 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
         for key, label in found.values():
             choices[str(key)] = label or describe(key)
     needle = current.casefold()
+    # Discord rejects the WHOLE autocomplete answer if any choice value exceeds 100
+    # characters; LOCAL keys (slug of the full contest name) can. Those stay typeable.
     return [
         app_commands.Choice(name=f"{key} · {label}"[:100], value=key)
         for key, label in sorted(choices.items())
-        # A choice value over 100 characters makes Discord reject the whole answer.
         if len(key) <= 100 and (needle in key.casefold() or needle in label.casefold())
     ][:25]
 

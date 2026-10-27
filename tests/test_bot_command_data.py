@@ -190,3 +190,22 @@ def test_merge_polls_joins_sponsor_and_fieldwork_copies():
     c = Poll(parse("TX SEN"), "Emerson College", res(), date(2026, 10, 22))  # other firm: kept
     merged = merge_polls([a, b, c])
     assert [p.pollster for p in merged] == ["Emerson College", "YouGov"]
+
+
+def test_format_polls_stays_under_discords_6000_character_embed_limit():
+    # Found by tools/live_command_check.py: Discord answered 400 "Embed size exceeds maximum
+    # size of 6000" for ten polls with many long candidate names.
+    from datetime import date
+
+    from electionwatch.models import Poll, PollResult
+
+    name = "Bartholomew-Maximilian Featherstonehaugh-Wolfeschlegelsteinhausen Jr."
+    polls = [
+        Poll(KEY, f"{name} Research {p}", [PollResult(f"{name} {c}", "DEM", 10.0) for c in range(12)],
+             date(2026, 10, 30 - p), sponsor=f"{name} Committee {p}", url="https://example.org/p")
+        for p in range(12)
+    ]
+    embed = format_polls(KEY, polls, count=10)
+    assert len(embed) <= 6000
+    assert 1 <= len(embed.fields) < 10
+    assert embed.description.startswith(f"Showing {len(embed.fields)} most recent poll")

@@ -242,7 +242,8 @@ async def test_race_select_sizes(count):
     assert_edited(interaction, ["edit_message"])
     select = race_select(view)
     assert select is not None and "Odds" not in buttons(view)
-    offered = [o.value for o in select.options]
+    # Option values are list positions (keys can exceed Discord's 100-character limit).
+    offered = [view._race_choices[int(o.value)] for o in select.options]
     assert len(offered) == min(count, 25)
     if count > 25:
         # UX GAP: only the first 25 races (by key) are offered; the rest cannot be chosen.
@@ -259,14 +260,14 @@ async def test_choosing_a_race_shows_its_result_and_brings_back_the_tools():
     view = await navigator_for(client_with(Results(races), store=store),
                                UserSettings(OWNER, home_state="TX", default_level="state"))
     await click(view, buttons(view)["Choose race"])
-    interaction = await click(view, race_select(view), values=["TX HD-05"])
+    interaction = await click(view, race_select(view), values=[str(view._race_choices.index("TX HD-05"))])
     reply = assert_edited(interaction, ["edit_message"])
     assert view.selected_race == "TX HD-05"
     assert "Doe" in reply.embed.description
     assert {"Odds", "Polls", "Choose race"} <= set(buttons(view)) and race_select(view) is None
 
     interaction = await click(view, buttons(view)["Choose race"])
-    await click(view, race_select(view), values=["TX HD-06"])
+    await click(view, race_select(view), values=[str(view._race_choices.index("TX HD-06"))])
     assert (await view.embed()).description.startswith("No current result")
 
 

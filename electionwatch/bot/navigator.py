@@ -69,6 +69,7 @@ class RaceNavigator(discord.ui.View):
         self.level = settings.default_level if settings.default_level in LEVELS else "senate"
         self.races: list[tuple] = []
         self.selected_race = None
+        self._race_choices: list[str] = []   # race-select option value i -> race key
 
     async def refresh(self) -> None:
         found = await list_races(self.client, self.state)
@@ -116,13 +117,16 @@ class RaceNavigator(discord.ui.View):
             button.callback = self._choose_race_callback
             self.add_item(button)
         elif visible:
+            # Option values are capped at 100 characters and LOCAL keys carry a slug of the
+            # full contest name, which can be longer: send the list position instead.
+            self._race_choices = [str(key) for key, _ in visible]
             select = discord.ui.Select(
                 placeholder="Race",
                 options=[
                     discord.SelectOption(
-                        label=(label or str(key))[:100], value=str(key), default=False
+                        label=(label or str(key))[:100], value=str(index), default=False
                     )
-                    for key, label in visible
+                    for index, (key, label) in enumerate(visible)
                 ],
                 row=4,
             )
@@ -149,7 +153,7 @@ class RaceNavigator(discord.ui.View):
     async def _race_callback(self, interaction: discord.Interaction):
         if not await self._owns(interaction):
             return
-        self.selected_race = interaction.data["values"][0]
+        self.selected_race = self._race_choices[int(interaction.data["values"][0])]
         self._build_controls()
         await interaction.response.edit_message(embed=await self.embed(), view=self)
 

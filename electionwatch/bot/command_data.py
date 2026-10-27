@@ -7,7 +7,9 @@ from datetime import datetime, timedelta, timezone
 
 import discord
 
-from electionwatch.bot.poster import MAX_DESCRIPTION, MAX_FIELD_NAME, MAX_FIELD_VALUE, MAX_FOOTER, MAX_TITLE, clip
+from electionwatch.bot.poster import (
+    MAX_DESCRIPTION, MAX_EMBED_TOTAL, MAX_FIELD_NAME, MAX_FIELD_VALUE, MAX_FOOTER, MAX_TITLE, clip,
+)
 from electionwatch.models import OddsSnapshot, Poll, RaceKey, normalize_party
 from electionwatch.racekeys import describe
 
@@ -190,12 +192,7 @@ def format_polls(
             " with the selected internals filter." if not internals else "."
         )
         return embed
-    embed.description = f"Showing {len(visible)} most recent poll" + ("s" if len(visible) != 1 else "") + (
-        "; partisan internals included." if internals else "; partisan internals excluded."
-    )
-    # Ten fields of up to 1024 characters would break Discord's 6000-character embed total:
-    # share what is left after the title and description evenly between the polls.
-    share = (MAX_EMBED_TOTAL - len(embed.title) - len(embed.description)) // len(visible)
+    fields: list[tuple[str, str]] = []
     for poll in visible:
         details = [_poll_dates(poll)]
         if poll.sample_size is not None:
@@ -212,12 +209,21 @@ def format_polls(
         lines = [" · ".join(details), results]
         if poll.url:
             lines.append(f"[Poll link]({poll.url})")
-        name = clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME)
-        embed.add_field(
-            name=name,
-            value=clip("\n".join(lines), min(MAX_FIELD_VALUE, share - len(name))),
-            inline=False,
-        )
+        fields.append((clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME),
+                       clip("\n".join(lines), MAX_FIELD_VALUE)))
+    # Discord rejects the whole message (400) when an embed's text exceeds 6000 characters in
+    # total: ten polls with many candidates can. Keep the newest polls that fit.
+    budget = MAX_EMBED_TOTAL - len(embed.title) - 100   # room for the description below
+    shown = 0
+    for name, value in fields:
+        if len(name) + len(value) > budget:
+            break
+        budget -= len(name) + len(value)
+        shown += 1
+        embed.add_field(name=name, value=value, inline=False)
+    embed.description = f"Showing {shown} most recent poll" + ("s" if shown != 1 else "") + (
+        "; partisan internals included." if internals else "; partisan internals excluded."
+    )
     return embed
 
 
