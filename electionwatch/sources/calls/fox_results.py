@@ -12,6 +12,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
@@ -29,7 +30,7 @@ class FOXResultsSource(ResultsSource):
     states = frozenset(STATES)
 
     BASE = "https://feeds-elections.foxnews.com/archive/politics/elections"
-    YEAR = 2024
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     def _url(self, key: RaceKey) -> str | None:
         office = _OFFICE_NAMES.get(key.level)
@@ -52,7 +53,7 @@ class FOXResultsSource(ResultsSource):
         now = datetime.now(timezone.utc)
         results: list[RaceResult] = []
         seen: set[str] = set()
-        for office, key in sorted(pairs):
+        for office, key in sorted(pairs, key=lambda p: (p[0], str(p[1]))):
             url = self._url(key)
             if url is None or url in seen:
                 continue

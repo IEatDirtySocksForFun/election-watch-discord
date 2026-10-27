@@ -12,6 +12,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
@@ -32,7 +33,7 @@ class NBCResultsSource(ResultsSource):
     states = frozenset(STATES)
 
     BASE = "https://www.nbcnews.com/firecracker/api/v2/national-results"
-    YEAR = 2024
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     async def _get(self, client: httpx.AsyncClient, office: str) -> dict:
         url = f"{self.BASE}/{self.YEAR}-elections/{office}-results"

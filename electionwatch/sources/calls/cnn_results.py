@@ -12,6 +12,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
@@ -28,7 +29,7 @@ class CNNResultsSource(ResultsSource):
     states = frozenset(STATES)
 
     BASE = "https://politics.api.cnn.io/results/race"
-    YEAR = 2024
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         now = datetime.now(timezone.utc)

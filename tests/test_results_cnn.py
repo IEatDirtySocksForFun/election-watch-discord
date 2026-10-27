@@ -72,3 +72,12 @@ async def test_fetch_404_is_empty():
     respx.get(f"{CNNResultsSource.BASE}/2024-SG-TX.json").mock(return_value=httpx.Response(404))
     async with httpx.AsyncClient() as client:
         assert await CNNResultsSource().fetch([TX_SEN], client) == []
+
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _year_2024(monkeypatch):
+    """Fixtures are 2024 captures; adapters take the year from ELECTION_DATE (2026 default)."""
+    monkeypatch.setattr(CNNResultsSource, "YEAR", 2024)

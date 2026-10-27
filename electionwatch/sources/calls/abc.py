@@ -15,6 +15,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
 
@@ -36,7 +37,7 @@ class ABCSource(CallSource):
     enabled_by_default = False
 
     BASE = "https://abcnews.go.com/widgets/generalstateresults"
-    YEAR = 2026
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     def _url(self, key: RaceKey) -> str | None:
         chamber = _CHAMBERS.get(key.level)

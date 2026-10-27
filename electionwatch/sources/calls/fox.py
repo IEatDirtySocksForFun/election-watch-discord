@@ -17,6 +17,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
@@ -39,7 +40,7 @@ class FOXSource(CallSource):
     enabled_by_default = False
 
     BASE = "https://feeds-elections.foxnews.com/archive/politics/elections"
-    YEAR = 2026
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     def _url(self, key: RaceKey) -> str | None:
         office = _OFFICE_NAMES.get(key.level)
