@@ -20,6 +20,8 @@ NOW = datetime(2026, 11, 3, 20, 0, tzinfo=timezone.utc)
     ("GA GOV", "GA GOV", "Georgia Governor"),
     ("TX SD-5", "TX SD-05", "Texas State Senate District 5"),
     ("TX HD 121", "TX HD-121", "Texas State House District 121"),
+    ("AK SD-A", "AK SD-A", "Alaska State Senate District A"),
+    ("VT HD-CHT-6-7", "VT HD-CHT-6-7", "Vermont State House District CHT-6-7"),
     ("TX LOCAL Harris County Judge", "TX LOCAL harris-county-judge", "Texas local: harris county judge"),
     ("Texas Senate", "TX SEN", "Texas Senate"),
     ("North Carolina Congressional District 1", "NC-01", "North Carolina Congressional District 1"),

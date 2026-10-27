@@ -3,7 +3,8 @@
     NC-01  NC-1  AK-AL           US House district (AL = at-large)
     TX SEN  TX-SEN               US Senate;  "OH SEN S" / "OH SEN SPECIAL" = special election
     TX GOV  TX AG  TX LTGOV ...  statewide executive office (see STATEWIDE)
-    TX SD-05  TX HD-121          state senate / state house district
+    TX SD-05  TX HD-121          state senate / state house district (numbered)
+    AK SD-A   VT HD-CHT-6-7      ... or named/lettered (Alaska A-T, Vermont CHT-6-7)
     TX LOCAL harris-county-judge local race, free-form slug (sources map it)
 
 Long forms are accepted too: "Texas Senate", "North Carolina Congressional District 1",
@@ -91,7 +92,8 @@ def parse(text: str) -> RaceKey:
         return RaceKey(st, Level.SENATE, "SEN", None, _special(rest[1:]))
     if office in STATEWIDE:
         return RaceKey(st, Level.GOVERNOR, office, None, _special(rest[1:]))
-    m = re.fullmatch(r"(SD|HD)-?(\d{1,3}[A-Z]?)", office)
+    m = re.fullmatch(r"(SD|HD)-?([A-Z]{1,4}(?:-(?:[A-Z]{1,4}|\d{1,3}[A-Z]?))*|\d{1,3}[A-Z]?)",
+                     office)
     if m:
         d = m.group(2)
         d = f"{int(d):02d}" if d.isdigit() else d
