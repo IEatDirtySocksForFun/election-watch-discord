@@ -96,7 +96,7 @@ Admin commands need **Manage Server**, or the admin role if one is configured. T
 | `/turnout on\|off` | admin | turnout lines in results posts |
 | `/exitpolls on\|off` | admin | exit-poll posts |
 | `/pause`, `/resume` | admin | stop / restart all posting |
-| `/settings` | admin | show this server's settings |
+| `/settings` | everyone | show this server's settings (read-only) |
 | `/odds [race]` | everyone | private Kalshi/Polymarket probabilities and 1 h/24 h moves; omit race for watched races |
 | `/polls race:<race> [count] [internals]` | everyone | private recent polls, newest first; optionally exclude partisan internals |
 | `/races` | everyone | private navigator: Congressional / Senate / State / Local tabs, state picker, race picker, Odds and Polls buttons; remembers your last state and tab |

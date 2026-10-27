@@ -112,3 +112,11 @@ def test_faq_without_a_state_lists_available_states_and_fits_one_message():
 
     one = faq_text(states, outlets, "TX")
     assert len(one) <= 2000 and "official_results_url" in one
+
+
+def test_settings_dump_and_watch_list_fit_in_one_discord_message():
+    from electionwatch.bot.logic import change_watch, settings_dump
+
+    gs = GuildSettings(1, important=[f"TX HD-{n:02d}" for n in range(1, 151)])
+    assert len(f"```yaml\n{settings_dump(gs)}\n```") <= 2000
+    assert len(change_watch(gs, "list")) <= 2000
