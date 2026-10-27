@@ -28,8 +28,10 @@ class PolymarketSource(OddsSource):
     enabled_by_default = True
 
     BASE = "https://gamma-api.polymarket.com"
-    # Cap discovery pagination to keep polling reasonable.
-    _MAX_DISCOVERY_OFFSET: ClassVar[int] = 5000
+    # Gamma rejects offsets past ~2500 with 422 ("use /events/keyset"); the midterms tag keeps
+    # the Senate/Governor markets on the first page, so a low cap is plenty.
+    _MAX_DISCOVERY_OFFSET: ClassVar[int] = 1000
+    TAG = "midterms"
 
     async def fetch_odds(
         self, keys: list[RaceKey], client: httpx.AsyncClient
@@ -46,10 +48,13 @@ class PolymarketSource(OddsSource):
             try:
                 resp = await client.get(
                     f"{self.BASE}/events",
-                    params={"closed": "false", "limit": limit, "offset": offset},
+                    params={"closed": "false", "limit": limit, "offset": offset,
+                            "tag_slug": self.TAG},
                 )
             except httpx.HTTPError as exc:
                 raise SourceUnavailable(f"polymarket unreachable: {exc}") from exc
+            if resp.status_code == 422 and offset:
+                break  # past Gamma's offset limit: keep what earlier pages found
             if resp.status_code >= 400:
                 raise SourceUnavailable(
                     f"polymarket returned {resp.status_code}"
