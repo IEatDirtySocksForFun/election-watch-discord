@@ -16,6 +16,12 @@ Ground rules followed throughout:
 
 Checks below were run on **2026-10-27**.
 
+> **Update (later on 2026-10-27, `docs/state-coverage-plan.md`):** Tarrant, Fort Bend and Bexar
+> *are* Clarity counties. Their ids are linked from the counties' own pages, and they are now
+> pinned. Dallas and Williamson list their 2026 elections. Harris publishes its own JSON, now
+> merged by `tx_counties`. Alabama's Madison County has its own adapter, `al_counties`.
+> Statements below that say otherwise describe the earlier state of the adapters.
+
 ## How the shared pieces fit
 
 | Module | Role |
