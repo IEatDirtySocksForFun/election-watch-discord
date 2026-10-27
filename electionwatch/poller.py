@@ -127,6 +127,7 @@ class Poller:
         # shown, so a vote change further down (multi-seat races) can render an identical
         # post; those are skipped. In memory: at most one repeat after a restart.
         self._last_body: dict[tuple[int, str, str], tuple[str, ...]] = {}
+        self._backoff: dict[str, tuple[int, datetime | None]] = {}   # source -> (failures, skip until)
 
     def _watched(self, guild: GuildSettings) -> set[str]:
         return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
@@ -142,8 +143,23 @@ class Poller:
             return False
 
     async def _fetch(self, source, method: str, keys: list):
-        call = getattr(source, method)
-        return await asyncio.wait_for(call(keys, self.http), timeout=self.fetch_timeout)
+        """Fetch with a per-source back-off: after a failure the source is skipped for 1, 2, 4,
+        8, then 15 minutes, so a site that starts refusing us (CNN answers 406 to bursts) is not
+        hammered every minute. A success resets it."""
+        name = getattr(source, "name", repr(source))
+        failures, until = self._backoff.get(name, (0, None))
+        now = self.clock()
+        if until is not None and now < until:
+            return []
+        try:
+            got = await asyncio.wait_for(getattr(source, method)(keys, self.http), timeout=self.fetch_timeout)
+        except Exception:
+            failures += 1
+            self._backoff[name] = (failures, now + timedelta(minutes=min(2 ** (failures - 1), 15)))
+            raise
+        if failures:
+            self._backoff.pop(name, None)
+        return got
 
     async def _post(self, guild: GuildSettings, kind: str, ref: str, post: Post, now: datetime) -> None:
         if guild.channel_id is None or guild.paused:

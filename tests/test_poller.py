@@ -540,3 +540,34 @@ async def test_identical_results_post_is_skipped():
         await p._post(gs, "results", "TX SEN", post, now)
         await p._post(gs, "results", "TX SEN", Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 11 · 61.0%"]), now)
     assert len(poster.sent) == 2
+
+
+async def test_failing_source_backs_off_then_recovers():
+    from datetime import datetime, timedelta, timezone
+    import httpx
+    from electionwatch.poller import Poller
+    from electionwatch.poster import RecordingPoster
+    from electionwatch.store.memory import MemoryStore
+
+    class Flaky:
+        name, calls, fail = "flaky", 0, True
+        async def fetch(self, keys, http):
+            Flaky.calls += 1
+            if Flaky.fail:
+                raise RuntimeError("406")
+            return ["ok"]
+
+    now = [datetime(2026, 11, 3, 23, tzinfo=timezone.utc)]
+    async with httpx.AsyncClient() as http:
+        p = Poller(MemoryStore(), {}, RecordingPoster(), lambda: now[0], http)
+        src = Flaky()
+        for _ in range(3):                       # fails once, then skipped for 1 minute
+            try:
+                await p._fetch(src, "fetch", [])
+            except RuntimeError:
+                pass
+        assert Flaky.calls == 1
+        now[0] += timedelta(minutes=1)
+        Flaky.fail = False
+        assert await p._fetch(src, "fetch", []) == ["ok"] and Flaky.calls == 2
+        assert "flaky" not in p._backoff

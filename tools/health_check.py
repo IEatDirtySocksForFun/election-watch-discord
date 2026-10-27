@@ -22,7 +22,7 @@ import httpx
 from electionwatch.models import Level, RaceKey
 from electionwatch.sources.base import SourceUnavailable, load_all
 
-UA = "election-watch-discord health check (+https://github.com/IEatDirtySocksForFun/election-watch-discord)"
+UA = "election-watch-discord/0.1 (open-source election results bot)"  # NBC refuses UAs containing a URL
 
 
 def probe_keys(state: str) -> list[RaceKey]:
