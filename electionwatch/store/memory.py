@@ -1,7 +1,9 @@
 """In-memory Store for tests and the replay sandbox."""
 from __future__ import annotations
 
+import bisect
 import copy
+from collections import defaultdict
 from datetime import datetime
 
 from electionwatch.models import OddsSnapshot, RaceCall, RaceKey, RaceResult
@@ -18,6 +20,9 @@ class MemoryStore:
         self.history: list[RaceResult] = []
         self.calls: dict[tuple[str, str], RaceCall] = {}
         self.odds: list[OddsSnapshot] = []
+        # (key, market, outcome) -> snapshots in time order, so odds_since doesn't scan
+        # every snapshot of the night on every tick (replays of 200+ races slowed to ~20 s/tick).
+        self._odds_by: dict[tuple, list[OddsSnapshot]] = defaultdict(list)
         self.posts: dict[tuple[int, str, str], datetime] = {}
 
     async def get_guild(self, guild_id):
@@ -63,11 +68,18 @@ class MemoryStore:
         return [copy.deepcopy(c) for (k, _), c in self.calls.items() if k == str(key)]
 
     async def add_odds(self, s: OddsSnapshot):
-        self.odds.append(copy.deepcopy(s))
+        s = copy.copy(s)          # OddsSnapshot has no mutable fields; a shallow copy suffices
+        self.odds.append(s)
+        series = self._odds_by[(s.key, s.market, s.outcome)]
+        if series and series[-1].ts > s.ts:
+            bisect.insort(series, s, key=lambda x: x.ts)
+        else:
+            series.append(s)
 
     async def odds_since(self, key, market, outcome, since):
-        return [copy.deepcopy(s) for s in self.odds
-                if s.key == key and s.market == market and s.outcome == outcome and s.ts >= since]
+        series = self._odds_by.get((key, market, outcome), [])
+        i = bisect.bisect_left(series, since, key=lambda x: x.ts)
+        return [copy.copy(s) for s in series[i:]]
 
     async def last_posted(self, guild_id, kind, ref):
         return self.posts.get((guild_id, kind, ref))
