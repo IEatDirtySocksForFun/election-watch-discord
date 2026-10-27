@@ -5,6 +5,7 @@ import discord
 
 from electionwatch.poster import Post
 
+
 # Discord's hard limits (https://discord.com/developers/docs/resources/channel#embed-object).
 MAX_TITLE = 256
 MAX_DESCRIPTION = 4096
