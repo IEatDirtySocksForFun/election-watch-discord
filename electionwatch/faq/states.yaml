@@ -20,7 +20,7 @@ AL:
     the polls close.
   typical_call_time: >-
     Fast to hours: small precinct counts report quickly, but a close race may
-    wait for the noon-received absentee tally and provisional ballots.
+    wait for absentee and provisional ballots counted after the polls close.
   recount_threshold: Automatic recount if margin is less than 0.5% of votes cast.
   ranked_choice: "false"
   notes: >-
@@ -458,7 +458,7 @@ IL:
   recount_threshold: >-
     No automatic recount for most offices; a candidate may petition (cost bond
     required).
-  ranked_choice: Local only (Evanston, Oak Park and other municipalities).
+  ranked_choice: Local only (Evanston, Oak Park and Skokie have adopted it; implementation pending).
   notes: >-
     The 14-day mail receipt window is one of the longest in the country; late
     Chicago mail is a common source of delayed calls.
@@ -733,7 +733,7 @@ MA:
     three-day mail window can delay very close races.
   recount_threshold: >-
     No automatic recount; a candidate may petition for one with a deposit.
-  ranked_choice: Local only (Cambridge).
+  ranked_choice: Local only (Cambridge, Easthampton).
   notes: >-
     Massachusetts scans mail as it arrives, so the first release includes most
     of the mail vote.
@@ -771,7 +771,7 @@ MI:
   recount_threshold: >-
     Automatic recount if the statewide margin is 2,000 votes or less; a
     candidate may also petition.
-  ranked_choice: Local only (Ann Arbor, Eastpointe).
+  ranked_choice: Local only (Eastpointe, under a federal consent decree).
   notes: >-
     Michigan's early tabulation boards were created to speed up absentee
     counting; Detroit's central count is still the slowest large batch.

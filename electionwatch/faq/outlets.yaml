@@ -28,8 +28,8 @@ ABC:
   results_url: https://abcnews.com/elections
   exit_poll_url: https://abcnews.com/elections
   notes: >-
-    ABC News Decision Desk works with the National Election Pool exit poll
-    and 538's forecast model; calls follow poll closings.
+    ABC News Decision Desk uses the National Election Pool exit poll and calls
+    races as polls close in each state.
 CNN:
   name: CNN
   results_url: https://www.cnn.com/election/2026

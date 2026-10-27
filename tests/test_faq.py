@@ -2,9 +2,15 @@
 from __future__ import annotations
 
 import copy
+import sys
+from pathlib import Path
 from urllib.parse import urlparse
 
 import pytest
+
+# The shared venv has the primary checkout installed editable; make sure this
+# worktree's package is the one under test.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from electionwatch.faq import loader
 from electionwatch.racekeys import STATES
