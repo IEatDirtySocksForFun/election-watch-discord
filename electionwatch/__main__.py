@@ -16,6 +16,15 @@ from electionwatch.sources.base import load_all
 from electionwatch.store.mongo import MongoStore
 
 
+def source_wanted(adapter, environ: Mapping[str, str]) -> bool:
+    """Adapters run if enabled by default or listed in EW_ENABLE_SOURCES, unless in EW_DISABLE_SOURCES."""
+    def names(var):
+        return {n.strip() for n in environ.get(var, "").split(",") if n.strip()}
+    if adapter.name in names("EW_DISABLE_SOURCES"):
+        return False
+    return adapter.enabled_by_default or adapter.name in names("EW_ENABLE_SOURCES")
+
+
 def validate_env(environ: Mapping[str, str]) -> list[str]:
     """Return names of invalid/missing settings, never their values."""
     errors = [name for name in ("DISCORD_TOKEN", "MONGODB_URI") if not environ.get(name)]
@@ -62,7 +71,8 @@ async def run() -> int:
     await store.ping()
     await store.create_indexes()
     registry = load_all()
-    sources = {kind: [adapter() for adapter in adapters.values()] for kind, adapters in registry.items()}
+    sources = {kind: [adapter() for name, adapter in adapters.items() if source_wanted(adapter, os.environ)]
+               for kind, adapters in registry.items()}
     async with httpx.AsyncClient(
         timeout=30,
         headers={"User-Agent": "election-watch-discord/0.1 (open-source election results bot)"},

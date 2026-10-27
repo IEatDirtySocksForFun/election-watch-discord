@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import httpx
 
 from electionwatch.config import load_races
-from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult
+from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult, normalize_party
 from electionwatch.poster import Post, Poster
 from electionwatch.racekeys import describe
 from electionwatch.settings import GuildSettings, post_due
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def _party_marker(party: str | None) -> str:
-    return {"REP": "🔴", "DEM": "🔵"}.get((party or "").upper(), "⚪")
+    return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
 
 
 def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
@@ -99,7 +99,9 @@ class Poller:
     @staticmethod
     def _enabled(source) -> bool:
         try:
-            return source.available() and source.enabled_by_default
+            # enabled_by_default only decides which adapters __main__ builds; anything
+            # handed to the poller (opt-in scrapers, the replay source) is in use.
+            return source.available()
         except Exception:
             logger.warning("Could not check availability of source %s", getattr(source, "name", "?"))
             return False

@@ -44,3 +44,18 @@ def test_load_races_validates_and_canonicalizes(tmp_path):
     races = load_races(path)
     assert len(races) == 1
     assert str(races[0].key) == "NC-01" and races[0].label == "NC first"
+
+
+def test_source_wanted_respects_opt_in_and_out():
+    from electionwatch.__main__ import source_wanted
+
+    class Scraper:
+        name, enabled_by_default = "cbs", False
+
+    class Api:
+        name, enabled_by_default = "kalshi", True
+
+    assert not source_wanted(Scraper, {})
+    assert source_wanted(Scraper, {"EW_ENABLE_SOURCES": "fox, cbs"})
+    assert source_wanted(Api, {})
+    assert not source_wanted(Api, {"EW_DISABLE_SOURCES": "kalshi"})
