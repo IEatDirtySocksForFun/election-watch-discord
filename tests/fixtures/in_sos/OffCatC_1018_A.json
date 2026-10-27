@@ -1,0 +1,71 @@
+{
+ "Root": {
+  "WriteTime": "2025-04-17T18:32:00.097",
+  "StatewideSummary": {
+   "Race": [
+    {
+     "OFFICEID": "1780",
+     "OFFICE_TITLE": "State Senator, District 02",
+     "SubSortOrder": "State Senator, District 02",
+     "NumofSeats": "1",
+     "BALLOT_ORDER": "110",
+     "Candidates": {
+      "Candidate": [
+       {
+        "NAME_ON_BALLOT": "Lonnie M. Randolph",
+        "isWinner": "T",
+        "POLITICALPARTYID": "1017",
+        "PARTY": "D",
+        "DISPLAY_COLOR": "#007ECD",
+        "TOTAL": 27981,
+        "CandidateName": "Randolph, Lonnie Lonnie",
+        "SORT_ORDER": "10"
+       },
+       {
+        "NAME_ON_BALLOT": "Humberto Prado",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1018",
+        "PARTY": "R",
+        "DISPLAY_COLOR": "#F63D3D",
+        "TOTAL": 14635,
+        "CandidateName": "Prado, Humberto Humberto",
+        "SORT_ORDER": "15"
+       }
+      ]
+     }
+    },
+    {
+     "OFFICEID": "2255",
+     "OFFICE_TITLE": "State Senator, District 03",
+     "SubSortOrder": "State Senator, District 03",
+     "NumofSeats": "1",
+     "BALLOT_ORDER": "110",
+     "Candidates": {
+      "Candidate": [
+       {
+        "NAME_ON_BALLOT": "Mark Spencer",
+        "isWinner": "T",
+        "POLITICALPARTYID": "1017",
+        "PARTY": "D",
+        "DISPLAY_COLOR": "#007ECD",
+        "TOTAL": 33401,
+        "CandidateName": "Spencer, Mark Mark",
+        "SORT_ORDER": "10"
+       },
+       {
+        "NAME_ON_BALLOT": "Will Miller",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1018",
+        "PARTY": "R",
+        "DISPLAY_COLOR": "#F63D3D",
+        "TOTAL": 12279,
+        "CandidateName": "Miller, Willie Willie",
+        "SORT_ORDER": "15"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

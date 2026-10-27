@@ -1,0 +1,101 @@
+{
+ "Root": {
+  "WriteTime": "2025-04-17T18:31:58.77",
+  "StatewideSummary": {
+   "Race": [
+    {
+     "OFFICEID": "2471",
+     "OFFICE_TITLE": "United States Representative, First District",
+     "SubSortOrder": "United States Representative, (1) District",
+     "NumofSeats": "1",
+     "BALLOT_ORDER": "100",
+     "Candidates": {
+      "Candidate": [
+       {
+        "NAME_ON_BALLOT": "Frank J. Mrvan",
+        "isWinner": "T",
+        "POLITICALPARTYID": "1017",
+        "PARTY": "D",
+        "DISPLAY_COLOR": "#007ECD",
+        "TOTAL": 172467,
+        "CandidateName": "Mrvan, Frank Frank",
+        "SORT_ORDER": "10"
+       },
+       {
+        "NAME_ON_BALLOT": "Randy Niemeyer",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1018",
+        "PARTY": "R",
+        "DISPLAY_COLOR": "#F63D3D",
+        "TOTAL": 145056,
+        "CandidateName": "Niemeyer, Randy Randy",
+        "SORT_ORDER": "15"
+       },
+       {
+        "NAME_ON_BALLOT": "Dakotah Miskus",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1012",
+        "PARTY": "L",
+        "DISPLAY_COLOR": "#008000",
+        "TOTAL": 5200,
+        "CandidateName": "Miskus, Dakotah Dakotah",
+        "SORT_ORDER": "20"
+       }
+      ]
+     }
+    },
+    {
+     "OFFICEID": "1404",
+     "OFFICE_TITLE": "United States Representative, Second District",
+     "SubSortOrder": "United States Representative, (2) District",
+     "NumofSeats": "1",
+     "BALLOT_ORDER": "100",
+     "Candidates": {
+      "Candidate": [
+       {
+        "NAME_ON_BALLOT": "Rudy Yakym",
+        "isWinner": "T",
+        "POLITICALPARTYID": "1018",
+        "PARTY": "R",
+        "DISPLAY_COLOR": "#F63D3D",
+        "TOTAL": 184848,
+        "CandidateName": "Yakym, Rudy Rudy",
+        "SORT_ORDER": "15"
+       },
+       {
+        "NAME_ON_BALLOT": "Lori A Camp",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1017",
+        "PARTY": "D",
+        "DISPLAY_COLOR": "#007ECD",
+        "TOTAL": 101962,
+        "CandidateName": "Camp, Lori Lori",
+        "SORT_ORDER": "10"
+       },
+       {
+        "NAME_ON_BALLOT": "William E. Henry",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1012",
+        "PARTY": "L",
+        "DISPLAY_COLOR": "#008000",
+        "TOTAL": 7795,
+        "CandidateName": "Henry, William William",
+        "SORT_ORDER": "20"
+       },
+       {
+        "NAME_ON_BALLOT": "Michael John Hubbard (W/I)",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1006",
+        "PARTY": "I",
+        "DISPLAY_COLOR": "#008000",
+        "TOTAL": 13,
+        "CandidateName": "Hubbard, Michael Michael",
+        "SORT_ORDER": "101"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

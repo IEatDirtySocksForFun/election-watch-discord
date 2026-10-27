@@ -19,6 +19,14 @@ at-large (``U.S. Representative``). Ballot measures and judicial retention appea
 Note: Alaska runs ranked-choice general elections. These are the first-choice
 totals the Division publishes on election night; the final RCV round is in the
 Election Summary Report PDF, not in this CSV.
+
+Caveat (checked 2026-10-27): the host currently serves an incomplete TLS chain
+(leaf signed by "GlobalSign GCC R46 OV TLS CA 2025", but the server sends the
+older "GlobalSign RSA OV SSL CA 2018" intermediate), so strict verification fails
+with "unable to verify the first certificate". Browsers paper over it with AIA
+fetching; httpx does not. The parse below is verified against the real file, and
+the fetch will start working as soon as the Division fixes its chain (or the
+deployment trusts the missing intermediate).
 """
 from __future__ import annotations
 
