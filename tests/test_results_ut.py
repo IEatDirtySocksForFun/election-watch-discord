@@ -52,12 +52,12 @@ def test_party_names_normalised():
 def test_votes_and_titles():
     sen = by_key(parse())["UT SEN"]
     assert sen.title == "U.S. Senate"
-    curtis = next(c for c in sen.candidates if c.name == "JOHN CURTIS")
+    curtis = next(c for c in sen.candidates if c.name == "John Curtis")
     assert curtis.votes == 914700
     assert curtis.party == "REP"
     assert sen.total_votes == sum(c.votes for c in sen.candidates)
     gov = by_key(parse())["UT GOV"]
-    assert gov.candidates[0].name.startswith("SPENCER J. COX")
+    assert gov.candidates[0].name.startswith("Spencer J. Cox")
 
 
 def test_district_markers_are_dropped():

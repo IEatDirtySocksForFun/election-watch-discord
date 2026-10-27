@@ -23,10 +23,10 @@ def test_statewide_offices():
     keys = by_key()
     senate = keys["IL SEN"]
     assert senate.key.level is Level.SENATE
-    assert senate.candidates[0].name == "JULIANA STRATTON"
+    assert senate.candidates[0].name == "Juliana Stratton"
     assert senate.candidates[0].party == "DEM"
     assert senate.total_votes == sum(x.votes for x in senate.candidates)
-    assert keys["IL GOV"].candidates[0].name == "JB PRITZKER"
+    assert keys["IL GOV"].candidates[0].name == "JB Pritzker"
     assert keys["IL AG"].key.level is Level.GOVERNOR
     assert keys["IL SOS"].key.office == "SOS"
     assert keys["IL COMP"].key.office == "COMP"

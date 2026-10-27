@@ -37,7 +37,7 @@ def test_parse_aggregates_counties():
     results = by_key(parse_fl(load(), fetched_at=AT))
     sen = results["FL SEN"]
     assert sen.key.level is Level.SENATE
-    assert sen.candidates[0].name == "RICK SCOTT"
+    assert sen.candidates[0].name == "Rick Scott"
     assert sen.candidates[0].party == "REP"
     # Votes are summed across the five kept counties.
     assert sen.total_votes == sum(c.votes for c in sen.candidates)
@@ -55,7 +55,7 @@ def test_parse_amendment_is_local():
     results = by_key(parse_fl(load(), fetched_at=AT))
     amend = results["FL LOCAL partisan-election-of-members-of-district-school-boards"]
     assert amend.key.level is Level.LOCAL
-    assert {c.name for c in amend.candidates} == {"YES FOR APPROVAL", "NO FOR REJECTION"}
+    assert {c.name for c in amend.candidates} == {"Yes For Approval", "No For Rejection"}
 
 
 def test_fetch_posts_extract_form(monkeypatch):

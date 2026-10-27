@@ -7,6 +7,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from dataclasses import asdict, dataclass
 from datetime import date, datetime
 from enum import Enum
@@ -80,6 +81,22 @@ class RaceResult:
     title: str | None = None                 # source's own race name, e.g. "U.S. Senate"
 
     def finalize(self) -> "RaceResult":
+        # Feeds mix ballot statistics into the candidate list ("Blank Ballots", "Times Over
+        # Voted", "Registered Voters"...). Drop them so they neither show up as candidates nor
+        # dilute the percentages; keep a registered-voter count for turnout.
+        kept = []
+        for c in self.candidates:
+            label = c.name.strip().lower()
+            if _NOT_A_CANDIDATE.fullmatch(label):
+                if label.startswith("registered") and self.registered_voters is None:
+                    self.registered_voters = c.votes
+                continue
+            c.name = pretty_name(c.name)
+            kept.append(c)
+        if len(kept) != len(self.candidates):
+            for c in kept:
+                c.pct = None          # the source's shares included the dropped rows
+            self.candidates = kept
         tot = sum(c.votes for c in self.candidates)
         if self.total_votes is None:
             self.total_votes = tot
@@ -200,3 +217,33 @@ def normalize_party(party: str | None) -> str | None:
         return None
     p = party.strip().upper().rstrip(".")
     return _PARTY_ALIASES.get(p, p)
+
+
+# Ballot statistics some feeds list as if they were candidates. Real ballot options (Nevada's
+# "None of These Candidates") and counted write-ins are kept.
+_NOT_A_CANDIDATE = re.compile(
+    r"(times? )?(blank|over|under)( ?voted| ?votes?| ballots?)?|blank/void|void|spoiled( ballots)?"
+    r"|(total )?ballots cast|registered voters|total( votes)?|unqualified write-?ins?|scattering"
+    r"|undervotes?|overvotes?|times cast"
+)
+_SUFFIX = {"ii": "II", "iii": "III", "iv": "IV", "jr": "Jr.", "sr": "Sr."}
+
+
+def pretty_name(name: str) -> str:
+    """Display form of a candidate name from a feed: ALL-CAPS feeds get title case, and
+    title-casing mistakes are repaired ("Mcsally" -> "McSally", "Iii" -> "III", "Jr" -> "Jr.")."""
+    n = " ".join(name.split())
+    caps = n.isupper() and len(n) > 1
+    if caps:
+        n = n.title()
+    parts = []
+    for i, word in enumerate(n.split(" ")):
+        bare = word.strip(".,").lower()
+        if bare in _SUFFIX and i > 0:
+            word = _SUFFIX[bare] + ("," if word.endswith(",") else "")
+        elif caps and i == 0 and len(word) == 2 and word.isalpha() and not set(bare) & set("aeiouy"):
+            word = word.upper()           # "JB PRITZKER" -> "JB Pritzker" (case was lost anyway)
+        else:
+            word = re.sub(r"\bMc([a-z])", lambda m: "Mc" + m.group(1).upper(), word)
+        parts.append(word)
+    return " ".join(parts)

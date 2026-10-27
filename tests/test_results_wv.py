@@ -56,7 +56,7 @@ def test_votes_parties_winner_and_precincts():
     assert senate.precincts_total == 55
     assert senate.precincts_reporting == 53
     justice = senate.candidates[0]
-    assert (justice.name, justice.party, justice.votes) == ("JIM JUSTICE", "REP", 514079)
+    assert (justice.name, justice.party, justice.votes) == ("Jim Justice", "REP", 514079)
     assert justice.pct == pytest.approx(68.75, abs=0.2)
 
     hd100 = got["WV HD-100"]
@@ -67,10 +67,10 @@ def test_votes_parties_winner_and_precincts():
 def test_ballot_measure_and_nonpartisan_judge_are_local():
     got = by_key(parsed())
     amendment = next(r for k, r in got.items() if "amendment-no-1" in k)
-    assert [c.name for c in amendment.candidates] == ["FOR", "AGAINST"]
+    assert [c.name for c in amendment.candidates] == ["For", "Against"]
     assert all(c.party is None for c in amendment.candidates)
     judge = next(r for k, r in got.items() if "circuit-court-judge" in k)
-    assert judge.candidates[0].name == "MICHAEL E. FROBLE"
+    assert judge.candidates[0].name == "Michael E. Froble"
     assert judge.precincts_reporting is None      # PR == 0 in the source
 
 

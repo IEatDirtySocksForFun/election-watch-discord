@@ -60,7 +60,7 @@ def test_ballot_measures_and_local():
     keys = by_key(load())
     assert "HI LOCAL question-1" in keys
     assert "HI LOCAL mayor" in keys
-    assert keys["HI LOCAL question-1"].candidates[0].name == "YES"
+    assert keys["HI LOCAL question-1"].candidates[0].name == "Yes"
 
 
 def test_precincts_and_registration():

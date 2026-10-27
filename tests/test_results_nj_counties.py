@@ -44,8 +44,8 @@ def test_2024_senate_is_one_race_across_counties():
     assert sen.key.level is Level.SENATE
     assert sen.title == "U.S. Senate (partial: 2 counties)"
     cands = {c.name: c.votes for c in sen.candidates}
-    assert cands["ANDY KIM"] == 105685 + 25186
-    assert cands["CURTIS BASHAW"] == 46932 + 25441  # first county seen wins the display name
+    assert cands["Andy Kim"] == 105685 + 25186
+    assert cands["Curtis Bashaw"] == 46932 + 25441  # first county seen wins the display name
     assert sen.total_votes == 156581 + 52226
 
 
@@ -60,7 +60,7 @@ def test_house_districts_are_parsed_from_three_naming_styles():
     got = by_key(merged_2024())
     assert got["NJ-12"].title == (
         "U.S. House of Representatives 12th Congressional District (partial: 1 counties)")
-    assert got["NJ-03"].candidates[0].name == "HERB CONAWAY"
+    assert got["NJ-03"].candidates[0].name == "Herb Conaway"
     # "HOUSE OF REPRESENTATIVES - 2ND CONGRESSIONAL" (Cumberland)
     assert got["NJ-02"].key.level is Level.HOUSE
     assert got["NJ-02"].candidates[0].name == "Jeff VAN DREW"

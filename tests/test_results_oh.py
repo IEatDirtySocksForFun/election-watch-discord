@@ -37,7 +37,7 @@ def test_statewide_offices():
     assert got["OH GOV"].candidates[0].party == "DEM"
     assert "Amy Acton" in {c.name for c in got["OH GOV"].candidates}
     assert got["OH AG"].key.level is Level.GOVERNOR
-    assert {c.name for c in got["OH AG"].candidates} == {"Keith Faber", "John  J. Kulewicz"}
+    assert {c.name for c in got["OH AG"].candidates} == {"Keith Faber", "John J. Kulewicz"}
 
 
 def test_senate_unexpired_term_is_special():
@@ -82,7 +82,7 @@ def test_issue_and_judicial_are_local():
     got = by_key(parsed())
     issue = got["OH LOCAL state-issue-3-to-require-voters-to-present-photo-identification-in-order-to-vote"]
     assert issue.title.startswith("State Issue 3")
-    assert [c.name for c in issue.candidates] == ["YES", "NO"]
+    assert [c.name for c in issue.candidates] == ["Yes", "No"]
     assert issue.candidates[0].party is None
     assert "OH LOCAL justice-of-the-supreme-court-term-commencing-01-01-2027" in got
 

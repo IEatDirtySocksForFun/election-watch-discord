@@ -97,3 +97,23 @@ def test_single_seat_states_key_as_at_large(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2018-11-06")
     assert str(RaceKey("MT", Level.HOUSE, "HOUSE", "01")) == "MT-AL"
     assert str(RaceKey("TX", Level.HOUSE, "HOUSE", "01")) == "TX-01"
+
+
+@pytest.mark.parametrize("raw,shown", [
+    ("Martha Mcsally", "Martha McSally"), ("DAVE MCCORMICK", "Dave McCormick"),
+    ("Thomas J Kennedy Iii", "Thomas J Kennedy III"), ("JD VANCE", "JD Vance"),
+    ("Angus S King Jr", "Angus S King Jr."), ("Mack Mackey", "Mack Mackey"), ("Ng Lee", "Ng Lee"),
+])
+def test_pretty_name(raw, shown):
+    from electionwatch.models import pretty_name
+    assert pretty_name(raw) == shown
+
+
+def test_finalize_drops_ballot_statistics_and_keeps_real_options():
+    rows = [CandidateResult("A", "REP", 60, pct=50.0), CandidateResult("B", "DEM", 40, pct=33.3),
+            CandidateResult("Blank Ballots", None, 15), CandidateResult("Times Over Voted", None, 2),
+            CandidateResult("Registered Voters", None, 400), CandidateResult("None Of These Candidates", None, 5),
+            CandidateResult("Write-ins", None, 3)]
+    r = RaceResult(parse("NV SEN"), rows, "t", NOW).finalize()
+    assert [c.name for c in r.candidates] == ["A", "B", "None Of These Candidates", "Write-ins"]
+    assert r.registered_voters == 400 and r.total_votes == 108 and r.candidates[0].pct == 55.56

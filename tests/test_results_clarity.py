@@ -31,7 +31,7 @@ def test_wv_primary_party_contests_are_skipped_and_nonpartisan_kept():
     assert not any(r.key.level in (Level.SENATE, Level.HOUSE, Level.STATE) for r in results)
     assert "WV LOCAL non-partisan-election-of-judge-of-the-intermediate-court-of-appeals" in keys
     park = keys["WV LOCAL greater-huntington-park-and-recreation-district-supervisors-district-1"]
-    assert park.candidates[0].name == "GORDON D. JONES"
+    assert park.candidates[0].name == "Gordon D. Jones"
     assert park.candidates[0].votes == 8816
     assert park.total_votes == 8816
 
@@ -44,7 +44,7 @@ def test_wv_settings_gives_updated_at_and_precincts():
     assert (sup.precincts_reporting, sup.precincts_total) == (51, 55)
     assert sup.expected_vote_pct == 92.73
     assert sup.source_updated_at == datetime(2026, 6, 15, 14, 43, 55, tzinfo=timezone.utc)
-    assert sup.candidates[0].name == "H.L. 'KIRK' KIRKPATRICK"
+    assert sup.candidates[0].name == "H.L. 'Kirk' Kirkpatrick"
     assert sup.candidates[0].pct == 31.04
 
 

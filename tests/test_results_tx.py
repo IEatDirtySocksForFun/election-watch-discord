@@ -36,7 +36,7 @@ def test_senate_maps_to_canonical_key(results):
     assert r.source == "tx_sos"
     assert r.key.level is Level.SENATE
     assert r.title.strip() == "U. S. SENATOR"
-    assert [c.name for c in r.candidates][:2] == ["TED CRUZ", "COLIN ALLRED"]
+    assert [c.name for c in r.candidates][:2] == ["Ted Cruz", "Colin Allred"]
     # Texas publishes no winner flag in these files.
     assert all(c.winner is False for c in r.candidates)
     assert r.url == "https://results.texas-election.com/races"
@@ -55,7 +55,7 @@ def test_statewide_offices_and_incumbent_flag(results):
     rrc = by_key(results)["TX RRC"]
     assert rrc.key.level is Level.GOVERNOR
     top = rrc.candidates[0]
-    assert top.name == "CHRISTI CRADDICK"          # "(I)" stripped into the flag
+    assert top.name == "Christi Craddick"          # "(I)" stripped into the flag
     assert top.incumbent is True
     assert top.party == "REP"
     assert rrc.candidates == sorted(rrc.candidates, key=lambda c: c.votes, reverse=True)
@@ -84,8 +84,8 @@ def test_race_key_mapping_cases():
     assert format_key(race_key("GOVERNOR")) == "TX GOV"
     assert format_key(race_key("LIEUTENANT GOVERNOR")) == "TX LTGOV"
     assert format_key(race_key("ATTORNEY GENERAL")) == "TX AG"
-    assert format_key(race_key("COMPTROLLER OF PUBLIC ACCOUNTS")) == "TX COMP"
-    assert format_key(race_key("COMMISSIONER OF THE GENERAL LAND OFFICE")) == "TX LANDCOM"
+    assert format_key(race_key("Comptroller Of Public Accounts")) == "TX COMP"
+    assert format_key(race_key("Commissioner Of The General Land Office")) == "TX LANDCOM"
     assert format_key(race_key("STATE SENATOR, DISTRICT 15 - UNEXPIRED TERM")) == "TX SD-15 S"
     assert race_key("STATE SENATOR, DISTRICT 15 - UNEXPIRED TERM").special is True
     assert format_key(race_key("JUSTICE, SUPREME COURT, PLACE 4")) == \

@@ -30,7 +30,7 @@ def test_senate_payload_is_double_encoded_and_parsed():
     assert r.source == "pa_dos"
     assert {"DEM", "REP"} <= {c.party for c in r.candidates}
     top = r.candidates[0]
-    assert top.name == "DAVE MCCORMICK"
+    assert top.name == "Dave McCormick"
     assert top.votes == 3399295
     assert top.pct == 48.82
     assert r.total_votes == sum(c.votes for c in r.candidates)

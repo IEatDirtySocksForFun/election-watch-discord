@@ -51,7 +51,7 @@ def test_ballot_measure_and_psc_become_local_races():
     keys = parse()
     amendment = keys["GA LOCAL constitutional-amendment-1"]
     assert amendment.key.level is Level.LOCAL
-    assert {c.name for c in amendment.candidates} == {"YES", "NO"}
+    assert {c.name for c in amendment.candidates} == {"Yes", "No"}
     assert {c.party for c in amendment.candidates} == {"NPA"}
     assert "GA LOCAL public-service-commission-district-4" in keys
     assert "GA LOCAL president-of-the-united-states" in keys

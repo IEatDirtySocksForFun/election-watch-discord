@@ -37,7 +37,7 @@ def test_votes_are_summed_over_precincts():
     got = by_key(merged())
     sen = got["MO SEN"]
     assert sen.key.level is Level.SENATE
-    assert {c.name: c.votes for c in sen.candidates}["LUCAS KUNCE"] == 798
+    assert {c.name: c.votes for c in sen.candidates}["Lucas Kunce"] == 798
     assert sen.total_votes == 1246
     assert sen.candidates[0].pct == round(100.0 * 798 / 1246, 2)
     assert sen.precincts_reporting == 5
@@ -50,24 +50,24 @@ def test_statewide_and_district_mapping():
     got = by_key(merged())
     assert got["MO GOV"].key.level is Level.GOVERNOR
     assert got["MO-01"].key.district == "01"
-    assert got["MO HD-73"].candidates[0].name == "RAYCHEL C PROUDIE"
+    assert got["MO HD-73"].candidates[0].name == "Raychel C Proudie"
 
 
 def test_ballot_measures_and_retention_are_local():
     got = by_key(merged())
-    assert got["MO LOCAL constitutional-amendment-no-2"].candidates[0].name == "YES"
+    assert got["MO LOCAL constitutional-amendment-no-2"].candidates[0].name == "Yes"
     prop = got["MO LOCAL st-louis-county-proposition-a"]
     assert prop.key.office == "LOCAL"
     assert "st-louis-county-st-louis-county" not in str(prop.key)
     # Judicial retention contests are titled with the judge's name and use YES/NO.
     retention = got["MO LOCAL st-louis-county-kelly-c-broniec"]
-    assert {c.name: c.votes for c in retention.candidates} == {"NO": 544, "YES": 479}
+    assert {c.name: c.votes for c in retention.candidates} == {"No": 544, "Yes": 479}
 
 
 def test_unfiled_write_ins_are_dropped():
     names = {c.name for c in by_key(merged())["MO SEN"].candidates}
-    assert "GINA BUFE" not in names             # empty party, zero votes, choice id 0
-    assert "JARED YOUNG" in names               # zero votes but a filed party
+    assert "Gina Bufe" not in names             # empty party, zero votes, choice id 0
+    assert "Jared Young" in names               # zero votes but a filed party
 
 
 def test_cp1252_bytes_decode():

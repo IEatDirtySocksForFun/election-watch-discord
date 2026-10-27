@@ -47,14 +47,14 @@ def test_keys_cover_federal_statewide_legislature():
 
 def test_named_vermont_districts_become_slugs():
     assert format_key(race_key("STATE SENATOR", "BEN 1")) == "VT SD-ben-1"
-    assert format_key(race_key("STATE REPRESENTATIVE", "ADD RUT")) == "VT HD-add-rut"
+    assert format_key(race_key("STATE REPRESENTATIVE", "Add Rut")) == "VT HD-add-rut"
     assert format_key(race_key("STATE SENATOR", "CHI SE 1")) == "VT SD-chi-se-1"
 
 
 def test_candidates_aggregated_across_towns():
     got = by_key(parse())
     sen = got["VT SEN"]
-    sanders = next(c for c in sen.candidates if c.name == "BERNIE SANDERS")
+    sanders = next(c for c in sen.candidates if c.name == "Bernie Sanders")
     assert sanders.party == "IND"
 
     expected = 0
@@ -73,9 +73,9 @@ def test_candidates_aggregated_across_towns():
 def test_party_labels_and_write_ins():
     got = by_key(parse())
     gov = got["VT GOV"]
-    scott = next(c for c in gov.candidates if c.name == "PHIL SCOTT")
+    scott = next(c for c in gov.candidates if c.name == "Phil Scott")
     assert scott.party == "REP"
-    charlestin = next(c for c in gov.candidates if c.name == "ESTHER CHARLESTIN")
+    charlestin = next(c for c in gov.candidates if c.name == "Esther Charlestin")
     assert charlestin.party == "DEM"          # source label "DEM/PROG"
     assert any(c.name == "Write-In" for c in gov.candidates)
 
@@ -85,7 +85,7 @@ def test_multi_seat_house_district_marks_top_two_winners():
     hd3 = got["VT HD-add-3"]
     winners = [c.name for c in hd3.candidates if c.winner]
     assert len(winners) == 2                   # vf == 2 for this district
-    assert winners == ["ROB NORTH", "MATT BIRONG"]
+    assert winners == ["Rob North", "Matt Birong"]
 
 
 def test_title_keeps_district_name():
