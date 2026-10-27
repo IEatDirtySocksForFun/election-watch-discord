@@ -11,7 +11,7 @@ from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import wa_sos
 from electionwatch.sources.results.wa_sos import parse_wa, race_key
 
-FIX = Path(__file__).parent / "fixtures" / "wa_sos"
+FIX = Path(__file__).parent / "fixtures" / "wa_sos" / "WA"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
