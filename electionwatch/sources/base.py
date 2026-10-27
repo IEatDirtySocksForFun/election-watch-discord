@@ -85,7 +85,7 @@ def load_all() -> dict[str, dict[str, type[Source]]]:
     import pkgutil
 
     import electionwatch.sources as pkg
-    for sub in ("results", "calls", "odds"):
+    for sub in ("results", "calls", "odds", "exitpolls"):
         mod = importlib.import_module(f"{pkg.__name__}.{sub}")
         for info in pkgutil.iter_modules(mod.__path__):
             importlib.import_module(f"{mod.__name__}.{info.name}")
