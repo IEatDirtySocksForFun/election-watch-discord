@@ -179,7 +179,8 @@ usually a JSON array of contests; `{"Contests": [...]} ` is also accepted.
   `REP. IN THE G.A. D87` -> `HD`; everything else becomes LOCAL.
 - Primary feeds split an office into `... - REP` / `... - DEM` contests; those are
   skipped because the bot tracks the general election.
-- Built-in feed: IL/McLean 2026 general (`127349`). Add others with `CLARITY_FEEDS`.
+- Built-in feed: IL/McLean 2026 general (`127349`); a county feed only supplies that county's
+  local races, never the statewide IL SEN/GOV/House totals. Add others with `CLARITY_FEEDS`.
 
 ## Adding a state
 
