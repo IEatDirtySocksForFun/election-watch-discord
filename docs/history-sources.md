@@ -50,7 +50,7 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
 
 | State | Levels |
 |-------|--------|
-| CT | governor 5, house 5, state 111, local 6 |
+| CT | governor 5, house 5, state 111 |
 | UT | governor 3, house 4, state 93, local 110 |
 | WI | governor 4, state 116 |
 | DC, FL, MD | nothing — see below |
@@ -108,3 +108,7 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
   `S` (special) key.
 - Washington publishes two positions per house district; `POSITION 1`/`POSITION 2` become the
   `A`/`B` suffix of `WA HD-nnA`/`WA HD-nnB`.
+- Connecticut's New Haven precinct file abbreviates office names to `Attorney`, `Secretary` and
+  `Governor` with a stray district number, and its U.S. House rows are `Congress` with `CD3`.
+  All three are mapped (`CT AG`, `CT SOS`, `CT GOV`, `CT-03`); a `Congress` row with no district
+  anywhere is dropped rather than invented as `CT-AL`.

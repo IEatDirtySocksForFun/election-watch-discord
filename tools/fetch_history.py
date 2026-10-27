@@ -84,7 +84,8 @@ STATEWIDE_OFFICES = {
     "GOVERNOR LIEUTENANT GOVERNOR": "GOV", "GOVERNOR AND LT GOVERNOR": "GOV",
     "GOVERNOR LT GOVERNOR": "GOV",
     "LIEUTENANT GOVERNOR": "LTGOV", "LT GOVERNOR": "LTGOV",
-    "ATTORNEY GENERAL": "AG", "SECRETARY OF STATE": "SOS", "SECRETARY OF THE STATE": "SOS",
+    "ATTORNEY GENERAL": "AG", "ATTORNEY": "AG", "SECRETARY OF STATE": "SOS",
+    "SECRETARY OF THE STATE": "SOS", "SECRETARY": "SOS",
     "STATE TREASURER": "TREAS", "TREASURER": "TREAS", "TREASURER OF STATE": "TREAS",
     "STATE AUDITOR": "AUD", "AUDITOR": "AUD", "AUDITOR OF STATE": "AUD", "AUDITOR GENERAL": "AUD",
     "STATE COMPTROLLER": "COMP", "COMPTROLLER": "COMP", "COMPTROLLER OF PUBLIC ACCOUNTS": "COMP",
@@ -101,8 +102,8 @@ SENATE_OFFICES = {"US SENATE", "U S SENATE", "UNITED STATES SENATE", "US SENATOR
                   "UNITED STATES SENATOR"}
 HOUSE_OFFICES = {"US HOUSE", "U S HOUSE", "US REPRESENTATIVE", "U S REPRESENTATIVE",
                  "UNITED STATES REPRESENTATIVE", "REPRESENTATIVE IN CONGRESS", "US CONGRESS",
-                 "U S CONGRESS", "UNITED STATES HOUSE OF REPRESENTATIVES", "US HOUSE OF REPRESENTATIVES",
-                 "U S HOUSE OF REPRESENTATIVES"}
+                 "CONGRESS", "U S CONGRESS", "UNITED STATES HOUSE OF REPRESENTATIVES",
+                 "US HOUSE OF REPRESENTATIVES", "U S HOUSE OF REPRESENTATIVES"}
 STATE_SENATE = {"STATE SENATE", "STATE SENATOR", "STATE SENATORS", "SENATOR IN THE GENERAL ASSEMBLY",
                 "SENATOR IN STATE LEGISLATURE"}
 STATE_HOUSE = {"STATE HOUSE", "STATE HOUSE OF DELEGATES", "STATE REPRESENTATIVE", "STATE REPRESENTATIVES",
@@ -156,6 +157,7 @@ def slug(*parts: str) -> str:
 
 def _district_num(d: str | None) -> str | None:
     d = re.sub(r"(\d)(ST|ND|RD|TH)\b", r"\1", (d or "").strip().upper())
+    d = re.sub(r"^(?:CD|CONG(?:RESSIONAL)?\.?)\s*", "", d)   # 'CD3' (Connecticut)
     m = re.fullmatch(r"(?:(?:DISTRICT|DIST|DIST\.|NO\.?)\s*)?0*(\d{1,3})\s*([A-Z]?)", d)
     if not m:
         return None
@@ -251,7 +253,9 @@ def classify(state: str, office: str, district: str | None, county: str = "",
         return "house", f"{state}-{n}{sp}"
     if dv == "HOUSE":
         return None   # odd US House row we could not read; never file it under local
-    if o in STATEWIDE_OFFICES and statewide_dist:
+    if o in STATEWIDE_OFFICES:
+        # statewide races are sliced by county (CT ships one row per town) and some files even
+        # carry a stray district number; neither changes the key
         return "governor", f"{state} {STATEWIDE_OFFICES[o]}{sp}"
     if o in STATE_SENATE or o in STATE_HOUSE or (o in BARE_CHAMBERS and \
                                                  dv not in ("HOUSE", "SENATE", "CONGRESS")):

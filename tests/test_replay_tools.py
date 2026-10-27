@@ -30,6 +30,11 @@ bt = _load("build_timelines")
     ("DE", "US HOUSE", "AT-LARGE", "HOUSE", ("house", "DE-AL")),
     ("NC", "US HOUSE", "001", "HOUSE", ("house", "NC-01")),
     ("KS", "U.S. House District 7", "", None, ("house", "KS-07")),
+    ("CT", "Congress", "CD3", None, ("house", "CT-03")),
+    ("CT", "Congress", "", None, None),            # no district anywhere: dropped, not CT-AL
+    ("CT", "Attorney", "", None, ("governor", "CT AG")),
+    ("CT", "Secretary", "", None, ("governor", "CT SOS")),
+    ("CT", "Governor", "1", None, ("governor", "CT GOV")),
     ("WY", "US HOUSE", "", None, ("house", "WY-AL")),
     ("TX", "U.S. House", "", None, None),          # no district readable: never a fake TX-AL
     ("UT", "US HOUSE", "D1", None, None),
