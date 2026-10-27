@@ -167,7 +167,8 @@ def parse_ks(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             continue
         key = race_key(name)
         if str(key) in seen:  # two ballot questions with the same heading
-            race_id = (race.attributes.get("id") or "").replace("div", "")
+            box = race.css_first("input[name='chkbxFavoriteRace']")
+            race_id = (box.attributes.get("id") if box is not None else "") or ""
             key = c.local_key("KS", f"{name} {race_id}")
             if str(key) in seen:
                 continue
