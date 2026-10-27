@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -24,7 +25,7 @@ async def store(request):
     uri = os.environ.get("EW_TEST_MONGO_URI")
     if not uri:
         pytest.skip("EW_TEST_MONGO_URI is not set")
-    mongo = MongoStore(uri, database=f"electionwatch_test_{request.node.name}_{id(request)}")
+    mongo = MongoStore(uri, database=f"ew_test_{uuid.uuid4().hex[:12]}")
     await mongo.create_indexes()
     yield mongo
     await mongo.client.drop_database(mongo.db.name)
