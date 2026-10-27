@@ -14,7 +14,7 @@ from electionwatch.store.memory import MemoryStore
 
 #: The command surface the brief specifies.
 EXPECTED_COMMANDS = {
-    "setup", "watch", "posting", "calls", "odds", "turnout", "exitpolls",
+    "setup", "watch", "posting", "calls", "oddsalerts", "odds", "polls", "turnout", "exitpolls",
     "pause", "resume", "settings", "races", "favorite", "faq",
 }
 
@@ -35,9 +35,16 @@ async def test_bot_registers_every_command_and_the_error_handler():
             assert {parameter.name for parameter in commands["posting"].parameters} == {
                 "mode", "minutes",
             }
-            assert {parameter.name for parameter in commands["odds"].parameters} == {
+            assert {parameter.name for parameter in commands["oddsalerts"].parameters} == {
                 "enabled", "threshold", "window",
             }
+            assert {parameter.name for parameter in commands["odds"].parameters} == {"race"}
+            assert {parameter.name for parameter in commands["polls"].parameters} == {
+                "race", "count", "internals",
+            }
+            poll_parameters = {parameter.name: parameter for parameter in commands["polls"].parameters}
+            assert poll_parameters["count"].default == 5
+            assert poll_parameters["internals"].default is True
             assert bot.tree.on_error is handle_app_command_error
         finally:
             await bot.close()

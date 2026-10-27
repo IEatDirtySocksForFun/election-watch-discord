@@ -35,6 +35,11 @@ window and the latest snapshot.
 | `abc`   | ABC state-results widget HTML; data in `window['__abcnews__']` | None | Yes (2024 fixture) |
 | `nyt`   | NYT results feed (none found)                  | None          | No (interactive page 403) |
 
+Per-race vote counts: `cbs_results` (in `calls/cbs_results.py`) is a `ResultsSource`
+over the same CBS `races2` JSON, a keyless national fallback for Senate/Governor/House
+in every state (off by default). See `docs/research/source-sweep.md` for the AP/DDHQ
+route research, API keys and per-state fallbacks.
+
 All outlets other than AP/DDHQ are `scrape=True` and `enabled_by_default=False`.
 Their parsers are tested against trimmed real 2024 responses saved in
 `tests/fixtures/<outlet>/`; the URLs and capture dates are recorded in each
@@ -61,3 +66,22 @@ no URL.
 When a JSON sidecar is returned, the adapter builds a 1-3 line summary from the
 top demographic splits without any LLM/AI summarisation. No outlet currently
 serves such a sidecar, so summaries are normally `None`.
+
+## Results fallbacks
+
+National `ResultsSource` adapters that re-use the call-outlet feeds above for
+per-candidate vote counts. All are `scrape=True` and `enabled_by_default=False`.
+
+| Source | Base feed (2024) | Coverage | Votes / pct | Reporting | Verified |
+| ------ | ---------------- | -------- | ----------- | --------- | -------- |
+| `cbs_results` | `api-election.cbsnews.com/archive/api/public/races2/2024/G` | All states; Senate, Governor, House | `vote` / `votePct` | `pctIn` (expected vote %) | Yes (2026-10-27) |
+| `nbc_results` | `nbcnews.com/firecracker/api/v2/national-results/2024-elections/{office}-results` | All states; Senate, Governor, House | `vote` / `percentVote` | `percentIn` | Yes (2026-10-27) |
+| `fox_results` | `feeds-elections.foxnews.com/archive/politics/elections/2024/3/2024_Generals/{Office}/{ST}/state_level_results/file.json` | All states; Senate, Governor, House | `votes.count` / `votes.percentage` | `stateTotals.precinctsReporting` / `expectedPercentage` | Yes (2026-10-27) |
+| `abc_results` | `abcnews.go.com/widgets/generalstateresults?chamber={chamber}&stateAbbrev={st}&year=2024&type=general` | All states; Senate, Governor, House | `rawVotes` / `rawPercent` | `reporting.value` | Yes (2026-10-27) |
+| `cnn_results` | `politics.api.cnn.io/results/race/2024-{code}.json` | All states; Senate, Governor, House | `voteNum` / `votePercentNum` | `percentReporting` | Yes (2026-10-27) |
+
+CBS, NBC and CNN 2026 archive URLs return 404/empty as of 2026-10-27, so the
+fallbacks currently target the 2024 cycle. Fox has 2026 placeholder files with
+zero votes; ABC's 2026 widget is not yet populated. The `winner` flag is always
+kept `False` because outlet projections belong in the call adapters, not official
+results.

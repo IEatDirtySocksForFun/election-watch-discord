@@ -71,9 +71,15 @@ async def check() -> int:
     return 0
 
 
+def configure_logging(level: str = "INFO") -> None:
+    logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    # httpx logs every request URL at INFO; keyed APIs (AP) carry their key in the query string.
+    for name in ("httpx", "httpcore"):
+        logging.getLogger(name).setLevel(logging.WARNING)
+
+
 async def run() -> int:
-    logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"),
-                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    configure_logging(os.environ.get("LOG_LEVEL", "INFO"))
     errors = validate_env(os.environ)
     if errors:
         print("Invalid or missing environment: " + ", ".join(errors), file=sys.stderr)

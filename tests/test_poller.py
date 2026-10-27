@@ -407,3 +407,136 @@ async def test_empty_watch_list_falls_back_to_config_races():
     await poller(store, {"results": [MultiResults()]}, poster).tick()
     # config/races.yaml ships only TX SEN.
     assert [post.race for _, _, post in poster.sent] == ["TX SEN"]
+
+
+def test_results_post_shows_only_top_five():
+    from datetime import datetime, timezone
+    from electionwatch.models import CandidateResult, RaceResult
+    from electionwatch.poller import format_result
+    from electionwatch.racekeys import parse
+    cands = [CandidateResult(f"C{i}", "IND", 100 - i) for i in range(8)]
+    post = format_result(RaceResult(parse("TX SEN"), cands, "t", datetime.now(timezone.utc)).finalize())
+    names = [l for l in post.lines if l.split(" ", 1)[1].startswith("C")]
+    assert [l.split()[1] for l in names] == ["C0", "C1", "C2", "C3", "C4"]
+
+
+@pytest.mark.asyncio
+async def test_unchanged_result_fetched_after_tick_start_is_not_reposted():
+    # Adapters stamp fetched_at with the wall clock *during* the tick, i.e. after the tick's
+    # `now`. That must not make an unchanged result look "changed since the last post".
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    clock = {"now": NOW}
+    source = FakeResults(result(at=NOW + timedelta(seconds=5)))
+    p = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
+
+    await p.tick()
+    assert len(poster.sent) == 1
+    for minutes in range(1, 16):
+        clock["now"] = NOW + timedelta(minutes=minutes)
+        source.value = result(at=clock["now"] + timedelta(seconds=5))   # same votes
+        await p.tick()
+    assert len(poster.sent) == 1
+
+
+@pytest.mark.asyncio
+async def test_immediate_mode_posts_each_change_once():
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(1, channel_id=10, important=[str(KEY)], post_mode=PostMode.IMMEDIATE)
+    )
+    poster = RecordingPoster()
+    clock = {"now": NOW}
+    source = FakeResults(result(at=NOW + timedelta(seconds=5)))
+    p = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
+    await p.tick()
+    clock["now"] = NOW + timedelta(minutes=1)
+    source.value = result(at=clock["now"] + timedelta(seconds=5))
+    await p.tick()
+    clock["now"] = NOW + timedelta(minutes=2)
+    source.value = result(votes=2_200_000, at=clock["now"] + timedelta(seconds=5))
+    await p.tick()
+    assert len(poster.sent) == 2
+
+
+@pytest.mark.asyncio
+async def test_results_sources_are_fetched_concurrently_in_priority_order():
+    import asyncio
+    import time
+
+    class Slow(ResultsSource):
+        states = frozenset({"TX"})
+
+        def __init__(self, name, votes):
+            self.name, self.votes = name, votes
+
+        async def fetch(self, keys, client):
+            await asyncio.sleep(0.3)
+            return [result(votes=self.votes, source=self.name)]
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    sources = [Slow("first", 2_300_000), Slow("second", 2_200_000), Slow("third", 2_100_000)]
+    started = time.monotonic()
+    await poller(store, {"results": sources}, poster).tick()
+    assert time.monotonic() - started < 0.8      # 3 x 0.3 s if fetched one after another
+    assert (await store.latest_result(KEY)).source == "first"
+    assert poster.sent[0][2].footer == "Source: first"
+
+
+@pytest.mark.asyncio
+async def test_outlet_call_without_special_flag_reaches_a_watched_special_race():
+    # OH/FL Senate 2026 are specials: state results key them "OH SEN S", but outlets and
+    # markets have no special flag and answer for "OH SEN".
+    special, plain = parse("OH SEN S"), parse("OH SEN")
+    asked = []
+
+    class PlainCalls(CallSource):
+        name, outlet = "plain", "AP"
+
+        async def fetch_calls(self, keys, client):
+            asked.extend(keys)
+            return [RaceCall(plain, "AP", "Jon Husted", "REP", NOW)] if plain in keys else []
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=["OH SEN S"]))
+    poster = RecordingPoster()
+    await poller(store, {"calls": [PlainCalls()]}, poster).tick()
+    assert special in asked and plain in asked
+    assert [(p.kind, p.race) for _, _, p in poster.sent] == [("call", "OH SEN S")]
+
+
+def test_call_footer_is_in_utc_even_for_an_offset_timestamp():
+    from electionwatch.poller import format_call
+
+    eastern = timezone(timedelta(hours=-5))
+    call = RaceCall(KEY, "AP", "Ted Cruz", "REP", datetime(2026, 11, 3, 21, 30, tzinfo=eastern))
+    assert format_call(call).footer == "Called Nov 04 02:30 UTC"
+
+
+def test_outlet_timestamps_without_offset_are_aware_utc():
+    from electionwatch.sources.calls._common import parse_iso_ts
+
+    assert parse_iso_ts("2026-11-04T01:30:00") == datetime(2026, 11, 4, 1, 30, tzinfo=timezone.utc)
+    assert parse_iso_ts("2026-11-03T21:30:00-05:00").tzinfo == timezone.utc
+
+
+async def test_identical_results_post_is_skipped():
+    from datetime import datetime, timezone
+    from electionwatch.poller import Poller
+    from electionwatch.poster import Post, RecordingPoster
+    from electionwatch.settings import GuildSettings, PostMode
+    from electionwatch.store.memory import MemoryStore
+    import httpx
+    poster = RecordingPoster()
+    now = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
+    async with httpx.AsyncClient() as http:
+        p = Poller(MemoryStore(), {}, poster, lambda: now, http)
+        gs = GuildSettings(guild_id=1, channel_id=2, post_mode=PostMode.IMMEDIATE)
+        post = Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 10 · 60.0%"])
+        await p._post(gs, "results", "TX SEN", post, now)
+        await p._post(gs, "results", "TX SEN", post, now)
+        await p._post(gs, "results", "TX SEN", Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 11 · 61.0%"]), now)
+    assert len(poster.sent) == 2

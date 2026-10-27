@@ -107,7 +107,7 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         key = (code, j1, j2, name)
         race = races.setdefault(key, {
             "code": code, "name": name, "j1": j1, "j2": j2,
-            "candidates": {}, "precincts": 0, "precincts_reporting": 0,
+            "candidates": {}, "precincts": 0, "precincts_reporting": 0, "counties": set(),
         })
         cand_key = (row.get("CanNameLast"), row.get("CanNameFirst"), row.get("CanNameMiddle"))
         cand = race["candidates"].setdefault(cand_key, {
@@ -118,8 +118,12 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
             "votes": 0,
         })
         cand["votes"] += c.to_int(row.get("CanVotes"))
-        race["precincts"] += c.to_int(row.get("Precincts"))
-        race["precincts_reporting"] += c.to_int(row.get("PrecinctsReporting"))
+        # Precinct counts repeat on every candidate row of a county: count each county once.
+        county = (row.get("CountyCode") or "").strip()
+        if county not in race["counties"]:
+            race["counties"].add(county)
+            race["precincts"] += c.to_int(row.get("Precincts"))
+            race["precincts_reporting"] += c.to_int(row.get("PrecinctsReporting"))
 
     out: list[RaceResult] = []
     seen: set[str] = set()

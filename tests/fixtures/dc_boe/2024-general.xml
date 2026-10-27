@@ -1,0 +1,325 @@
+<?xml version='1.0' encoding='utf-8'?>
+<XmlExportViewModel>
+  <ElectionName>General Election</ElectionName>
+  <ElectionDate>2024-11-05T00:00:00</ElectionDate>
+  <ContestList>
+    <ContestDataExportViewModel>
+      <ContestName>REGISTERED VOTERS - TOTAL</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Party>CITYWIDE</Party>
+          <Votes>464502</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>BALLOTS CAST - TOTAL</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Party>CITYWIDE</Party>
+          <Votes>328871</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>IND Robert F. Kennedy Jr.- Nicole Shanahan</Candidate>
+          <Party>IND</Party>
+          <Votes>2778</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Donald J. Trump - JD Vance</Candidate>
+          <Party>REP</Party>
+          <Votes>21076</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Kamala D. Harris - Tim Walz</Candidate>
+          <Party>DEM</Party>
+          <Votes>294185</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>7830</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>IND</Party>
+          <Votes>460</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>IND</Party>
+          <Votes>2075</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>DELEGATE TO THE HOUSE OF REPRESENTATIVES FROM THE DISTRICT OF COLUMBIA</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>STG Kymone Freeman</Candidate>
+          <Party>STG</Party>
+          <Votes>21873</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Myrtle Patricia Alexander</Candidate>
+          <Party>REP</Party>
+          <Votes>19765</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>IND Michael A. Brown</Candidate>
+          <Party>IND</Party>
+          <Votes>19033</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Eleanor Holmes Norton</Candidate>
+          <Party>DEM</Party>
+          <Votes>251540</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>1858</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>STG</Party>
+          <Votes>561</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>STG</Party>
+          <Votes>13774</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>AT-LARGE MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>STG Darryl Moch</Candidate>
+          <Party>STG</Party>
+          <Votes>29789</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>IND Christina D. Henderson</Candidate>
+          <Party>IND</Party>
+          <Votes>90814</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Rob Simmons</Candidate>
+          <Party>REP</Party>
+          <Votes>24760</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Robert White</Candidate>
+          <Party>DEM</Party>
+          <Votes>243528</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>2746</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>STG</Party>
+          <Votes>386</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>STG</Party>
+          <Votes>260139</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>WARD TWO MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Brooke Pinto</Candidate>
+          <Party>DEM</Party>
+          <Votes>29839</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>2116</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>DEM</Party>
+          <Votes>27</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>DEM</Party>
+          <Votes>5702</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>UNITED STATES SENATOR</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Nelson Rimensnyder</Candidate>
+          <Party>REP</Party>
+          <Votes>26968</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Ankit Jain</Candidate>
+          <Party>DEM</Party>
+          <Votes>265360</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>2705</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>REP</Party>
+          <Votes>340</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>REP</Party>
+          <Votes>30241</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>UNITED STATES REPRESENTATIVE</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Oye Owolewa</Candidate>
+          <Party>DEM</Party>
+          <Votes>267661</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Ciprian Ivanof</Candidate>
+          <Party>REP</Party>
+          <Votes>25040</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>2253</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>DEM</Party>
+          <Votes>305</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>DEM</Party>
+          <Votes>30355</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>AT-LARGE MEMBER OF THE STATE BOARD OF EDUCATION</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>Jacque Patterson</Candidate>
+          <Party>NPN</Party>
+          <Votes>229406</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>6277</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>247</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>90151</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>WARD TWO MEMBER OF THE STATE BOARD OF EDUCATION</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>Allister Chang</Candidate>
+          <Party>NPN</Party>
+          <Votes>26418</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>532</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>16</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>10718</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>ANC-8E05</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>Duane A Moody</Candidate>
+          <Party>NPN</Party>
+          <Votes>698</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>22</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>0</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>199</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>INITIATIVE 83</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>Yes, to approve</Candidate>
+          <Party>NPN</Party>
+          <Votes>212332</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>No, to reject</Candidate>
+          <Party>NPN</Party>
+          <Votes>78961</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>112</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>NPN</Party>
+          <Votes>34676</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+  </ContestList>
+</XmlExportViewModel>

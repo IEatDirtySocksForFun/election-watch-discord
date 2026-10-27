@@ -92,3 +92,10 @@ def test_race_key_mapping_cases():
         "TX LOCAL supreme-court-place-4"
     # Unknown contests still get a stable LOCAL slug rather than being dropped.
     assert format_key(race_key("Some County Measure A")) == "TX LOCAL some-county-measure-a"
+
+
+def test_statewide_precinct_counts_are_not_given_to_district_races(results):
+    keys = by_key(results)
+    for district in ("TX-01", "TX SD-06", "TX HD-01"):
+        assert keys[district].precincts_total is None
+        assert keys[district].expected_vote_pct is None

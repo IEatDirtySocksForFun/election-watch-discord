@@ -5,6 +5,7 @@ as an OddsSnapshot. No API key is required for reads.
 """
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import ClassVar
 
@@ -60,7 +61,10 @@ class KalshiSource(OddsSource):
             except Exception:
                 # Never raise on one bad race.
                 continue
-            snapshots.extend(s for s in snaps if s.key == key)
+            # Stamp with the fetch time: updated_time is market *metadata* time (often weeks
+            # old), which would put every price outside the swing detector's look-back window.
+            fetched = datetime.now(timezone.utc)
+            snapshots.extend(replace(s, ts=fetched) for s in snaps if s.key == key)
         return snapshots
 
     def _key_to_event_ticker(self, key: RaceKey) -> str | None:
@@ -69,7 +73,7 @@ class KalshiSource(OddsSource):
             series = f"SENATE{state}"
         elif key.level is Level.GOVERNOR and key.office == "GOV":
             series = self._GOV_OVERRIDES.get(state, f"GOVPARTY{state}")
-        elif key.level is Level.HOUSE and key.district is not None:
+        elif key.level is Level.HOUSE and key.district is not None and key.district.isdigit():
             # Kalshi House series omit leading zeros in the district.
             series = f"HOUSE{state}{int(key.district)}"
         else:

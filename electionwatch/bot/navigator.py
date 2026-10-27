@@ -1,7 +1,9 @@
 """Ephemeral race navigator view. All data comes from Store and ResultsSource."""
 from __future__ import annotations
 
+import asyncio
 import logging
+import time
 
 import discord
 
@@ -13,6 +15,48 @@ from electionwatch.settings import UserSettings
 
 logger = logging.getLogger(__name__)
 _TAB_LABELS = {"congressional": "Congressional", "senate": "Senate", "state": "State", "local": "Local"}
+
+LIST_TTL_SECONDS = 300        # scrape adapters must not be hit more than once a minute
+LIST_RETRY_SECONDS = 60       # a failed or slow source is retried after this
+LIST_TIMEOUT_SECONDS = 2.0    # autocomplete has to answer within Discord's 3 s deadline
+_list_cache: dict[tuple[str, str], tuple[float, list]] = {}   # (source, state) -> (expires, races)
+
+
+async def list_races(client, state: str) -> dict[str, tuple]:
+    """Races the available results sources publish for a state, as {key: (key, label)}.
+
+    Cached and time-boxed: the navigator and autocomplete call this on every click and
+    keystroke, and both must answer within Discord's interaction deadline.
+    """
+    sources = [
+        source for source in client.sources.get("results", [])
+        if state in source.states and source.available()
+    ]
+
+    async def one(source) -> list:
+        ident = (source.name, state)
+        cached = _list_cache.get(ident)
+        if cached and time.monotonic() < cached[0]:
+            return cached[1]
+        try:
+            races = await asyncio.wait_for(
+                source.list_races(state, client.http_client), LIST_TIMEOUT_SECONDS
+            )
+        except Exception:
+            _list_cache[ident] = (time.monotonic() + LIST_RETRY_SECONDS, [])
+            raise
+        _list_cache[ident] = (time.monotonic() + LIST_TTL_SECONDS, races)
+        return races
+
+    found: dict[str, tuple] = {}
+    answers = await asyncio.gather(*(one(source) for source in sources), return_exceptions=True)
+    for source, races in zip(sources, answers):
+        if isinstance(races, BaseException):
+            logger.warning("Could not list %s races from %s: %s", state, source.name, type(races).__name__)
+            continue
+        for key, label in races:
+            found[str(key)] = (key, label)
+    return found
 
 
 class RaceNavigator(discord.ui.View):
@@ -27,15 +71,7 @@ class RaceNavigator(discord.ui.View):
         self.selected_race = None
 
     async def refresh(self) -> None:
-        found: dict[str, tuple] = {}
-        for source in self.client.sources.get("results", []):
-            if self.state not in source.states or not source.available():
-                continue
-            try:
-                for key, label in await source.list_races(self.state, self.client.http_client):
-                    found[str(key)] = (key, label)
-            except Exception:
-                logger.exception("Could not list races from %s", source.name)
+        found = await list_races(self.client, self.state)
         # Watched races remain navigable even if a source has no list_races endpoint.
         if self.client.poller:
             for race in self.client.poller.default_races:
@@ -71,12 +107,20 @@ class RaceNavigator(discord.ui.View):
             select.callback = self._state_callback
             self.add_item(select)
         visible = filter_races(self.races, self.state, self.level)[:25]
-        if visible:
+        if self.selected_race:
+            for label in ("Odds", "Polls"):
+                button = discord.ui.Button(label=label, style=discord.ButtonStyle.secondary, row=4)
+                button.callback = self._race_tool_callback(label.casefold())
+                self.add_item(button)
+            button = discord.ui.Button(label="Choose race", style=discord.ButtonStyle.secondary, row=4)
+            button.callback = self._choose_race_callback
+            self.add_item(button)
+        elif visible:
             select = discord.ui.Select(
                 placeholder="Race",
                 options=[
                     discord.SelectOption(
-                        label=(label or str(key))[:100], value=str(key), default=str(key) == self.selected_race
+                        label=(label or str(key))[:100], value=str(key), default=False
                     )
                     for key, label in visible
                 ],
@@ -106,13 +150,37 @@ class RaceNavigator(discord.ui.View):
         if not await self._owns(interaction):
             return
         self.selected_race = interaction.data["values"][0]
+        self._build_controls()
+        await interaction.response.edit_message(embed=await self.embed(), view=self)
+
+    def _race_tool_callback(self, tool: str):
+        async def callback(interaction: discord.Interaction):
+            if not await self._owns(interaction) or not self.selected_race:
+                return
+            key = parse(self.selected_race)
+            await interaction.response.defer(ephemeral=True)
+            if tool == "odds":
+                embed = await self.client.command_data.odds_embed(key)
+            else:
+                embed = await self.client.command_data.polls_embed(key)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+
+        return callback
+
+    async def _choose_race_callback(self, interaction: discord.Interaction):
+        if not await self._owns(interaction):
+            return
+        self.selected_race = None
+        self._build_controls()
         await interaction.response.edit_message(embed=await self.embed(), view=self)
 
     async def _save_and_refresh(self, interaction: discord.Interaction) -> None:
+        # Listing races can hit the network: acknowledge within Discord's 3 s deadline first.
+        await interaction.response.defer()
         remember_navigation(self.settings, self.state, self.level)
         await self.client.store.save_user(self.settings)
         await self.refresh()
-        await interaction.response.edit_message(embed=await self.embed(), view=self)
+        await interaction.edit_original_response(embed=await self.embed(), view=self)
 
     async def _owns(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id == self.user_id:

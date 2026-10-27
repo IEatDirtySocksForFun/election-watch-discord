@@ -15,7 +15,9 @@ come from parsing, not from a model.
   - admin never set timing: every 5 minutes, if results changed;
   - admin set an interval: every N minutes, if results changed;
   - admin chose "every update": as soon as results change.
-- **Race calls** (AP, NBC, CNN, FOX, DDHQ, VoteHub, ... you choose), immediately.
+- **Race calls** (AP, NBC, CNN, FOX, DDHQ, VoteHub, ... you choose), immediately. Out of the box
+  only the keyed APIs run (AP needs `AP_API_KEY`); the outlet scrapers are off until you name
+  them in `EW_ENABLED_SOURCES`, e.g. `EW_ENABLED_SOURCES=cnn,nbc,fox` (see below).
 - **Turnout** inside the results post, when the source publishes it.
 - **Exit polls**: once per race and outlet.
 - **Odds swings** (Kalshi, Polymarket): off by default; alerts when an implied probability moves
@@ -66,7 +68,7 @@ come from parsing, not from a model.
 | key | meaning |
 |---|---|
 | `NC-01`, `NC-1`, `AK-AL` | US House district (`AL` = at-large) |
-| `TX SEN` | US Senate; `OH SEN S` = special election |
+| `TX SEN` | US Senate; `OH SEN S` = special election (watch `OH SEN S` / `FL SEN S` for the 2026 Ohio and Florida seats: the state sites file them as specials) |
 | `GA GOV`, `AZ AG` | statewide office: `GOV LTGOV AG SOS TREAS AUD COMP SUPT AGCOM INSCOM LANDCOM RRC` |
 | `TX SD-05`, `TX HD-121` | state senate / state house district |
 | `TX LOCAL harris-county-judge` | local race, free-form slug the results adapter understands |
@@ -84,7 +86,7 @@ important:
 ## Slash commands
 
 Admin commands need **Manage Server**, or the admin role if one is configured. The navigator,
-`/faq` and `/settings` replies are ephemeral (only you see them).
+`/odds`, `/polls`, `/faq` and `/settings` replies are ephemeral (only you see them).
 
 | command | who | what |
 |---|---|---|
@@ -92,12 +94,14 @@ Admin commands need **Manage Server**, or the admin role if one is configured. T
 | `/watch add <race>` / `/watch remove <race>` / `/watch list` | admin | important races (autocomplete) |
 | `/posting mode:<default\|interval\|immediate> [minutes]` | admin | results timing (see above) |
 | `/calls outlets:<...> on\|off` | admin | which outlets' calls are posted |
-| `/odds on\|off [threshold] [window]` | admin | prediction-market swing alerts |
+| `/oddsalerts on\|off [threshold] [window]` | admin | prediction-market swing alerts |
 | `/turnout on\|off` | admin | turnout lines in results posts |
 | `/exitpolls on\|off` | admin | exit-poll posts |
 | `/pause`, `/resume` | admin | stop / restart all posting |
-| `/settings` | admin | show this server's settings |
-| `/races` | everyone | private navigator: Congressional / Senate / State / Local tabs, state picker, race picker; remembers your last state and tab |
+| `/settings` | everyone | show this server's settings (read-only) |
+| `/odds [race]` | everyone | private Kalshi/Polymarket probabilities and 1 h/24 h moves; omit race for watched races |
+| `/polls race:<race> [count] [internals]` | everyone | private recent polls, newest first; optionally exclude partisan internals |
+| `/races` | everyone | private navigator: Congressional / Senate / State / Local tabs, state picker, race picker, Odds and Polls buttons; remembers your last state and tab |
 | `/favorite add <race>` / `/favorite remove <race>` | everyone | pin races in your navigator |
 | `/faq [state]` | everyone | when polls close, what is counted first, mail deadlines, typical call times |
 

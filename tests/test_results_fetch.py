@@ -134,12 +134,13 @@ def test_clarity_fetch_resolves_version_then_summary(monkeypatch):
 
     async def go():
         async with client(handler) as c:
-            return await clarity.Clarity().fetch([parse("IL SEN")], c)
+            return await clarity.Clarity().fetch([parse("IL SEN"), parse("IL LOCAL county-clerk")], c)
 
     got = by_key(run(go()))
-    assert set(got) == {"IL SEN"}
-    assert got["IL SEN"].source == "clarity"
-    assert got["IL SEN"].source_updated_at == datetime(
+    # A county feed answers for its local races only, never with one county's IL SEN total.
+    assert set(got) == {"IL LOCAL county-clerk"}
+    assert got["IL LOCAL county-clerk"].source == "clarity"
+    assert got["IL LOCAL county-clerk"].source_updated_at == datetime(
         2026, 10, 26, 16, 42, 44, tzinfo=timezone.utc)
     assert any(p.endswith("/127349/current_ver.txt") for p in paths)
 

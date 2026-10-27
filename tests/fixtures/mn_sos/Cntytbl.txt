@@ -1,0 +1,5 @@
+01;Aitkin;51
+02;Anoka;128
+03;Becker;47
+04;Beltrami;61
+05;Benton;27

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import ClassVar
 
@@ -71,9 +72,10 @@ class PolymarketSource(OddsSource):
                     snaps = parse_polymarket_event(event)
                 except Exception:
                     continue
+                fetched = datetime.now(timezone.utc)   # updatedAt is metadata time, not price time
                 for snap in snaps:
                     if snap.key in requested:
-                        snapshots.append(snap)
+                        snapshots.append(replace(snap, ts=fetched))
                         found_keys.add(snap.key)
 
             if found_keys >= requested:
@@ -113,7 +115,15 @@ def parse_polymarket_event(event: dict) -> list[OddsSnapshot]:
             )
         except Exception:
             continue
-    return snapshots
+    # Two candidates of one party (top-two primaries, D-vs-D seats) must not share the party
+    # label: the swing detector would read their two prices as one series.
+    labels = [snap.outcome for snap in snapshots]
+    titles = {str(m.get("id")): (m.get("groupItemTitle") or "").strip() for m in event.get("markets") or []}
+    return [
+        replace(snap, outcome=titles.get(snap.market_id) or snap.outcome)
+        if labels.count(snap.outcome) > 1 else snap
+        for snap in snapshots
+    ]
 
 
 def _event_title_to_key(title: str) -> RaceKey | None:

@@ -15,7 +15,7 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceKey, RaceResult
+from electionwatch.models import ExitPoll, OddsSnapshot, Poll, RaceCall, RaceKey, RaceResult
 
 
 class SourceUnavailable(RuntimeError):
@@ -69,8 +69,16 @@ class ExitPollSource(Source):
         raise NotImplementedError
 
 
+class PollSource(Source):
+    kind = "polls"
+
+    async def fetch_polls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[Poll]:
+        """Recent public polls for the requested races (newest first; any number per race)."""
+        raise NotImplementedError
+
+
 REGISTRY: dict[str, dict[str, type[Source]]] = {
-    "results": {}, "calls": {}, "odds": {}, "exitpolls": {},
+    "results": {}, "calls": {}, "odds": {}, "exitpolls": {}, "polls": {},
 }
 
 
@@ -85,7 +93,7 @@ def load_all() -> dict[str, dict[str, type[Source]]]:
     import pkgutil
 
     import electionwatch.sources as pkg
-    for sub in ("results", "calls", "odds", "exitpolls"):
+    for sub in ("results", "calls", "odds", "exitpolls", "polls"):
         mod = importlib.import_module(f"{pkg.__name__}.{sub}")
         for info in pkgutil.iter_modules(mod.__path__):
             importlib.import_module(f"{mod.__name__}.{info.name}")

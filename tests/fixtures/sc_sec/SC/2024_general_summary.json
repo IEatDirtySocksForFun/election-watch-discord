@@ -1,0 +1,669 @@
+[
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "President and Vice President",
+  "K": "20500",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 46,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "CON Randall A Terry/Stephen E Broden",
+   "UNC Cornel West/Melina Abdulla",
+   "GRN Jill Stein/Rudolph Butch Ware",
+   "REP Donald J Trump/JD Vance",
+   "LIB Chase Oliver/Mike ter Maat",
+   "DEM Kamala D Harris/Tim Walz",
+   "WRK Claudia De La Cruz/Karina Garcia"
+  ],
+  "CHAggId": null,
+  "P": [
+   "CON",
+   "UNC",
+   "GRN",
+   "REP",
+   "LIB",
+   "DEM",
+   "WRK"
+  ],
+  "PCT": [
+   0.210035555346253,
+   0.264663637005816,
+   0.318546076746176,
+   58.2286295101525,
+   0.497186182862794,
+   40.3608906888946,
+   0.120048348991814
+  ],
+  "V": [
+   5352,
+   6744,
+   8117,
+   1483747,
+   12669,
+   1028452,
+   3059
+  ],
+  "T": 2548140,
+  "W": [
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "U.S.  House of Representatives, District  1",
+  "K": "27002",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 6,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Nancy Mace",
+   "DEM Michael B Moore",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "NON"
+  ],
+  "PCT": [
+   58.2178582669912,
+   41.6048027391581,
+   0.177338993850713
+  ],
+  "V": [
+   227502,
+   162582,
+   693
+  ],
+  "T": 390777,
+  "W": [
+   1,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "State  Senate, District  1",
+  "K": "27502",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Thomas C Alexander",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "NON"
+  ],
+  "PCT": [
+   98.9115613711935,
+   1.08843862880655
+  ],
+  "V": [
+   41348,
+   455
+  ],
+  "T": 41803,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "State  Senate, District  19",
+  "K": "27538",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 1,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "UNC Chris Nelums",
+   "DEM Tameika Isaac Devine",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "UNC",
+   "DEM",
+   "NON"
+  ],
+  "PCT": [
+   12.3750582629862,
+   87.2727743539282,
+   0.352167383085608
+  ],
+  "V": [
+   4779,
+   33703,
+   136
+  ],
+  "T": 38618,
+  "W": [
+   0,
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "State  House of Representatives, District  1",
+  "K": "28002",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Bill Whitmire",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "NON"
+  ],
+  "PCT": [
+   99.1341781948341,
+   0.865821805165909
+  ],
+  "V": [
+   20495,
+   179
+  ],
+  "T": 20674,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "State House of Representatives, District 35",
+  "K": "28070",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Bill Chumley",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "NON"
+  ],
+  "PCT": [
+   98.0528796884607,
+   1.94712031153925
+  ],
+  "V": [
+   19136,
+   380
+  ],
+  "T": 19516,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Solicitor, Circuit 1",
+  "K": "29002",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 3,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "DEM David M Pascoe",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "NON"
+  ],
+  "PCT": [
+   97.7091109657393,
+   2.29088903426072
+  ],
+  "V": [
+   76175,
+   1786
+  ],
+  "T": 77961,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Amendment 1",
+  "K": "30000",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 46,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Yes, In Favor of the Question",
+   "No, Opposed to the Question"
+  ],
+  "CHAggId": null,
+  "P": [
+   "NON",
+   "NON"
+  ],
+  "PCT": [
+   85.9394258789592,
+   14.0605741210408
+  ],
+  "V": [
+   1982956,
+   324432
+  ],
+  "T": 2307388,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Aiken County School Board District 1",
+  "K": "30201",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Deborah L Tyler",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "NON",
+   "NON"
+  ],
+  "PCT": [
+   98.1398201144726,
+   1.86017988552739
+  ],
+  "V": [
+   4801,
+   91
+  ],
+  "T": 4892,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Mayor - Ware Shoals",
+  "K": "30420",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Bryan Ross",
+   "Write-In"
+  ],
+  "CHAggId": null,
+  "P": [
+   "NON",
+   "NON"
+  ],
+  "PCT": [
+   97.2006220839813,
+   2.79937791601866
+  ],
+  "V": [
+   625,
+   18
+  ],
+  "T": 643,
+  "W": [
+   1,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Straight Party 1",
+  "K": "90001",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 12,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Constitution",
+   "United Citizens",
+   "Green",
+   "Republican",
+   "Libertarian",
+   "Democratic",
+   "Workers"
+  ],
+  "CHAggId": null,
+  "P": [
+   "CON",
+   "UNC",
+   "GRN",
+   "REP",
+   "LIB",
+   "DEM",
+   "WRK"
+  ],
+  "PCT": [
+   0.089488957236442,
+   0.306115947569318,
+   0.14219766344043,
+   62.3141438889758,
+   0.178688306197038,
+   36.8949359096886,
+   0.0744293268924453
+  ],
+  "V": [
+   309,
+   1057,
+   491,
+   215167,
+   617,
+   127396,
+   257
+  ],
+  "T": 345294,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
+]

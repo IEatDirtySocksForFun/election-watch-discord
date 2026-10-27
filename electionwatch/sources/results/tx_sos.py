@@ -137,14 +137,17 @@ def parse_tx(
             if not cands:
                 continue
             total = c.to_int(race.get("T")) or sum(x.votes for x in cands)
+            # Home.json's precinct counts are statewide: a district race would show the
+            # whole state's reporting (and expected-vote %) as its own.
+            statewide = key.level in (Level.SENATE, Level.GOVERNOR) or fname == "StateWideQ"
             seen.add(ident)
             results.append(c.make_result(
                 key, title, cands, fetched_at,
                 source=TxSos.name,
                 url=HUMAN,
                 total_votes=total,
-                precincts_reporting=pr or None,
-                precincts_total=pt or None,
+                precincts_reporting=(pr or None) if statewide else None,
+                precincts_total=(pt or None) if statewide else None,
                 source_updated_at=updated,
             ))
     return results

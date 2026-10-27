@@ -1,0 +1,7 @@
+RaceID,RaceName,PartyCode,AreaType,AreaNum,OfficeSeqNo,BallotOrder,CandidateID,CandidateName,CurrentDateTime,VoteFor,CandidateVotes,CandidatePercentage,PrecinctsReporting
+13285,"County Auditor - Codington","REP","","Codington",410,,25182,"Brenda Hanten",10/27/2026 4:02:33 PM,1,0,0,="0/20",
+14487,"County Auditor - Grant","REP","","Grant",410,,25161,"Brittany Folk",10/27/2026 4:02:33 PM,1,8,0.347826086956522,="4/17",
+14487,"County Auditor - Grant","DEM","","Grant",410,,25162,"Kathy Folk",10/27/2026 4:02:33 PM,1,15,0.652173913043478,="4/17",
+13285,"County Auditor - Codington","IND","","Codington",410,,22932,"Debbie  Melville ",10/27/2026 4:02:33 PM,1,0,0,="0/20",
+240,"Referendum 83:  AN ORDINANCE IMPOSING A COUNTY GROSS RECEIPTS TAX AND A USE TAX FOR CODINGTON COUNTY, SOUTH DAKOTA - Codington","","","Codington",941,,9001,"Yes",10/27/2026 4:02:33 PM,1,0,0,="0/20",
+240,"Referendum 83:  AN ORDINANCE IMPOSING A COUNTY GROSS RECEIPTS TAX AND A USE TAX FOR CODINGTON COUNTY, SOUTH DAKOTA - Codington","","","Codington",941,,9002,"No",10/27/2026 4:02:33 PM,1,0,0,="0/20",

@@ -1,0 +1,1085 @@
+# Canonical party table: codes, names, buckets and Discord emoji markers.
+#
+# Loaded by electionwatch/parties.py (never edited at runtime). Names and ideologies come from
+# Wikipedia's "List of political parties in the United States" and the individual party articles
+# cited in `source` (checked 2026-10); the Constitution Party's state affiliates and the
+# Libertarian/Green state parties with their own ballot line are aliases of the national code,
+# except where a state party has its own registered name (Maine Green Independent, Green-Rainbow,
+# Mountain, Pacific Green, American Independent, Utah Independent American).
+#
+# Fields
+#   code     canonical short code; what adapters should store in CandidateResult.party
+#   name     official name
+#   bucket   dem | rep | libertarian | green | socialist | far_right | constitution |
+#            independent | centrist | other
+#   emoji    the marker shown next to a candidate; DEM 🔵, REP 🔴, Libertarian 🟡,
+#            Green 🟢, Constitution 📜, independent/no party ⚪; socialist parties get a
+#            distinct emoji in order of size; far_right (neo-Nazi / white nationalist / fascist
+#            only, per `source`) gets its own; every other party a fitting distinct one.
+#   aliases  every spelling/abbreviation seen in election feeds; matched case- and
+#            punctuation-insensitively
+#   source   URL backing the name and ideology/bucket
+#
+# far_right is deliberately narrow: mainstream conservative and right-populist third parties
+# (Conservative Party of New York, New Jersey Conservative, Tea Party of Nevada) are "other".
+parties:
+  # -- dem: major parties
+  - code: DEM
+    name: Democratic Party
+    bucket: dem
+    emoji: "🔵"
+    aliases:
+      - D
+      - DEM
+      - Democrat
+      - Democrats
+      - Democratic
+      - Democratic Party
+      - DFL
+      - D-F-L
+      - DFL Party
+      - Minnesota DFL
+      - Minnesota Democratic-Farmer-Labor Party
+      - Democratic-Farmer-Labor
+      - Democratic Farmer Labor
+      - Democratic-Farmer-Labor Party
+      - Democratic-NPL
+      - D-NPL
+      - North Dakota Democratic-Nonpartisan League Party
+      - Democratic Nonpartisan League
+      - NPL
+    source: https://en.wikipedia.org/wiki/Democratic_Party_(United_States)
+  # -- rep: major parties
+  - code: REP
+    name: Republican Party
+    bucket: rep
+    emoji: "🔴"
+    aliases:
+      - R
+      - REP
+      - GOP
+      - Republican
+      - Republicans
+      - Republican Party
+      - Grand Old Party
+    source: https://en.wikipedia.org/wiki/Republican_Party_(United_States)
+  # -- libertarian: libertarian
+  - code: LIB
+    name: Libertarian Party
+    bucket: libertarian
+    emoji: "🟡"
+    aliases:
+      - LBN
+      - L
+      - LIB
+      - LBT
+      - LP
+      - Libertarian
+      - Libertarian Party
+      - Libertarian Party USA
+      - Libertarian Party of New York
+      - Libertarian Party of Pennsylvania
+      - Libertarian Party of Texas
+      - Libertarian Party of Florida
+      - Libertarian Party of Ohio
+      - Libertarian Party of Michigan
+      - Libertarian Party of Virginia
+      - Libertarian Party of Connecticut
+      - Libertarian Party of New Hampshire
+      - Libertarian Party of Wisconsin
+      - Libertarian Association of Massachusetts
+    source: https://en.wikipedia.org/wiki/Libertarian_Party_(United_States)
+  # -- green: green
+  - code: GRN
+    name: Green Party of the United States
+    bucket: green
+    emoji: "🟢"
+    aliases:
+      - G
+      - GRE
+      - GRN
+      - GP
+      - GPUS
+      - GP-US
+      - Green
+      - Greens
+      - Green Party
+      - Green Party USA
+      - Green Party of the United States
+      - Green Party of New York
+      - Green Party of Pennsylvania
+      - Green Party of Michigan
+      - Green Party of California
+      - Green Party of Texas
+      - Green Party of Ohio
+      - Green Party of Wisconsin
+      - Green Party of Alaska
+      - Green Party of Connecticut
+      - Connecticut Green Party
+      - Green Party of Rhode Island
+      - DC Statehood Green Party
+      - D.C. Statehood Green Party
+      - Statehood Green
+    source: https://en.wikipedia.org/wiki/Green_Party_of_the_United_States
+  - code: MGIP
+    name: Maine Green Independent Party
+    bucket: green
+    emoji: "🟢"
+    aliases:
+      - MGIP
+      - Maine Green Independent
+      - Green Independent Party
+      - Maine Greens
+    source: https://en.wikipedia.org/wiki/Maine_Green_Independent_Party
+  - code: GRP
+    name: Green-Rainbow Party
+    bucket: green
+    emoji: "🟢"
+    aliases:
+      - Green-Rainbow
+      - GRP
+      - Green Rainbow
+      - Massachusetts Green-Rainbow Party
+    source: https://en.wikipedia.org/wiki/Green-Rainbow_Party
+  - code: MTP
+    name: Mountain Party
+    bucket: green
+    emoji: "🟢"
+    aliases:
+      - MTN
+      - MTP
+      - Mountain Party of West Virginia
+      - West Virginia Mountain Party
+    source: https://en.wikipedia.org/wiki/Mountain_Party
+  - code: PACG
+    name: Pacific Green Party
+    bucket: green
+    emoji: "🟢"
+    aliases:
+      - PGP
+      - PACG
+      - Pacific Green
+      - Pacific Green Party of Oregon
+    source: https://en.wikipedia.org/wiki/Pacific_Green_Party
+  # -- socialist: socialist / communist (emoji in order of party size)
+  - code: DSA
+    name: Democratic Socialists of America
+    bucket: socialist
+    emoji: "✊"
+    aliases:
+      - DSA
+      - DSA-USA
+      - Democratic Socialists
+      - Democratic Socialists of America
+    source: https://en.wikipedia.org/wiki/Democratic_Socialists_of_America
+  - code: PSL
+    name: Party for Socialism and Liberation
+    bucket: socialist
+    emoji: "🌹"
+    aliases:
+      - PSL
+      - Party for Socialism and Liberation
+      - Socialism and Liberation
+      - Socialism & Liberation
+      - Party for Socialism & Liberation
+      - Liberation Party
+    source: https://en.wikipedia.org/wiki/Party_for_Socialism_and_Liberation
+  - code: CPUSA
+    name: Communist Party USA
+    bucket: socialist
+    emoji: "☭"
+    aliases:
+      - CPUSA
+      - CP
+      - Communist
+      - Communist Party
+      - Communist Party USA
+      - Communist Party of the USA
+      - Communist Party of the United States
+    source: https://en.wikipedia.org/wiki/Communist_Party_USA
+  - code: SWP
+    name: Socialist Workers Party
+    bucket: socialist
+    emoji: "🚩"
+    aliases:
+      - SWP
+      - Socialist Workers
+      - Socialist Workers Party
+    source: https://en.wikipedia.org/wiki/Socialist_Workers_Party_(United_States)
+  - code: SPUSA
+    name: Socialist Party USA
+    bucket: socialist
+    emoji: "🔨"
+    aliases:
+      - SPUSA
+      - SP
+      - SOC
+      - Socialist
+      - Socialist Party
+      - Socialist Party USA
+      - Socialist Party of the United States
+      - Socialist Party of America
+      - Socialist Party of New Jersey
+    source: https://en.wikipedia.org/wiki/Socialist_Party_USA
+  - code: SA
+    name: Socialist Alternative
+    bucket: socialist
+    emoji: "🌾"
+    aliases:
+      - SA
+      - SAlt
+      - Socialist Alternative
+    source: https://en.wikipedia.org/wiki/Socialist_Alternative_(United_States)
+  - code: WWP
+    name: Workers World Party
+    bucket: socialist
+    emoji: "⭐"
+    aliases:
+      - WWP
+      - Workers World
+      - Workers World Party
+    source: https://en.wikipedia.org/wiki/Workers_World_Party
+  - code: SLP
+    name: Socialist Labor Party of America
+    bucket: socialist
+    emoji: "🛠️"
+    aliases:
+      - SLP
+      - Socialist Labor
+      - Socialist Labor Party
+      - Socialist Labor Party of America
+    source: https://en.wikipedia.org/wiki/Socialist_Labor_Party_of_America
+  - code: FSP
+    name: Freedom Socialist Party
+    bucket: socialist
+    emoji: "⚒️"
+    aliases:
+      - FSP
+      - Freedom Socialist
+      - Freedom Socialist Party
+    source: https://en.wikipedia.org/wiki/Freedom_Socialist_Party
+  - code: SEP
+    name: Socialist Equality Party
+    bucket: socialist
+    emoji: "📕"
+    aliases:
+      - SEP
+      - Socialist Equality
+      - Socialist Equality Party
+    source: https://en.wikipedia.org/wiki/Socialist_Equality_Party_(United_States)
+  - code: PLP
+    name: Progressive Labor Party
+    bucket: socialist
+    emoji: "🏗️"
+    aliases:
+      - PLP
+      - Progressive Labor
+      - Progressive Labor Party
+    source: https://en.wikipedia.org/wiki/Progressive_Labor_Party_(United_States)
+  - code: WSPUS
+    name: World Socialist Party of the United States
+    bucket: socialist
+    emoji: "🌍"
+    aliases:
+      - WSPUS
+      - World Socialist Party
+      - World Socialist Party of the United States
+    source: https://en.wikipedia.org/wiki/World_Socialist_Party_of_the_United_States
+  - code: ACP
+    name: American Communist Party
+    bucket: socialist
+    emoji: "🔥"
+    aliases:
+      - ACP
+      - American Communist Party
+    source: https://en.wikipedia.org/wiki/American_Communist_Party_(2024)
+  - code: SACT
+    name: Socialist Action
+    bucket: socialist
+    emoji: "⚡"
+    aliases:
+      - SAct
+      - Socialist Action
+    source: https://en.wikipedia.org/wiki/Socialist_Action_(United_States)
+  # -- far_right: far_right (neo-Nazi / white nationalist only)
+  - code: ANP
+    name: American Nazi Party
+    bucket: far_right
+    emoji: "⛓️"
+    aliases:
+      - ANP
+      - American Nazi Party
+      - Nazi Party
+      - National Socialist White People's Party
+      - NSWPP
+    source: https://en.wikipedia.org/wiki/American_Nazi_Party
+  - code: NSM
+    name: National Socialist Movement
+    bucket: far_right
+    emoji: "🔒"
+    aliases:
+      - NSM
+      - National Socialist Movement
+      - National Socialist Movement USA
+    source: https://en.wikipedia.org/wiki/National_Socialist_Movement_(United_States)
+  - code: AFP
+    name: American Freedom Party
+    bucket: far_right
+    emoji: "🚔"
+    aliases:
+      - AFP
+      - American Freedom Party
+      - American Third Position Party
+      - Third Position Party
+    source: https://en.wikipedia.org/wiki/American_Freedom_Party
+  - code: TWP
+    name: Traditionalist Worker Party
+    bucket: far_right
+    emoji: "🏴"
+    aliases:
+      - TWP
+      - Traditionalist Worker Party
+      - Traditionalist Workers Party
+    source: https://en.wikipedia.org/wiki/Traditionalist_Worker_Party
+  - code: NRP
+    name: National Renaissance Party
+    bucket: far_right
+    emoji: "⚠️"
+    aliases:
+      - NRP
+      - National Renaissance Party
+    source: https://en.wikipedia.org/wiki/National_Renaissance_Party_(United_States)
+  # -- constitution: constitution
+  - code: CST
+    name: Constitution Party
+    bucket: constitution
+    emoji: "📜"
+    aliases:
+      - IAP
+      - CST
+      - CON
+      - Constitution
+      - Constitution Party
+      - U.S. Constitution Party
+      - US Constitution Party
+      - Constitution Party USA
+      - Constitution Party of Oregon
+      - Constitution Party of Pennsylvania
+      - Constitution Party of Idaho
+      - Constitution Party of Michigan
+      - Constitution Party of Wisconsin
+      - Constitution Party of Virginia
+      - Constitution Party of Nevada
+      - Constitution Party of Missouri
+      - American Constitution Party
+      - Taxpayers Party
+      - U.S. Taxpayers Party
+      - US Taxpayers Party
+      - U.S. Taxpayers
+      - Taxpayers Party of New York
+    source: https://en.wikipedia.org/wiki/Constitution_Party_(United_States)
+  - code: AIP
+    name: American Independent Party
+    bucket: constitution
+    emoji: "📜"
+    aliases:
+      - AIP
+      - AI
+      - American Independent
+      - American Independent Party
+      - American Independent Party of California
+      - California American Independent Party
+    source: https://en.wikipedia.org/wiki/American_Independent_Party
+  - code: UIAP
+    name: Utah Independent American Party
+    bucket: constitution
+    emoji: "📜"
+    aliases:
+      - Independent American Party
+      - UIAP
+      - Independent American
+      - Independent American Party of Nevada
+      - Utah Independent American
+    source: https://en.wikipedia.org/wiki/Utah_Independent_American_Party
+  # -- independent: independent / no party
+  - code: IND
+    name: Independent
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - I
+      - IND
+      - Independent
+      - Independents
+      - Independent Candidate
+      - Independent Party
+    source: https://en.wikipedia.org/wiki/Independent_politician
+  - code: NP
+    name: No Party / Nonpartisan
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - NP
+      - NOP
+      - NPA
+      - NPP
+      - U
+      - UNA
+      - UNK
+      - No Party
+      - No Party Affiliation
+      - No Party Preference
+      - No Affiliation
+      - Nonpartisan
+      - Non-Partisan
+      - Non Partisan
+      - Unaffiliated
+      - Unenrolled
+      - Decline to State
+      - Blank
+      - "None"
+      - Not Affiliated
+      - Unknown
+    source: https://en.wikipedia.org/wiki/Independent_politician
+  - code: IPNY
+    name: Independence Party of New York
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - IPNY
+      - Independence Party of New York
+      - NY Independence Party
+    source: https://en.wikipedia.org/wiki/Independence_Party_of_New_York
+  - code: IPDE
+    name: Independent Party of Delaware
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - IPDE
+      - IDE
+      - IPoD
+      - Independent Party of Delaware
+      - Delaware Independent Party
+    source: https://en.wikipedia.org/wiki/Independent_Party_of_Delaware
+  - code: IPCT
+    name: Independent Party of Connecticut
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - IPCT
+      - Independent Party of Connecticut
+      - Connecticut Independent Party
+    source: https://en.wikipedia.org/wiki/Independent_Party_of_Connecticut
+  - code: IPFL
+    name: Independent Party of Florida
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - IPFL
+      - IPF
+      - Independent Party of Florida
+      - Independence Party of Florida
+      - Florida Independent Party
+    source: https://en.wikipedia.org/wiki/Independent_Party_of_Florida
+  - code: IPLA
+    name: Independent Party of Louisiana
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - IPLA
+      - IPL
+      - Independent Party of Louisiana
+      - Louisiana Independent Party
+    source: https://en.wikipedia.org/wiki/Independent_Party_of_Louisiana
+  - code: IPO
+    name: Independent Party of Oregon
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - IPO
+      - Independent Party of Oregon
+      - Oregon Independent Party
+    source: https://en.wikipedia.org/wiki/Independent_Party_of_Oregon
+  - code: AKIP
+    name: Alaskan Independence Party
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - AKIP
+      - Alaska Independence
+      - Alaska Independence Party
+      - Alaskan Independence
+      - Alaskan Independence Party
+    source: https://en.wikipedia.org/wiki/Alaskan_Independence_Party
+  - code: UIP
+    name: United Independent Party
+    bucket: independent
+    emoji: "⚪"
+    aliases:
+      - UIP
+      - United Independent Party
+      - United Independent Party of Massachusetts
+    source: https://en.wikipedia.org/wiki/United_Independent_Party
+  # -- centrist: centrist
+  - code: FWD
+    name: Forward Party
+    bucket: centrist
+    emoji: "➡️"
+    aliases:
+      - FWD
+      - Forward
+      - Forward Party
+      - Forward Party USA
+      - Forward Party of Utah
+      - Serve America Movement
+      - SAM
+      - Renew America Movement
+    source: https://en.wikipedia.org/wiki/Forward_Party_(United_States)
+  - code: REF
+    name: Reform Party
+    bucket: centrist
+    emoji: "🔧"
+    aliases:
+      - REF
+      - Reform
+      - Reform Party
+      - Reform Party USA
+      - Reform Party of the United States
+      - Reform Party of the United States of America
+      - Reform Party of Florida
+    source: https://en.wikipedia.org/wiki/Reform_Party_of_the_United_States_of_America
+  - code: ALN
+    name: Alliance Party
+    bucket: centrist
+    emoji: "🤝"
+    aliases:
+      - ALN
+      - Alliance
+      - Alliance Party
+      - Alliance Party USA
+      - Alliance Party of South Carolina
+    source: https://en.wikipedia.org/wiki/Alliance_Party_(United_States)
+  - code: NOL
+    name: No Labels
+    bucket: centrist
+    emoji: "🏷️"
+    aliases:
+      - NOL
+      - No Labels
+      - No Labels Party
+      - No Labels Party of Arizona
+      - No Labels Arizona
+    source: https://en.wikipedia.org/wiki/No_Labels
+  - code: UNT
+    name: Unity Party of America
+    bucket: centrist
+    emoji: "🤲"
+    aliases:
+      - UNT
+      - Unity
+      - Unity Party
+      - Unity Party of America
+    source: https://en.wikipedia.org/wiki/Unity_Party_of_America
+  - code: UUT
+    name: United Utah Party
+    bucket: centrist
+    emoji: "🏔️"
+    aliases:
+      - UUT
+      - United Utah
+      - United Utah Party
+    source: https://en.wikipedia.org/wiki/Forward_Party_of_Utah
+  - code: MOD
+    name: Moderate Party of Rhode Island
+    bucket: centrist
+    emoji: "🧭"
+    aliases:
+      - MOD
+      - Moderate
+      - Moderate Party
+      - Moderate Party of Rhode Island
+      - Rhode Island Moderate Party
+      - RI Moderate Party
+    source: https://en.wikipedia.org/wiki/Moderate_Party_of_Rhode_Island
+  - code: MNJ
+    name: Moderate Party of New Jersey
+    bucket: centrist
+    emoji: "🎚️"
+    aliases:
+      - MNJ
+      - Moderate Party of New Jersey
+      - New Jersey Moderate Party
+      - NJ Moderate Party
+    source: https://en.wikipedia.org/wiki/Moderate_Party_(New_Jersey)
+  - code: CCP
+    name: Colorado Center Party
+    bucket: centrist
+    emoji: "🎯"
+    aliases:
+      - CCP
+      - Colorado Center
+      - Colorado Center Party
+      - Center Party
+    source: https://en.wikipedia.org/wiki/Colorado_Center_Party
+  - code: CSP
+    name: Common Sense Party of California
+    bucket: centrist
+    emoji: "💡"
+    aliases:
+      - CSP
+      - Common Sense
+      - Common Sense Party
+      - Common Sense Party of California
+    source: https://en.wikipedia.org/wiki/Common_Sense_Party_of_California
+  - code: WTP
+    name: We the People Party
+    bucket: centrist
+    emoji: "🇺🇸"
+    aliases:
+      - WTP
+      - We the People
+      - We the People Party
+    source: https://en.wikipedia.org/wiki/We_the_People_Party
+  - code: RMA
+    name: Republican Moderate Party of Alaska
+    bucket: centrist
+    emoji: "🌨️"
+    aliases:
+      - RMA
+      - Republican Moderate
+      - Republican Moderate Party
+      - Republican Moderate Party of Alaska
+      - Alaskan Republican Moderate Party
+    source: https://en.wikipedia.org/wiki/Republican_Moderate_Party_of_Alaska
+  - code: FIP
+    name: Forward Independence Party
+    bucket: centrist
+    emoji: "↔️"
+    aliases:
+      - FIP
+      - Forward Independence
+      - Forward Independence Party
+      - Independence Party of Minnesota
+      - Independence-Alliance Party
+      - Independence Party
+      - Minnesota Independence Party
+      - IPM
+    source: https://en.wikipedia.org/wiki/Forward_Independence_Party
+  - code: UKS
+    name: United Kansas
+    bucket: centrist
+    emoji: "🔷"
+    aliases:
+      - UKS
+      - United Kansas
+      - United Kansas Party
+      - Free State Party
+    source: https://en.wikipedia.org/wiki/United_Kansas
+  # -- other: everything else
+  - code: WFP
+    name: Working Families Party
+    bucket: other
+    emoji: "🧰"
+    aliases:
+      - WOR
+      - WFP
+      - Working Families
+      - Working Families Party
+      - Working Families Party of New York
+      - Connecticut Working Families Party
+    source: https://en.wikipedia.org/wiki/Working_Families_Party
+  - code: PFP
+    name: Peace and Freedom Party
+    bucket: other
+    emoji: "🕊️"
+    aliases:
+      - PFP
+      - PAF
+      - PF
+      - Peace and Freedom
+      - Peace & Freedom
+      - Peace and Freedom Party
+    source: https://en.wikipedia.org/wiki/Peace_and_Freedom_Party
+  - code: WCP
+    name: Working Class Party
+    bucket: other
+    emoji: "🏭"
+    aliases:
+      - WCP
+      - Working Class
+      - Working Class Party
+      - Working Class Party of Michigan
+    source: https://en.wikipedia.org/wiki/Working_Class_Party
+  - code: NLP
+    name: Natural Law Party
+    bucket: other
+    emoji: "🧘"
+    aliases:
+      - NLP
+      - Natural Law
+      - Natural Law Party
+      - Natural Law Party of Michigan
+    source: https://en.wikipedia.org/wiki/Natural_Law_Party_(United_States)
+  - code: PRO
+    name: Prohibition Party
+    bucket: other
+    emoji: "🚱"
+    aliases:
+      - PRO
+      - P
+      - Prohibition
+      - Prohibition Party
+      - Prohibition National Party
+    source: https://en.wikipedia.org/wiki/Prohibition_Party
+  - code: ASP
+    name: American Solidarity Party
+    bucket: other
+    emoji: "⚖️"
+    aliases:
+      - ASP
+      - American Solidarity
+      - American Solidarity Party
+      - Solidarity Party
+    source: https://en.wikipedia.org/wiki/American_Solidarity_Party
+  - code: BTP
+    name: Boston Tea Party
+    bucket: other
+    emoji: "🫖"
+    aliases:
+      - BTP
+      - Boston Tea
+      - Boston Tea Party
+    source: https://en.wikipedia.org/wiki/Boston_Tea_Party_(political_party)
+  - code: TRA
+    name: Transhumanist Party
+    bucket: other
+    emoji: "🧬"
+    aliases:
+      - TRA
+      - Transhumanist
+      - Transhumanist Party
+      - US Transhumanist Party
+      - U.S. Transhumanist Party
+    source: https://en.wikipedia.org/wiki/Transhumanist_Party
+  - code: PIR
+    name: United States Pirate Party
+    bucket: other
+    emoji: "⚓"
+    aliases:
+      - PIR
+      - USPP
+      - Pirate
+      - Pirate Party
+      - United States Pirate Party
+      - US Pirate Party
+    source: https://en.wikipedia.org/wiki/United_States_Pirate_Party
+  - code: MJN
+    name: Legal Marijuana Now Party
+    bucket: other
+    emoji: "🍃"
+    aliases:
+      - LMN
+      - MJN
+      - Legal Marijuana Now
+      - Legal Marijuana Now Party
+      - Marijuana Now Party
+    source: https://en.wikipedia.org/wiki/Legal_Marijuana_Now_Party
+  - code: GLC
+    name: Grassroots-Legalize Cannabis Party
+    bucket: other
+    emoji: "🌱"
+    aliases:
+      - GLC
+      - Grassroots
+      - Grassroots Party
+      - Grassroots-Legalize Cannabis
+      - Grassroots-Legalize Cannabis Party
+      - Legalize Cannabis
+    source: https://en.wikipedia.org/wiki/Grassroots%E2%80%93Legalize_Cannabis_Party
+  - code: USMJ
+    name: U.S. Marijuana Party
+    bucket: other
+    emoji: "🍁"
+    aliases:
+      - USMJ
+      - Marijuana Party
+      - U.S. Marijuana Party
+      - US Marijuana Party
+      - United States Marijuana Party
+    source: https://en.wikipedia.org/wiki/U.S._Marijuana_Party
+  - code: GMPJ
+    name: Green Mountain Peace and Justice Party
+    bucket: other
+    emoji: "🌲"
+    aliases:
+      - GMPJ
+      - Green Mountain Peace and Justice
+      - Green Mountain Peace and Justice Party
+      - Green Mountain Party
+      - Liberty Union
+      - Liberty Union Party
+    source: https://en.wikipedia.org/wiki/Green_Mountain_Peace_and_Justice_Party
+  - code: OPP
+    name: Oregon Progressive Party
+    bucket: other
+    emoji: "🌳"
+    aliases:
+      - OPP
+      - Oregon Progressive
+      - Oregon Progressive Party
+      - Progressive Party of Oregon
+    source: https://en.wikipedia.org/wiki/Oregon_Progressive_Party
+  - code: WAP
+    name: Washington Progressive Party
+    bucket: other
+    emoji: "🌄"
+    aliases:
+      - WAP
+      - WAPP
+      - Washington Progressive
+      - Washington Progressive Party
+    source: https://en.wikipedia.org/wiki/Washington_Progressive_Party
+  - code: VPP
+    name: Vermont Progressive Party
+    bucket: other
+    emoji: "🌿"
+    aliases:
+      - Progressive
+      - PRO-VT
+      - VPP
+      - Vermont Progressive
+      - Vermont Progressive Party
+      - Progressive Party of Vermont
+    source: https://en.wikipedia.org/wiki/Vermont_Progressive_Party
+  - code: CPNY
+    name: Conservative Party of New York State
+    bucket: other
+    emoji: "🗽"
+    aliases:
+      - CPNY
+      - Conservative
+      - Conservative Party
+      - Conservative Party of New York
+      - Conservative Party of New York State
+      - NY Conservative Party
+      - New York Conservative Party
+    source: https://en.wikipedia.org/wiki/Conservative_Party_of_New_York_State
+  - code: LPNY
+    name: Liberal Party of New York
+    bucket: other
+    emoji: "🏙️"
+    aliases:
+      - LPNY
+      - Liberal
+      - Liberal Party
+      - Liberal Party of New York
+      - NY Liberal Party
+    source: https://en.wikipedia.org/wiki/Liberal_Party_of_New_York
+  - code: WEP
+    name: Women's Equality Party
+    bucket: other
+    emoji: "♀️"
+    aliases:
+      - WEP
+      - Women's Equality
+      - Women's Equality Party
+      - Womens Equality Party
+      - Women's Equality Party of New York
+    source: https://en.wikipedia.org/wiki/Women%27s_Equality_Party_(New_York)
+  - code: RTL
+    name: New York State Right to Life Party
+    bucket: other
+    emoji: "🕯️"
+    aliases:
+      - RTL
+      - Right to Life
+      - Right to Life Party
+      - New York State Right to Life Party
+    source: https://en.wikipedia.org/wiki/New_York_State_Right_to_Life_Party
+  - code: CNP
+    name: California National Party
+    bucket: other
+    emoji: "🌉"
+    aliases:
+      - CNP
+      - California National
+      - California National Party
+    source: https://en.wikipedia.org/wiki/California_National_Party
+  - code: UCP
+    name: United Citizens Party
+    bucket: other
+    emoji: "🗳️"
+    aliases:
+      - UCP
+      - UC
+      - United Citizens
+      - United Citizens Party
+    source: https://en.wikipedia.org/wiki/United_Citizens_Party
+  - code: CLP
+    name: Christian Liberty Party
+    bucket: other
+    emoji: "✝️"
+    aliases:
+      - CLP
+      - Christian Liberty
+      - Christian Liberty Party
+    source: https://en.wikipedia.org/wiki/Christian_Liberty_Party
+  - code: APV
+    name: Approval Voting Party
+    bucket: other
+    emoji: "✅"
+    aliases:
+      - APV
+      - Approval Voting
+      - Approval Voting Party
+    source: https://en.wikipedia.org/wiki/Approval_Voting_Party
+  - code: PCP
+    name: Personal Choice Party
+    bucket: other
+    emoji: "🎲"
+    aliases:
+      - PCP
+      - Personal Choice
+      - Personal Choice Party
+    source: https://en.wikipedia.org/wiki/Personal_Choice_Party
+  - code: ECO
+    name: Ecology Party of Florida
+    bucket: other
+    emoji: "🌴"
+    aliases:
+      - ECO
+      - Ecology Party
+      - Ecology Party of Florida
+      - Florida Ecology Party
+    source: https://en.wikipedia.org/wiki/Ecology_Party_of_Florida
+  - code: LAB
+    name: Labor Party
+    bucket: other
+    emoji: "⚙️"
+    aliases:
+      - LAB
+      - Labor
+      - Labor Party
+      - Labor Party USA
+    source: https://en.wikipedia.org/wiki/Labor_Party_(United_States,_1996)
+  - code: CPC
+    name: Citizens Party of the United States
+    bucket: other
+    emoji: "🏘️"
+    aliases:
+      - CPC
+      - Citizens Party
+      - Citizens Party of the United States
+      - Citizens Party USA
+    source: https://en.wikipedia.org/wiki/Citizens_Party_of_the_United_States
+  - code: SCW
+    name: South Carolina Workers Party
+    bucket: other
+    emoji: "🪧"
+    aliases:
+      - SCW
+      - SCWP
+      - South Carolina Workers Party
+      - SC Workers Party
+    source: https://en.wikipedia.org/wiki/South_Carolina_Workers_Party
+  - code: TPN
+    name: Tea Party of Nevada
+    bucket: other
+    emoji: "🍵"
+    aliases:
+      - TPN
+      - Tea Party of Nevada
+    source: https://en.wikipedia.org/wiki/Tea_Party_of_Nevada
+  - code: NJC
+    name: New Jersey Conservative Party
+    bucket: other
+    emoji: "🦅"
+    aliases:
+      - NJC
+      - New Jersey Conservative
+      - New Jersey Conservative Party
+      - NJ Conservative Party
+    source: https://en.wikipedia.org/wiki/New_Jersey_Conservative_Party
+  - code: JUS
+    name: Justice Party
+    bucket: other
+    emoji: "🔎"
+    aliases:
+      - JUS
+      - Justice
+      - Justice Party
+    source: https://en.wikipedia.org/wiki/Justice_Party_(United_States)
+  - code: IGVA
+    name: Independent Greens of Virginia
+    bucket: other
+    emoji: "🌻"
+    aliases:
+      - IGVA
+      - Independent Greens
+      - Independent Greens of Virginia
+      - Indy Greens
+    source: https://en.wikipedia.org/wiki/Independent_Greens_of_Virginia
+  - code: PDN
+    name: Progressive Dane
+    bucket: other
+    emoji: "🧀"
+    aliases:
+      - PDN
+      - Progressive Dane
+      - ProDane
+      - Pro Dane
+    source: https://en.wikipedia.org/wiki/Progressive_Dane
+  - code: ALO
+    name: Aloha ʻĀina Party
+    bucket: other
+    emoji: "🌺"
+    aliases:
+      - ALO
+      - Aloha Aina
+      - "Aloha ʻĀina"
+      - Aloha Aina Party
+      - "Aloha ʻĀina Party"
+    source: https://en.wikipedia.org/wiki/Aloha_%CA%BB%C4%80ina_Party
+  - code: TFA
+    name: Third Party for America
+    bucket: other
+    emoji: "🌐"
+    aliases:
+      - TFA
+      - Third Party for America
+    source: https://en.wikipedia.org/wiki/Third_Party_for_America
+  - code: LPA
+    name: Liberal Party USA
+    bucket: other
+    emoji: "🧾"
+    aliases:
+      - LPA
+      - Liberal Party USA
+      - LPUSA
+    source: https://en.wikipedia.org/wiki/Liberal_Party_USA
+  - code: WRI
+    name: Write-in
+    bucket: other
+    emoji: "✍️"
+    aliases:
+      - WRI
+      - Write-In
+      - Write In
+      - Writein
+      - Write-Ins
+      - Write-In Candidate
+      - Scattering
+      - Scattered Write-In
+    source: https://en.wikipedia.org/wiki/Write-in_candidate
+  - code: OTH
+    name: Other
+    bucket: other
+    emoji: "❓"
+    aliases:
+      - OTH
+      - Other
+      - Other Party
+      - Other Parties
+      - All Others
+      - Miscellaneous
+    source: https://en.wikipedia.org/wiki/List_of_political_parties_in_the_United_States

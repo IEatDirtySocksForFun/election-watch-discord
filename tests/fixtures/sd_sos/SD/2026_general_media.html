@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Results Media</title></head>
+<body>
+<form method="post" action="./ResultsMedia.aspx" id="form1">
+
+
+
+
+        <input type="hidden" name="ctl00$hidElectionType" id="hidElectionType" value="General" />
+        <input type="hidden" name="ctl00$hidElectionDate" id="hidElectionDate" value="11/3/2026" />
+        <input type="hidden" name="ctl00$hidPrecinctsReported" id="hidPrecinctsReported" value="122" />
+        <input type="hidden" name="ctl00$hidPrecinctsPartial" id="hidPrecinctsPartial" value="0" />
+        <input type="hidden" name="ctl00$hidPrecinctsNotReported" id="hidPrecinctsNotReported" value="549" />
+        <input type="hidden" name="ctl00$hidVoterTurnout" id="hidVoterTurnout" value="6441" />
+        <input type="hidden" name="ctl00$hidVoterTotal" id="hidVoterTotal" value="622188" />
+        <div id="fader"><h1>Preparing Export...</h1></div>
+        <div class="outside-wrapper">
+            <div id="sticky-anchor"></div>
+            <div id="sticky" class="top-bluebar">
+                <!--Menu button here-->
+                <a href="#" id="menuToggle" title="show menu"><span><em>Menu</em></span></a>
+                <div>
+                    
+                    
+                </div>
+                <div>
+                    
+                </div>
+                <div class=" search-icon-wrapper" onclick="MagClick()">
+                    <div class="search-icon" title="Search"></div>
+                    <div id="header-search-box" class=" search-container">
+                        <div class="search-box-wrapper">
+                            <!--Search box here -->
+                            <input name="ctl00$txtQuickSearch" type="text" id="txtQuickSearch" class="textboxSmallTransparent" title="Search for Contest or Candidate" placeholder="Search..." />
+                            
+                            <input type="submit" name="ctl00$btnSearch" value="Search" id="btnSearch" class="search-button" />
+                        </div>
+                    </div>
+                </div>
+                <div class=" mtc-icon-position" onclick="ShareClick()">
+                    <div class="share-icon " title="Share"></div>
+                    <div id="header-share-box" class=" share-container">
+                        <div class="share-header">SHARE ON</div>
+                        <div class="share-icon-wrapper">
+                            <div class="share-buttons">
+                                <!-- Facebook --><a href="http://www.facebook.com/sharer.php?u=http://electionresults.sd.gov/ResultsMedia.aspx" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;"><img title="Share on Facebook" alt="Facebook" src="/Images/facebook.png" /></a><!-- Twitter --><a href="https://twitter.com/share?url=http://electionresults.sd.gov/ResultsMedia.aspx&text=South Dakota  Contests&hashtags=sdpol" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;"><img title="Share on Twitter" src="/Images/twitter.png" alt="Twitter"/></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="top-header-box2">
+                    
+    <h2>
+        <a id="NavLinks_lnkTracked" href="MyTrackedContests.aspx">My Tracked Contests</a>
+    </h2>
+    <h2>
+        <a id="NavLinks_lnkHome" href="Default.aspx">Home</a>
+    </h2>
+
+                </div>
+            </div>
+            <!--End Top Blue Bar-->
+            <div class="top-header">
+                <div id="pnlHeader" class="section group">
+	
+                    <div class="col desktop" style="padding: 3px 0 0 8px;">
+                        <img src="/Images/SD_State_Seal.png" style="width: 78px; height: 78px;" title="South Dakota State Seal" alt="South Dakota State Seal" />
+                    </div>
+                    <div class="col mobile" style="padding: 6px 0 0 8px;">
+                        <img src="/Images/SD_State_Seal.png" style="width: 59px; height: 59px;" title="South Dakota State Seal" alt="South Dakota State Seal" />
+                    </div>
+                    <div class="col top-header-box1">
+                        <h2>
+                            <a id="lnkSOSName" href="Default.aspx" target="_blank"></a>
+                        </h2>
+                        <h1>
+                            <a id="lnkStateSOS" href="Default.aspx" target="_blank">South Dakota Secretary of State</a>
+                        </h1>
+                    </div>
+                    <!--End top-header-box1-->
+                    <!--End top-header-box2-->
+                
+</div>
+                <!--End Section Group-->
+            </div>
+            <!--End Top Header-->
+            <div class="header-box-wrapper">
+                <div class="section group">
+                    <a id="lnkDateHeader" class="col header-box1 header-box1-alt" href="Default.aspx?"><h1>Unofficial Results</h1><h2>General Election November 3, 2026</h2>
+                        <div class="last-updated"><span>Results last updated:</span><span>10/27/2026 10:53 AM CT</span></div>
+                    </a>
+                    <!--End Header Box 1-->
+                    <div class="col header-box2">
+                        <div class="header-box-content-top">
+                            <h1>
+                                <a id="lnkVoterTurnout" class="button" href="VoterTurnoutDetails.aspx?map=TURN">Statewide Voter Turnout</a>
+                            </h1>
+                        </div>
+                        <!--End header-box2-content-top-->
+                        <div class="header-box-content-bottom">
+                            
+                            <div class="animate-position desktop">
+                                <div style="height: 150px"><canvas id="voter-turnout-canvas"></canvas><div class="dough-percent"><span class="int">1</span><span class="dec">.02%</span></div></div>
+                            </div>
+                            <!--End Animate Position-->
+                            <div class="animate-position mobile" style="margin-top: -6px;">
+                                <div><canvas id="voter-turnout-mobile-canvas"></canvas><div class="dough-percent"><span class="int">1</span><span class="dec">.02%</span></div></div>
+                            </div>
+                            <!--End Animate Position-->
+                        </div>
+                        <!--End header-box-content-bottom-->
+                        <div class="header-box-content-reg">
+                            <h2><span class="header-ballot-text">Ballots Cast</span><span class="header-ballot-number">6,441</span><br /><span class="header-voter-text">Active Voters</span><span class="header-voter-number">628,629</span></h2>
+                        </div>
+                    </div>
+                    <!--End Header Box 2-->
+                    <div class="col header-box3">
+                        <div class="header-box-content-top">
+                            <h1>
+                                <a id="lnkPrecinctsReporting" class="button" href="VoterTurnoutDetails.aspx?map=PREC">Precincts Reporting</a>
+                            </h1>
+                        </div>
+                        <!--End header-box2-content-top-->
+                        <div class="header-box-content-bottom">
+                            
+                            <div class="animate-position desktop">
+                                <div style="height: 150px"><canvas id="precinct-reported-canvas"></canvas><div class="dough-percent"><span class="int">18</span><span class="dec">.18%</span></div></div>
+                            </div>
+                            <!--End Animate Position-->
+                            <div class="animate-position mobile">
+                                <div><canvas id="precinct-reported-mobile-canvas"></canvas><div class="dough-percent"><span class="int">18</span><span class="dec">.18%</span></div></div>
+                            </div>
+                            <!--End Animate Position-->
+                        </div>
+                        <!--End header-box-content-bottom-->
+                        <div class="header-box-content-reg header-box-content-prec">
+                            <h2><div class='colordisc-yellow'></div><span class="header-partial-text">Partially</span><span class="header-partial-number">0</span><br/><div class='colordisc-orange'></div><span class="header-total-text">Fully</span><span class="header-total-number">122</span> </br><div></div><span class="header-partial-text">Total</span><span class="header-totalprecincts-text">671</span></h2>
+                        </div>
+                    </div>
+                    <div id="chartjs-tooltip"></div>
+                    <!--End Header Box 3-->
+                </div>
+                <!--End Section Group-->
+                <div id="pnlSiteMessage" class="site-message">
+	
+                    Testing In Progress
+                
+</div>
+            </div>
+            <!--End Header Box Wrapper-->
+            
+            
+            
+            <!--Main Content-->
+            
+    <div id="pnlResultsHeader" class="wrapper-results-header">
+	
+        <div class="legislative-header-wrapper">
+            <span id="MainContent_lblHeaderText">Results Media</span>
+        </div>
+    
+</div>
+    
+    <div class="wrapper-inside" style="padding: 1px 0 10px 0;">
+        <div id="MainContent_pnlCountyList" class="county-export-list">
+	<ul class="media-list"><div class="county-export-listitem"><a href="/resultsCSV.aspx?text=All&amp;type=SWR&amp;map=CTY">Statewide Races</a></div><div class="county-export-listitem"><a href="/resultsCSV.aspx?text=All&amp;type=BQ&amp;map=CTY">Statewide Ballot Questions</a></div><div class="county-export-listitem"><a href="/resultsCSV.aspx?text=All&amp;type=LEG&amp;map=DIST">Legislative Races</a></div><div class="county-export-listitem"><a href="/resultsCSV.aspx?text=All&amp;type=CTY&amp;map=CTY">County Races and Ballot Questions</a></div><div class="county-export-listitem"><a href="/resultsCSV.aspx?text=All&amp;type=MUN&amp;map=CTY">Local Races and Ballot Questions</a></div></ul>
+</body>
+</html>

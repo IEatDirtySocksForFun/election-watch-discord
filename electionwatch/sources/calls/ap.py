@@ -47,7 +47,7 @@ class APSource(CallSource):
                 "electionDate": self.ELECTION_DATE,
                 "apikey": api_key,
             }
-            if key.level is Level.HOUSE and key.district is not None:
+            if key.level is Level.HOUSE and key.district is not None and key.district.isdigit():
                 params["SeatNum"] = str(int(key.district))
 
             try:

@@ -29,7 +29,8 @@ def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str
     action = action.lower()
     if action == "list":
         races = gs.important or [str(item.key) for item in _default_races()]
-        return "Watched races: " + (", ".join(races) if races else "none")
+        text = "Watched races: " + (", ".join(races) if races else "none")
+        return text if len(text) <= 1900 else text[:1900].rsplit(", ", 1)[0] + f", … ({len(races)} total)"
     if action not in {"add", "remove"}:
         raise ValueError("action must be add, remove, or list")
     if not race:
@@ -110,7 +111,8 @@ def change_odds(
 
 def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
-    return yaml.safe_dump(to_doc(gs), sort_keys=False).strip()
+    # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
+    return _clip_lines(yaml.safe_dump(to_doc(gs), sort_keys=False).strip().splitlines())
 
 
 def change_favorite(us: UserSettings, action: str, race: str) -> str:

@@ -11,6 +11,7 @@ import httpx
 from discord import app_commands
 from discord.ext import commands, tasks
 
+from electionwatch.bot.command_data import CommandData
 from electionwatch.bot.logic import (
     change_calls,
     change_favorite,
@@ -22,11 +23,11 @@ from electionwatch.bot.logic import (
     is_admin,
     settings_dump,
 )
-from electionwatch.bot.navigator import RaceNavigator
+from electionwatch.bot.navigator import RaceNavigator, list_races
 from electionwatch.bot.poster import DiscordPoster
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
-from electionwatch.racekeys import describe
+from electionwatch.racekeys import describe, parse
 from electionwatch.settings import GuildSettings, UserSettings
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,7 @@ class ElectionBot(commands.Bot):
         self.store = store
         self.sources = sources
         self.http_client = http_client
+        self.command_data = CommandData(store, sources, http_client, clock)
         self.poller = Poller(
             store,
             sources,
@@ -65,7 +67,9 @@ class ElectionBot(commands.Bot):
             watch_command,
             posting_command,
             calls_command,
+            odds_alerts_command,
             odds_command,
+            polls_command,
             turnout_command,
             exitpolls_command,
             pause_command,
@@ -190,8 +194,8 @@ async def calls_command(
     await interaction.response.send_message(message, ephemeral=True)
 
 
-@app_commands.command(name="odds", description="Configure prediction-market swing alerts")
-async def odds_command(
+@app_commands.command(name="oddsalerts", description="Configure prediction-market swing alerts")
+async def odds_alerts_command(
     interaction: discord.Interaction,
     enabled: Literal["on", "off"],
     threshold: app_commands.Range[float, 0.1, 100.0] | None = None,
@@ -207,6 +211,62 @@ async def odds_command(
         return
     await interaction.client.store.save_guild(gs)
     await interaction.response.send_message(message, ephemeral=True)
+
+
+async def _watched_keys(interaction: discord.Interaction):
+    if interaction.guild_id is None:
+        return [race.key for race in load_races()]
+    gs = await interaction.client.store.get_guild(interaction.guild_id)
+    if not gs or not gs.important:
+        return [race.key for race in load_races()]
+    keys = []
+    for text in gs.important:
+        try:
+            keys.append(parse(text))
+        except ValueError:
+            logger.warning("Ignoring invalid watched race key %s", text)
+    return keys
+
+
+@app_commands.command(name="odds", description="Show current Kalshi and Polymarket probabilities")
+@app_commands.describe(race="Race to show; omit it for all watched races")
+async def odds_command(interaction: discord.Interaction, race: str | None = None) -> None:
+    if race:
+        try:
+            keys = [parse(race)]
+        except ValueError as exc:
+            await _error(interaction, exc)
+            return
+    else:
+        keys = await _watched_keys(interaction)
+    await interaction.response.defer(ephemeral=True)
+    if race:
+        embed = await interaction.client.command_data.odds_embed(keys[0])
+    else:
+        embed = await interaction.client.command_data.odds_overview(keys)
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+
+@app_commands.command(name="polls", description="Show the most recent public polls for a race")
+@app_commands.describe(
+    race="Race to show",
+    count="Number of polls (1-10, default 5)",
+    internals="Include partisan/internal polls (default true)",
+)
+async def polls_command(
+    interaction: discord.Interaction,
+    race: str,
+    count: app_commands.Range[int, 1, 10] = 5,
+    internals: bool = True,
+) -> None:
+    try:
+        key = parse(race)
+    except ValueError as exc:
+        await _error(interaction, exc)
+        return
+    await interaction.response.defer(ephemeral=True)
+    embed = await interaction.client.command_data.polls_embed(key, count, internals)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 
 async def _toggle(interaction: discord.Interaction, field: str, enabled: bool) -> None:
@@ -260,10 +320,12 @@ async def settings_command(interaction: discord.Interaction) -> None:
 
 @app_commands.command(name="races", description="Browse current race results")
 async def races_command(interaction: discord.Interaction) -> None:
+    # refresh() lists races from the state sites: defer so the 3 s deadline cannot expire.
+    await interaction.response.defer(ephemeral=True)
     settings = await _user(interaction)
     view = RaceNavigator(interaction.client, interaction.user.id, settings)
     await view.refresh()
-    await interaction.response.send_message(embed=await view.embed(), view=view, ephemeral=True)
+    await interaction.followup.send(embed=await view.embed(), view=view, ephemeral=True)
 
 
 @app_commands.command(name="favorite", description="Add or remove a favorite race")
@@ -311,15 +373,9 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
                 continue
             choices[str(key)] = describe(key)
             states.add(key.state)
-    for source in bot.sources.get("results", []):
-        if not source.available():
-            continue
-        for state in states & set(source.states):
-            try:
-                for key, label in await source.list_races(state, bot.http_client):
-                    choices[str(key)] = label or describe(key)
-            except Exception:
-                logger.exception("Autocomplete could not list races from %s", source.name)
+    for state in sorted(states):
+        for key, label in (await list_races(bot, state)).values():
+            choices[str(key)] = label or describe(key)
     needle = current.casefold()
     return [
         app_commands.Choice(name=f"{key} · {label}"[:100], value=key)
@@ -330,3 +386,5 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
 
 watch_command.autocomplete("race")(race_autocomplete)
 favorite_command.autocomplete("race")(race_autocomplete)
+odds_command.autocomplete("race")(race_autocomplete)
+polls_command.autocomplete("race")(race_autocomplete)

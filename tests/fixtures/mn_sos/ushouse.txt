@@ -1,0 +1,7 @@
+MN;;;0104;U.S. Representative District 1;1;0401;Jake Johnson;;;DFL;326;750;5514;48.35;11405
+MN;;;0104;U.S. Representative District 1;1;0302;Brad Finstad;;;R;326;750;2431;21.32;11405
+MN;;;0104;U.S. Representative District 1;1;9901;WRITE-IN;;;WI;326;750;3460;30.34;11405
+MN;;;0105;U.S. Representative District 2;2;0401;Matt Little;;;DFL;242;260;1906;30.68;6213
+MN;;;0105;U.S. Representative District 2;2;0302;Eric Pratt;;;R;242;260;2692;43.33;6213
+MN;;;0105;U.S. Representative District 2;2;9901;WRITE-IN;;;WI;242;260;1615;25.99;6213
+

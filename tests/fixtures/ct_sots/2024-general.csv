@@ -1,0 +1,28 @@
+contest_id,election_id,election_date,election_type,question_text,question_type,office_id,office_name,office_modifier,district_id,district_type,district_name,candidate_id,candidate_name,retention_candidate_id,retention_candidate_name,division_id,division_type,division_name,vote_channel,is_winner,number_seats,candidate_party_id,candidate_party_name,votes
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,21370,Kamala Harris and Tim Walz,,,1,State,Connecticut,Total,false,1,,Democratic,1748399
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,10968,Donald J. Trump and JD Vance,,,1,State,Connecticut,Total,false,1,,Republican,1293811
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,58394,Stein and Ware,,,1,State,Connecticut,Total,false,1,,Green,25204
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,58396,Kennedy' Jr. and Shanahan,,,1,State,Connecticut,Total,false,1,,Petitioning Candidate,14860
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,58395,Oliver and ter Maat and ter Maat,,,1,State,Connecticut,Total,false,1,,Libertarian,11904
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,58397,De la Cruz and Unknown Garcia,,,1,State,Connecticut,Total,false,1,,Write In,467
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,22613,Sonski,,,1,State,Connecticut,Total,false,1,,Write In,293
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,37817,West,,,1,State,Connecticut,Total,false,1,,Write In,229
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,58399,Ayyadurai and Ellis and Unknown Ellis,,,1,State,Connecticut,Total,false,1,,Write In,39
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,30357,Fox,,,1,State,Connecticut,Total,false,1,,Write In,8
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,58398,Potus and Kennedy and Unknown Kennedy,,,1,State,Connecticut,Total,false,1,,Write In,4
+36252,582,2024-11-05T00:00:00Z,General,,,352,President,,1,State,Connecticut,35696,McNeil,,,1,State,Connecticut,Total,false,1,,Write In,0
+36585,582,2024-11-05T00:00:00Z,General,,,329,United States Senator,,1,State,Connecticut,9436,Christopher S. Murphy,,,1,State,Connecticut,Total,false,1,,Democratic,1679732
+36585,582,2024-11-05T00:00:00Z,General,,,329,United States Senator,,1,State,Connecticut,9436,Christopher S. Murphy,,,1,State,Connecticut,Total,false,1,,Working Families,82788
+36585,582,2024-11-05T00:00:00Z,General,,,329,United States Senator,,1,State,Connecticut,58664,Matthew M. Corey,,,1,State,Connecticut,Total,false,1,,Republican,1191784
+36585,582,2024-11-05T00:00:00Z,General,,,329,United States Senator,,1,State,Connecticut,58665,Robert Finley Hyde,,,1,State,Connecticut,Total,false,1,,Cheaper Gas Groceries,26074
+36585,582,2024-11-05T00:00:00Z,General,,,329,United States Senator,,1,State,Connecticut,21114,Justin C. Paglino,,,1,State,Connecticut,Total,false,1,,Green,25272
+36585,582,2024-11-05T00:00:00Z,General,,,329,United States Senator,,1,State,Connecticut,58666,John Flynn,,,1,State,Connecticut,Total,false,1,,Write In,12
+36384,582,2024-11-05T00:00:00Z,General,,,330,Representative in Congress,,4245,Representative in Congress District,1,9483,John B. Larson,,,1,State,Connecticut,Total,false,1,,Democratic,334364
+36384,582,2024-11-05T00:00:00Z,General,,,330,Representative in Congress,,4245,Representative in Congress District,1,9483,John B. Larson,,,1,State,Connecticut,Total,false,1,,Working Families,18420
+36384,582,2024-11-05T00:00:00Z,General,,,330,Representative in Congress,,4245,Representative in Congress District,1,15032,Jim Griffin,,,1,State,Connecticut,Total,false,1,,Republican,190030
+36384,582,2024-11-05T00:00:00Z,General,,,330,Representative in Congress,,4245,Representative in Congress District,1,2499,Mary L. Sanders,,,1,State,Connecticut,Total,false,1,,Green,11466
+36548,582,2024-11-05T00:00:00Z,General,,,48,State Senator,,4422,State Senate District,1,9818,John W. Fonfara,,,1,State,Connecticut,Total,false,1,,Democratic,34058
+36548,582,2024-11-05T00:00:00Z,General,,,48,State Senator,,4422,State Senate District,1,58636,Luis R. Delgado,,,1,State,Connecticut,Total,false,1,,Green,4873
+36460,582,2024-11-05T00:00:00Z,General,,,49,State Representative,,4262,State Representative District,2,9519,Raghib Allie-Brennan,,,1,State,Connecticut,Total,false,1,,Democratic,9101
+36460,582,2024-11-05T00:00:00Z,General,,,49,State Representative,,4262,State Representative District,2,9519,Raghib Allie-Brennan,,,1,State,Connecticut,Total,false,1,,Independent,437
+36460,582,2024-11-05T00:00:00Z,General,,,49,State Representative,,4262,State Representative District,2,58588,Bradley M. Koltz,,,1,State,Connecticut,Total,false,1,,Republican,6707

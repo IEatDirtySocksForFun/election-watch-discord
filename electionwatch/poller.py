@@ -4,7 +4,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict
-from datetime import datetime, timedelta
+from dataclasses import replace
+from datetime import datetime, timedelta, timezone
 
 import httpx
 
@@ -20,14 +21,22 @@ logger = logging.getLogger(__name__)
 _PARTY_COLOR = {"REP": 0xE03C31, "DEM": 0x2F6FDB}
 
 
+TOP_CANDIDATES = 5   # results posts show only the leading five candidates
+
+
 def _party_marker(party: str | None) -> str:
-    return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
+    try:  # full party table (electionwatch/data/parties.yaml) when installed
+        from electionwatch.parties import party_emoji
+        return party_emoji(party)
+    except ImportError:
+        return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
 
 
 def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
     """Render a compact, source-neutral race result."""
     lines = []
-    for candidate in result.candidates:
+    leaders = sorted(result.candidates, key=lambda c: c.votes, reverse=True)[:TOP_CANDIDATES]
+    for candidate in leaders:
         pct = f" · {candidate.pct:.1f}%" if candidate.pct is not None else ""
         party = f" ({candidate.party})" if candidate.party else ""
         winner = " ✓" if candidate.winner else ""
@@ -62,6 +71,10 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
     )
 
 
+def _as_utc(ts: datetime) -> datetime:
+    return ts.replace(tzinfo=timezone.utc) if ts.tzinfo is None else ts.astimezone(timezone.utc)
+
+
 def format_call(call: RaceCall) -> Post:
     if call.retracted:
         lines = [f"Call retracted: {call.winner}", f"Outlet: {call.outlet}"]
@@ -70,7 +83,7 @@ def format_call(call: RaceCall) -> Post:
         lines = [f"{_party_marker(call.party)} Projected winner: {call.winner}{party}", f"Outlet: {call.outlet}"]
     return Post("call", str(call.key), f"Race call · {describe(call.key)}", lines, url=call.url,
                 color=None if call.retracted else _PARTY_COLOR.get(normalize_party(call.party) or ""),
-                footer=f"Called {call.called_at:%b %d %H:%M} UTC")
+                footer=f"Called {_as_utc(call.called_at):%b %d %H:%M} UTC")
 
 
 def format_exit_poll(poll: ExitPoll) -> Post:
@@ -110,6 +123,10 @@ class Poller:
         self.http = http
         self.fetch_timeout = fetch_timeout
         self.default_races = load_races()
+        # (guild, kind, race) -> body of the last results post. Only the top candidates are
+        # shown, so a vote change further down (multi-seat races) can render an identical
+        # post; those are skipped. In memory: at most one repeat after a restart.
+        self._last_body: dict[tuple[int, str, str], tuple[str, ...]] = {}
 
     def _watched(self, guild: GuildSettings) -> set[str]:
         return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
@@ -131,9 +148,13 @@ class Poller:
     async def _post(self, guild: GuildSettings, kind: str, ref: str, post: Post, now: datetime) -> None:
         if guild.channel_id is None or guild.paused:
             return
+        ident, body = (guild.guild_id, kind, ref), tuple(post.lines)
+        if kind == "results" and self._last_body.get(ident) == body:
+            return
         try:
             await self.poster.post(guild.guild_id, guild.channel_id, post)
             await self.store.mark_posted(guild.guild_id, kind, ref, now)
+            self._last_body[ident] = body
         except Exception:
             logger.exception("Could not deliver %s post to guild %s", kind, guild.guild_id)
 
@@ -158,23 +179,42 @@ class Poller:
             known[text] = key
 
         await self._results(now, guilds, keys)
-        await self._calls(now, guilds, keys)
-        await self._exit_polls(now, guilds, keys)
-        await self._odds(now, guilds, keys)
+        # Outlets and markets don't flag special elections (OH/FL Senate 2026 are specials):
+        # ask them for the plain key too and file their answers under the watched special.
+        self._aliases = {
+            replace(key, special=False): key
+            for key in keys
+            if key.special and replace(key, special=False) not in keys
+        }
+        outlet_keys = keys + list(self._aliases)
+        await self._calls(now, guilds, outlet_keys)
+        await self._exit_polls(now, guilds, outlet_keys)
+        await self._odds(now, guilds, outlet_keys)
+
+    def _canonical(self, item):
+        """item with its key replaced by the watched special race it stands for, if any."""
+        special = getattr(self, "_aliases", {}).get(item.key)
+        return replace(item, key=special) if special is not None else item
 
     async def _results(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         by_race: dict[str, list[RaceResult]] = defaultdict(list)
         selected: dict[str, RaceResult] = {}
+        jobs = []
         for source in self.sources.get("results", []):
             if not self._enabled(source):
                 continue
             source_keys = [key for key in keys if key.state in source.states]
-            if not source_keys:
-                continue
-            try:
-                fetched = await self._fetch(source, "fetch", source_keys)
-            except Exception:
-                logger.exception("Results source %s failed", source.name)
+            if source_keys:
+                jobs.append((source, source_keys))
+        # One slow state site must not hold up the others: fetch concurrently, then walk the
+        # answers in adapter (priority) order.
+        answers = await asyncio.gather(
+            *(self._fetch(source, "fetch", source_keys) for source, source_keys in jobs),
+            return_exceptions=True,
+        )
+        for (source, source_keys), fetched in zip(jobs, answers):
+            if isinstance(fetched, BaseException):
+                logger.error("Results source %s failed", source.name, exc_info=fetched)
                 continue
             for result in fetched:
                 race = str(result.key)
@@ -186,7 +226,9 @@ class Poller:
                     selected[race] = result
         for race, result in selected.items():
             try:
-                await self.store.upsert_result(result)
+                # The store's change time is compared with mark_posted() times, which are on
+                # the poller's clock; adapters stamp fetched_at with the wall clock mid-tick.
+                await self.store.upsert_result(replace(result, fetched_at=now))
             except Exception:
                 logger.exception("Could not store results for %s", race)
 
@@ -220,7 +262,7 @@ class Poller:
             except Exception:
                 logger.exception("Call source %s failed", source.name)
                 continue
-            for call in calls:
+            for call in map(self._canonical, calls):
                 try:
                     new = await self.store.record_call(call)
                 except Exception:
@@ -247,7 +289,7 @@ class Poller:
             except Exception:
                 logger.exception("Exit-poll source %s failed", source.name)
                 continue
-            for poll in polls:
+            for poll in map(self._canonical, polls):
                 ref = f"{poll.key}:{poll.outlet}"
                 for guild in guilds:
                     if str(poll.key) not in self._watched(guild) or not guild.post_exit_polls:
@@ -265,7 +307,7 @@ class Poller:
             except Exception:
                 logger.exception("Odds source %s failed", source.name)
                 continue
-            for snapshot in fetched:
+            for snapshot in map(self._canonical, fetched):
                 try:
                     await self.store.add_odds(snapshot)
                     snapshots.append(snapshot)
