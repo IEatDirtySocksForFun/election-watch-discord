@@ -33,7 +33,29 @@ from . import _common as c
 BASE = "https://results.enr.clarityelections.com"
 
 #: Contest names a county publishes for candidates that did not file; they carry no votes.
-_PLACEHOLDER = re.compile(r"^NO (?:CANDIDATE|NOMINATION)(?: FILED| MADE)?$", re.I)
+#: "Rejected write-ins" (Hood County) is a tally of write-ins that were not counted, and
+#: "Unassigned write-ins" is the vendor's zero-vote placeholder row.
+_PLACEHOLDER = re.compile(
+    r"^NO (?:CANDIDATE|NOMINATION)(?: FILED| MADE)?$|^(?:REJECTED|UNASSIGNED) WRITE-?INS?$",
+    re.I)
+
+#: Some counties repeat the party in the candidate name ("REP Ted Cruz") even though the
+#: contest also carries a party column. Kept as-is, the same candidate would not merge with
+#: "Ted Cruz" from the next county.
+_PARTY_PREFIX = re.compile(
+    r"^(REP|DEM|LIB|GRN|GRE|CON|CST|IND|NPA|NP|WRI|REF|FWD)\.?\s+(\S.*)$", re.I)
+
+
+def split_party_prefix(name: str, party: str | None) -> str:
+    """'REP Ted Cruz' with party REP -> 'Ted Cruz'. Only strips a prefix that repeats the
+    contest's own party column, so a title like 'Rep. John Lewis' is left alone."""
+    if not party:
+        return name
+    m = _PARTY_PREFIX.match(name or "")
+    if m and c.norm_party(m.group(1)) == party:
+        return m.group(2).strip()
+    return name
+
 
 #: Words that mean an elections.json entry is *not* the general election for the date.
 _NOT_GENERAL = re.compile(
@@ -144,11 +166,13 @@ def parse_contests(
         cands = []
         for i, choice in enumerate(choices):
             cand_name, incumbent = c.strip_incumbent(str(choice or "").strip())
+            party = c.norm_party(parties[i] if i < len(parties) else None)
+            cand_name = split_party_prefix(cand_name, party)
             if not cand_name or _PLACEHOLDER.match(cand_name):
                 continue
             cands.append(CandidateResult(
                 name=cand_name,
-                party=c.norm_party(parties[i] if i < len(parties) else None),
+                party=party,
                 votes=c.to_int(votes[i] if i < len(votes) else 0),
                 pct=c.to_pct(pcts[i] if i < len(pcts) else None),
                 incumbent=incumbent,

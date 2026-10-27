@@ -11,14 +11,16 @@ executives, the legislature, the appeals courts and the local races.
     https://results.enr.clarityelections.com/TX/<County>/<EID>/<ver>/json/en/summary.json
 
 Counties publish different contest names for the same office ("United States Representative,
-District 4" in Denton, "US Representative, District 16" in El Paso), so the mapping lives here
+District 4" in Denton, "US Representative, Dist 16" in El Paso, "U. S. Representative
+District 25" in Hood, "Comm General Land Office" in Kaufman), so the mapping lives here
 rather than in the shared vendor module. Races that every county publishes (Senate, governor,
 the statewide courts) are merged into one result flagged " (partial: N counties)"; local races
 are namespaced with the county slug so two counties' "Sheriff" do not collide.
 
-Dallas, Tarrant, Harris, Collin and Bexar do not list their elections on the CDN (or use a
-different vendor); they are tried through `elections.json` when present and skipped otherwise.
-Pin any county with TX_COUNTY_FEEDS:
+Seventeen counties are configured. Harris, Bexar, Collin, Montgomery, Brazoria, Cameron, Webb,
+McLennan, Hays, Smith, Nueces, Williamson, Lubbock and Jefferson either have no directory on
+the CDN or list no election for the tracked date (see docs/results/counties.md); they are
+skipped until an id is known. Pin any county with TX_COUNTY_FEEDS:
 
     TX_COUNTY_FEEDS='[{"county":"Harris","election_id":"123456","date":"2026-11-03"}]'
 """
@@ -39,6 +41,8 @@ from .clarity import parse_settings
 HUMAN = "https://results.texas-election.com/races"
 
 #: County name as it appears in the Clarity URL -> slug used for local race keys.
+#: The big counties that publish an election-night feed on the vendor CDN; the four largest
+#: (Harris, Bexar, Collin, Montgomery) run other systems and are not listed.
 COUNTIES: dict[str, str] = {
     "Dallas": "dallas",
     "Denton": "denton",
@@ -46,13 +50,34 @@ COUNTIES: dict[str, str] = {
     "Fort_Bend": "fort-bend",
     "Tarrant": "tarrant",
     "Travis": "travis",
+    # Added 2026-10-27 from the same CDN, verified with their 2024 (and where published,
+    # 2026) general-election feeds.
+    "Bastrop": "bastrop",
+    "Bell": "bell",
+    "Comal": "comal",
+    "Galveston": "galveston",
+    "Gregg": "gregg",
+    "Hood": "hood",
+    "Kaufman": "kaufman",
+    "Lamar": "lamar",
+    "Midland": "midland",
+    "Rockwall": "rockwall",
+    "Rusk": "rusk",
 }
 
 #: date -> county -> election id. Anything missing is discovered from the county's
 #: elections.json; these are the ids verified while writing the fixtures.
 ELECTIONS: dict[str, dict[str, str]] = {
-    "2024-11-05": {"Denton": "122426", "El_Paso": "122595", "Travis": "122432"},
-    "2026-11-03": {"Denton": "127398", "El_Paso": "127348"},
+    "2024-11-05": {
+        "Bastrop": "122753", "Bell": "122428", "Comal": "122856", "Denton": "122426",
+        "El_Paso": "122595", "Galveston": "122842", "Gregg": "122313", "Hood": "122858",
+        "Kaufman": "122824", "Lamar": "122497", "Midland": "122496", "Rockwall": "122491",
+        "Rusk": "122760", "Travis": "122432",
+    },
+    "2026-11-03": {
+        "Bastrop": "127476", "Denton": "127398", "El_Paso": "127348", "Galveston": "127478",
+        "Hood": "127400", "Kaufman": "127485", "Lamar": "127484", "Rusk": "127574",
+    },
 }
 
 _STATEWIDE = {
@@ -61,6 +86,7 @@ _STATEWIDE = {
     "ATTORNEY GENERAL": "AG",
     "COMPTROLLER OF PUBLIC ACCOUNTS": "COMP",
     "COMMISSIONER OF THE GENERAL LAND OFFICE": "LANDCOM",
+    "COMMISSIONER GENERAL LAND OFFICE": "LANDCOM",     # "Comm General Land Office"
     "COMMISSIONER OF AGRICULTURE": "AGCOM",
     "RAILROAD COMMISSIONER": "RRC",
 }
@@ -71,8 +97,10 @@ _SENATE = {"UNITED STATES SENATOR", "US SENATOR", "U.S. SENATOR", "SENATOR"}
 #: "... 8th Court of Appeals District" in Denton). Expand before matching so the same
 #: statewide contest merges.
 _ABBREV = {
-    "CRT": "COURT", "CNTY": "COUNTY", "CRTY": "COUNTY", "APP": "APPEALS",
-    "DIST": "DISTRICT", "PL": "PLACE", "ST": "STATE", "MUN": "MUNICIPAL",
+    "CRT": "COURT", "CT": "COURT", "CNTY": "COUNTY", "CRTY": "COUNTY", "APP": "APPEALS",
+    "CRIM": "CRIMINAL", "DIST": "DISTRICT", "PL": "PLACE", "ST": "STATE", "MUN": "MUNICIPAL",
+    "BOE": "BOARD OF EDUCATION", "COMM": "COMMISSIONER", "UNEXP": "UNEXPIRED TERM",
+    "SUPERME": "SUPREME",          # Hood County's own typo, 2024
 }
 
 _HOUSE = re.compile(
@@ -96,7 +124,8 @@ _SHARED_LOCAL = (
      lambda m: f"court-of-appeals-{_id(m.group(1))}-place-{_id(m.group(2) or '1')}"),
     (re.compile(r"^MEMBER, STATE BOARD OF EDUCATION, DISTRICT (\d+)"),
      lambda m: f"state-board-of-education-{_id(m.group(1))}"),
-    (re.compile(r"^PRESIDENT/VICE PRESIDENT$"), lambda m: "president-vice-president"),
+    (re.compile(r"^PRESIDENT\s*/\s*VICE[- ]PRESIDENT$"), lambda m: "president-vice-president"),
+    (re.compile(r"^PRESIDENT (?:AND|&) VICE[- ]PRESIDENT$"), lambda m: "president-vice-president"),
     (re.compile(r"^(?:STATE )?PROPOSITION (\d+)$"), lambda m: f"proposition-{_id(m.group(1))}"),
     (re.compile(r"^CONSTITUTIONAL AMENDMENT (\d+)$"),
      lambda m: f"constitutional-amendment-{_id(m.group(1))}"),
@@ -104,7 +133,9 @@ _SHARED_LOCAL = (
 
 
 def _norm(name: str) -> str:
-    return re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
+    n = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
+    n = re.sub(r"\bU\.\s*S\.?(?=\s)", "U.S.", n)    # "U. S. Representative" -> "U.S. ..."
+    return re.sub(r"\s+-\s+", " ", n)              # "Place 2 - Unexpired Term"
 
 
 def _id(part: str) -> str:

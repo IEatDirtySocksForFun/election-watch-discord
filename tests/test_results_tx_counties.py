@@ -169,3 +169,90 @@ def test_fetch_reports_unavailable_when_no_county_answers(monkeypatch):
 
     with pytest.raises(SourceUnavailable):
         asyncio.run(go())
+
+
+# --- the eleven counties added 2026-10-27 -------------------------------------------------
+
+def _parse(county_file: str, county: str):
+    return tx_counties.parse_tx_county(load(county_file), None, county=county, fetched_at=AT)
+
+
+def merged_all_2024():
+    results = []
+    for path in sorted(FIX.glob("*_2024_summary.json")):
+        stem = path.name.split("_")[0]
+        results += _parse(path.name, "El_Paso" if stem == "el" else stem.capitalize())
+    return by_key(_county.merge(results, source="tx_counties", url=tx_counties.HUMAN))
+
+
+def test_county_list_covers_seventeen_feeds():
+    assert len(tx_counties.COUNTIES) == 17
+    for county in ("Galveston", "Bell", "Comal", "Midland", "Gregg", "Kaufman",
+                   "Rockwall", "Lamar", "Rusk", "Bastrop", "Hood"):
+        assert county in tx_counties.COUNTIES
+        assert tx_counties.COUNTIES[county] == county.lower()
+    # Harris and Bexar run other systems: no directory on the vendor CDN.
+    assert "Harris" not in tx_counties.COUNTIES
+    assert "Bexar" not in tx_counties.COUNTIES
+
+
+def test_senate_merges_across_twelve_2024_counties():
+    sen = merged_all_2024()["TX SEN"]
+    cands = {c.name: c for c in sen.candidates}
+    # 12 counties report a Senate contest; the per-county totals are the fixtures' T values.
+    assert sen.title == "US Senator (partial: 12 counties)"
+    assert sen.total_votes == 1370469
+    assert cands["Ted Cruz"].votes == 771000
+    assert cands["Colin Allred"].votes == 563293
+    assert cands["Ted Cruz"].party == "REP"
+    assert cands["Colin Allred"].party == "DEM"
+
+
+def test_repeated_party_prefix_is_stripped_before_merging():
+    # Lamar, Rockwall, Rusk and Bastrop print "REP Ted Cruz" although P already says REP.
+    keys = by_key(_parse("lamar_2024_summary.json", "Lamar"))
+    assert keys["TX SEN"].candidates[0].name == "Ted Cruz"
+    assert keys["TX SEN"].candidates[0].party == "REP"
+    # The prefix is only stripped when it repeats the party column, so a title is kept.
+    assert _county.split_party_prefix("Rep. John Lewis", None) == "Rep. John Lewis"
+    assert _county.split_party_prefix("REP Ted Cruz", "DEM") == "REP Ted Cruz"
+
+
+def test_house_district_name_variants():
+    assert "TX-25" in by_key(_parse("hood_2024_summary.json", "Hood"))       # "U. S. ..."
+    assert "TX-11" in by_key(_parse("bell_2024_summary.json", "Bell"))       # "Dist 11"
+    assert "TX-73" not in by_key(_parse("comal_2024_summary.json", "Comal"))  # HD, not US House
+    assert "TX HD-73" in by_key(_parse("comal_2024_summary.json", "Comal"))  # double space
+
+
+def test_abbreviated_shared_courts_and_board_of_education():
+    bell = by_key(_parse("bell_2024_summary.json", "Bell"))
+    assert "TX LOCAL presiding-judge-court-criminal-appeals" in bell      # "Ct of Crim App"
+    assert "TX LOCAL state-board-of-education-10" in bell                 # "State BoE, Dist 10"
+    assert "TX LOCAL supreme-court-place-2" in bell                       # "Pl 2"
+    hood = by_key(_parse("hood_2024_summary.json", "Hood"))
+    assert "TX LOCAL supreme-court-place-6" in hood                       # "Superme Court"
+    assert "TX LOCAL hood-sheriff" in hood                                # still local
+
+
+def test_2026_aliases_for_land_commissioner_and_unexpired_terms():
+    kaufman = by_key(_parse("kaufman_2026_summary.json", "Kaufman"))
+    assert kaufman["TX LANDCOM"].key.level is Level.GOVERNOR           # "Comm General Land Office"
+    assert kaufman["TX LANDCOM"].candidates[0].votes == 0
+    assert "TX LOCAL supreme-court-place-2" in kaufman                 # "Pl 2 Unexp"
+    galveston = by_key(_parse("galveston_2026_summary.json", "Galveston"))
+    assert galveston["TX GOV"].title == "Governor"
+    assert "TX LOCAL supreme-court-place-2" in galveston               # "... Unexpired Term"
+
+
+def test_rejected_and_unassigned_write_in_rows_are_not_candidates():
+    keys = by_key(_parse("hood_2024_summary.json", "Hood"))
+    names = [c.name for c in keys["TX-25"].candidates]
+    assert names == ["Roger Williams", "Chad Hagg"]      # counted write-in kept, tallies dropped
+
+
+def test_president_merges_across_every_county_that_reports_it():
+    pres = merged_all_2024()["TX LOCAL president-vice-president"]
+    assert pres.title == "President/Vice President (partial: 7 counties)"
+    assert {c.party for c in pres.candidates[:2]} == {"REP", "DEM"}
+

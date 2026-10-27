@@ -1,0 +1,418 @@
+[
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "President/Vice President",
+  "K": "16",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 92,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Donald J. Trump/JD Vance",
+   "Kamala D. Harris/Tim Walz",
+   "Chase Oliver/Mike ter Maat",
+   "Jill Stein/Rudolph Ware",
+   "Rejected write-ins",
+   "Unassigned write-ins",
+   "Cherunda Fox/Harlan McVay",
+   "Claudia De la Cruz/Karina Garcia",
+   "Cornel West/Melina Abdullah",
+   "Jessie Cuellar/Wesley Lasley",
+   "Peter Sonski/Lauren Onak",
+   "Shiva Ayyadurai/Crystal Ellis"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "GRN",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   62.9108540746688,
+   35.5856081894821,
+   0.625376354877559,
+   0.570177639502208,
+   0.268466479325572,
+   0,
+   0,
+   0.00940887193898033,
+   0.0100361300682457,
+   0,
+   0.0175632276194299,
+   0.00250903251706142
+  ],
+  "V": [
+   100295,
+   56732,
+   997,
+   909,
+   428,
+   0,
+   0,
+   15,
+   16,
+   0,
+   28,
+   4
+  ],
+  "T": 159424,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "U.S. Senator",
+  "K": "43",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 92,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Ted Cruz",
+   "Colin Allred",
+   "Ted Brown",
+   "Rejected write-ins",
+   "Unassigned write-ins",
+   "Analisa Roche",
+   "Tracy Andrus"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   60.02208689616,
+   37.4316095036759,
+   2.48319818256397,
+   0.0460669548480737,
+   0,
+   0.0126210835200202,
+   0.00441737923200707
+  ],
+  "V": [
+   95114,
+   59316,
+   3935,
+   73,
+   0,
+   20,
+   7
+  ],
+  "T": 158465,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "U.S. Representative District 14",
+  "K": "56",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 92,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Randy Weber",
+   "Rhonda Hart"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   65.810029483465,
+   34.189970516535
+  ],
+  "V": [
+   103123,
+   53575
+  ],
+  "T": 156698,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Justice, Supreme Court, Place 2",
+  "K": "19",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 92,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Jimmy Blacklock",
+   "DaSean Jones"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   65.8151078719829,
+   34.1848921280171
+  ],
+  "V": [
+   102226,
+   53097
+  ],
+  "T": 155323,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Sheriff",
+  "K": "39",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 92,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Jimmy Fullen",
+   "Mark A. Salinas"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   61.8041576276376,
+   38.1958423723624
+  ],
+  "V": [
+   94870,
+   58631
+  ],
+  "T": 153501,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "County Commissioner Precinct 1",
+  "K": "34",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 21,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Darrell Apffel"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   27841
+  ],
+  "T": 27841,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
+]

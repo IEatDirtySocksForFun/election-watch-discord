@@ -1,7 +1,9 @@
 Fixtures for the tx_counties adapter (Tarrant/Harris/Collin/Bexar not listed on the CDN).
 
-Captured 2026-10-27 with a plain curl/httpx GET and a descriptive User-Agent
-("Mozilla/5.0 (compatible; election-watch-discord/0.1; ...)").
+Captured 2026-10-27 with a plain curl/httpx GET. The first three files were fetched with
+"Mozilla/5.0 (compatible; election-watch-discord/0.1; ...)"; everything from the
+galveston_* files on was fetched with the plain bot User-Agent
+"election-watch-discord/0.1 (open-source election results bot)".
 
 denton_2024_summary.json
   https://results.enr.clarityelections.com/TX/Denton/122426/355989/json/en/summary.json
@@ -32,3 +34,45 @@ denton_elections.json
   2024 general, the 2026 primaries/runoffs and the 2026 general).
 
 No response was edited beyond selecting contests/entries; nothing was synthesised.
+
+--- added with the eleven new counties (all 2024 files: election id, version) -------------
+
+Each is {county}_{year}_summary.json from
+  https://results.enr.clarityelections.com/TX/{County}/{eid}/{ver}/json/en/summary.json
+
+galveston_2024_summary.json    122842 / 356002   President/Vice President, U.S. Senator,
+    U.S. Representative District 14, Justice Supreme Court Place 2, Sheriff,
+    County Commissioner Precinct 1
+galveston_2026_summary.json    127478 / 381904   United States Senator, United States
+    Representative District 14, Governor, Justice Supreme Court Place 2 Unexpired Term
+    (live before election night, zero votes)
+bell_2024_summary.json         122428 / 355990   US Senator, US Representative Dist 11,
+    Justice Supreme Court Pl 2, Presiding Judge Ct of Crim App, Member State BoE Dist 10,
+    State Representative Dist 54, Sheriff  (heavily abbreviated contest names)
+comal_2024_summary.json        122856 / 355369   President and Vice President, United
+    States Senator, United States Representative District 21, "State Representative,
+    District 73" (double space), Justice 3rd Court of Appeals District Place 2
+    (this county publishes no party codes at all)
+midland_2024_summary.json      122496 / 355579   President/Vice President, US Senator,
+    Chief Justice 11th Ct of App Dist, Sheriff
+gregg_2024_summary.json        122313 / 355603   PRESIDENT/VICE-PRESIDENT, U.S. SENATOR,
+    U.S. REPRESENTATIVE DISTRICT 1, JUSTICE 6TH COURT OF APPEALS DISTRICT PLACE 2, SHERIFF
+    (all-caps feed, hyphenated "VICE-PRESIDENT")
+hood_2024_summary.json         122858 / 355543   President/Vice-President, United States
+    Senator, "U. S. Representative District 25" (spaced initials), "Justice, Superme
+    Court, Place 6" (county typo), Chief Justice 2nd Court of Appeals District, Sheriff
+kaufman_2026_summary.json      127485 / 380761   US Senator, US Representative District 5,
+    Governor, "Comm General Land Office", "Justice, Supreme Court, Pl 2 Unexp"
+    (live before election night, zero votes)
+rockwall_2024_summary.json     122491 / 355310   US Senator, US Representative Dist 4,
+    Justice Supreme Court Pl 2, Sheriff  ("REP Ted Cruz" style party prefixes)
+rusk_2024_summary.json         122760 / 355999   US Senator, US Representative Dist 1, Sheriff
+lamar_2024_summary.json        122497 / 351606   US Senator, US Representative Dist 4,
+    Justice Supreme Court Pl 2, County Commissioner Pct 1
+bastrop_2024_summary.json      122753 / 356001   President/Vice President, US Senator,
+    US Representative Dist 10, US Representative Dist 27, Justice 3rd Ct of App Dist Pl 2,
+    Sheriff
+
+Hood's "Rejected write-ins" (227 votes) and "Unassigned write-ins" (0 votes) rows are left
+in the fixture on purpose: the parser must drop them, and keep the counted write-in
+"Chad Hagg" (93 votes).

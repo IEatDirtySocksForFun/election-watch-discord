@@ -1,0 +1,351 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "FEDERAL",
+  "C": "President and Vice President",
+  "K": "44",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 81,
+  "PR": 43,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Donald J. Trump JD Vance",
+   "Kamala D. Harris Tim Walz",
+   "Chase Oliver Mike ter Maat",
+   "Jill Stein Rudolph Ware",
+   "Cherunda Fox/Harlan McVay",
+   "Claudia De la Cruz/Karina Garcia",
+   "Cornel West/Melina Abdullah",
+   "Jessie Cuellar/Wesley Lasley",
+   "Peter Sonski/Lauren Onak",
+   "Shiva Ayyadurai/Crystal Ellis"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   72.2343005671991,
+   26.7462871167541,
+   0.675421051105893,
+   0.318868307389048,
+   0,
+   0.00483133799074316,
+   0,
+   0,
+   0.0154602815703781,
+   0.00483133799074316
+  ],
+  "V": [
+   74756,
+   27680,
+   699,
+   330,
+   0,
+   5,
+   0,
+   0,
+   16,
+   5
+  ],
+  "T": 103491,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "FEDERAL",
+  "C": "United States Senator",
+  "K": "45",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 81,
+  "PR": 43,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Ted Cruz",
+   "Colin Allred",
+   "Ted Brown",
+   "Analisa Roche",
+   "Tracy Andrus"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   69.4485308350432,
+   28.2112577910263,
+   2.32666176299795,
+   0.00580697611397158,
+   0.00774263481862878
+  ],
+  "V": [
+   71757,
+   29149,
+   2404,
+   6,
+   8
+  ],
+  "T": 103324,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "FEDERAL",
+  "C": "United States Representative, District 21",
+  "K": "3",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 66,
+  "PR": 34,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Chip Roy",
+   "Kristin Hook",
+   "Bob King"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   73.0933961950928,
+   24.456323251104,
+   2.45028055380325
+  ],
+  "V": [
+   66045,
+   22098,
+   2214
+  ],
+  "T": 90357,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "STATE",
+  "C": "State Representative,  District 73",
+  "K": "15",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 47,
+  "PR": 43,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Carrie Isaac",
+   "Sally Duval"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   ""
+  ],
+  "PCT": [
+   74.4361498577363,
+   25.5638501422637
+  ],
+  "V": [
+   75083,
+   25786
+  ],
+  "T": 100869,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "STATE",
+  "C": "Justice, 3rd Court of Appeals District, Place 2",
+  "K": "22",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 47,
+  "PR": 43,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "John Messinger",
+   "Maggie Ellis"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   ""
+  ],
+  "PCT": [
+   74.688647970612,
+   25.311352029388
+  ],
+  "V": [
+   75024,
+   25425
+  ],
+  "T": 100449,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
+]
