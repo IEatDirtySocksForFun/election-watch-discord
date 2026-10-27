@@ -1,0 +1,27 @@
+{
+  "ecKey": "2024-SG-TX",
+  "editorialStatus": "called",
+  "winnerBopPartyId": "REP",
+  "voteTimestamp": "2025-01-14T17:23:47.000Z",
+  "stateAbbreviation": "TX",
+  "stateName": "Texas",
+  "raceTypeCode": "S",
+  "candidates": [
+    {
+      "candidatePartyCode": "R",
+      "firstName": "Ted",
+      "lastName": "Cruz",
+      "fullName": "Ted Cruz",
+      "winner": true,
+      "partyName": "Republican"
+    },
+    {
+      "candidatePartyCode": "D",
+      "firstName": "Colin",
+      "lastName": "Allred",
+      "fullName": "Colin Allred",
+      "winner": false,
+      "partyName": "Democratic"
+    }
+  ]
+}

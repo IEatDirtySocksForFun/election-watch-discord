@@ -1,0 +1,27 @@
+{
+  "ecKey": "2024-HG-CA-12",
+  "editorialStatus": "called",
+  "winnerBopPartyId": "DEM",
+  "voteTimestamp": "2024-12-12T20:59:44.000Z",
+  "stateAbbreviation": "CA",
+  "stateName": "California",
+  "raceTypeCode": "H",
+  "candidates": [
+    {
+      "candidatePartyCode": "D",
+      "firstName": "Lateefah",
+      "lastName": "Simon",
+      "fullName": "Lateefah Simon",
+      "winner": true,
+      "partyName": "Democratic"
+    },
+    {
+      "candidatePartyCode": "D",
+      "firstName": "Jennifer",
+      "lastName": "Tran",
+      "fullName": "Jennifer Tran",
+      "winner": false,
+      "partyName": "Democratic"
+    }
+  ]
+}
