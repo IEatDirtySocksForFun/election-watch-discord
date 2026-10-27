@@ -158,8 +158,8 @@ def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             key, title, cands, fetched_at,
             source=NdSos.name,
             url=HUMAN,
-            precincts_reporting=reporting or None,
-            precincts_total=total or None,
+            precincts_reporting=reporting,
+            precincts_total=total,
         ))
     return out
 

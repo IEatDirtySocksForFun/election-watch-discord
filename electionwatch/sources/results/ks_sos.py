@@ -178,8 +178,8 @@ def parse_ks(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             source=KsSos.name,
             url=HUMAN,
             total_votes=total if total is not None else sum(x.votes for x in cands),
-            precincts_reporting=reporting or None,
-            precincts_total=precincts or None,
+            precincts_reporting=reporting,
+            precincts_total=precincts,
             source_updated_at=updated,
         ))
     return out
