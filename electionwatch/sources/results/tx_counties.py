@@ -17,15 +17,22 @@ rather than in the shared vendor module. Races that every county publishes (Sena
 the statewide courts) are merged into one result flagged " (partial: N counties)"; local races
 are namespaced with the county slug so two counties' "Sheriff" do not collide.
 
-Seventeen counties are configured. Harris, Bexar, Collin, Montgomery, Brazoria, Cameron, Webb,
-McLennan, Hays, Smith, Nueces, Williamson, Lubbock and Jefferson either have no directory on
-the CDN or list no election for the tracked date (see docs/results/counties.md); they are
-skipped until an id is known. Pin any county with TX_COUNTY_FEEDS:
+Twenty Clarity counties are configured, plus Harris County, which publishes its own JSON
+(`_harris`, merged into the same results). Tarrant, Fort Bend and Bexar list nothing in
+`elections.json`; their ids come from the links on the counties' own results pages and are
+pinned in ELECTIONS. Dallas and Williamson list their 2026 primaries/runoffs and are picked up
+from `elections.json` once they list the general. Collin, Montgomery, Brazoria, Hays and
+Hidalgo (Clarity only until 2020) have no current directory on the CDN; see
+docs/state-coverage-plan.md. Pin any Clarity county with TX_COUNTY_FEEDS:
 
-    TX_COUNTY_FEEDS='[{"county":"Harris","election_id":"123456","date":"2026-11-03"}]'
+    TX_COUNTY_FEEDS='[{"county":"Dallas","election_id":"123456","date":"2026-11-03"}]'
+
+TX_HARRIS_CODE overrides the Harris election code (default: month + 2-digit year, "1126");
+TX_HARRIS_CODE=off drops Harris.
 """
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime
 
@@ -35,7 +42,7 @@ from electionwatch.models import Level, RaceKey, RaceResult
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 
 from . import _common as c
-from . import _county
+from . import _county, _harris
 from .clarity import parse_settings
 
 HUMAN = "https://results.texas-election.com/races"
@@ -63,6 +70,10 @@ COUNTIES: dict[str, str] = {
     "Midland": "midland",
     "Rockwall": "rockwall",
     "Rusk": "rusk",
+    # Added 2026-10-27 (docs/state-coverage-plan.md). Bexar moved to Clarity for 2026 (its
+    # elections page links TX/Bexar/127291); Williamson lists its 2026 runoff on the CDN.
+    "Bexar": "bexar",
+    "Williamson": "williamson",
 }
 
 #: date -> county -> election id. Anything missing is discovered from the county's
@@ -73,10 +84,18 @@ ELECTIONS: dict[str, dict[str, str]] = {
         "El_Paso": "122595", "Galveston": "122842", "Gregg": "122313", "Hood": "122858",
         "Kaufman": "122824", "Lamar": "122497", "Midland": "122496", "Rockwall": "122491",
         "Rusk": "122760", "Travis": "122432",
+        # From the counties' own 2024 results pages (their elections.json lists nothing):
+        # tarrantcountytx.gov ".../november-5--2024--general-election-results.html" and
+        # fortbendcountytx.gov ".../2024-election-results".
+        "Tarrant": "122489", "Fort_Bend": "122596",
     },
     "2026-11-03": {
         "Bastrop": "127476", "Denton": "127398", "El_Paso": "127348", "Galveston": "127478",
         "Hood": "127400", "Kaufman": "127485", "Lamar": "127484", "Rusk": "127574",
+        # Linked from tarrantcountytx.gov/en/elections/current-election-information.html,
+        # fortbendcountytx.gov ".../2026-election-results" and elections.bexar.gov;
+        # all three answered with a zero-vote 2026 general summary on 2026-10-27.
+        "Tarrant": "127297", "Fort_Bend": "127480", "Bexar": "127291",
     },
 }
 
@@ -117,7 +136,7 @@ _SHARED_LOCAL = (
      lambda m: "presiding-judge-court-criminal-appeals"),
     (re.compile(r"^JUDGE, COURT OF CRIMINAL APPEALS, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
      lambda m: f"court-criminal-appeals-place-{_id(m.group(1))}"),
-    (re.compile(r"^CHIEF JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS DISTRICT$"),
+    (re.compile(r"^CHIEF JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS(?: DISTRICT)?$"),
      lambda m: f"court-of-appeals-{_id(m.group(1))}-chief-justice"),
     (re.compile(r"^JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS DISTRICT"
                 r"(?:, PLACE (\d+))?$"),
@@ -135,6 +154,10 @@ _SHARED_LOCAL = (
 def _norm(name: str) -> str:
     n = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
     n = re.sub(r"\bU\.\s*S\.?(?=\s)", "U.S.", n)    # "U. S. Representative" -> "U.S. ..."
+    # Fort Bend repeats the district: "United States Representative, District 7 District 7".
+    n = re.sub(r"\b(DISTRICT (\d+)) DISTRICT \2$", r"\1", n)
+    # Tarrant writes "Justice, Supreme Court, Place 2, (Unexpired Term)".
+    n = re.sub(r",?\s*\(UNEXPIRED TERM\)$", ", UNEXPIRED TERM", n)
     return re.sub(r"\s+-\s+", " ", n)              # "Place 2 - Unexpired Term"
 
 
@@ -218,6 +241,36 @@ def counties(date: str) -> list[dict]:
     return out
 
 
+def harris_entries(date: str) -> list[dict]:
+    """Harris County's own JSON feed (TX_HARRIS_CODE overrides the code, "off" drops it)."""
+    raw = os.environ.get("TX_HARRIS_CODE", "").strip()
+    if raw.lower() in ("off", "none", "0", "false"):
+        return []
+    code = raw or _harris.election_code(date)
+    return [{"county": "Harris", "slug": "harris", "vendor": "harris", "code": code}]
+
+
+def parse_harris(payload, *, fetched_at: datetime, date: str | None = None) -> list[RaceResult]:
+    """Pure parse of Harris County's resultsbyballot.json into tx_counties results.
+
+    With `date`, a file for another election (a code collision, e.g. a special election in
+    the same month) yields nothing instead of the wrong numbers."""
+    if date and _harris.payload_date(payload) not in (None, date):
+        return []
+    return _harris.parse_contests(
+        payload,
+        key_fn=lambda name: race_key("harris", name),
+        source=TxCounties.name,
+        fetched_at=fetched_at,
+        url=HUMAN,
+    )
+
+
+def all_entries(date: str) -> list[dict]:
+    """Every configured county feed: the Clarity counties, then Harris."""
+    return counties(date) + harris_entries(date)
+
+
 async def _one(
     client: httpx.AsyncClient,
     entry: dict,
@@ -225,6 +278,9 @@ async def _one(
     fetched_at: datetime,
 ) -> list[RaceResult]:
     county = entry["county"]
+    if entry.get("vendor") == "harris":
+        payload = await c.get_json(client, _harris.results_url(entry["code"]))
+        return parse_harris(payload, fetched_at=fetched_at, date=date)
     eid = await _county.election_id(client, "TX", county, date, entry.get("election_id"))
     if not eid:
         return []
@@ -246,7 +302,7 @@ class TxCounties(ResultsSource):
         fetched_at = c.utcnow()
         collected: list[RaceResult] = []
         failures = 0
-        entries = counties(date)
+        entries = all_entries(date)
         for entry in entries:
             try:
                 collected.extend(await _one(client, entry, date, fetched_at))
@@ -263,7 +319,7 @@ class TxCounties(ResultsSource):
         fetched_at = c.utcnow()
         out: list[tuple[RaceKey, str]] = []
         seen: set[str] = set()
-        for entry in counties(date):
+        for entry in all_entries(date):
             try:
                 results = await _one(client, entry, date, fetched_at)
             except SourceUnavailable:

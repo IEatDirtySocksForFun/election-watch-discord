@@ -92,6 +92,16 @@ def format_exit_poll(poll: ExitPoll) -> Post:
     return Post("exitpoll", str(poll.key), f"Exit poll · {describe(poll.key)}", lines, url=poll.url)
 
 
+def is_partial(result: RaceResult) -> bool:
+    """County-merge adapters flag a partial-state tally in the title: "(partial: N counties)"."""
+    return "(partial:" in (result.title or "")
+
+
+def best_result(answers: list[RaceResult]) -> RaceResult | None:
+    """First complete answer in priority order, else the first partial one."""
+    return next((r for r in answers if not is_partial(r)), answers[0] if answers else None)
+
+
 def swing_detail(swing, history: list[OddsSnapshot], fallback: OddsSnapshot):
     """Turn detect_swing()'s answer into (move in points or None, latest snapshot).
 
@@ -237,9 +247,12 @@ class Poller:
                 if race not in {str(key) for key in source_keys}:
                     continue
                 by_race[race].append(result)
-                # Adapter order is priority order; the first answer is the stored result.
-                if race not in selected:
-                    selected[race] = result
+        # Adapter order is priority order: the first complete answer is the stored result. A
+        # county merge titled "(partial: N counties)" only wins when nothing complete answered,
+        # so a reachable state feed (tx_sos) or an enabled national fallback is preferred over
+        # a partial-state county tally for the same race.
+        for race, answers in by_race.items():
+            selected[race] = best_result(answers)
         for race, result in selected.items():
             try:
                 # The store's change time is compared with mark_posted() times, which are on
@@ -253,8 +266,8 @@ class Poller:
             allowed = set(guild.results_sources)
             for race in watched:
                 candidates = by_race.get(race, [])
-                result = next(
-                    (item for item in candidates if not allowed or item.source in allowed), None
+                result = best_result(
+                    [item for item in candidates if not allowed or item.source in allowed]
                 )
                 if result is None:
                     continue

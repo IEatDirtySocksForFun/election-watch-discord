@@ -571,3 +571,42 @@ async def test_failing_source_backs_off_then_recovers():
         Flaky.fail = False
         assert await p._fetch(src, "fetch", []) == ["ok"] and Flaky.calls == 2
         assert "flaky" not in p._backoff
+
+
+@pytest.mark.asyncio
+async def test_complete_result_beats_an_earlier_partial_county_merge():
+    # tx_counties registers before tx_sos (and before the national fallbacks); its
+    # "(partial: N counties)" tally must not hide a complete statewide answer.
+    from dataclasses import replace as dc_replace
+
+    class Fixed(ResultsSource):
+        states = frozenset({"TX"})
+
+        def __init__(self, name, value):
+            self.name, self.value = name, value
+
+        async def fetch(self, keys, client):
+            return [self.value]
+
+    partial = dc_replace(result(votes=900_000, source="tx_counties"),
+                         title="United States Senator (partial: 12 counties)")
+    full = result(votes=2_300_000, source="tx_sos")
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    poster = RecordingPoster()
+    sources = [Fixed("tx_counties", partial), Fixed("tx_sos", full)]
+    await poller(store, {"results": sources}, poster).tick()
+    assert (await store.latest_result(KEY)).source == "tx_sos"
+    assert poster.sent[0][2].footer == "Source: tx_sos"
+
+
+@pytest.mark.asyncio
+async def test_partial_result_is_used_when_nothing_complete_answers():
+    from dataclasses import replace as dc_replace
+
+    from electionwatch.poller import best_result, is_partial
+
+    partial = dc_replace(result(source="tx_counties"), title="X (partial: 3 counties)")
+    assert is_partial(partial) and not is_partial(result())
+    assert best_result([partial]) is partial
+    assert best_result([]) is None

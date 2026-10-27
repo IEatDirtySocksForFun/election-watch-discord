@@ -71,6 +71,7 @@ Source: tx_sos · Nov 04 03:41 UTC
    | `ELECTION_DATE` | | election to follow (default `2026-11-03`) |
    | `EW_ENABLED_SOURCES` | | turn on optional sources (see below) |
    | `EW_DISABLED_SOURCES` | | turn off default sources |
+   | `EW_SOURCE_STATES` | | limit a source to some states: `fox_results=TX,TN;cbs_results=AL` |
    | `AP_API_KEY`, `DDHQ_API_KEY` | | paid race-call feeds; the adapters are skipped without a key |
 
 5. **Run.**
@@ -93,7 +94,8 @@ EW_ENABLED_SOURCES=cbs_results,fox_results,cnn,nbc,cbs,fox,abc,cnn_exit_polls,27
 ```
 
 Without that line:
-- **Results:** the 10 states that have no official election-night feed (see below) get no results.
+- **Results:** the 8 states that have no official election-night feed (see below) get no results,
+  and TX, TN, AL and the other county-only states get only their counties' partial totals.
 - **Race calls:** none are posted unless you pay for AP or DDHQ.
 - **Exit polls:** no exit-poll links are posted.
 
@@ -106,13 +108,18 @@ Status as of 2026-10-27, checked with `tools/health_check.py` against the 2024 g
 |---|---|
 | **Official statewide feed** (the state's own election-night data) | AR, AZ, CA, CO, CT, DC, DE, FL, GA, HI, IA, ID, IL, IN, KS, LA, MD, MN, MT, NC, ND, NM, OH, OR, PA, RI, SC, SD, UT, VA, VT, WA, WV |
 | **Official feed, opt-in scraper** | NE (`ne_sos`) |
-| **Official county feeds only** (partial state) | MI (Ottawa), WI (Dane, opt-in), NJ (14 counties), MO (St. Louis Co.), NY (NYC, opt-in), TX (6 large counties, as backup for the state site) |
-| **No official feed reachable**: national fallbacks only | AL, KY, MA, ME, MS*, NH, NV, OK, TN, WY |
+| **Official county feeds only** (partial state) | TX (Harris, Tarrant, Bexar, Travis, Fort Bend + 15 more Clarity counties: about 49% of the 2024 vote; backup for the state site), MI (Ottawa), WI (Dane, opt-in), NJ (14 counties), MO (St. Louis Co.), NY (NYC, opt-in), TN (Shelby), AL (Madison) |
+| **No official feed reachable**: national fallbacks only | KY, MA, ME, MS*, NH, NV, OK, WY |
 | **Known problems right now** | AK: the state site's TLS certificate chain fails verification. TX: results.texas-election.com sometimes returns a Cloudflare challenge. |
 
 \* MS publishes certified results only, days after the election.
 
 With the national fallbacks on, **every state + DC** has Senate, Governor and US House results.
+A complete statewide result always wins over a `(partial: N counties)` county tally for the same
+race. To use a fallback only where it is needed, narrow it with `EW_SOURCE_STATES`, e.g.
+`EW_SOURCE_STATES=fox_results=AL,KY,MA,ME,MI,MO,MS,NH,NJ,NV,NY,OK,TN,TX,WI,WY`. The plan
+and evidence for the states without a complete feed are in
+[docs/state-coverage-plan.md](docs/state-coverage-plan.md).
 Down-ballot races (state legislature, local) come only from official state and county feeds.
 Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 [docs/results/](docs/results/).
