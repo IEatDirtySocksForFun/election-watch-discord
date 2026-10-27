@@ -7,7 +7,7 @@ from ._common import condense_exit_poll, make_exit_poll_source
 
 
 @register
-class CBSExitPollSource(make_exit_poll_source("CBS", "cbs_exit_polls")):
+class CBSExitPollSource(make_exit_poll_source("cbs_exit_polls", "CBS")):
     pass
 
 

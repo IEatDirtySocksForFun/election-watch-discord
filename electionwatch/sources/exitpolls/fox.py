@@ -7,7 +7,7 @@ from ._common import condense_exit_poll, make_exit_poll_source
 
 
 @register
-class FOXExitPollSource(make_exit_poll_source("FOX", "fox_exit_polls")):
+class FOXExitPollSource(make_exit_poll_source("fox_exit_polls", "FOX")):
     pass
 
 
