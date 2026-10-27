@@ -1,6 +1,7 @@
 """discord.py 2.x application-command bot. Discord I/O stays in this module/view."""
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 from datetime import datetime, timezone
@@ -363,26 +364,28 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
     bot: ElectionBot = interaction.client  # type: ignore[assignment]
     choices: dict[str, str] = {}
     states: set[str] = set()
-    if interaction.guild_id is not None:
-        gs = await bot.store.get_guild(interaction.guild_id)
-        watched = gs.important if gs and gs.important else [str(r.key) for r in load_races()]
-        from electionwatch.racekeys import parse
-
-        for text in watched:
-            try:
-                key = parse(text)
-            except ValueError:
-                continue
-            choices[str(key)] = describe(key)
-            states.add(key.state)
-    for state in sorted(states):
-        for key, label in (await list_races(bot, state)).values():
+    # /odds and /polls work in DMs too: offer the default races there.
+    gs = await bot.store.get_guild(interaction.guild_id) if interaction.guild_id is not None else None
+    watched = gs.important if gs and gs.important else [str(r.key) for r in load_races()]
+    for text in watched:
+        try:
+            key = parse(text)
+        except ValueError:
+            continue
+        choices[str(key)] = describe(key)
+        states.add(key.state)
+    # One state at a time would add a LIST_TIMEOUT_SECONDS per state with a slow source and
+    # miss Discord's 3 s autocomplete deadline: list every state concurrently.
+    listed = await asyncio.gather(*(list_races(bot, state) for state in sorted(states)))
+    for found in listed:
+        for key, label in found.values():
             choices[str(key)] = label or describe(key)
     needle = current.casefold()
     return [
         app_commands.Choice(name=f"{key} · {label}"[:100], value=key)
         for key, label in sorted(choices.items())
-        if needle in key.casefold() or needle in label.casefold()
+        # A choice value over 100 characters makes Discord reject the whole answer.
+        if len(key) <= 100 and (needle in key.casefold() or needle in label.casefold())
     ][:25]
 
 
