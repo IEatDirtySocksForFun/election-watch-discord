@@ -1,0 +1,353 @@
+{
+ "electionDate": "2024-11-05",
+ "electionName": "11.05.2024 Shelby County, Tennessee Federal and State General and Municipal Elections",
+ "createdAt": "2025-01-02T19:04:35.4853707Z",
+ "results": {
+  "id": "01000000-6689-c682-2a89-08dc4d948e53",
+  "name": "Shelby County",
+  "ballotItems": [
+   {
+    "type": "Local",
+    "id": "1",
+    "name": "United States President and Vice President",
+    "voteFor": 1,
+    "ballotOrder": 1,
+    "precinctsParticipating": 142,
+    "precinctsReporting": 142,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "REP Donald J. Trump/JD Vance",
+      "ballotOrder": 1,
+      "voteCount": 118917,
+      "politicalParty": "Republican"
+     },
+     {
+      "id": "2",
+      "name": "DEM Kamala D. Harris/Tim Walz",
+      "ballotOrder": 2,
+      "voteCount": 201759,
+      "politicalParty": "Democratic"
+     },
+     {
+      "id": "3",
+      "name": "IND Jay J Bowman/De D Bowman",
+      "ballotOrder": 3,
+      "voteCount": 780,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "4",
+      "name": "IND Claudia De la Cruz/Karina Garcia",
+      "ballotOrder": 4,
+      "voteCount": 555,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "5",
+      "name": "IND Rachele Fruit/Dennis Richter",
+      "ballotOrder": 5,
+      "voteCount": 165,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "6",
+      "name": "IND Robert F. Kennedy Jr./Nicole Shanahan",
+      "ballotOrder": 6,
+      "voteCount": 2492,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "7",
+      "name": "IND Jill Stein/Samson LeBeau Kpadenouu",
+      "ballotOrder": 7,
+      "voteCount": 1829,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "8",
+      "name": "Write-in",
+      "ballotOrder": 8,
+      "voteCount": 1662,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "2",
+    "name": "United States Senate",
+    "voteFor": 1,
+    "ballotOrder": 2,
+    "precinctsParticipating": 142,
+    "precinctsReporting": 142,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "REP Marsha Blackburn",
+      "ballotOrder": 1,
+      "voteCount": 120568,
+      "politicalParty": "Republican"
+     },
+     {
+      "id": "2",
+      "name": "DEM Gloria Johnson",
+      "ballotOrder": 2,
+      "voteCount": 189954,
+      "politicalParty": "Democratic"
+     },
+     {
+      "id": "3",
+      "name": "IND Tharon Chandler",
+      "ballotOrder": 3,
+      "voteCount": 2958,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "4",
+      "name": "IND Pamela Jeanine \"P.\" Moses",
+      "ballotOrder": 4,
+      "voteCount": 3923,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "5",
+      "name": "IND Hastina Robinson",
+      "ballotOrder": 5,
+      "voteCount": 1691,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "6",
+      "name": "Write-in",
+      "ballotOrder": 6,
+      "voteCount": 385,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "3",
+    "name": "US House of Representatives District 8",
+    "voteFor": 1,
+    "ballotOrder": 3,
+    "precinctsParticipating": 46,
+    "precinctsReporting": 46,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "REP David Kustoff",
+      "ballotOrder": 1,
+      "voteCount": 68202,
+      "politicalParty": "Republican"
+     },
+     {
+      "id": "2",
+      "name": "DEM Sarah Freeman",
+      "ballotOrder": 2,
+      "voteCount": 32073,
+      "politicalParty": "Democratic"
+     },
+     {
+      "id": "3",
+      "name": "IND James Hart",
+      "ballotOrder": 3,
+      "voteCount": 1697,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "4",
+      "name": "Write-in",
+      "ballotOrder": 4,
+      "voteCount": 117,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "4",
+    "name": "US House of Representatives District 9",
+    "voteFor": 1,
+    "ballotOrder": 4,
+    "precinctsParticipating": 119,
+    "precinctsReporting": 119,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "REP Charlotte Bergmann",
+      "ballotOrder": 1,
+      "voteCount": 48706,
+      "politicalParty": "Republican"
+     },
+     {
+      "id": "2",
+      "name": "DEM Steve Cohen",
+      "ballotOrder": 2,
+      "voteCount": 157018,
+      "politicalParty": "Democratic"
+     },
+     {
+      "id": "3",
+      "name": "IND Wendell \"Wells\" Blankenship",
+      "ballotOrder": 3,
+      "voteCount": 3516,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "4",
+      "name": "IND Dennis Clark",
+      "ballotOrder": 4,
+      "voteCount": 2911,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "5",
+      "name": "Write-in",
+      "ballotOrder": 5,
+      "voteCount": 339,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "5",
+    "name": "Tennessee Senate District 30",
+    "voteFor": 1,
+    "ballotOrder": 5,
+    "precinctsParticipating": 30,
+    "precinctsReporting": 30,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "DEM Sara P. Kyle",
+      "ballotOrder": 1,
+      "voteCount": 40232,
+      "politicalParty": "Democratic"
+     },
+     {
+      "id": "2",
+      "name": "IND Mitchell Morrison",
+      "ballotOrder": 2,
+      "voteCount": 10370,
+      "politicalParty": "Independent"
+     },
+     {
+      "id": "3",
+      "name": "Write-in",
+      "ballotOrder": 3,
+      "voteCount": 235,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "7",
+    "name": "TN House of Representatives District 83",
+    "voteFor": 1,
+    "ballotOrder": 7,
+    "precinctsParticipating": 17,
+    "precinctsReporting": 17,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "REP Mark White",
+      "ballotOrder": 1,
+      "voteCount": 19910,
+      "politicalParty": "Republican"
+     },
+     {
+      "id": "2",
+      "name": "DEM Noah Nordstrom",
+      "ballotOrder": 2,
+      "voteCount": 14488,
+      "politicalParty": "Democratic"
+     },
+     {
+      "id": "3",
+      "name": "Write-in",
+      "ballotOrder": 3,
+      "voteCount": 41,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "20",
+    "name": "Bartlett Alderman - Position 4 Bartlett",
+    "voteFor": 1,
+    "ballotOrder": 20,
+    "precinctsParticipating": 10,
+    "precinctsReporting": 10,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "Monique L. Williams",
+      "ballotOrder": 1,
+      "voteCount": 21258,
+      "politicalParty": "Nonpartisan"
+     },
+     {
+      "id": "2",
+      "name": "Write-in",
+      "ballotOrder": 2,
+      "voteCount": 370,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   },
+   {
+    "type": "Local",
+    "id": "26",
+    "name": "Collierville Mayor Collierville",
+    "voteFor": 1,
+    "ballotOrder": 26,
+    "precinctsParticipating": 12,
+    "precinctsReporting": 12,
+    "contestType": "Candidate",
+    "ballotOptions": [
+     {
+      "id": "1",
+      "name": "Maureen J. Fraser",
+      "ballotOrder": 1,
+      "voteCount": 14738,
+      "politicalParty": "Nonpartisan"
+     },
+     {
+      "id": "2",
+      "name": "Billy Patton",
+      "ballotOrder": 2,
+      "voteCount": 10852,
+      "politicalParty": "Nonpartisan"
+     },
+     {
+      "id": "3",
+      "name": "Write-in",
+      "ballotOrder": 3,
+      "voteCount": 98,
+      "politicalParty": "Nonpartisan"
+     }
+    ],
+    "rankedChoiceResults": null
+   }
+  ]
+ }
+}
