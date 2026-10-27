@@ -1,0 +1,289 @@
+{
+ "mapData": {
+  "AZ": {
+   "style": {
+    "fill": "#0487e6",
+    "textFill": "#fff"
+   },
+   "tooltip": {
+    "electoralVotes": null,
+    "callStatusCode": "P",
+    "totalVote": 3348814,
+    "raceName": "Arizona",
+    "percentIn": 100,
+    "electionTypeCode": "G",
+    "geography": "states",
+    "candidates": [
+     {
+      "name": "Ruben Gallego",
+      "firstName": "Ruben",
+      "lastName": "Gallego",
+      "party": "Dem",
+      "callStatus": "P",
+      "isIncumbent": false,
+      "isWinner": true,
+      "vote": 1676335,
+      "votes": 1676335,
+      "electoralVotes": 0,
+      "percentVote": 50.1,
+      "formattedPercentVote": "50.1%"
+     },
+     {
+      "name": "Kari Lake",
+      "firstName": "Kari",
+      "lastName": "Lake",
+      "party": "Rep",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 1595761,
+      "votes": 1595761,
+      "electoralVotes": 0,
+      "percentVote": 47.7,
+      "formattedPercentVote": "47.7%"
+     },
+     {
+      "name": "Eduardo Quintana",
+      "firstName": "Eduardo",
+      "lastName": "Quintana",
+      "party": "Grn",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 75868,
+      "votes": 75868,
+      "electoralVotes": 0,
+      "percentVote": 2.3,
+      "formattedPercentVote": "2.3%"
+     },
+     {
+      "name": " Write-ins",
+      "firstName": "",
+      "lastName": "Write-ins",
+      "party": "Wri",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 850,
+      "votes": 850,
+      "electoralVotes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     }
+    ],
+    "pollsCloseUTC": "2024-11-06 02:00:00",
+    "pollsCloseFormatted": "Polls close at 9:00 PM ET",
+    "remainingVote": 41347,
+    "officeCode": "S",
+    "currentTime": "2026-10-27T15:42:21.953Z"
+   },
+   "winner": {
+    "name": "Ruben Gallego",
+    "firstName": "Ruben",
+    "lastName": "Gallego",
+    "party": "Dem",
+    "callStatus": "P",
+    "colorHex": "#0487e6",
+    "headshotUrl": "https://media-cldnry.s-nbcnews.com/image/upload/v7/firecracker/headshots/2024/AZ_S00_D_R_GALLEGO.jpg",
+    "isIncumbent": false,
+    "isWinner": true,
+    "vote": 1676335,
+    "votes": 1676335,
+    "electoralVotes": 0,
+    "percentVote": 50.1,
+    "formattedPercentVote": "50.1%"
+   },
+   "pollsClosed": true,
+   "isKeyRace": true,
+   "stateCode": "AZ",
+   "votingToday": false,
+   "href": "/politics/2024-elections/arizona-senate-results"
+  },
+  "DE": {
+   "style": {
+    "fill": "#0487e6",
+    "textFill": "#fff"
+   },
+   "tooltip": {
+    "electoralVotes": null,
+    "callStatusCode": "P",
+    "totalVote": 500606,
+    "raceName": "Delaware",
+    "percentIn": 100,
+    "electionTypeCode": "G",
+    "geography": "states",
+    "candidates": [
+     {
+      "name": "Lisa Blunt Rochester",
+      "firstName": "Lisa",
+      "lastName": "Blunt Rochester",
+      "party": "Dem",
+      "callStatus": "P",
+      "isIncumbent": false,
+      "isWinner": true,
+      "vote": 283298,
+      "votes": 283298,
+      "electoralVotes": 0,
+      "percentVote": 56.6,
+      "formattedPercentVote": "56.6%"
+     },
+     {
+      "name": "Eric Hansen",
+      "firstName": "Eric",
+      "lastName": "Hansen",
+      "party": "Rep",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 197753,
+      "votes": 197753,
+      "electoralVotes": 0,
+      "percentVote": 39.5,
+      "formattedPercentVote": "39.5%"
+     },
+     {
+      "name": "Michael Katz",
+      "firstName": "Michael",
+      "lastName": "Katz",
+      "party": "Ipd",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 19555,
+      "votes": 19555,
+      "electoralVotes": 0,
+      "percentVote": 3.9,
+      "formattedPercentVote": "3.9%"
+     }
+    ],
+    "pollsCloseUTC": "2024-11-06 01:00:00",
+    "pollsCloseFormatted": "Polls close at 8:00 PM ET",
+    "remainingVote": 11091,
+    "officeCode": "S",
+    "currentTime": "2026-10-27T15:42:21.953Z"
+   },
+   "winner": {
+    "name": "Lisa Blunt Rochester",
+    "firstName": "Lisa",
+    "lastName": "Blunt Rochester",
+    "party": "Dem",
+    "callStatus": "P",
+    "colorHex": "#0487e6",
+    "headshotUrl": "https://media-cldnry.s-nbcnews.com/image/upload/v7/firecracker/headshots/2024/DE_S00_D_L_BLUNTROCHESTER.jpg",
+    "isIncumbent": false,
+    "isWinner": true,
+    "vote": 283298,
+    "votes": 283298,
+    "electoralVotes": 0,
+    "percentVote": 56.6,
+    "formattedPercentVote": "56.6%"
+   },
+   "pollsClosed": true,
+   "isKeyRace": false,
+   "stateCode": "DE",
+   "votingToday": false,
+   "href": "/politics/2024-elections/delaware-senate-results"
+  },
+  "TX": {
+   "style": {
+    "fill": "#dd2929",
+    "textFill": "#fff"
+   },
+   "tooltip": {
+    "electoralVotes": null,
+    "callStatusCode": "P",
+    "totalVote": 11291854,
+    "raceName": "Texas",
+    "percentIn": 100,
+    "electionTypeCode": "G",
+    "geography": "states",
+    "candidates": [
+     {
+      "name": "Ted Cruz",
+      "firstName": "Ted",
+      "lastName": "Cruz",
+      "party": "Rep",
+      "callStatus": "P",
+      "isIncumbent": true,
+      "isWinner": true,
+      "vote": 5990741,
+      "votes": 5990741,
+      "electoralVotes": 0,
+      "percentVote": 53.1,
+      "formattedPercentVote": "53.1%"
+     },
+     {
+      "name": "Colin Allred",
+      "firstName": "Colin",
+      "lastName": "Allred",
+      "party": "Dem",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 5031249,
+      "votes": 5031249,
+      "electoralVotes": 0,
+      "percentVote": 44.6,
+      "formattedPercentVote": "44.6%"
+     },
+     {
+      "name": "Ted Brown",
+      "firstName": "Ted",
+      "lastName": "Brown",
+      "party": "Lib",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 267039,
+      "votes": 267039,
+      "electoralVotes": 0,
+      "percentVote": 2.4,
+      "formattedPercentVote": "2.4%"
+     },
+     {
+      "name": " Write-ins",
+      "firstName": "",
+      "lastName": "Write-ins",
+      "party": "Wri",
+      "callStatus": "",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 2825,
+      "votes": 2825,
+      "electoralVotes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     }
+    ],
+    "pollsCloseUTC": "2024-11-06 02:00:00",
+    "pollsCloseFormatted": "Polls begin closing at 8:00 PM ET",
+    "remainingVote": 96820,
+    "officeCode": "S",
+    "currentTime": "2026-10-27T15:42:21.953Z"
+   },
+   "winner": {
+    "name": "Ted Cruz",
+    "firstName": "Ted",
+    "lastName": "Cruz",
+    "party": "Rep",
+    "callStatus": "P",
+    "colorHex": "#dd2929",
+    "headshotUrl": "https://media-cldnry.s-nbcnews.com/image/upload/v7/firecracker/headshots/2024/TX_S00_R_T_CRUZ.jpg",
+    "isIncumbent": true,
+    "isWinner": true,
+    "vote": 5990741,
+    "votes": 5990741,
+    "electoralVotes": 0,
+    "percentVote": 53.1,
+    "formattedPercentVote": "53.1%"
+   },
+   "pollsClosed": true,
+   "isKeyRace": false,
+   "stateCode": "TX",
+   "votingToday": false,
+   "href": "/politics/2024-elections/texas-senate-results"
+  }
+ },
+ "lastModified": "Fri, 22 Aug 2025 13:29:37 GMT",
+ "electionSeason": "2024"
+}

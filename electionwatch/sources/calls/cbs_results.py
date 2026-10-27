@@ -18,6 +18,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult, normalize_party
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
@@ -38,7 +39,7 @@ class CBSResultsSource(ResultsSource):
     states = frozenset(STATES)
 
     BASE = CBSSource.BASE
-    YEAR = CBSSource.YEAR
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     async def _get(self, client: httpx.AsyncClient, office: str, state: str) -> list:
         try:

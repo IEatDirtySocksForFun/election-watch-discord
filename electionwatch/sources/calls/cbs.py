@@ -16,6 +16,7 @@ from typing import ClassVar
 
 import httpx
 
+from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
 
@@ -34,7 +35,7 @@ class CBSSource(CallSource):
     enabled_by_default = False
 
     BASE = "https://api-election.cbsnews.com/archive/api/public/races2"
-    YEAR = 2026
+    YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     async def fetch_calls(
         self, keys: list[RaceKey], client: httpx.AsyncClient
