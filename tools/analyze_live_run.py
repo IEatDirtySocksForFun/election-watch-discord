@@ -26,7 +26,7 @@ NON_CANDIDATE = re.compile(r"\b(over ?votes?|under ?votes?|blank|scattering|tota
 BAD_CASE = re.compile(r"\b(Mc[a-z]|O'[a-z]|Ii\b|Iii\b|Iv\b)")
 NO_PARTY = {"NPA", "NA", "NON", "NP", "IND", "I", "U", "UNA", "UNENROLLED", "NONPARTISAN", "NON PARTISAN",
             "NO PARTY PRE", "STATES NO PA", "OTHER", "OTH", "WRI", "UNAFFILIATED", "NOM", "NONC", "NONI", "NONW",
-            "ONA", "A", "NONE"}
+            "ONA", "A", "NONE", "NPD"}
 
 
 def candidates(lines: list[str]):
@@ -71,7 +71,7 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
             votes = int(m.group("votes").replace(",", ""))
             if i == 0:
                 final_leader[race] = name
-            if NON_CANDIDATE.search(name):
+            if NON_CANDIDATE.search(name) and not re.search(r"write[- ]?ins?", name, re.I):
                 issues["non_candidate"].append((race, name))
             if (name.isupper() and len(name) > 4) or BAD_CASE.search(name):
                 issues["name_case"].append((race, name))
