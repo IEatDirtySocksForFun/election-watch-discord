@@ -1,0 +1,36 @@
+{
+  "electionDate": "2024-11-05",
+  "timestamp": "2024-11-06T05:30:00.000Z",
+  "races": [
+    {
+      "raceID": "23456",
+      "officeID": "H",
+      "officeName": "U.S. House",
+      "seatName": "12",
+      "statePostal": "CA",
+      "raceType": "General",
+      "raceTypeID": "G",
+      "national": false,
+      "lastUpdated": "2024-11-06T06:00:00.000Z",
+      "precinctsReporting": 100,
+      "precinctsTotal": 100,
+      "candidates": [
+        {
+          "first": "Lateefah",
+          "last": "Simon",
+          "party": "Dem",
+          "candidateID": "111",
+          "voteCount": 185176,
+          "winner": "X"
+        },
+        {
+          "first": "Other",
+          "last": "Candidate",
+          "party": "GOP",
+          "candidateID": "112",
+          "voteCount": 90000
+        }
+      ]
+    }
+  ]
+}

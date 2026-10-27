@@ -1,0 +1,36 @@
+{
+  "electionDate": "2024-11-05",
+  "timestamp": "2024-11-06T05:30:00.000Z",
+  "races": [
+    {
+      "raceID": "12345",
+      "officeID": "S",
+      "officeName": "U.S. Senate",
+      "statePostal": "TX",
+      "raceType": "General",
+      "raceTypeID": "G",
+      "national": false,
+      "lastUpdated": "2024-11-06T05:30:00.000Z",
+      "precinctsReporting": 100,
+      "precinctsTotal": 100,
+      "candidates": [
+        {
+          "first": "Ted",
+          "last": "Cruz",
+          "party": "GOP",
+          "incumbent": true,
+          "candidateID": "999",
+          "voteCount": 5990741,
+          "winner": "X"
+        },
+        {
+          "first": "Colin",
+          "last": "Allred",
+          "party": "Dem",
+          "candidateID": "998",
+          "voteCount": 4999999
+        }
+      ]
+    }
+  ]
+}
