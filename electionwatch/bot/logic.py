@@ -42,14 +42,16 @@ def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str
     if not race:
         raise ValueError("race is required")
     key = _race_key(race)
-    if not gs.important:
-        gs.important = [str(item.key) for item in _default_races()]
+    current = gs.important or [str(item.key) for item in _default_races()]
+    if action == "remove" and key not in current:
+        # Nothing to do: don't claim a removal or materialize the default list.
+        return f"{key} is not watched"
+    gs.important = list(current)
     if action == "add":
         if key not in gs.important:
             gs.important.append(key)
         return f"Watching {key}"
-    if key in gs.important:
-        gs.important.remove(key)
+    gs.important.remove(key)
     return f"Removed {key}" + ("; using default races" if not gs.important else "")
 
 
