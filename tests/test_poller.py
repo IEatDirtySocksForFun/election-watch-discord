@@ -506,3 +506,18 @@ async def test_outlet_call_without_special_flag_reaches_a_watched_special_race()
     await poller(store, {"calls": [PlainCalls()]}, poster).tick()
     assert special in asked and plain in asked
     assert [(p.kind, p.race) for _, _, p in poster.sent] == [("call", "OH SEN S")]
+
+
+def test_call_footer_is_in_utc_even_for_an_offset_timestamp():
+    from electionwatch.poller import format_call
+
+    eastern = timezone(timedelta(hours=-5))
+    call = RaceCall(KEY, "AP", "Ted Cruz", "REP", datetime(2026, 11, 3, 21, 30, tzinfo=eastern))
+    assert format_call(call).footer == "Called Nov 04 02:30 UTC"
+
+
+def test_outlet_timestamps_without_offset_are_aware_utc():
+    from electionwatch.sources.calls._common import parse_iso_ts
+
+    assert parse_iso_ts("2026-11-04T01:30:00") == datetime(2026, 11, 4, 1, 30, tzinfo=timezone.utc)
+    assert parse_iso_ts("2026-11-03T21:30:00-05:00").tzinfo == timezone.utc

@@ -5,7 +5,7 @@ import asyncio
 import logging
 from collections import defaultdict
 from dataclasses import replace
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import httpx
 
@@ -71,6 +71,10 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
     )
 
 
+def _as_utc(ts: datetime) -> datetime:
+    return ts.replace(tzinfo=timezone.utc) if ts.tzinfo is None else ts.astimezone(timezone.utc)
+
+
 def format_call(call: RaceCall) -> Post:
     if call.retracted:
         lines = [f"Call retracted: {call.winner}", f"Outlet: {call.outlet}"]
@@ -79,7 +83,7 @@ def format_call(call: RaceCall) -> Post:
         lines = [f"{_party_marker(call.party)} Projected winner: {call.winner}{party}", f"Outlet: {call.outlet}"]
     return Post("call", str(call.key), f"Race call · {describe(call.key)}", lines, url=call.url,
                 color=None if call.retracted else _PARTY_COLOR.get(normalize_party(call.party) or ""),
-                footer=f"Called {call.called_at:%b %d %H:%M} UTC")
+                footer=f"Called {_as_utc(call.called_at):%b %d %H:%M} UTC")
 
 
 def format_exit_poll(poll: ExitPoll) -> Post:

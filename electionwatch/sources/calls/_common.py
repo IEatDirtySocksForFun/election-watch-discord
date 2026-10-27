@@ -99,7 +99,9 @@ def normalize_party(party: str | None) -> str | None:
 def parse_iso_ts(raw: str | None) -> datetime:
     if raw:
         try:
-            return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            ts = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            # Models carry aware UTC; outlets that omit the offset publish UTC.
+            return ts.replace(tzinfo=timezone.utc) if ts.tzinfo is None else ts.astimezone(timezone.utc)
         except Exception:
             pass
     return datetime.now(timezone.utc)
