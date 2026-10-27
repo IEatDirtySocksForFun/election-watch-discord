@@ -919,6 +919,14 @@ class Checks:
         self.notes.append(msg)
 
 
+def first_tick(res: "NightResult", at: datetime) -> datetime:
+    """The tick that first sees something scheduled at `at` (ticks run once per sim minute)."""
+    import bisect
+    ticks = [t for t, _ in res.ticks]
+    i = bisect.bisect_left(ticks, at)
+    return ticks[i] if i < len(ticks) else res.end + timedelta(minutes=1)
+
+
 def check_gaps(c: Checks, res: NightResult, t0, t1, minutes, guild=GUILD, label=""):
     last: dict[str, datetime] = {}
     n = 0
@@ -1047,7 +1055,7 @@ async def sc_pause(ctx: Ctx, c: Checks):
         now = res.posts_for(kind="results", race=race, t0=res.t("22:00"), t1=res.t("22:01"))
         if before and now:
             c.ok(before[-1].post.lines != now[0].post.lines, f"{race}: resume re-posted an identical result")
-    dropped = [k for k in night.calls if res.t("21:00") <= k.at < res.t("22:00")]
+    dropped = [k for k in night.calls if res.t("21:00") <= first_tick(res, k.at) < res.t("22:00")]
     late = res.posts_for(kind="call", t0=res.t("22:00"))
     c.ok(not any(p.post.race in {d.key for d in dropped} and p.at < res.t("22:02") for p in late),
          "calls made during the pause were flooded out at resume")
@@ -1162,7 +1170,10 @@ async def sc_toggles(ctx: Ctx, c: Checks):
     c.ok(bool(res.posts_for(kind="exitpoll", t1=res.t("22:00"))), "vacuous: no exit poll before off")
     backlog = res.posts_for(kind="exitpoll", t0=res.t("00:00"), t1=res.t("00:01"))
     missed = [k for k, t in avail.items() if res.t("22:00") <= t < res.t("00:00")]
-    c.ok(len(backlog) == len(missed), f"exit polls published while off: {len(missed)}, posted at /exitpolls on: {len(backlog)}")
+    due_now = [k for k, t in avail.items() if t == res.t("00:00")]
+    c.ok(len(backlog) == len(missed) + len(due_now),
+         f"exit polls published while off: {len(missed)} (+{len(due_now)} due at 00:00), "
+         f"posted at /exitpolls on: {len(backlog)}")
     c.note(f"/exitpolls on posts the {len(backlog)} exit polls published while it was off in one burst")
     replies_ok(c, res)
     return res
@@ -1383,10 +1394,14 @@ async def sc_mongo_restart(ctx: Ctx, c: Checks):
         c.ok(False, "no --mongod-bin")
         return None
     from electionwatch.store.mongo import MongoStore
-    mongod = PrivateMongod(ctx.mongod_bin, 27118, ctx.workdir / "mongod-restart")
+    import socket
+    with socket.socket() as sock:          # a free port: parallel runs must not share a mongod
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+    mongod = PrivateMongod(ctx.mongod_bin, port, ctx.workdir / f"mongod-restart-{port}")
     mongod.start()
     try:
-        store = MongoStore("mongodb://127.0.0.1:27118", "ew_sim_restart")
+        store = MongoStore(f"mongodb://127.0.0.1:{port}", "ew_sim_restart")
         await store.create_indexes()
         await store.odds.drop_index("ts_1")
         night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], store=store, start="21:30", until="22:30",
@@ -1706,7 +1721,7 @@ def main(argv=None) -> int:
     ap.add_argument("--data", default=str(DEFAULT_DATA))
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--mongo-uri", default=None, help="for storeerr, e.g. mongodb://127.0.0.1:27017")
-    ap.add_argument("--mongod-bin", default=None, help="for mongorestart (private mongod on :27118)")
+    ap.add_argument("--mongod-bin", default=None, help="for mongorestart (private mongod on a free port)")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--live", action="store_true", help="one combined scenario into a Discord thread")
     ap.add_argument("--year", default="2024", help="--live: year")
