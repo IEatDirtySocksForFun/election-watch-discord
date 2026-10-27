@@ -34,7 +34,7 @@ def test_parse_maps_state_aware_races():
     assert results["GA-01"].key.level is Level.HOUSE
     assert results["GA-01"].title == "US House of Representatives - District 1"
     assert results["GA HD-01"].key.level is Level.STATE
-    assert results["GA LOCAL president-of-the-us"].key.level is Level.LOCAL
+    assert results["GA LOCAL president-of-the-united-states"].key.level is Level.LOCAL
     amend = results["GA LOCAL proposed-constitutional-amendment-1"]
     assert {c.name for c in amend.candidates} == {"Yes", "No"}
 
