@@ -20,7 +20,7 @@ under `results`.
 | MI | `mi_county` | https://results.enr.clarityelections.com/MI/<County>/ | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)` |
 | WI | `wi_dane` | https://elections.countyofdane.com/Election-Result | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)` |
 | TN (Shelby Co.) | `tn_counties` | https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export-<slug>.json | **verified fixture** — Shelby 2024 general (142 precincts); 2026 export 404 on 2026-10-27; `TN_COUNTY_FEEDS` pins another county/slug |
-| TX (counties) | `tx_counties` | https://results.enr.clarityelections.com/TX/<County>/ | **verified fixtures** — 17 configured, 2024 for 12 counties, 2026 for Denton/Galveston/Kaufman; per-county 2024 shares in docs/results/counties.md |
+| TX (counties) | `tx_counties` | https://results.enr.clarityelections.com/TX/<County>/ | **verified fixtures** — 17 configured, 2024 for 13 counties, 2026 for Denton/Galveston/Kaufman; per-county 2024 shares in docs/results/counties.md |
 | NV, NH, ME | — | — | blocked / PDF-only; see docs/results/alt-a.md |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under

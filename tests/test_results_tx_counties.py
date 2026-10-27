@@ -196,14 +196,14 @@ def test_county_list_covers_seventeen_feeds():
     assert "Bexar" not in tx_counties.COUNTIES
 
 
-def test_senate_merges_across_twelve_2024_counties():
+def test_senate_merges_across_thirteen_2024_counties():
     sen = merged_all_2024()["TX SEN"]
     cands = {c.name: c for c in sen.candidates}
-    # 12 counties report a Senate contest; the per-county totals are the fixtures' T values.
-    assert sen.title == "US Senator (partial: 12 counties)"
-    assert sen.total_votes == 1370469
-    assert cands["Ted Cruz"].votes == 771000
-    assert cands["Colin Allred"].votes == 563293
+    # 13 of the 2024 fixtures report a Senate contest; totals are the fixtures' T values.
+    assert sen.title == "US Senator (partial: 13 counties)"
+    assert sen.total_votes == 1949354
+    assert cands["Ted Cruz"].votes == 928197
+    assert cands["Colin Allred"].votes == 970491
     assert cands["Ted Cruz"].party == "REP"
     assert cands["Colin Allred"].party == "DEM"
 
@@ -212,7 +212,7 @@ def test_repeated_party_prefix_is_stripped_before_merging():
     # Lamar, Rockwall, Rusk and Bastrop print "REP Ted Cruz" although P already says REP.
     keys = by_key(_parse("lamar_2024_summary.json", "Lamar"))
     assert keys["TX SEN"].candidates[0].name == "Ted Cruz"
-    assert keys["TX SEN"].candidates[0].party == "REP"
+    assert {c.name: c.party for c in keys["TX SEN"].candidates}["Ted Cruz"] == "REP"
     # The prefix is only stripped when it repeats the party column, so a title is kept.
     assert _county.split_party_prefix("Rep. John Lewis", None) == "Rep. John Lewis"
     assert _county.split_party_prefix("REP Ted Cruz", "DEM") == "REP Ted Cruz"
@@ -253,6 +253,34 @@ def test_rejected_and_unassigned_write_in_rows_are_not_candidates():
 
 def test_president_merges_across_every_county_that_reports_it():
     pres = merged_all_2024()["TX LOCAL president-vice-president"]
-    assert pres.title == "President/Vice President (partial: 7 counties)"
+    assert pres.title == "President/Vice President (partial: 8 counties)"
+    cands = {c.name: c for c in pres.candidates}
     assert {c.party for c in pres.candidates[:2]} == {"REP", "DEM"}
+    # Three ticket spellings collapse to the presidential name:
+    # "Donald J. Trump/JD Vance" (most), "Donald J. Trump JD Vance" (Comal, no slash)
+    # and "(R) Donald J. Trump" (Travis, no running mate at all).
+    assert cands["Donald J. Trump"].votes == 729798
+    assert cands["Kamala D. Harris"].votes == 721587
+    assert not [n for n in cands if n.startswith(("Donald", "Kamala")) and "/" in n]
+
+
+def test_parenthesised_party_prefixes_are_stripped():
+    # Travis prints "(R) Ted Cruz" with the party also in the column, like Lamar's "REP ...".
+    keys = by_key(_parse("travis_2024_summary.json", "Travis"))
+    names = [c.name for c in keys["TX SEN"].candidates]
+    assert names == ["Colin Allred", "Ted Cruz", "Ted Brown", "Write-in"]
+    assert {c.name: c.party for c in keys["TX SEN"].candidates}["Ted Cruz"] == "REP"
+    pres = {c.name: c.party for c in keys["TX LOCAL president-vice-president"].candidates}
+    assert pres["Donald J. Trump"] == "REP" and pres["Kamala D. Harris"] == "DEM"
+
+
+def test_travis_districts_and_propositions():
+    keys = by_key(_parse("travis_2024_summary.json", "Travis"))
+    assert keys["TX-37"].key.level is Level.HOUSE
+    assert keys["TX-35"].candidates[0].name == "Greg Casar"
+    assert keys["TX SD-14"].title == "State Senator, District 14"
+    # "Presiding Judge, Court of Criminal Appeals, Place 1" is the same shared seat that
+    # Denton publishes without the ", Place 1".
+    assert "TX LOCAL presiding-judge-court-criminal-appeals" in keys
+    assert "TX LOCAL travis-travis-county-proposition-a" in keys
 

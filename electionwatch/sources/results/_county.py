@@ -40,20 +40,24 @@ _PLACEHOLDER = re.compile(
     re.I)
 
 #: Some counties repeat the party in the candidate name ("REP Ted Cruz") even though the
-#: contest also carries a party column. Kept as-is, the same candidate would not merge with
-#: "Ted Cruz" from the next county.
+#: contest also carries a party column, and Travis writes it in parentheses ("(R) Ted Cruz").
+#: Kept as-is, the same candidate would not merge with "Ted Cruz" from the next county.
 _PARTY_PREFIX = re.compile(
     r"^(REP|DEM|LIB|GRN|GRE|CON|CST|IND|NPA|NP|WRI|REF|FWD)\.?\s+(\S.*)$", re.I)
+_PAREN_PARTY_PREFIX = re.compile(r"^\(([A-Za-z]{1,3})\)\s+(\S.*)$")
 
 
 def split_party_prefix(name: str, party: str | None) -> str:
-    """'REP Ted Cruz' with party REP -> 'Ted Cruz'. Only strips a prefix that repeats the
-    contest's own party column, so a title like 'Rep. John Lewis' is left alone."""
+    """'REP Ted Cruz' / '(R) Ted Cruz' with party REP -> 'Ted Cruz'. Only strips a prefix
+    that repeats the contest's own party column, so a title like 'Rep. John Lewis' is left
+    alone."""
     if not party:
         return name
-    m = _PARTY_PREFIX.match(name or "")
-    if m and c.norm_party(m.group(1)) == party:
-        return m.group(2).strip()
+    text = name or ""
+    for pattern in (_PARTY_PREFIX, _PAREN_PARTY_PREFIX):
+        m = pattern.match(text)
+        if m and c.norm_party(m.group(1)) == party:
+            return m.group(2).strip()
     return name
 
 
@@ -200,6 +204,37 @@ def _cand_id(name: str) -> str:
     return re.sub(r"[^A-Z0-9]+", " ", (name or "").upper()).strip()
 
 
+def _token_prefix(short: str, long: str) -> bool:
+    """'Donald J. Trump' is a token prefix of 'Donald J. Trump/JD Vance' and of
+    'Donald J. Trump JD Vance'."""
+    a = _cand_id(short).split()
+    b = _cand_id(long).split()
+    return len(a) >= 2 and len(b) > len(a) and b[:len(a)] == a
+
+
+def _fold_ticket_running_mates(cands: list[CandidateResult], key) -> list[CandidateResult]:
+    """Counties write a presidential ticket three ways: 'Donald J. Trump/JD Vance',
+    'Donald J. Trump JD Vance' (Comal drops the slash) and 'Donald J. Trump' (Travis).
+    Keep the presidential name alone so the per-county tallies add up."""
+    if not (str(key.district or "").startswith("president")
+            or any("/" in c.name for c in cands)):
+        return cands
+    ordered = sorted(cands, key=lambda c: len(_cand_id(c.name).split()))
+    folded: list[CandidateResult] = []
+    for cand in ordered:
+        for kept in folded:
+            same_party = kept.party == cand.party or kept.party is None or cand.party is None
+            if same_party and _token_prefix(kept.name, cand.name):
+                kept.votes += cand.votes
+                kept.incumbent = kept.incumbent or cand.incumbent
+                kept.winner = kept.winner and cand.winner
+                kept.party = kept.party or cand.party
+                break
+        else:
+            folded.append(cand)
+    return folded
+
+
 def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[RaceResult]:
     """Sum the same race across counties into one partial result.
 
@@ -232,6 +267,8 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
         cands = list(tally.values())
         if not cands:
             continue
+        if len(parts) > 1:
+            cands = _fold_ticket_running_mates(cands, parts[0].key)
         n = len(parts)
         base = next((p.title for p in parts if p.title), str(parts[0].key))
         title = f"{base} (partial: {n} counties)"

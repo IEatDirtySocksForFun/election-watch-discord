@@ -1,0 +1,454 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "President / Vice President",
+  "K": "0004",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 287,
+  "PR": 142,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(R) Donald J. Trump",
+   "(D) Kamala D. Harris",
+   "(L) Chase Oliver",
+   "(G) Jill Stein",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(R)",
+   "(D)",
+   "(L)",
+   "(G)",
+   "NON"
+  ],
+  "PCT": [
+   29.2455253478002,
+   68.3215858729082,
+   0.793039201583681,
+   1.00795265396708,
+   0.63189692374083
+  ],
+  "V": [
+   170781,
+   398968,
+   4631,
+   5886,
+   3690
+  ],
+  "T": 583956,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "United States Senator",
+  "K": "0005",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 287,
+  "PR": 142,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(R) Ted Cruz",
+   "(D) Colin Allred",
+   "(L) Ted Brown",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(R)",
+   "(D)",
+   "(L)",
+   "NON"
+  ],
+  "PCT": [
+   27.1551344394828,
+   70.3417777278734,
+   2.3992675574596,
+   0.10382027518419
+  ],
+  "V": [
+   157197,
+   407198,
+   13889,
+   601
+  ],
+  "T": 578885,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "United States Representative District 35",
+  "K": "0009",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 58,
+  "PR": 28,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(R) Steven Wright",
+   "(D) Greg Casar"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(R)",
+   "(D)"
+  ],
+  "PCT": [
+   22.9483876787988,
+   77.0516123212012
+  ],
+  "V": [
+   22894,
+   76869
+  ],
+  "T": 99763,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "United States Representative District 37",
+  "K": "0010",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 161,
+  "PR": 78,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(R) Jenny Garcia Sharon",
+   "(D) Lloyd Doggett",
+   "(L) Girish Altekar"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(R)",
+   "(D)",
+   "(L)"
+  ],
+  "PCT": [
+   23.1406693527668,
+   74.7115993157337,
+   2.14773133149943
+  ],
+  "V": [
+   73859,
+   238460,
+   6855
+  ],
+  "T": 319174,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "State Senator, District 14",
+  "K": "0018",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 216,
+  "PR": 113,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(D) Sarah Eckhardt"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(D)"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   321021
+  ],
+  "T": 321021,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "Presiding Judge, Court of Criminal Appeals, Place 1",
+  "K": "0015",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 287,
+  "PR": 142,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(R) David J. Schenck",
+   "(D) Holly Taylor"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(R)",
+   "(D)"
+  ],
+  "PCT": [
+   31.3201229142284,
+   68.6798770857716
+  ],
+  "V": [
+   171540,
+   376159
+  ],
+  "T": 547699,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "County",
+  "C": "Sheriff",
+  "K": "0047",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 287,
+  "PR": 142,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "(D) Sally Hernandez"
+  ],
+  "CHAggId": null,
+  "P": [
+   "(D)"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   398829
+  ],
+  "T": 398829,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "County",
+  "C": "Travis County Proposition A",
+  "K": "0057",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 287,
+  "PR": 142,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "FOR",
+   "AGAINST"
+  ],
+  "CHAggId": null,
+  "P": [
+   "NON",
+   "NON"
+  ],
+  "PCT": [
+   59.4411814745501,
+   40.5588185254499
+  ],
+  "V": [
+   321427,
+   219321
+  ],
+  "T": 540748,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
+]

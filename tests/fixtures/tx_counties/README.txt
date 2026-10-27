@@ -72,6 +72,11 @@ lamar_2024_summary.json        122497 / 351606   US Senator, US Representative D
 bastrop_2024_summary.json      122753 / 356001   President/Vice President, US Senator,
     US Representative Dist 10, US Representative Dist 27, Justice 3rd Ct of App Dist Pl 2,
     Sheriff
+travis_2024_summary.json       122432 / 355984   President / Vice President, United States
+    Senator, US Representative District 35, US Representative District 37, "State Senator,
+    District 14", "Presiding Judge, Court of Criminal Appeals, Place 1", Sheriff, "Travis
+    County Proposition A"  (candidates carry parenthesised party prefixes: "(R) Ted Cruz";
+    the presidential rows name only the nominee)
 
 Hood's "Rejected write-ins" (227 votes) and "Unassigned write-ins" (0 votes) rows are left
 in the fixture on purpose: the parser must drop them, and keep the counted write-in

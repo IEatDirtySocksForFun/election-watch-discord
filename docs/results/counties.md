@@ -57,15 +57,16 @@ statewide in 2024 (the figure already recorded in `docs/results/alt-b.md`).
 | Hood | 122858 / 127400 | 36,474 | 0.32% | fixture (2024) |
 | Rusk | 122760 / 127574 | 21,532 | 0.19% | fixture (2024) |
 | Lamar | 122497 / 127484 | 21,120 | 0.19% | fixture (2024) |
-| Travis | 122432 / — | — | — | configured (2024 id confirmed live), no fixture |
+| Travis | 122432 / — | 578,885 | 5.13% | fixture (2024) |
 | Dallas | — | — | — | configured, `elections.json` lists nothing |
 | Tarrant | — | — | — | configured, `elections.json` lists nothing |
 | Fort Bend | — | — | — | configured, no directory on the CDN |
 
-The thirteen counties that published a Senate contest in 2024 cover **1,439,415 Senate votes =
-12.75%** of Texas's statewide Senate vote. The 2024 fixtures cover twelve of them — Kaufman's
-2024 export was read live but only its 2026 export is kept as a fixture (the 2024 numbers in
-this table come from the same `summary.json` endpoint).
+The fourteen counties that published a Senate contest in 2024 cover **2,018,300 Senate votes =
+17.87%** of Texas's 2024 statewide Senate vote; a live fetch of the same fourteen merges to
+2,018,216 votes after the 84 rejected write-in ballots are dropped. Thirteen of the fourteen
+have a 2024 fixture — Kaufman's 2024 export was read live (only its 2026 export is kept as a
+fixture, because the 2026 general is the one tests need).
 
 Largest counties **not** configured — no Clarity directory on the vendor host, or a directory
 with no election row for the tracked date: Harris, Bexar, Collin, Hidalgo, Williamson,
@@ -81,8 +82,13 @@ Feed quirks the mapping absorbs (`race_key` in `tx_counties.py`):
   `Place 2 - Unexpired Term` for an unexpired Supreme Court term;
 * `Ct of Crim App`, `State BoE, Dist 10`, `Crt of App Dist` style abbreviations, and Hood
   County's own typo `Superme Court`;
-* `REP Ted Cruz` party prefixes (Lamar, Rockwall, Rusk, Bastrop): stripped only when the prefix
-  repeats the party column, so a title such as `Rep. John Lewis` is untouched;
+* `REP Ted Cruz` party prefixes (Lamar, Rockwall, Rusk, Bastrop) and Travis's parenthesised
+  `(R) Ted Cruz`: stripped only when the prefix repeats the party column, so a title such as
+  `Rep. John Lewis` is untouched;
+* presidential tickets written three ways — `Donald J. Trump/JD Vance` (most),
+  `Donald J. Trump JD Vance` (Comal drops the slash) and `Donald J. Trump` (Travis omits the
+  running mate). They are folded onto the presidential name so the per-county tallies add up
+  (live 2024: Trump 1,031,964 / Harris 969,950 across 14 counties);
 * `Rejected write-ins` and `Unassigned write-ins` tally rows are dropped; a counted write-in
   candidate (`Chad Hagg`, 93 votes in Hood) is kept.
 

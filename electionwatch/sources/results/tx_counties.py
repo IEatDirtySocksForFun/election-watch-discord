@@ -113,7 +113,7 @@ _SHARED_LOCAL = (
     (re.compile(r"^CHIEF JUSTICE, SUPREME COURT$"), lambda m: "supreme-court-chief-justice"),
     (re.compile(r"^JUSTICE, SUPREME COURT, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
      lambda m: f"supreme-court-place-{_id(m.group(1))}"),
-    (re.compile(r"^PRESIDING JUDGE, COURT OF CRIMINAL APPEALS$"),
+    (re.compile(r"^PRESIDING JUDGE, COURT OF CRIMINAL APPEALS(?:, PLACE \d+)?$"),
      lambda m: "presiding-judge-court-criminal-appeals"),
     (re.compile(r"^JUDGE, COURT OF CRIMINAL APPEALS, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
      lambda m: f"court-criminal-appeals-place-{_id(m.group(1))}"),
