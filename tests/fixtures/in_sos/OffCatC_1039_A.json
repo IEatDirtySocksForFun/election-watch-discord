@@ -1,0 +1,61 @@
+{
+ "Root": {
+  "WriteTime": "2025-04-17T18:32:00.553",
+  "StatewideSummary": {
+   "Race": [
+    {
+     "OFFICEID": "1305",
+     "OFFICE_TITLE": "State Representative, District 001",
+     "SubSortOrder": "State Representative, District 001",
+     "NumofSeats": "1",
+     "BALLOT_ORDER": "120",
+     "Candidates": {
+      "Candidate": [
+       {
+        "NAME_ON_BALLOT": "Carolyn B Jackson",
+        "isWinner": "T",
+        "POLITICALPARTYID": "1017",
+        "PARTY": "D",
+        "DISPLAY_COLOR": "#007ECD",
+        "TOTAL": 13932,
+        "CandidateName": "Jackson, Carolyn Carolyn",
+        "SORT_ORDER": "10"
+       }
+      ]
+     }
+    },
+    {
+     "OFFICEID": "2304",
+     "OFFICE_TITLE": "State Representative, District 002",
+     "SubSortOrder": "State Representative, District 002",
+     "NumofSeats": "1",
+     "BALLOT_ORDER": "120",
+     "Candidates": {
+      "Candidate": [
+       {
+        "NAME_ON_BALLOT": "Earl Harris Jr.",
+        "isWinner": "T",
+        "POLITICALPARTYID": "1017",
+        "PARTY": "D",
+        "DISPLAY_COLOR": "#007ECD",
+        "TOTAL": 14997,
+        "CandidateName": "Harris, Earl Earl",
+        "SORT_ORDER": "10"
+       },
+       {
+        "NAME_ON_BALLOT": "Ben Ruiz",
+        "isWinner": "F",
+        "POLITICALPARTYID": "1018",
+        "PARTY": "R",
+        "DISPLAY_COLOR": "#F63D3D",
+        "TOTAL": 3290,
+        "CandidateName": "Ruiz, Ben Ben",
+        "SORT_ORDER": "15"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}
