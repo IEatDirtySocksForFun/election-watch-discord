@@ -47,8 +47,14 @@ class APSource(CallSource):
                 "electionDate": self.ELECTION_DATE,
                 "apikey": api_key,
             }
-            if key.level is Level.HOUSE and key.district is not None and key.district.isdigit():
-                params["SeatNum"] = str(int(key.district))
+            if key.level is Level.HOUSE and key.district is not None:
+                if key.district.isdigit():
+                    params["SeatNum"] = str(int(key.district))
+                elif key.district == "AL":
+                    # AP numbers House seats, at-large included: the single statewide
+                    # seat is SeatNum 1 (AP has no "AL"; the race comes back as
+                    # seatName "1", which RaceKey normalises to XX-AL).
+                    params["SeatNum"] = "1"
 
             try:
                 resp = await client.get(self.BASE, params=params)
