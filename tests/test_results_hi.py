@@ -68,3 +68,11 @@ def test_precincts_and_registration():
     assert r.precincts_reporting == 497
     assert r.precincts_total == 497
     assert r.registered_voters == 860868
+
+
+def test_governor_and_lieutenant_governor_are_statewide_keys():
+    from electionwatch.racekeys import parse as parse_key
+    from electionwatch.sources.results.hi_soe import race_key
+
+    assert race_key("GOVERNOR") == parse_key("HI GOV")
+    assert race_key("LIEUTENANT GOVERNOR") == parse_key("HI LTGOV")

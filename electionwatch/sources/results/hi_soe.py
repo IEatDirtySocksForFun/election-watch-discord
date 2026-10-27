@@ -60,6 +60,10 @@ def race_key(office_raw: str) -> RaceKey:
     if m:
         dist = _ROMAN.get(m.group(1)) or f"{int(m.group(1)):02d}"
         return RaceKey("HI", Level.HOUSE, "HOUSE", dist, special)
+    if office == "GOVERNOR":
+        return RaceKey("HI", Level.GOVERNOR, "GOV", None, special)
+    if office == "LIEUTENANT GOVERNOR":
+        return RaceKey("HI", Level.GOVERNOR, "LTGOV", None, special)
     m = re.match(r"^STATE\s+SENATOR,\s*DIST\s*(\d+)", office)
     if m:
         return RaceKey("HI", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
