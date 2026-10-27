@@ -1,0 +1,256 @@
+{
+ "Races": {
+  "WriteTime": "2026-01-10T06:09:43.980",
+  "Race": [
+   {
+    "ID": "67190",
+    "SpecificTitle": "Presidential Electors",
+    "GeneralTitle": "Presidential Electors",
+    "OfficeLevel": "010",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "0",
+    "Choice": [
+     {
+      "Color": "0xffec6c",
+      "ID": "123574",
+      "Desc": "Kamala D. Harris, Tim Walz Democratic"
+     },
+     {
+      "Color": "0xa20017",
+      "ID": "123573",
+      "Desc": "Jill Stein, Ajamu Baraka Green"
+     },
+     {
+      "Color": "0x009899",
+      "ID": "123239",
+      "Desc": "Chase Oliver, Mike ter Maat Libertarian"
+     },
+     {
+      "Color": "0xed1b24",
+      "ID": "123572",
+      "Desc": "Donald J. Trump, \"JD\" Vance Republican"
+     },
+     {
+      "Color": "0x8970cb",
+      "ID": "123575",
+      "Desc": "Peter Sonski, Lauren Onak American Solidarity Party"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "123576",
+      "Desc": "Randall Terry, Stephen Broden Constitution Party"
+     },
+     {
+      "Color": "0xff836b",
+      "ID": "123578",
+      "Desc": "Mattie Preston, Shannel Conner Godliness, Truth, Justice"
+     },
+     {
+      "Color": "0x81b1d5",
+      "ID": "123577",
+      "Desc": "Cornel West, Melina Abdullah Justice For All"
+     },
+     {
+      "Color": "0x2db04a",
+      "ID": "123570",
+      "Desc": "Claudia de la Cruz, Karina Garcia Socialism and Liberation"
+     },
+     {
+      "Color": "0x02538a",
+      "ID": "123571",
+      "Desc": "Rachele Fruit, Dennis Richter Socialist Workers Party"
+     },
+     {
+      "Color": "0x642a7f",
+      "ID": "123569",
+      "Desc": "Robert F. Kennedy, Jr., Nicole Shanahan We The People"
+     }
+    ]
+   },
+   {
+    "ID": "67171",
+    "SpecificTitle": "U. S. Representative -- 1st Congressional District",
+    "GeneralTitle": "U.S. Representative",
+    "OfficeLevel": "145",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "122883",
+      "Desc": "Randall Arrington (REP)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "123475",
+      "Desc": "J. \"Frankie\" Hyers (NOPTY)"
+     },
+     {
+      "Color": "0xffec6c",
+      "ID": "123028",
+      "Desc": "Mel Manuel (DEM)"
+     },
+     {
+      "Color": "0xff836b",
+      "ID": "122849",
+      "Desc": "Steve Scalise (REP)"
+     },
+     {
+      "Color": "0xa20017",
+      "ID": "123396",
+      "Desc": "Ross Shales (REP)"
+     }
+    ]
+   },
+   {
+    "ID": "67188",
+    "SpecificTitle": "U. S. Representative -- 3rd Congressional District",
+    "GeneralTitle": "U.S. Representative",
+    "OfficeLevel": "145",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "123023",
+      "Desc": "Priscilla Gonzalez (DEM)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "122935",
+      "Desc": "Clay Higgins (REP)"
+     },
+     {
+      "Color": "0xffec6c",
+      "ID": "122715",
+      "Desc": "\"Xan\" John (REP)"
+     },
+     {
+      "Color": "0xff836b",
+      "ID": "122961",
+      "Desc": "Sadi Summerlin (DEM)"
+     }
+    ]
+   },
+   {
+    "ID": "67195",
+    "SpecificTitle": "PSC -- District 2",
+    "GeneralTitle": "Public Service Commission Member",
+    "OfficeLevel": "160",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "123209",
+      "Desc": "Jean-Paul Coussan (REP)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "123195",
+      "Desc": "\"Nick\" Laborde (DEM)"
+     },
+     {
+      "Color": "0xffec6c",
+      "ID": "122853",
+      "Desc": "Julie Quinn (REP)"
+     }
+    ]
+   },
+   {
+    "ID": "67167",
+    "SpecificTitle": "District Judge -- 21st Judicial District Court, Division L",
+    "GeneralTitle": "District Judge",
+    "OfficeLevel": "210",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "123108",
+      "Desc": "Matthew Belser (REP)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "123337",
+      "Desc": "Lindon Bennett Magee (REP)"
+     }
+    ]
+   },
+   {
+    "ID": "66931",
+    "SpecificTitle": "Mayor -- Town of Delcambre",
+    "GeneralTitle": "Mayor",
+    "OfficeLevel": "300",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "123096",
+      "Desc": "Pam Blakely (IND)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "123425",
+      "Desc": "Christopher \"Tipper\" Esponge (REP)"
+     }
+    ]
+   },
+   {
+    "ID": "13092",
+    "SpecificTitle": "CA No. 1 (Act No. 408, 2024 - HB 300) -- Provides relative to federal proceeds from alternative energy production",
+    "GeneralTitle": "Constitutional Amendment",
+    "OfficeLevel": "998",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": "Amendment No. 1",
+    "FullText": "Do you support an amendment to require that federal revenues received by the state generated from Outer Continental Shelf alternative or renewable energy production be deposited into the Coastal Protection and Restoration Fund? (Amends Article VII, Section 10.2(E)(1))",
+    "IsClosedParty": "0",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "3",
+      "Desc": "YES"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "4",
+      "Desc": "NO"
+     }
+    ]
+   }
+  ]
+ }
+}

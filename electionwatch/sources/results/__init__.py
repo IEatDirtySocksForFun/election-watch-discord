@@ -15,6 +15,12 @@ One module per feed family; each registers a `ResultsSource` in
     ne_sos            Nebraska Secretary of State server-rendered HTML (scraper)
     co_sos            Colorado Secretary of State Clarity feed
     ia_sos            Iowa Secretary of State Clarity feed
+    ks_sos            Kansas Secretary of State HTML results pages
+    la_sos            Louisiana Secretary of State graphical-results JSON blobs
+    md_sbe            Maryland State Board of Elections breakdown CSVs
+    ms_sos            Mississippi Secretary of State statewide recap CSV
+    nd_sos            North Dakota Secretary of State resultsSW.aspx pages
+    nm_sos            New Mexico Secretary of State resultsSW.aspx pages
 
 `_common` holds the shared helpers (party normalisation, dates, payload decoding,
 RaceResult construction). See docs/sources-results.md for feed URLs and status.

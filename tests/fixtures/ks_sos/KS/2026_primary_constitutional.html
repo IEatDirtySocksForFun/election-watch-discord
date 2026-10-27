@@ -1,0 +1,326 @@
+<!DOCTYPE html><html lang="en"><head><meta name="Keywords" content="2026 Primary Election Results,Kansas Primary,Election Results,Primary Results,2026 Primary" /><meta charset="UTF-8" /><meta http-equiv="Expires" content="Tue, 01 Jan 1980 1:00:00 GMT" /><meta http-equiv="Refresh" content="300" /><meta name="ROBOTS" content="NOINDEX, NOFOLLOW" /><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Unofficial Kansas Election Results</title><!-- Bootstrap --><link href="css/bootstrap.css" rel="stylesheet"><link href="css/styles.css" rel="stylesheet" type="text/css" /><!--Need for tooltips functions and styles-->
+<link href="css/tooltipster.bundle.min.css" rel="stylesheet" />
+<link href="css/themes/tooltipster-sideTip-shadow.min.css" rel="stylesheet" /></head><body onload="CheckCookies();"><form name="CheckList"><div class="header-wrapper" id="top"><div class="container" id="desktop-banner"><div class="row"><div class="col-12 main-banner"><img src="ks_images/header_primary.jpg" alt="Primary Election Graphic" /></div></div></div><div class="container-fluid" id="mobile-banner"><div class="row"><div class="col-12 mobile-banner">
+<img src="ks_images/header_primary.jpg" alt="Primary Election Graphic" /></div></div>
+</div>
+</div><!-- end of #header-wrapper -->
+<div class='tab-wrapper'>
+<div class='container-md'>
+<nav id='mobile-nav' class='navbar navbar-expand-md navbar-dark'>
+<button class='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarToggler' aria-controls='navbarToggler' aria-expanded='false' aria-label='Toggle navigation'>
+<span class='navbar-toggler-icon'></span>
+</button>
+<div class='collapse navbar-collapse' id='navbarToggler'>
+<ul class='navbar-nav'>
+<li class='nav-item'>
+<a class='nav-link' href='kssos_ent.html' title='All Races' aria-selected='false'>All</a>
+</li>
+<li class='nav-item'>
+<a class='nav-link active' href='constitutional.html' title='Constitutional Amendments' aria-selected='true'>Amendment</a>
+</li>
+<li class='nav-item'>
+<a class='nav-link' href='national.html' title='Congressional Races' aria-selected='false'>Congressional</a>
+</li>
+<li class='nav-item'>
+<a class='nav-link' href='statewide.html' title='Statewide Races' aria-selected='false'>Statewide</a>
+</li>
+<li class='nav-item dropdown'>
+<a class='nav-link dropdown-toggle' href='#' id='navbarDropdownKSLeg' title='Kansas Legislature' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>KS Legislature</a>
+<div class='dropdown-menu dropdown-menu-right party-menu' aria-labelledby='navbarDropdownKSLeg'>
+<a class='dropdown-item' id='ks-house-link' title='Kansas House Races' href='ks-house.html' onMouseOver='onHoverRep();' onMouseOut='offHoverRep();'>KS House</a>
+</div>
+</li>
+<li class='nav-item'>
+<a class='nav-link' href='ks-boe.html' title='Kansas Board of Education Races'  aria-selected='false'>KSBE</a>
+</li>
+<li class='nav-item'>
+<a class='nav-link' href='judicial.html' title='Judicial Races' aria-selected='false'>Judicial</a>
+</li>
+<li class='nav-item'>
+<a class='nav-link' href='Uncontested.html' title='Uncontested Races' aria-selected='false'>Uncontested</a>
+</li>
+<li class='nav-item'>
+<a class='nav-link' href='favorite-races.html' title='My Favorite Races' aria-selected='false'>Favorites&nbsp;&nbsp;<img src='ks_images/favorite-white.svg' alt='Favorite icon' style='width:15px;'/>&nbsp;&nbsp;<label id='lblMyFavoritesChecked'>(0)</label></a>
+</li>
+</li>
+<li class='nav-item dropdown'>
+<a class='nav-link dropdown-toggle' href='#' id='navbarDropdown' title='By Party' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>By Party</a>
+<div class='dropdown-menu dropdown-menu-right party-menu' aria-labelledby='navbarDropdown'>
+<a class='dropdown-item' id='party-dem-link' href='democratic.html' title='Democratic Races' onMouseOver='onHoverDem();' onMouseOut='offHoverDem();'><img id='dem-icon' src='ks_images/democrat-icon-white.svg' alt='Democrat icon' />Democratic</a>
+<a class='dropdown-item' id='party-rep-link' href='republican.html' title='Republican Races' onMouseOver='onHoverRep();' onMouseOut='offHoverRep();'><img id='rep-icon' src='ks_images/republican-icon-white.svg' alt='Republican icon' />Republican</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+</div><!-- end of .tab-wrapper -->
+<div class='heading-wrapper'>
+<div class='container-md'>
+<div class='row'>
+<div class='col-12'>
+<div class='row results'>
+<div class='col-md-8 tab-heading'>
+<h1><span><img src='ks_images/ballot-box-white.svg' alt='Results icon'/></span>Results - Constitutional Amendments</h1>
+</div>
+<div class='col-md-4 time-updated'>
+<p><strong>Last Update:</strong> <span id = 'time-stamp' >08/05/2026 4:25 AM </span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class='content-wrapper'>
+<div class='container-md'>
+<div class='row'>
+<div class='col-12'>
+<div id='#all-results'>
+<div class='map collapse show' id='all-results-map'>
+<div class='row'>
+<div class='col-12'>
+<h1>COUNTIES REPORTING</h1>
+<p>Click on the county or select from the list to view unofficial election results.</p>
+</div>
+</div>
+<div class='row'>
+<div class='col-12 map-image'>
+<img src='images/state_map.gif?v=1785921936' alt='State Map' usemap='#Map' />
+<map name='Map' id='Map'>
+<area shape='poly' coords='432,160,431,186,460,186,459,160' class="tooltip" href='allen.html#top' alt='Allen' title="<span class='county'>Allen County</span><br/> 22 of 22 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:36 AM</span>" />
+<area shape='poly' coords='431,131,432,159,459,159,460,131' class="tooltip" href='anderson.html#top' alt='Anderson' title="<span class='county'>Anderson County</span><br/> 17 of 17 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:33 PM</span>" />
+<area shape='poly' coords='425,30,456,30,454,34,454,39,456,42,457,43,459,41,462,42,462,45,462,48,425,47' class="tooltip" href='atchison.html#top' alt='Atchison' title="<span class='county'>Atchison County</span><br/> 20 of 20 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:54 PM</span>" />
+<area shape='poly' coords='200,215,201,247,243,245,244,217,235,218,234,215' class="tooltip" href='barber.html#top' alt='Barber' title="<span class='county'>Barber County</span><br/> 27 of 27 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:24 AM</span>" />
+<area shape='poly' coords='198,111,196,147,233,148,233,112' class="tooltip" href='barton.html#top' alt='Barton' title="<span class='county'>Barton County</span><br/> 41 of 41 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:42 AM</span>" />
+<area shape='poly' coords='460,160,461,188,487,189,487,160' class="tooltip" href='bourbon.html#top' alt='Bourbon' title="<span class='county'>Bourbon County</span><br/> 30 of 30 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:47 AM</span>" />
+<area shape='poly' coords='408,2,437,3,437,30,409,30' class="tooltip" href='brown.html#top' alt='Brown' title="<span class='county'>Brown County</span><br/> 19 of 19 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:40 AM</span>" />
+<area shape='poly' coords='324,160,324,208,366,208,366,160' class="tooltip" href='butler.html#top' alt='Butler' title="<span class='county'>Butler County</span><br/> 54 of 54 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:09 PM</span>" />
+<area shape='poly' coords='338,125,338,160,375,160,376,124' class="tooltip" href='chase.html#top' alt='Chase' title="<span class='county'>Chase County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 08:01 PM</span>" />
+<area shape='poly' coords='366,222,365,245,401,247,400,221' class="tooltip" href='chautauqua.html#top' alt='Chautauqua' title="<span class='county'>Chautauqua County</span><br/> 15 of 15 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:40 AM</span>" />
+<area shape='poly' coords='461,217,461,246,487,247,487,217' class="tooltip" href='cherokee.html#top' alt='Cherokee' title="<span class='county'>Cherokee County</span><br/> 36 of 36 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:54 PM</span>" />
+<area shape='poly' coords='5,6,45,3,45,38,2,39,3,6' class="tooltip" href='cheyenne.html#top' alt='Cheyenne' title="<span class='county'>Cheyenne County</span><br/> 9 of 9 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:56 PM</span>" />
+<area shape='poly' coords='126,208,125,217,128,217,128,247,163,247,163,217,161,218,162,208' class="tooltip" href='clark.html#top' alt='Clark' title="<span class='county'>Clark County</span><br/> 8 of 8 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:31 AM</span>" />
+<area shape='poly' coords='308,40,334,39,333,74,309,75' class="tooltip" href='clay.html#top' alt='Clay' title="<span class='county'>Clay County</span><br/> 22 of 22 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:09 AM</span>" />
+<area shape='poly' coords='271,33,271,62,308,62,310,33' class="tooltip" href='cloud.html#top' alt='Cloud' title="<span class='county'>Cloud County</span><br/> 29 of 29 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:12 PM</span>" />
+<area shape='poly' coords='402,129,401,160,431,159,430,129' class="tooltip" href='coffey.html#top' alt='Coffey' title="<span class='county'>Coffey County</span><br/> 18 of 18 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:15 PM</span>" />
+<area shape='poly' coords='165,216,164,246,200,246,199,216' class="tooltip" href='comanche.html#top' alt='Comanche' title="<span class='county'>Comanche County</span><br/> 5 of 5 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:33 AM</span>" />
+<area shape='poly' coords='320,207,320,244,361,244,360,207' class="tooltip" href='cowley.html#top' alt='Cowley' title="<span class='county'>Cowley County</span><br/> 44 of 44 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:41 AM</span>" />
+<area shape='poly' coords='461,189,461,216,487,217,487,189' class="tooltip" href='crawford.html#top' alt='Crawford' title="<span class='county'>Crawford County</span><br/> 57 of 57 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:45 AM</span>" />
+<area shape='poly' coords='89,3,124,3,123,38,88,38' class="tooltip" href='decatur.html#top' alt='Decatur' title="<span class='county'>Decatur County</span><br/> 27 of 27 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:40 AM</span>" />
+<area shape='poly' coords='309,76,309,117,338,118,337,106,341,105,340,96,338,94,337,93,336,91,335,91,334,75' class="tooltip" href='dickinson.html#top' alt='Dickinson' title="<span class='county'>Dickinson County</span><br/> 33 of 33 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:43 PM</span>" />
+<area shape='poly' coords='437,3,445,3,453,12,458,6,461,8,462,11,465,11,468,13,466,16,467,20,462,22,461,26,457,29,437,30' class="tooltip" href='doniphan.html#top' alt='Doniphan' title="<span class='county'>Doniphan County</span><br/> 14 of 14 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:05 PM</span>" />
+<area shape='poly' coords='431,82,432,103,458,104,459,87,457,87,452,87,450,86,449,86,451,82,447,82,443,82,439,82,436,82,435,83' class="tooltip" href='douglas.html#top' alt='Douglas' title="<span class='county'>Douglas County</span><br/> 102 of 102 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:21 AM</span>" />
+<area shape='poly' coords='164,158,164,188,200,188,199,180,197,167,178,167,178,159' class="tooltip" href='edwards.html#top' alt='Edwards' title="<span class='county'>Edwards County</span><br/> 15 of 15 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:50 PM</span>" />
+<area shape='poly' coords='367,196,367,222,400,222,400,196' class="tooltip" href='elk.html#top' alt='Elk' title="<span class='county'>Elk County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:59 PM</span>" />
+<area shape='poly' coords='161,75,197,75,198,109,162,109' class="tooltip" href='ellis.html#top' alt='Ellis' title="<span class='county'>Ellis County</span><br/> 31 of 31 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:52 AM</span>" />
+<area shape='poly' coords='234,98,235,124,270,124,270,98' class="tooltip" href='ellsworth.html#top' alt='Ellsworth' title="<span class='county'>Ellsworth County</span><br/> 29 of 29 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:26 AM</span>" />
+<area shape='poly' coords='62,143,62,182,90,184,90,165,119,164,119,143' class="tooltip" href='finney.html#top' alt='Finney' title="<span class='county'>Finney County</span><br/> 71 of 71 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:01 PM</span>" />
+<area shape='poly' coords='120,172,120,207,163,207,163,172' class="tooltip" href='ford.html#top' alt='Ford' title="<span class='county'>Ford County</span><br/> 42 of 42 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:26 AM</span>" />
+<area shape='poly' coords='432,104,431,131,459,131,459,104' class="tooltip" href='franklin.html#top' alt='Franklin' title="<span class='county'>Franklin County</span><br/> 25 of 25 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:34 PM</span>" />
+<area shape='poly' coords='333,70,334,88,337,89,337,93,339,96,364,96,363,81,342,80,342,70' class="tooltip" href='geary.html#top' alt='Geary' title="<span class='county'>Geary County</span><br/> 51 of 51 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:19 PM</span>" />
+<area shape='poly' coords='82,74,124,74,125,108,83,109' class="tooltip" href='gove.html#top' alt='Gove' title="<span class='county'>Gove County</span><br/> 9 of 9 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:16 AM</span>" />
+<area shape='poly' coords='124,39,161,41,160,74,124,74' class="tooltip" href='graham.html#top' alt='Graham' title="<span class='county'>Graham County</span><br/> 19 of 19 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:00 AM</span>" />
+<area shape='poly' coords='35,183,33,214,62,214,62,184' class="tooltip" href='grant.html#top' alt='Grant' title="<span class='county'>Grant County</span><br/> 6 of 6 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:48 PM</span>" />
+<area shape='poly' coords='90,165,89,208,120,206,119,165' class="tooltip" href='gray.html#top' alt='Gray' title="<span class='county'>Gray County</span><br/> 9 of 9 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:48 PM</span>" />
+<area shape='poly' coords='2,109,3,143,34,142,34,110' class="tooltip" href='greeley.html#top' alt='Greeley' title="<span class='county'>Greeley County</span><br/> 3 of 3 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:55 PM</span>" />
+<area shape='poly' coords='366,159,367,196,400,196,401,150,376,151,375,160' class="tooltip" href='greenwood.html#top' alt='Greenwood' title="<span class='county'>Greenwood County</span><br/> 36 of 36 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:36 AM</span>" />
+<area shape='poly' coords='3,144,3,183,34,183,33,144' class="tooltip" href='hamilton.html#top' alt='Hamilton' title="<span class='county'>Hamilton County</span><br/> 12 of 12 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:04 PM</span>" />
+<area shape='poly' coords='244,218,244,245,278,246,277,217' class="tooltip" href='harper.html#top' alt='Harper' title="<span class='county'>Harper County</span><br/> 15 of 15 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:17 PM</span>" />
+<area shape='poly' coords='286,153,286,174,322,174,323,154' class="tooltip" href='harvey.html#top' alt='Harvey' title="<span class='county'>Harvey County</span><br/> 41 of 41 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:51 PM</span>" />
+<area shape='poly' coords='63,183,62,214,89,213,89,183' class="tooltip" href='haskell.html#top' alt='Haskell' title="<span class='county'>Haskell County</span><br/> 8 of 8 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:28 AM</span>" />
+<area shape='poly' coords='120,144,120,172,163,172,163,144' class="tooltip" href='hodgeman.html#top' alt='Hodgeman' title="<span class='county'>Hodgeman County</span><br/> 17 of 17 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 04:18 AM</span>" />
+<area shape='poly' coords='393,39,408,39,409,30,425,30,424,47,423,48,422,66,393,67' class="tooltip" href='jackson.html#top' alt='Jackson' title="<span class='county'>Jackson County</span><br/> 25 of 25 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:32 AM</span>" />
+<area shape='poly' coords='423,48,449,48,448,79,445,80,441,81,437,81,435,82,432,79,428,79,426,79,424,78' class="tooltip" href='jefferson.html#top' alt='Jefferson' title="<span class='county'>Jefferson County</span><br/> 16 of 16 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:49 PM</span>" />
+<area shape='poly' coords='233,3,271,3,270,38,233,38' class="tooltip" href='jewell.html#top' alt='Jewell' title="<span class='county'>Jewell County</span><br/> 26 of 26 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:11 PM</span>" />
+<area shape='poly' coords='458,86,458,103,486,104,488,79,468,81,467,83,466,82,464,83,463,83,460,84' class="tooltip" href='johnson.html#top' alt='Johnson' title="<span class='county'>Johnson County</span><br/> 587 of 587 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:48 AM</span>" />
+<area shape='poly' coords='34,142,34,183,62,183,62,143' class="tooltip" href='kearny.html#top' alt='Kearny' title="<span class='county'>Kearny County</span><br/> 12 of 12 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:46 AM</span>" />
+<area shape='poly' coords='235,188,236,217,278,217,278,188' class="tooltip" href='kingman.html#top' alt='Kingman' title="<span class='county'>Kingman County</span><br/> 28 of 28 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:39 AM</span>" />
+<area shape='poly' coords='164,188,164,215,200,216,200,188' class="tooltip" href='kiowa.html#top' alt='Kiowa' title="<span class='county'>Kiowa County</span><br/> 5 of 5 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 08:34 PM</span>" />
+<area shape='poly' coords='433,214,433,246,461,247,461,215' class="tooltip" href='labette.html#top' alt='Labette' title="<span class='county'>Labette County</span><br/> 38 of 38 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:48 PM</span>" />
+<area shape='poly' coords='91,109,90,142,118,142,118,110' class="tooltip" href='lane.html#top' alt='Lane' title="<span class='county'>Lane County</span><br/> 10 of 10 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:48 AM</span>" />
+<area shape='poly' coords='448,48,449,84,451,86,457,86,461,82,468,82,468,69,466,68,467,56,465,54,465,50,465,48' class="tooltip" href='leavenworth.html#top' alt='Leavenworth' title="<span class='county'>Leavenworth County</span><br/> 51 of 51 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:42 AM</span>" />
+<area shape='poly' coords='234,70,234,98,270,98,269,70' class="tooltip" href='lincoln.html#top' alt='Lincoln' title="<span class='county'>Lincoln County</span><br/> 22 of 22 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 08:45 PM</span>" />
+<area shape='poly' coords='461,132,459,160,488,159,488,132' class="tooltip" href='linn.html#top' alt='Linn' title="<span class='county'>Linn County</span><br/> 10 of 10 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:36 PM</span>" />
+<area shape='poly' coords='41,76,83,76,83,110,41,110' class="tooltip" href='logan.html#top' alt='Logan' title="<span class='county'>Logan County</span><br/> 13 of 13 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:07 PM</span>" />
+<area shape='poly' coords='375,105,377,151,400,150,401,105' class="tooltip" href='lyon.html#top' alt='Lyon' title="<span class='county'>Lyon County</span><br/> 42 of 42 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:40 PM</span>" />
+<area shape='poly' coords='271,117,271,152,308,152,309,117' class="tooltip" href='mcpherson.html#top' alt='McPherson' title="<span class='county'>McPherson County</span><br/> 33 of 33 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:33 AM</span>" />
+<area shape='poly' coords='309,117,337,117,338,160,324,160,324,153,309,152' class="tooltip" href='marion.html#top' alt='Marion' title="<span class='county'>Marion County</span><br/> 32 of 32 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:10 AM</span>" />
+<area shape='poly' coords='347,2,382,3,383,38,347,39' class="tooltip" href='marshall.html#top' alt='Marshall' title="<span class='county'>Marshall County</span><br/> 32 of 32 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:17 AM</span>" />
+<area shape='poly' coords='90,207,89,213,92,214,92,245,128,245,128,215,126,215,127,207' class="tooltip" href='meade.html#top' alt='Meade' title="<span class='county'>Meade County</span><br/> 9 of 9 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 08:21 PM</span>" />
+<area shape='poly' coords='461,104,460,131,488,132,487,105' class="tooltip" href='miami.html#top' alt='Miami' title="<span class='county'>Miami County</span><br/> 57 of 57 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:27 AM</span>" />
+<area shape='poly' coords='235,39,269,39,270,69,235,71' class="tooltip" href='mitchell.html#top' alt='Mitchell' title="<span class='county'>Mitchell County</span><br/> 25 of 25 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:38 AM</span>" />
+<area shape='poly' coords='401,214,400,247,433,246,432,213' class="tooltip" href='montgomery.html#top' alt='Montgomery' title="<span class='county'>Montgomery County</span><br/> 90 of 90 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:23 AM</span>" />
+<area shape='poly' coords='342,97,341,105,338,105,338,124,374,124,375,106,372,106,373,100,366,101,365,98' class="tooltip" href='morris.html#top' alt='Morris' title="<span class='county'>Morris County</span><br/> 15 of 15 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:44 AM</span>" />
+<area shape='poly' coords='3,215,3,246,31,246,30,215' class="tooltip" href='morton.html#top' alt='Morton' title="<span class='county'>Morton County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:54 PM</span>" />
+<area shape='poly' coords='380,3,408,3,408,39,380,39' class="tooltip" href='nemaha.html#top' alt='Nemaha' title="<span class='county'>Nemaha County</span><br/> 31 of 31 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:16 PM</span>" />
+<area shape='poly' coords='432,186,432,213,461,214,460,186' class="tooltip" href='neosho.html#top' alt='Neosho' title="<span class='county'>Neosho County</span><br/> 43 of 43 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:42 AM</span>" />
+<area shape='poly' coords='119,109,119,143,162,143,161,138,162,138,161,109' class="tooltip" href='ness.html#top' alt='Ness' title="<span class='county'>Ness County</span><br/> 12 of 12 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:20 AM</span>" />
+<area shape='poly' coords='124,38,123,4,160,4,160,39' class="tooltip" href='norton.html#top' alt='Norton' title="<span class='county'>Norton County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:37 AM</span>" />
+<area shape='poly' coords='400,95,402,129,430,129,431,95' class="tooltip" href='osage.html#top' alt='Osage' title="<span class='county'>Osage County</span><br/> 28 of 28 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:45 AM</span>" />
+<area shape='poly' coords='197,38,234,39,234,74,197,74' class="tooltip" href='osborne.html#top' alt='Osborne' title="<span class='county'>Osborne County</span><br/> 31 of 31 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:01 AM</span>" />
+<area shape='poly' coords='271,62,271,90,309,90,309,63' class="tooltip" href='ottawa.html#top' alt='Ottawa' title="<span class='county'>Ottawa County</span><br/> 25 of 25 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:45 AM</span>" />
+<area shape='poly' coords='163,138,164,157,178,158,179,166,207,166,207,148,194,146,196,138' class="tooltip" href='pawnee.html#top' alt='Pawnee' title="<span class='county'>Pawnee County</span><br/> 30 of 30 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:15 PM</span>" />
+<area shape='poly' coords='160,3,195,4,196,38,162,38' class="tooltip" href='phillips.html#top' alt='Phillips' title="<span class='county'>Phillips County</span><br/> 37 of 37 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:47 AM</span>" />
+<area shape='poly' coords='358,39,392,39,392,72,391,71,388,69,386,67,384,70,380,70,377,68,373,69,371,71,368,70,364,69,361,69,358,66,359,63,357,61,356,59,355,56,353,55,351,54,350,50,352,46,355,44,357,41' class="tooltip" href='pottawatomie.html#top' alt='Pottawatomie' title="<span class='county'>Pottawatomie County</span><br/> 32 of 32 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:53 AM</span>" />
+<area shape='poly' coords='200,180,200,214,234,214,235,179' class="tooltip" href='pratt.html#top' alt='Pratt' title="<span class='county'>Pratt County</span><br/> 27 of 27 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:18 PM</span>" />
+<area shape='poly' coords='45,1,89,3,88,38,46,38' class="tooltip" href='rawlins.html#top' alt='Rawlins' title="<span class='county'>Rawlins County</span><br/> 17 of 17 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:34 AM</span>" />
+<area shape='poly' coords='235,153,236,189,287,188,286,153,263,153,264,156,255,156,256,153' class="tooltip" href='reno.html#top' alt='Reno' title="<span class='county'>Reno County</span><br/> 91 of 91 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 12:20 AM</span>" />
+<area shape='poly' coords='270,2,309,3,308,33,270,33' class="tooltip" href='republic.html#top' alt='Republic' title="<span class='county'>Republic County</span><br/> 23 of 23 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:56 PM</span>" />
+<area shape='poly' coords='236,126,236,154,256,154,256,157,263,157,263,154,271,153,270,126' class="tooltip" href='rice.html#top' alt='Rice' title="<span class='county'>Rice County</span><br/> 27 of 27 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:43 AM</span>" />
+<area shape='poly' coords='334,39,357,39,349,47,349,52,355,57,357,64,361,68,366,70,370,69,371,81,365,82,365,80,350,79,342,78,343,68,335,68' class="tooltip" href='riley.html#top' alt='Riley' title="<span class='county'>Riley County</span><br/> 68 of 68 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:13 PM</span>" />
+<area shape='poly' coords='160,36,197,36,196,71,161,71' class="tooltip" href='rooks.html#top' alt='Rooks' title="<span class='county'>Rooks County</span><br/> 15 of 15 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:25 AM</span>" />
+<area shape='poly' coords='163,109,164,137,199,138,199,109' class="tooltip" href='rush.html#top' alt='Rush' title="<span class='county'>Rush County</span><br/> 13 of 13 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:29 AM</span>" />
+<area shape='poly' coords='198,74,234,75,234,109,198,109' class="tooltip" href='russell.html#top' alt='Russell' title="<span class='county'>Russell County</span><br/> 27 of 27 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:04 PM</span>" />
+<area shape='poly' coords='271,90,270,116,308,117,308,91' class="tooltip" href='saline.html#top' alt='Saline' title="<span class='county'>Saline County</span><br/> 66 of 66 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:53 PM</span>" />
+<area shape='poly' coords='62,110,61,142,90,142,90,110' class="tooltip" href='scott.html#top' alt='Scott' title="<span class='county'>Scott County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:23 AM</span>" />
+<area shape='poly' coords='279,189,278,207,323,208,323,174,287,173,288,188' class="tooltip" href='sedgwick.html#top' alt='Sedgwick' title="<span class='county'>Sedgwick County</span><br/> 497 of 497 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:50 AM</span>" />
+<area shape='poly' coords='63,214,63,245,91,246,91,214' class="tooltip" href='seward.html#top' alt='Seward' title="<span class='county'>Seward County</span><br/> 22 of 22 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 08:37 PM</span>" />
+<area shape='poly' coords='393,67,393,73,395,74,397,75,399,78,400,79,400,94,430,94,432,79,423,80,422,68' class="tooltip" href='shawnee.html#top' alt='Shawnee' title="<span class='county'>Shawnee County</span><br/> 248 of 248 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:24 PM</span>" />
+<area shape='poly' coords='89,39,123,38,124,74,89,74' class="tooltip" href='sheridan.html#top' alt='Sheridan' title="<span class='county'>Sheridan County</span><br/> 17 of 17 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 01:22 AM</span>" />
+<area shape='poly' coords='3,38,45,38,45,74,3,74' class="tooltip" href='sherman.html#top' alt='Sherman' title="<span class='county'>Sherman County</span><br/> 19 of 19 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:36 PM</span>" />
+<area shape='poly' coords='196,2,232,4,231,38,196,38' class="tooltip" href='smith.html#top' alt='Smith' title="<span class='county'>Smith County</span><br/> 28 of 28 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:23 PM</span>" />
+<area shape='poly' coords='199,180,198,167,207,167,207,149,234,149,234,180' class="tooltip" href='stafford.html#top' alt='Stafford' title="<span class='county'>Stafford County</span><br/> 25 of 25 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:30 AM</span>" />
+<area shape='poly' coords='3,183,4,214,34,215,34,184' class="tooltip" href='stanton.html#top' alt='Stanton' title="<span class='county'>Stanton County</span><br/> 3 of 3 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:44 AM</span>" />
+<area shape='poly' coords='31,215,31,246,63,246,62,214' class="tooltip" href='stevens.html#top' alt='Stevens' title="<span class='county'>Stevens County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:42 PM</span>" />
+<area shape='poly' coords='279,208,279,247,324,246,324,209' class="tooltip" href='sumner.html#top' alt='Sumner' title="<span class='county'>Sumner County</span><br/> 51 of 51 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:52 PM</span>" />
+<area shape='poly' coords='45,39,88,38,89,74,45,74' class="tooltip" href='thomas.html#top' alt='Thomas' title="<span class='county'>Thomas County</span><br/> 18 of 18 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 10:52 PM</span>" />
+<area shape='poly' coords='125,75,161,75,162,108,125,109' class="tooltip" href='trego.html#top' alt='Trego' title="<span class='county'>Trego County</span><br/> 11 of 11 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:17 PM</span>" />
+<area shape='poly' coords='363,83,369,82,370,71,373,69,376,69,378,70,381,71,382,69,384,69,386,69,388,70,389,73,390,74,391,73,393,73,394,74,395,76,397,76,398,76,399,75,398,105,370,105,371,99,364,100' class="tooltip" href='wabaunsee.html#top' alt='Wabaunsee' title="<span class='county'>Wabaunsee County</span><br/> 16 of 16 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:32 AM</span>" />
+<area shape='poly' coords='3,74,39,75,39,110,2,109' class="tooltip" href='wallace.html#top' alt='Wallace' title="<span class='county'>Wallace County</span><br/> 7 of 7 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 02:55 AM</span>" />
+<area shape='poly' coords='309,2,344,3,344,40,309,40' class="tooltip" href='washington.html#top' alt='Washington' title="<span class='county'>Washington County</span><br/> 27 of 27 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/05/2026 03:24 AM</span>" />
+<area shape='poly' coords='34,111,34,142,60,143,61,110' class="tooltip" href='wichita.html#top' alt='Wichita' title="<span class='county'>Wichita County</span><br/> 3 of 3 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:46 PM</span>" />
+<area shape='poly' coords='401,187,401,213,431,212,432,186' class="tooltip" href='wilson.html#top' alt='Wilson' title="<span class='county'>Wilson County</span><br/> 26 of 26 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:44 PM</span>" />
+<area shape='poly' coords='401,160,401,186,432,186,432,161' class="tooltip" href='woodson.html#top' alt='Woodson' title="<span class='county'>Woodson County</span><br/> 9 of 9 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 11:11 PM</span>" />
+<area shape='poly' coords='465,58,465,68,466,79,485,80,485,76,481,73,480,68,478,66,475,66,473,65,471,62,469,61' class="tooltip" href='wyandotte.html#top' alt='Wyandotte' title="<span class='county'>Wyandotte County</span><br/> 148 of 148 precincts<br/><span class='CountyResultsHover'>Last Reported: 08/04/2026 09:54 PM</span>" />
+</map>
+</div><!-- end of.map-image-->
+<div class='col-12 map-legend'>
+<table align='center'>
+<tr>
+<td><span class='box'>&nbsp;</span>No Results</td>
+<td><span class='box results-reporting'>&nbsp;</span>Partial Precincts Reported</td>
+<td><span class='box results-complete'>&nbsp;</span>All Precincts Reported</td>
+</tr>
+</table>
+</div><!-- end of .map-legend -->
+</div>
+</div><!--end of.map-->
+<div class='row'>
+<div class='col-12 show-hide-map'>
+<h4><a href='#all-results-map' data-toggle='collapse' aria-expanded='false' aria-controls='national-map'>View/Hide Map</a></h4>
+</div>
+</div>
+<div class='results-county'>
+<div class='row'>
+<div class='col-12'>
+<div class='county-results-ddl'>
+<select><!-- county list trimmed --></select></div></div></div></div><!-- end of .county-results-ddl -->
+<div class='tab-content'>
+<div class='tab-pane show active' id='party-all' role='tabpanel' aria-labelledby='party-all-tab'>
+<div class='race'>
+<div class='container-md'>
+<div class='row race-heading'>
+<div class='col-11'>
+<h3>Constitutional Amendment</h3>
+</div>
+<div class='col-1 favorite-race'>
+<label class='container'>
+<input type='checkbox' name='chkbxFavoriteRace' id='1075' />
+<span class='checkmark'></span>
+</label>
+</div>
+</div><!-- end of .race-heading -->
+<div class='row race-subheading'>
+<div class='col-6'>
+<p>Precincts Reporting: 4150 of 4150</p>
+</div>
+<div class='col-2'>
+<p>Votes</p>
+</div>
+<div class='col-1'>
+<p>%</p>
+</div>
+<div class='col-3 view-details'>
+</div>
+</div><!-- end of .race-subheading -->
+<div class='race-candidate-list'>
+<div class='row'>
+<div class='col-6'>
+<p>Constitutional Amendment - "YES"</p>
+</div>
+<div class='col-2'>
+<p>236,800</p>
+</div>
+<div class='col-1'>
+<p>39%</p>
+</div>
+<div class='col-3'>
+<table width='100%' border='0' cellspacing='0' cellpadding='0'>
+<tr><td width='39%' height='100%' bgcolor='#00C8C8'>&nbsp;</td>
+<td width='68%' height='100%' >&nbsp;</td>
+</tr></table>
+</div>
+</div>
+<div class='row'>
+<div class='col-12 spacer'>
+</div>
+</div>
+<div class='row'>
+<div class='col-6'>
+<p>Constitutional Amendment - "NO"</p>
+</div>
+<div class='col-2'>
+<p>375,355</p>
+</div>
+<div class='col-1'>
+<p>61%</p>
+</div>
+<div class='col-3'>
+<table width='100%' border='0' cellspacing='0' cellpadding='0'>
+<tr><td width='61%' height='100%' bgcolor='#00C8C8'>&nbsp;</td>
+<td width='68%' height='100%' >&nbsp;</td>
+</tr></table>
+</div>
+</div>
+<div class='row'>
+<div class='col-12 spacer'>
+</div>
+</div>
+<div class='row'>
+<div class='col-12 spacer-bold'></div>
+<div class='col-6'>
+<p>Total Votes</p>
+</div>
+<div class='col-2'>
+<p>612,155</p>
+</div>
+<div class='col-1'>
+<p>&nbsp;</p>
+</div>
+<div class='col-3'>
+<table width='100%' border='0' cellspacing='0' cellpadding='0'>
+<tr><td>&nbsp;</td>
+<td width='68%' height='100%' >&nbsp;</td>
+</tr></table>
+</div>
+</div>
+</div><!-- end of .race-candidate-list -->
+<div class='row'>
+<div class='col-12'>
+
+</div>
+</div>
+<div class='row'>
+<div class='col-3'></div>
+<div class='col-6 view-details'>
+<a href='#all-races-1075' data-toggle='collapse' aria-expanded='false' aria-controls='all-races-1075'><img src='ks_images/kansas-map-small-2.svg' alt='View Constitutional Amendment () Map' />View Detailed Map</a>
+</div>
+<div class='col-3 back-to-top'>
+<a href='#top'>Back to Top</a>
+</div>
+</div>
+</div><!-- end of .container -->
+</div><!--end of .race -->
+</div></div></form>
+</body>
+</html>
