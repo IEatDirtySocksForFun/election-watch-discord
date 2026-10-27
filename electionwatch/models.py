@@ -7,7 +7,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 
 
@@ -112,6 +112,32 @@ class ExitPoll:
     url: str
     summary: str | None = None    # 1-3 short lines, condensed; None = link only
     fetched_at: datetime | None = None
+
+
+@dataclass
+class PollResult:
+    name: str                     # candidate (or "Generic D")
+    party: str | None
+    pct: float                    # 0-100
+
+
+@dataclass
+class Poll:
+    key: RaceKey
+    pollster: str
+    results: list[PollResult]
+    end_date: date                # last field date
+    start_date: date | None = None
+    sample_size: int | None = None
+    population: str | None = None # "LV", "RV", "A"
+    sponsor: str | None = None    # who paid for it
+    partisan: str | None = None   # "DEM"/"REP" for internal / partisan-sponsored polls, else None
+    source: str = ""              # adapter name, e.g. "270towin"
+    url: str | None = None
+
+    @property
+    def internal(self) -> bool:
+        return self.partisan is not None
 
 
 @dataclass
