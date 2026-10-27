@@ -1,0 +1,77 @@
+{
+ "data": {
+  "races": [
+   {
+    "race_id": "GA-G-S-2020-11-03",
+    "race_slug": "ga-senate-general-2020-11-03",
+    "office": "U.S. Senate",
+    "state_id": "GA",
+    "url": "https://www.nytimes.com/interactive/2020/11/03/us/elections/results-georgia-senate.html",
+    "candidates": [
+     {
+      "candidate_key": "perdued",
+      "name_display": "David Perdue",
+      "party_id": "republican"
+     },
+     {
+      "candidate_key": "ossoffj",
+      "name_display": "Jon Ossoff",
+      "party_id": "democrat"
+     },
+     {
+      "candidate_key": "hazels",
+      "name_display": "Shane Hazel",
+      "party_id": "libertarian"
+     },
+     {
+      "candidate_key": "write-ins",
+      "name_display": "Write-ins",
+      "party_id": "write-ins"
+     }
+    ],
+    "timeseries": [
+     {
+      "vote_shares": {
+       "perdued": 0.648,
+       "ossoffj": 0.313
+      },
+      "votes": 418,
+      "eevp": 0,
+      "eevp_source": "edison",
+      "timestamp": "2020-11-04T00:14:33Z"
+     },
+     {
+      "vote_shares": {
+       "ossoffj": 0.586,
+       "perdued": 0.394
+      },
+      "votes": 124276,
+      "eevp": 2,
+      "eevp_source": "edison",
+      "timestamp": "2020-11-04T00:15:45Z"
+     },
+     {
+      "vote_shares": {
+       "perdued": 0.526,
+       "ossoffj": 0.45
+      },
+      "votes": 4358347,
+      "eevp": 85,
+      "eevp_source": "edison",
+      "timestamp": "2020-11-04T06:21:49Z"
+     },
+     {
+      "vote_shares": {
+       "perdued": 0.497,
+       "ossoffj": 0.479
+      },
+      "votes": 4952440,
+      "eevp": 99,
+      "eevp_source": "edison",
+      "timestamp": "2021-01-13T14:36:38Z"
+     }
+    ]
+   }
+  ]
+ }
+}
