@@ -135,3 +135,39 @@ def test_county_feed_does_not_stand_in_for_statewide_results():
     kept = scope({"state": "IL", "jurisdiction": "McLean", "election_id": "127349"}, parsed)
     assert kept and all(r.key.level is Level.LOCAL for r in kept)
     assert scope({"state": "WV", "election_id": "1"}, parsed) == parsed
+
+
+def test_states_lists_only_configured_feeds(monkeypatch):
+    from electionwatch.sources.results.clarity import Clarity
+
+    monkeypatch.delenv("CLARITY_FEEDS", raising=False)
+    builtin = {str(e["state"]).upper() for entries in ELECTIONS.values() for e in entries}
+    assert Clarity.states == frozenset(builtin) == frozenset({"WV", "IL"})
+    # The old hard-coded list advertised states this adapter has no feed for.
+    for unconfigured in ("CA", "GA", "IA", "ME", "NH", "NV"):
+        assert unconfigured not in Clarity.states
+    # Still a frozenset, whether read on the class or on an instance.
+    assert isinstance(Clarity().states, frozenset)
+    assert Clarity().states == Clarity.states
+
+
+def test_states_follow_clarity_feeds_env(monkeypatch):
+    from electionwatch.sources.results.clarity import Clarity
+
+    monkeypatch.setenv("CLARITY_FEEDS", json.dumps([
+        {"state": "NV", "election_id": "9", "date": "2026-11-03"},
+        {"state": "me", "election_id": "8"},
+    ]))
+    states = Clarity.states
+    assert {"NV", "ME"} <= states
+    # Built-in feeds are still part of the coverage the adapter can serve.
+    assert {"WV", "IL"} <= states
+
+
+def test_broken_clarity_feeds_does_not_break_coverage_listing(monkeypatch):
+    from electionwatch.sources.results.clarity import Clarity
+
+    monkeypatch.setenv("CLARITY_FEEDS", "{not json")
+    assert Clarity.states == frozenset({"WV", "IL"})
+    with pytest.raises(SourceUnavailable):
+        feeds("2026-11-03")

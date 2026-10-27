@@ -251,10 +251,44 @@ def scope(entry: dict, results: list[RaceResult]) -> list[RaceResult]:
     return [r for r in results if r.key.level is Level.LOCAL]
 
 
+def configured_states() -> frozenset[str]:
+    """States with a configured Clarity feed: the built-in ELECTIONS entries plus
+    whatever CLARITY_FEEDS adds. A state without a feed is not covered by this
+    adapter, so it must not be advertised as such to the coverage/navigator code."""
+    states = {
+        str(entry["state"]).upper()
+        for entries in ELECTIONS.values() for entry in entries if entry.get("state")
+    }
+    raw = os.environ.get("CLARITY_FEEDS")
+    if raw:
+        try:
+            entries = json.loads(raw)
+        except ValueError:
+            entries = []  # feeds() raises the SourceUnavailable; coverage stays truthful
+        if isinstance(entries, list):
+            for entry in entries:
+                if isinstance(entry, dict) and entry.get("state"):
+                    states.add(str(entry["state"]).upper())
+    return frozenset(states)
+
+
+class _ConfiguredStates:
+    """Descriptor for ``states``: computed from the feeds on every access.
+
+    Callers read ``states`` on the class (the registry, tools) or on an instance
+    (the poller, the navigator), so both must work — and CLARITY_FEEDS is read at
+    access time because it can be set per deployment.
+    """
+
+    def __get__(self, instance, owner=None) -> frozenset[str]:
+        return configured_states()
+
+
 @register
 class Clarity(ResultsSource):
     name = "clarity"
-    states = frozenset({"IL", "WV", "CA", "IA", "GA", "NV", "ME", "NH"})
+    #: Not a hard-coded "Clarity states" list: only configured feeds are covered.
+    states = _ConfiguredStates()
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
