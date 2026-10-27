@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import ClassVar
 
@@ -71,9 +72,10 @@ class PolymarketSource(OddsSource):
                     snaps = parse_polymarket_event(event)
                 except Exception:
                     continue
+                fetched = datetime.now(timezone.utc)   # updatedAt is metadata time, not price time
                 for snap in snaps:
                     if snap.key in requested:
-                        snapshots.append(snap)
+                        snapshots.append(replace(snap, ts=fetched))
                         found_keys.add(snap.key)
 
             if found_keys >= requested:

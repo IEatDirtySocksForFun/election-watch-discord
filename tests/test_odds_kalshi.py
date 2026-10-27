@@ -116,3 +116,17 @@ async def test_at_large_key_does_not_abort_the_fetch():
         keys = [RaceKey("AK", Level.HOUSE, "HOUSE", "AL"), RaceKey("TX", Level.SENATE, "SEN")]
         assert await KalshiSource().fetch_odds(keys, client) == []
     assert any(path.endswith("/SENATETX-26") for path in seen)
+
+
+@pytest.mark.asyncio
+async def test_snapshots_are_stamped_with_fetch_time_not_stale_metadata_time():
+    from datetime import datetime, timedelta, timezone
+
+    import httpx
+
+    payload = _load("senatetx-26.json")
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=payload))
+    async with httpx.AsyncClient(transport=transport) as client:
+        snaps = await KalshiSource().fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
+    assert snaps
+    assert all(datetime.now(timezone.utc) - s.ts < timedelta(minutes=1) for s in snaps)

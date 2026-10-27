@@ -75,3 +75,19 @@ def test_invalid_price_is_skipped():
 
     assert _market_prob({"outcomes": '["Yes","No"]', "outcomePrices": '["1.5","0"]'}) is None
     assert _market_prob({"outcomes": '["Yes","No"]', "outcomePrices": '["x","0"]'}) is None
+
+
+async def test_snapshots_are_stamped_with_fetch_time_not_stale_metadata_time():
+    from datetime import datetime, timedelta, timezone
+
+    import httpx
+
+    from electionwatch.sources.odds.polymarket import PolymarketSource
+
+    raw = _load("texas-senate.json")
+    events = raw if isinstance(raw, list) else [raw]
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=events))
+    async with httpx.AsyncClient(transport=transport) as client:
+        snaps = await PolymarketSource().fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
+    assert snaps
+    assert all(datetime.now(timezone.utc) - s.ts < timedelta(minutes=1) for s in snaps)
