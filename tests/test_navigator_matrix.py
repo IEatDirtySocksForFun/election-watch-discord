@@ -136,7 +136,7 @@ def state_select_for(view, code) -> discord.ui.Select:
 
 
 def race_select(view) -> discord.ui.Select | None:
-    return next((c for c in view.children if isinstance(c, discord.ui.Select) and c.placeholder == "Race"), None)
+    return next((c for c in view.children if isinstance(c, discord.ui.Select) and c.placeholder.startswith("Race")), None)
 
 
 def snapshot(view):
@@ -214,15 +214,16 @@ async def test_every_tab_in_every_state(code, tab):
     assert (saved.home_state, saved.default_level) == (code, tab)
 
 
-async def test_territories_are_not_reachable_from_the_navigator():
-    """UX GAP: the state selects are built from STATES only, so PR/GU/VI/AS/MP races cannot
-    be browsed even though race keys, /odds and /polls accept them."""
+async def test_territories_are_reachable_from_the_navigator():
+    """Race keys, /odds and /polls accept PR/GU/VI/AS/MP: the navigator offers them too."""
     view = await navigator_for(client_with())
     offered = {o.value for s in state_selects(view) for o in s.options}
-    assert offered == set(STATES)
-    assert not offered & set(TERRITORIES)
-    # 51 codes in selects of 25: the third select carries Wyoming alone.
-    assert [len(s.options) for s in state_selects(view)] == [25, 25, 1]
+    assert offered == set(STATES) | set(TERRITORIES)
+    # 56 codes in selects of at most 25.
+    assert [len(s.options) for s in state_selects(view)] == [25, 25, 6]
+    interaction = await click(view, state_select_for(view, "PR"), values=["PR"])
+    reply = assert_edited(interaction, ["defer", "edit_original"])
+    assert view.state == "PR" and reply.embed.title == "Puerto Rico · Senate"
 
 
 # ----------------------------------------------------------------- race select sizes
@@ -243,12 +244,23 @@ async def test_race_select_sizes(count):
     select = race_select(view)
     assert select is not None and "Odds" not in buttons(view)
     # Option values are list positions (keys can exceed Discord's 100-character limit).
-    offered = [view._race_choices[int(o.value)] for o in select.options]
-    assert len(offered) == min(count, 25)
-    if count > 25:
-        # UX GAP: only the first 25 races (by key) are offered; the rest cannot be chosen.
-        unreachable = {str(k) for k, _ in races} - set(offered)
-        assert len(unreachable) == count - 25
+    if count <= 25:
+        offered = [view._race_choices[int(o.value)] for o in select.options]
+        assert len(offered) == count
+        return
+    # Longer lists are paged: 23 races per page plus previous/next options; every race is reachable.
+    seen: list[str] = []
+    while True:
+        values = [o.value for o in select.options]
+        assert len(values) <= 25
+        seen += [view._race_choices[int(v)] for v in values if v not in ("prev", "next")]
+        if "next" not in values:
+            break
+        interaction = await click(view, select, values=["next"])
+        assert_edited(interaction, ["edit_message"])
+        select = race_select(view)
+        assert "prev" in [o.value for o in select.options]
+    assert seen == sorted(str(k) for k, _ in races)
 
 
 async def test_choosing_a_race_shows_its_result_and_brings_back_the_tools():
@@ -380,3 +392,26 @@ async def test_unavailable_and_out_of_state_sources_are_not_asked():
     client = make_client(MemoryStore(), {"results": [keyed, elsewhere]})
     assert await navigator.list_races(client, "TX") == {}
     assert keyed.calls == elsewhere.calls == 0
+
+
+# ----------------------------------------------------------------- favorites tab
+async def test_favorites_tab_lists_favorites_from_every_state():
+    store = MemoryStore()
+    settings = UserSettings(OWNER, home_state="TX", favorites=["PA SEN", "PA-07", "GA GOV", "not a key"])
+    view = await navigator_for(client_with(store=store), settings)
+    interaction = await click(view, buttons(view)["★ Favorites"])
+    reply = assert_edited(interaction, ["defer", "edit_original"])
+    assert view.level == "favorites" and view.selected_race == "PA SEN"   # in the order added
+    await click(view, buttons(view)["Choose race"])
+    offered = {view._race_choices[int(o.value)] for o in race_select(view).options}
+    assert offered == {"PA SEN", "PA-07", "GA GOV"}
+    assert (await store.get_user(OWNER)).default_level == "favorites"
+    # Picking a state leaves the cross-state tab.
+    interaction = await click(view, state_select_for(view, "OH"), values=["OH"])
+    assert (view.state, view.level) == ("OH", "senate")
+
+
+async def test_favorites_tab_without_favorites_says_how_to_add_one():
+    view = await navigator_for(client_with(), UserSettings(OWNER, default_level="favorites"))
+    assert view.level == "favorites" and view.selected_race is None
+    assert "/favorite add" in (await view.embed()).description

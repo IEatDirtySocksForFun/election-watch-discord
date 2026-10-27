@@ -595,8 +595,9 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert len(sent) == 1 and sent[0].payload["type"] == UPDATE_MESSAGE
     message = sent[0].payload
     check_message_limits(message["data"])
-    race_select = next(s for s in selects(message) if s.get("placeholder") == "Race")
-    assert len(race_select["options"]) == 25
+    race_select = next(s for s in selects(message) if s.get("placeholder", "").startswith("Race"))
+    # More than 25 races: 23 per page plus a "next" option.
+    assert len(race_select["options"]) == 24 and race_select["options"][-1]["value"] == "next"
 
     # Race select: UPDATE_MESSAGE (7) showing that race.
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3,
@@ -615,7 +616,7 @@ async def test_navigator_selects_a_race_whose_key_exceeds_100_characters(harness
     message = sent[-1].payload
     sent = await harness.dispatch(component_payload(button(message, "Choose race")["custom_id"], 2))
     check_message_limits(sent[0].payload["data"])
-    race_select = next(s for s in selects(sent[0].payload) if s.get("placeholder") == "Race")
+    race_select = next(s for s in selects(sent[0].payload) if s.get("placeholder", "").startswith("Race"))
     option = next(o for o in race_select["options"] if o["label"] == "Advisory Vote No. 10")
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
     assert sent[0].payload["type"] == UPDATE_MESSAGE

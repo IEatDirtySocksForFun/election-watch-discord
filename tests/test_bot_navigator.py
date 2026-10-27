@@ -5,7 +5,7 @@ import pytest
 
 from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.models import CandidateResult, RaceResult
-from electionwatch.racekeys import STATES, parse
+from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, parse
 from electionwatch.settings import UserSettings
 from electionwatch.sources.base import ResultsSource
 from electionwatch.store.memory import MemoryStore
@@ -41,7 +41,7 @@ async def test_navigator_lists_races_and_all_states_within_discord_limits():
         if isinstance(child, discord.ui.Select) and child.placeholder.startswith("State:")
         for option in child.options
     ]
-    assert set(state_options) == set(STATES)
+    assert set(state_options) == set(ALL_JURISDICTIONS)
     assert all(len(child.options) <= 25 for child in view.children if isinstance(child, discord.ui.Select))
     assert all(child.row <= 4 for child in view.children)
     embed = await view.embed()
@@ -49,7 +49,7 @@ async def test_navigator_lists_races_and_all_states_within_discord_limits():
     labels = {child.label for child in view.children if isinstance(child, discord.ui.Button)}
     assert {"Odds", "Polls", "Choose race"} <= labels
     assert not any(
-        isinstance(child, discord.ui.Select) and child.placeholder == "Race" for child in view.children
+        isinstance(child, discord.ui.Select) and child.placeholder.startswith("Race") for child in view.children
     )
 
 

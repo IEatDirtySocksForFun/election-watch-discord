@@ -4,7 +4,7 @@ from __future__ import annotations
 import yaml
 
 from electionwatch.models import ImportantRace, Level, to_doc
-from electionwatch.racekeys import STATES, TERRITORIES, describe, parse
+from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"}
@@ -18,6 +18,8 @@ LEVELS = {
     "state": {Level.GOVERNOR, Level.STATE},
     "local": {Level.LOCAL},
 }
+#: Navigator tabs: the race levels plus the user's favorites (races from any state).
+NAV_TABS = [*LEVELS, "favorites"]
 
 
 def is_admin(member, guild_settings: GuildSettings) -> bool:
@@ -160,9 +162,9 @@ def filter_races(races: list[tuple], state: str, level: str) -> list[tuple]:
 
 
 def remember_navigation(us: UserSettings, state: str, level: str) -> None:
-    if state not in STATES:
+    if state not in ALL_JURISDICTIONS:
         raise ValueError("unknown state")
-    if level not in LEVELS:
+    if level not in NAV_TABS:
         raise ValueError("unknown navigator tab")
     us.home_state = state
     us.default_level = level
