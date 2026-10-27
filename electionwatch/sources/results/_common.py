@@ -191,10 +191,12 @@ def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | N
     if not text:
         return None
     raw = str(text).strip()
-    raw = re.sub(r"^(?:" + "|".join(_WEEKDAYS) + r"),?\s+", "", raw, flags=re.I)
+    raw = re.sub(r"^(?:" + "|".join(_WEEKDAYS) + r")\,?\s+", "", raw, flags=re.I)
+    raw = re.sub(r"\s+([ap])\.?m\.?\s*$", lambda m: f" {m.group(1).upper()}M", raw, flags=re.I)
     formats = (
         "%m/%d/%Y %I:%M:%S %p", "%m/%d/%Y %H:%M:%S", "%m/%d/%Y %I:%M %p",
         "%b %d, %Y %H:%M:%S", "%B %d, %Y %I:%M:%S %p", "%B %d, %Y %I:%M %p",
+        "%B %d, %Y, %I:%M:%S %p", "%B %d, %Y, %I:%M %p",
         "%Y-%m-%dT%H:%M:%S",
     )
     for fmt in formats:

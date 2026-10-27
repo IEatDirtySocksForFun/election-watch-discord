@@ -1,0 +1,551 @@
+{
+  "governor.json": [
+    {
+      "raceTitle": "Governor - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Xavier Becerra",
+          "Party": "Dem",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Steve Hilton",
+          "Party": "Rep",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "lieutenant-governor.json": [
+    {
+      "raceTitle": "Lieutenant Governor - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Fiona Ma",
+          "Party": "Dem",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": false
+        },
+        {
+          "Name": "Gloria Romero",
+          "Party": "Rep",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "secretary-of-state.json": [
+    {
+      "raceTitle": "Secretary of State - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Shirley N. Weber",
+          "Party": "Dem",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": true
+        },
+        {
+          "Name": "Donald P. (Don) Wagner",
+          "Party": "Rep",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "controller.json": [
+    {
+      "raceTitle": "Controller - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Malia M. Cohen",
+          "Party": "Dem",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": true
+        },
+        {
+          "Name": "Herb W Morgan",
+          "Party": "Rep",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "treasurer.json": [
+    {
+      "raceTitle": "Treasurer - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Eleni Kounalakis",
+          "Party": "Dem",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Jennifer Hawks",
+          "Party": "Rep",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "attorney-general.json": [
+    {
+      "raceTitle": "Attorney General - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Rob Bonta",
+          "Party": "Dem",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": true
+        },
+        {
+          "Name": "Michael E. Gates",
+          "Party": "Rep",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "insurance-commissioner.json": [
+    {
+      "raceTitle": "Insurance Commissioner - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Ben Allen",
+          "Party": "Dem",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": false
+        },
+        {
+          "Name": "Jane Kim",
+          "Party": "Dem",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "superintendent-of-public-instruction.json": [
+    {
+      "raceTitle": "Superintendent of Public Instruction - Statewide Results",
+      "Reporting": "100% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Richard Barrera",
+          "Party": "Non",
+          "Votes": "11,585,066",
+          "Percent": "66.7",
+          "incumbent": false
+        },
+        {
+          "Name": "Sonja Shaw",
+          "Party": "Non",
+          "Votes": "5,792,497",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "ballot-measures.json": [
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Authorizes Bonds For Housing Affordability Programs. Legislative Statute.",
+          "Number": "01",
+          "yesVotes": "13546376",
+          "yesPercent": "78.0",
+          "noVotes": "3831187",
+          "noPercent": "22.0"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Increases State's Rainy Day Fund. Legislative Constitutional Amendment.",
+          "Number": "02",
+          "yesVotes": "15610890",
+          "yesPercent": "89.8",
+          "noVotes": "1766673",
+          "noPercent": "10.2"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Provides Permanent Funding For Schools And Health Care By Extending Existing Tax On High Incomes. Initiative Constitutional Amendment.",
+          "Number": "03",
+          "yesVotes": "13830446",
+          "yesPercent": "79.6",
+          "noVotes": "3547117",
+          "noPercent": "20.4"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Repeals Prohibition Against Public Funding Of Election Campaigns. Legislative Statute.",
+          "Number": "04",
+          "yesVotes": "12456053",
+          "yesPercent": "71.7",
+          "noVotes": "4921510",
+          "noPercent": "28.3"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Changes Recall Election Process For Statewide Officers. Legislative Constitutional Amendment.",
+          "Number": "05",
+          "yesVotes": "13751540",
+          "yesPercent": "79.1",
+          "noVotes": "3626023",
+          "noPercent": "20.9"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Creates Loan Program For Middle-Income Buyers Of Qualified New Homes. Initiative Statute.",
+          "Number": "37",
+          "yesVotes": "13702460",
+          "yesPercent": "78.9",
+          "noVotes": "3675103",
+          "noPercent": "21.1"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Authorizes Bonds For Immunology Medical Research. Initiative Statute.",
+          "Number": "38",
+          "yesVotes": "14141123",
+          "yesPercent": "81.4",
+          "noVotes": "3236440",
+          "noPercent": "18.6"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Prohibits Citizens From Voting Unless They Present Government-Issued Identification. Initiative Constitutional Amendment.",
+          "Number": "39",
+          "yesVotes": "13933378",
+          "yesPercent": "80.2",
+          "noVotes": "3444185",
+          "noPercent": "19.8"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Imposes One-Time Tax On Certain Taxpayers. Initiative Constitutional Amendment And Statute.",
+          "Number": "40",
+          "yesVotes": "14358292",
+          "yesPercent": "82.6",
+          "noVotes": "3019271",
+          "noPercent": "17.4"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Prohibits New State Taxes That Exclude Revenues From State Spending Limit. Requires Audits For New State Special Taxes. Initiative Constitutional Amendment.",
+          "Number": "41",
+          "yesVotes": "13848287",
+          "yesPercent": "79.7",
+          "noVotes": "3529276",
+          "noPercent": "20.3"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Prohibits New State Personal Property Taxes And Certain Retroactive State Taxes. Initiative Constitutional Amendment.",
+          "Number": "42",
+          "yesVotes": "15569943",
+          "yesPercent": "89.6",
+          "noVotes": "1807620",
+          "noPercent": "10.4"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Limits Voters' Ability To Raise Revenues For Local Government Services. Legislative Constitutional Amendment.",
+          "Number": "43",
+          "yesVotes": "14521418",
+          "yesPercent": "83.6",
+          "noVotes": "2856145",
+          "noPercent": "16.4"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Requires Community Health Clinics Spend 90% Of Revenue On Program Services. Initiative Statute.",
+          "Number": "44",
+          "yesVotes": "14166231",
+          "yesPercent": "81.5",
+          "noVotes": "3211332",
+          "noPercent": "18.5"
+        }
+      ]
+    },
+    {
+      "raceTitle": "Ballot Measures - Statewide Results",
+      "Reporting": "100.0% (23,863 of 23,863) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "ballot-measures": [
+        {
+          "Name": "Modifies Environmental Review For Certain Projects. Initiative Statute.",
+          "Number": "45",
+          "yesVotes": "15440801",
+          "yesPercent": "88.9",
+          "noVotes": "1936762",
+          "noPercent": "11.1"
+        }
+      ]
+    }
+  ],
+  "us-rep.json": [
+    {
+      "raceTitle": "United States Representative District 1 - Districtwide Results",
+      "Reporting": "100% (788 of 788) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Mike McGuire",
+          "Party": "Dem",
+          "Votes": "229,580",
+          "Percent": "66.7",
+          "incumbent": false
+        },
+        {
+          "Name": "James Gallagher",
+          "Party": "Rep",
+          "Votes": "114,787",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    },
+    {
+      "raceTitle": "United States Representative District 12 - Districtwide Results",
+      "Reporting": "100% (190 of 190) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Jamie Joyce",
+          "Party": "Dem",
+          "Votes": "113,910",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Lateefah Simon",
+          "Party": "Dem",
+          "Votes": "227,821",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    },
+    {
+      "raceTitle": "United States Representative District 30 - Districtwide Results",
+      "Reporting": "100% (193 of 193) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Laura Friedman",
+          "Party": "Dem",
+          "Votes": "122,499",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Scott Alan Meyers",
+          "Party": "Rep",
+          "Votes": "245,000",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "state-senate.json": [
+    {
+      "raceTitle": "State Senate District 2 - Districtwide Results",
+      "Reporting": "100% (912 of 912) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Damon Connolly",
+          "Party": "Dem",
+          "Votes": "158,991",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Tief Gibbs",
+          "Party": "Rep",
+          "Votes": "317,993",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    },
+    {
+      "raceTitle": "State Senate District 10 - Districtwide Results",
+      "Reporting": "100% (376 of 376) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Scott Sakakihara",
+          "Party": "Dem",
+          "Votes": "133,405",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Linda R. Price",
+          "Party": "Rep",
+          "Votes": "266,814",
+          "Percent": "66.7",
+          "incumbent": false
+        }
+      ]
+    }
+  ],
+  "state-assembly.json": [
+    {
+      "raceTitle": "State Assembly Member District 1 - Districtwide Results",
+      "Reporting": "100% (519 of 519) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Dianna Margaret James",
+          "Party": "Dem",
+          "Votes": "84,146",
+          "Percent": "33.3",
+          "incumbent": false
+        },
+        {
+          "Name": "Heather Hadwick",
+          "Party": "Rep",
+          "Votes": "168,307",
+          "Percent": "66.7",
+          "incumbent": true
+        }
+      ]
+    },
+    {
+      "raceTitle": "State Assembly Member District 50 - Districtwide Results",
+      "Reporting": "100% (269 of 269) precincts reporting",
+      "ReportingTime": "October 26, 2026, 12:28 p.m.",
+      "candidates": [
+        {
+          "Name": "Robert Garcia",
+          "Party": "Dem",
+          "Votes": "135,988",
+          "Percent": "66.7",
+          "incumbent": true
+        },
+        {
+          "Name": "Victoria Viveros Mageno",
+          "Party": "Rep",
+          "Votes": "67,993",
+          "Percent": "33.3",
+          "incumbent": false
+        }
+      ]
+    }
+  ]
+}
