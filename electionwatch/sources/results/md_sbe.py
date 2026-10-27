@@ -47,7 +47,6 @@ from electionwatch.sources.base import ResultsSource, SourceUnavailable, registe
 from . import _common as c
 
 ARCHIVE = "https://elections.maryland.gov/elections/archive/{year}/election_data"
-HUMAN = "https://elections.maryland.gov/elections/archive/{year}/election_data"
 CONGRESSIONAL = "_CongressionalBreakDown.csv"
 LEGISLATIVE = "_LegislativeBreakDown.csv"
 

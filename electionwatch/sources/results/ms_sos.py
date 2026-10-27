@@ -64,8 +64,6 @@ _STATEWIDE = (
     ("GOVERNOR", "GOV"),
 )
 
-_DISTRICT = re.compile(r"^([A-Z .]+?),?\s*(?:OF\s*REP(?:RESENTATIVES)?)?\s*(\d{1,3})\b", re.I)
-
 #: "Presidential Electors for X for President and Y for Vice President"
 _ELECTORS = re.compile(
     r"^Presidential Electors for (.+?) for President and (.+?) for Vice President$", re.I)
