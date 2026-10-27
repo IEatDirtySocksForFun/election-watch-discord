@@ -119,7 +119,7 @@ class MongoStore:
         changed = not old or old.get("_fingerprint") != fingerprint
         doc = to_doc(result)
         doc["_fingerprint"] = fingerprint
-        doc["changed_at"] = result.fetched_at if changed else old["changed_at"]
+        doc["changed_at"] = result.fetched_at if changed else old.get("changed_at", result.fetched_at)
         await self.results.replace_one({"key": key}, doc, upsert=True)
         if changed:
             await self.result_history.insert_one(to_doc(result))
@@ -131,7 +131,9 @@ class MongoStore:
 
     async def result_changed_at(self, key: RaceKey) -> datetime | None:
         doc = await self.results.find_one({"key": str(key)}, {"changed_at": 1})
-        return _utc(doc["changed_at"]) if doc else None
+        if not doc or doc.get("changed_at") is None:
+            return None
+        return _utc(doc["changed_at"])
 
     async def record_call(self, call: RaceCall) -> bool:
         query = {"key": str(call.key), "outlet": call.outlet}
