@@ -12,8 +12,8 @@ import pytest
 # worktree's package is the one under test.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from electionwatch.faq import loader
-from electionwatch.racekeys import STATES
+from electionwatch.faq import loader  # noqa: E402
+from electionwatch.racekeys import STATES  # noqa: E402
 
 NCSL_MAIL = (
     "https://www.ncsl.org/elections-and-campaigns/"

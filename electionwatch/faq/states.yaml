@@ -1,7 +1,7 @@
 # Per-state election FAQ for the Nov 3, 2026 general election.
 # Keyed by USPS code. Text fields render in a Discord embed (<= 1024 chars).
-# Mail deadlines/processing rules: NCSL VOPP Tables 11 and 16 (updated Nov 2026).
-# Recount thresholds: NCSL "Election Recounts". Poll closings: 270toWin (EST table).
+# Mail deadlines/processing rules: NCSL VOPP Tables 11 and 16 (accessed Oct 2026).
+# Recount thresholds: NCSL "Election Recounts". Poll closings: 270toWin poll-closing-times.
 # Where a field could not be verified from an official source it is null and
 # listed under "unverified".
 AL:
@@ -1147,7 +1147,7 @@ NC:
   unverified: [results_vendor]
 ND:
   official_results_url: https://sos.nd.gov/elections/election-results
-  sos_url: https://vip.sos.nd.gov/PortalList.aspx
+  sos_url: https://sos.nd.gov/elections
   results_vendor: null
   polls_close_local: "7:00 PM"
   timezones: [America/Chicago, America/Denver]
