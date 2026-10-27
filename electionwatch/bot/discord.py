@@ -23,7 +23,7 @@ from electionwatch.bot.logic import (
     is_admin,
     settings_dump,
 )
-from electionwatch.bot.navigator import RaceNavigator
+from electionwatch.bot.navigator import RaceNavigator, list_races
 from electionwatch.bot.poster import DiscordPoster
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
@@ -320,10 +320,12 @@ async def settings_command(interaction: discord.Interaction) -> None:
 
 @app_commands.command(name="races", description="Browse current race results")
 async def races_command(interaction: discord.Interaction) -> None:
+    # refresh() lists races from the state sites: defer so the 3 s deadline cannot expire.
+    await interaction.response.defer(ephemeral=True)
     settings = await _user(interaction)
     view = RaceNavigator(interaction.client, interaction.user.id, settings)
     await view.refresh()
-    await interaction.response.send_message(embed=await view.embed(), view=view, ephemeral=True)
+    await interaction.followup.send(embed=await view.embed(), view=view, ephemeral=True)
 
 
 @app_commands.command(name="favorite", description="Add or remove a favorite race")
@@ -371,15 +373,9 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
                 continue
             choices[str(key)] = describe(key)
             states.add(key.state)
-    for source in bot.sources.get("results", []):
-        if not source.available():
-            continue
-        for state in states & set(source.states):
-            try:
-                for key, label in await source.list_races(state, bot.http_client):
-                    choices[str(key)] = label or describe(key)
-            except Exception:
-                logger.exception("Autocomplete could not list races from %s", source.name)
+    for state in sorted(states):
+        for key, label in (await list_races(bot, state)).values():
+            choices[str(key)] = label or describe(key)
     needle = current.casefold()
     return [
         app_commands.Choice(name=f"{key} · {label}"[:100], value=key)
