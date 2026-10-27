@@ -130,7 +130,27 @@ def merge_polls(polls: list[Poll]) -> list[Poll]:
         ident = (poll.pollster.strip().casefold(), poll.end_date, str(poll.key))
         if ident not in selected or poll_completeness(poll) > poll_completeness(selected[ident]):
             selected[ident] = poll
-    return sorted(selected.values(), key=lambda poll: (poll.end_date, poll.pollster), reverse=True)
+    # Sources disagree on who "the pollster" is (sponsor vs. fieldwork firm, e.g. "N+ Univision"
+    # vs. "YouGov" sponsored by N+ Univision) and on the date they list. Same race, a shared
+    # pollster/sponsor name, identical numbers and end dates within a week = one poll.
+    kept: list[Poll] = []
+    for poll in sorted(selected.values(), key=poll_completeness, reverse=True):
+        if not any(_same_poll(poll, other) for other in kept):
+            kept.append(poll)
+    return sorted(kept, key=lambda poll: (poll.end_date, poll.pollster), reverse=True)
+
+
+def _names(poll: Poll) -> set[str]:
+    return {n.strip().casefold() for n in (poll.pollster, poll.sponsor) if n and n.strip()}
+
+
+def _numbers(poll: Poll) -> tuple[float, ...]:
+    return tuple(sorted(round(r.pct, 1) for r in poll.results))
+
+
+def _same_poll(a: Poll, b: Poll) -> bool:
+    return (str(a.key) == str(b.key) and bool(_names(a) & _names(b))
+            and _numbers(a) == _numbers(b) and abs((a.end_date - b.end_date).days) <= 7)
 
 
 def _poll_dates(poll: Poll) -> str:

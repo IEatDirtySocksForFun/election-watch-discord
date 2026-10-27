@@ -176,3 +176,17 @@ async def test_missing_poll_source_is_explained():
     data = CommandData(FakeStore(), {}, object(), lambda: NOW)
     embed = await data.polls_embed(KEY)
     assert "No poll source is installed or available" in embed.description
+
+
+def test_merge_polls_joins_sponsor_and_fieldwork_copies():
+    from datetime import date
+    from electionwatch.bot.command_data import merge_polls
+    from electionwatch.models import Poll, PollResult
+    from electionwatch.racekeys import parse
+    res = lambda: [PollResult("Talarico", "DEM", 50.0), PollResult("Paxton", "REP", 45.0)]
+    a = Poll(parse("TX SEN"), "N+ Univision", res(), date(2026, 10, 27), source="wikipedia")
+    b = Poll(parse("TX SEN"), "YouGov", res(), date(2026, 10, 21), sponsor="N+ Univision",
+             sample_size=1000, source="votehub")
+    c = Poll(parse("TX SEN"), "Emerson College", res(), date(2026, 10, 22))  # other firm: kept
+    merged = merge_polls([a, b, c])
+    assert [p.pollster for p in merged] == ["Emerson College", "YouGov"]
