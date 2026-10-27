@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import logging
 import os
 import sys
 from collections.abc import Mapping
@@ -50,6 +51,8 @@ async def check() -> int:
 
 
 async def run() -> int:
+    logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"),
+                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     errors = validate_env(os.environ)
     if errors:
         print("Invalid or missing environment: " + ", ".join(errors), file=sys.stderr)
