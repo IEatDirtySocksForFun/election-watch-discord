@@ -1,0 +1,9 @@
+RaceID,RaceName,PartyCode,AreaType,AreaNum,OfficeSeqNo,BallotOrder,CandidateID,CandidateName,CurrentDateTime,VoteFor,CandidateVotes,CandidatePercentage,PrecinctsReporting
+14725,"State Senator","REP","","District 01",300,,25371,"Michael H. Rohl ",10/27/2026 4:02:33 PM,1,258,1,="16/43",
+14561,"State Senator","REP","","District 02",300,,24978,"John  Sjaarda ",10/27/2026 4:02:33 PM,1,0,0,="0/12",
+14503,"State Representative","REP","","District 01",310,,25022,"Daniel  Kjos ",10/27/2026 4:02:33 PM,2,222,0.355769230769231,="16/43",
+14503,"State Representative","REP","","District 01",310,,25023,"Nick  Fosness ",10/27/2026 4:02:33 PM,2,216,0.346153846153846,="16/43",
+14503,"State Representative","DEM","","District 01",310,,25179,"Courtney Gale Enfield ",10/27/2026 4:02:33 PM,2,186,0.298076923076923,="16/43",
+14506,"State Representative","REP","","District 02",310,,25036,"Adam  Long ",10/27/2026 4:02:33 PM,2,0,0,="0/12",
+14506,"State Representative","REP","","District 02",310,,25037,"Manuel  Luschas ",10/27/2026 4:02:33 PM,2,0,0,="0/12",
+14506,"State Representative","DEM","","District 02",310,,25181,"Blake  Rife ",10/27/2026 4:02:33 PM,2,0,0,="0/12",
