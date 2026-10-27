@@ -42,13 +42,14 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
         reporting.append(f"{precincts} precincts")
     if reporting:
         lines.append(" · ".join(reporting))
-    if turnout and (result.turnout_pct is not None or result.registered_voters is not None):
-        text = "Turnout"
+    if turnout:
+        numbers = []
         if result.turnout_pct is not None:
-            text += f": {result.turnout_pct:g}%"
-        if result.registered_voters is not None and result.total_votes is not None:
-            text += f" · {result.total_votes:,}/{result.registered_voters:,} registered"
-        lines.append(text)
+            numbers.append(f"{result.turnout_pct:g}%")
+        if result.total_votes is not None and result.registered_voters is not None:
+            numbers.append(f"{result.total_votes:,}/{result.registered_voters:,} ballots")
+        if numbers:
+            lines.append("Turnout: " + " · ".join(numbers))
     return Post(
         "results",
         str(result.key),

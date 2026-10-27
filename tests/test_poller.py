@@ -11,7 +11,7 @@ from electionwatch.models import (
     RaceCall,
     RaceResult,
 )
-from electionwatch.poller import Poller
+from electionwatch.poller import Poller, format_result
 from electionwatch.poster import RecordingPoster
 from electionwatch.racekeys import parse
 from electionwatch.settings import GuildSettings, PostMode
@@ -310,6 +310,47 @@ async def test_slow_source_times_out_and_the_rest_of_the_tick_survives():
     await race_poller.tick()
     assert good.calls == 1
     assert len(poster.sent) == 1
+
+
+@pytest.mark.asyncio
+async def test_calls_are_posted_immediately_even_on_a_long_interval():
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(
+            1,
+            channel_id=10,
+            important=[str(KEY)],
+            post_mode=PostMode.INTERVAL,
+            interval_minutes=60,
+            call_outlets=["AP"],
+        )
+    )
+    await store.mark_posted(1, "results", str(KEY), NOW - timedelta(minutes=1))
+    poster = RecordingPoster()
+    call = RaceCall(KEY, "AP", "Ted Cruz", "REP", NOW)
+    await poller(store, {"calls": [FakeCalls(call)]}, poster).tick()
+    assert [post.kind for _, _, post in poster.sent] == ["call"]
+
+
+@pytest.mark.asyncio
+async def test_call_and_exit_poll_toggles_are_respected():
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(1, channel_id=10, important=[str(KEY)], post_calls=False, post_exit_polls=False)
+    )
+    poster = RecordingPoster()
+    call = RaceCall(KEY, "AP", "Ted Cruz", "REP", NOW)
+    sources = {"calls": [FakeCalls(call)], "exitpolls": [FakeExitPolls()]}
+    await poller(store, sources, poster).tick()
+    assert poster.sent == []
+
+
+def test_turnout_line_is_only_added_when_there_are_numbers():
+    empty = RaceResult(KEY, [CandidateResult("A", "REP", 0)], "fake", NOW).finalize()
+    assert not any(line.startswith("Turnout") for line in format_result(empty, turnout=True).lines)
+    assert not any(line.startswith("Turnout") for line in format_result(result(), turnout=False).lines)
+    with_turnout = format_result(result(), turnout=True).lines
+    assert any(line.startswith("Turnout: 51.3%") for line in with_turnout)
 
 
 @pytest.mark.asyncio
