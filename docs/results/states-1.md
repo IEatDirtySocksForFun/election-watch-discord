@@ -49,6 +49,9 @@ sums rows per candidate and per precinct count.
 - Party codes are the site's own (`DEM`/`REP`/`LIB`/`WRI`, `OP` for "other party").
 - No `ELECTIONS` map: the site serves one election at a time and the 2026 general is
   already live.
+- The API rejects generic client User-Agents with HTTP 403 (a bare `python-httpx` UA gets
+  the 1.2 MB SPA shell back), so it relies on the bot's client UA
+  (`election-watch-discord/0.1 ...`), which is accepted.
 
 ## Virginia — `va_elect`
 
@@ -125,3 +128,16 @@ reuse `clarity.parse_settings` for `source_updated_at` and discover the election
 Run the package tests:
 
     pytest -q tests/test_results_*.py
+
+## Live smoke check (2026-10-27)
+
+`fetch()` was run against the live sites with the bot's own User-Agent, outside the test
+suite:
+
+| Adapter | Election | Result |
+|---------|----------|--------|
+| `oh_sos` | 2026 general | `OH GOV` 0 votes, 8834 precincts; `OH-01` 0 votes, 784 precincts; State Issue 3 YES/NO (all 0 — counting has not started) |
+| `va_elect` | 2026 general | `VA-07` (Vindman DEM / Ollivant REP, 0 votes); Virginia has no 2026 governor or House of Delegates race, so those keys are absent |
+| `ne_sos` | 2026 general | `NE SEN`, `NE GOV`, `NE-02`, 0 votes, 1322 / 334 precincts |
+| `co_sos` | 2024 general | `CO-01` DeGette 264,606 (76.56%), 3/3 precincts; `CO SD-02` Frizell 63,181 |
+| `ia_sos` | 2024 general | `IA-01` Miller-Meeks 206,955 (49.98%); `IA HD-01` Scholten 4,615, 1/1 precincts |
