@@ -47,5 +47,23 @@ def test_no_winner_no_call():
     assert parse_ap_response(payload) == []
 
 
+def test_house_seat_name_with_district_word():
+    payload = {
+        "races": [
+            {
+                "statePostal": "CA",
+                "officeID": "H",
+                "seatName": "District 12",
+                "candidates": [{"first": "A", "last": "B", "party": "Dem", "winner": "X"}],
+            }
+        ]
+    }
+    calls = parse_ap_response(payload)
+    assert len(calls) == 1
+    assert calls[0].key == RaceKey("CA", Level.HOUSE, "HOUSE", "12")
+    # No timestamp in the payload: still returns a real datetime, not None.
+    assert calls[0].called_at is not None
+
+
 def test_source_requires_key():
     assert APSource.env == ("AP_API_KEY",)

@@ -6,6 +6,7 @@ rather than a documented public API, and it is disabled by default.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import ClassVar
 
 import httpx
@@ -13,7 +14,13 @@ import httpx
 from electionwatch.models import RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
 
-from ._common import cnn_code_to_key, key_to_cnn_code, normalize_party, parse_iso_ts
+from ._common import (
+    cnn_code_to_key,
+    epoch_ms_to_dt,
+    key_to_cnn_code,
+    normalize_party,
+    parse_iso_ts,
+)
 
 
 @register
@@ -69,11 +76,18 @@ def parse_cnn_race(payload: dict) -> RaceCall | None:
     party = normalize_party(
         winner.get("majorParty") or winner.get("partyName") or payload.get("winnerBopPartyId")
     )
+    embargo = payload.get("raceEmbargo") or {}
     return RaceCall(
         key=key,
         outlet="CNN",
         winner=winner.get("fullName") or f"{winner.get('firstName', '')} {winner.get('lastName', '')}".strip(),
         party=party,
-        called_at=parse_iso_ts(payload.get("voteTimestamp")),
+        # raceEmbargo.callsRelease is the race's call timestamp; voteTimestamp is
+        # the last ballot update (often months later, e.g. certification).
+        called_at=(
+            epoch_ms_to_dt(embargo.get("callsRelease"))
+            or parse_iso_ts(payload.get("voteTimestamp"))
+            or datetime.now(timezone.utc)
+        ),
         url=f"https://www.cnn.com/election/{key.state.lower()}",
     )

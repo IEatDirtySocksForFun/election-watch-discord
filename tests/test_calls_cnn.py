@@ -22,6 +22,13 @@ def test_parse_senate_called():
     assert call.party == "REP"
 
 
+def test_called_at_uses_calls_release_not_vote_timestamp():
+    payload = _load("2024-SG-TX.json")
+    call = parse_cnn_race(payload)
+    # raceEmbargo.callsRelease (2024-11-06T02:00Z), not the January 2025 vote dump.
+    assert call.called_at.isoformat() == "2024-11-06T02:00:00+00:00"
+
+
 def test_parse_house_called():
     payload = _load("2024-HG-CA-12.json")
     call = parse_cnn_race(payload)

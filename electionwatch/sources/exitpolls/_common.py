@@ -10,27 +10,27 @@ from electionwatch.models import ExitPoll, Level, RaceKey
 from electionwatch.sources.base import ExitPollSource, SourceUnavailable
 
 URL_TEMPLATES = {
+    # CNN and CBS give each state/race its own exit-poll page (verified 2024).
     "CNN": "https://www.cnn.com/election/{year}/exit-polls/{state}/{race}",
-    "NBC": "https://www.nbcnews.com/politics/{year}-elections/{state}-exit-polls",
-    "CBS": "https://www.cbsnews.com/election/{year}/exit-polls/{state}",
-    "FOX": "https://www.foxnews.com/elections/{year}/general-results/voter-analysis/{state}",
+    "CBS": "https://www.cbsnews.com/elections/{year}/{state}/{race}/exit-poll/",
+    # NBC and Fox only publish a national voter-analysis page; per-state URLs 404.
+    "NBC": "https://www.nbcnews.com/politics/{year}-elections/exit-polls",
+    "FOX": "https://www.foxnews.com/elections/{year}/general-results/voter-analysis",
+}
+
+_RACES = {
+    Level.SENATE: "senate",
+    Level.GOVERNOR: "governor",
+    Level.HOUSE: "house",
 }
 
 
 def exit_poll_url(outlet: str, key: RaceKey, year: int = 2026) -> str | None:
     template = URL_TEMPLATES.get(outlet)
-    if template is None:
+    race = _RACES.get(key.level)
+    if template is None or race is None:
         return None
-    state = key.state.lower()
-    if key.level is Level.SENATE:
-        race = "senate"
-    elif key.level is Level.GOVERNOR:
-        race = "governor"
-    elif key.level is Level.HOUSE:
-        race = "house"
-    else:
-        race = ""
-    return template.format(year=year, state=state, race=race)
+    return template.format(year=year, state=key.state.lower(), race=race)
 
 
 def condense_exit_poll(payload: dict) -> str | None:
