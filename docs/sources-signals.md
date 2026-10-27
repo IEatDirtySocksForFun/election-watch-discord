@@ -35,6 +35,11 @@ window and the latest snapshot.
 | `abc`   | ABC state-results widget HTML; data in `window['__abcnews__']` | None | Yes (2024 fixture) |
 | `nyt`   | NYT results feed (none found)                  | None          | No (interactive page 403) |
 
+Per-race vote counts: `cbs_results` (in `calls/cbs_results.py`) is a `ResultsSource`
+over the same CBS `races2` JSON, a keyless national fallback for Senate/Governor/House
+in every state (off by default). See `docs/research/source-sweep.md` for the AP/DDHQ
+route research, API keys and per-state fallbacks.
+
 All outlets other than AP/DDHQ are `scrape=True` and `enabled_by_default=False`.
 Their parsers are tested against trimmed real 2024 responses saved in
 `tests/fixtures/<outlet>/`; the URLs and capture dates are recorded in each
