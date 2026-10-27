@@ -223,7 +223,7 @@ def normalize_party(party: str | None) -> str | None:
 # "None of These Candidates") and counted write-ins are kept.
 _NOT_A_CANDIDATE = re.compile(
     r"(times? )?(blank|over|under)( ?voted| ?votes?| ballots?)?|blank/void|void|spoiled( ballots)?"
-    r"|(total )?ballots cast|registered voters|total( votes)?|unqualified write-?ins?|scattering"
+    r"|(total )?ballots cast|registered voters|total( votes)?( cast)?|unqualified write-?ins?|scattering"
     r"|undervotes?|overvotes?|times cast"
 )
 _CHOICES = ("yes", "no", "for", "against")

@@ -18,7 +18,7 @@ parties pass through uppercased with the ⚪ marker.
 
 This page is generated — edit the YAML, then run `python tools/parties_table.py`.
 
-94 parties, 491 aliases.
+96 parties, 502 aliases.
 
 ## Buckets
 
@@ -33,7 +33,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `constitution` | Constitution Party, its state affiliates and ballot lines — 📜 (3) |
 | `independent` | independent and no-party labels — ⚪ (10) |
 | `centrist` | centrist and big-tent reform parties (15) |
-| `other` | everything else: progressive, conservative, single-issue and regional parties (39) |
+| `other` | everything else: progressive, conservative, single-issue and regional parties (41) |
 
 ## Table
 
@@ -66,11 +66,11 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `AFP` | American Freedom Party | far_right | 🚔 | AFP, American Freedom Party, American Third Position Party, Third Position Party |
 | `TWP` | Traditionalist Worker Party | far_right | 🏴 | TWP, Traditionalist Worker Party, Traditionalist Workers Party |
 | `NRP` | National Renaissance Party | far_right | ⚠️ | NRP, National Renaissance Party |
-| `CST` | Constitution Party | constitution | 📜 | IAP, CST, CON, Constitution, Constitution Party, U.S. Constitution Party, US Constitution Party, Constitution Party USA, Constitution Party of Oregon, Constitution Party of Pennsylvania, Constitution Party of Idaho, Constitution Party of Michigan, Constitution Party of Wisconsin, Constitution Party of Virginia, Constitution Party of Nevada, Constitution Party of Missouri, American Constitution Party, Taxpayers Party, U.S. Taxpayers Party, US Taxpayers Party, U.S. Taxpayers, Taxpayers Party of New York |
+| `CST` | Constitution Party | constitution | 📜 | UST, U.S. Taxpayers, US Taxpayers Party, U.S. Taxpayers Party, IAP, CST, CON, Constitution, Constitution Party, U.S. Constitution Party, US Constitution Party, Constitution Party USA, Constitution Party of Oregon, Constitution Party of Pennsylvania, Constitution Party of Idaho, Constitution Party of Michigan, Constitution Party of Wisconsin, Constitution Party of Virginia, Constitution Party of Nevada, Constitution Party of Missouri, American Constitution Party, Taxpayers Party, Taxpayers Party of New York |
 | `AIP` | American Independent Party | constitution | 📜 | AIP, AI, American Independent, American Independent Party, American Independent Party of California, California American Independent Party |
 | `UIAP` | Utah Independent American Party | constitution | 📜 | Independent American Party, UIAP, Independent American, Independent American Party of Nevada, Utah Independent American |
 | `IND` | Independent | independent | ⚪ | I, IND, Independent, Independents, Independent Candidate, Independent Party |
-| `NP` | No Party / Nonpartisan | independent | ⚪ | NP, NOP, NPA, NPP, U, UNA, UNK, No Party, No Party Affiliation, No Party Preference, No Affiliation, Nonpartisan, Non-Partisan, Unaffiliated, Unenrolled, Decline to State, Blank, None, Not Affiliated, Unknown |
+| `NP` | No Party / Nonpartisan | independent | ⚪ | UNENROLLED, NPD, NP, NOP, NPA, NPP, U, UNA, UNK, No Party, No Party Affiliation, No Party Preference, No Affiliation, Nonpartisan, Non-Partisan, Unaffiliated, Decline to State, Blank, None, Not Affiliated, Unknown |
 | `IPNY` | Independence Party of New York | independent | ⚪ | IPNY, Independence Party of New York, NY Independence Party |
 | `IPDE` | Independent Party of Delaware | independent | ⚪ | IPDE, IDE, IPoD, Independent Party of Delaware, Delaware Independent Party |
 | `IPCT` | Independent Party of Connecticut | independent | ⚪ | IPCT, Independent Party of Connecticut, Connecticut Independent Party |
@@ -92,7 +92,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `CSP` | Common Sense Party of California | centrist | 💡 | CSP, Common Sense, Common Sense Party, Common Sense Party of California |
 | `WTP` | We the People Party | centrist | 🇺🇸 | WTP, We the People, We the People Party |
 | `RMA` | Republican Moderate Party of Alaska | centrist | 🌨️ | RMA, Republican Moderate, Republican Moderate Party, Republican Moderate Party of Alaska, Alaskan Republican Moderate Party |
-| `FIP` | Forward Independence Party | centrist | ↔️ | FIP, Forward Independence, Forward Independence Party, Independence Party of Minnesota, Independence-Alliance Party, Independence Party, Minnesota Independence Party, IPM |
+| `FIP` | Forward Independence Party | centrist | ↔️ | IAL, FIP, Forward Independence, Forward Independence Party, Independence Party of Minnesota, Independence-Alliance Party, Independence Party, Minnesota Independence Party, IPM |
 | `UKS` | United Kansas | centrist | 🔷 | UKS, United Kansas, United Kansas Party, Free State Party |
 | `WFP` | Working Families Party | other | 🧰 | WOR, WFP, Working Families, Working Families Party, Working Families Party of New York, Connecticut Working Families Party |
 | `PFP` | Peace and Freedom Party | other | 🕊️ | PFP, PAF, PF, Peace and Freedom, Peace & Freedom, Peace and Freedom Party |
@@ -106,7 +106,9 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `MJN` | Legal Marijuana Now Party | other | 🍃 | LMN, MJN, Legal Marijuana Now, Legal Marijuana Now Party, Marijuana Now Party |
 | `GLC` | Grassroots-Legalize Cannabis Party | other | 🌱 | GLC, Grassroots, Grassroots Party, Grassroots-Legalize Cannabis, Grassroots-Legalize Cannabis Party, Legalize Cannabis |
 | `USMJ` | U.S. Marijuana Party | other | 🍁 | USMJ, Marijuana Party, U.S. Marijuana Party, US Marijuana Party, United States Marijuana Party |
-| `GMPJ` | Green Mountain Peace and Justice Party | other | 🌲 | GMPJ, Green Mountain Peace and Justice, Green Mountain Peace and Justice Party, Green Mountain Party, Liberty Union, Liberty Union Party |
+| `GMPJ` | Green Mountain Peace and Justice Party | other | 🌲 | PJP, Peace and Justice, Peace & Justice, GMPJ, Green Mountain Peace and Justice, Green Mountain Peace and Justice Party, Green Mountain Party, Liberty Union, Liberty Union Party |
+| `AMF` | America First Party | other | 🦁 | AMF, America First, America First Party |
+| `BP` | Better Party | other | 📈 | BP, Better Party |
 | `OPP` | Oregon Progressive Party | other | 🌳 | OPP, Oregon Progressive, Oregon Progressive Party, Progressive Party of Oregon |
 | `WAP` | Washington Progressive Party | other | 🌄 | WAP, WAPP, Washington Progressive, Washington Progressive Party |
 | `VPP` | Vermont Progressive Party | other | 🌿 | Progressive, PRO-VT, VPP, Vermont Progressive, Vermont Progressive Party, Progressive Party of Vermont |
