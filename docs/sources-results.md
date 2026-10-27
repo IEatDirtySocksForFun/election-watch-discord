@@ -16,7 +16,10 @@ under `results`.
 | AZ | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json | configured for 2026; URL not published yet (Arizona switches to Enhanced Voting for 2026) |
 | GA | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/Georgia/export-2024NovGen.json | verified fixture (2024 general); same format as GA SOS |
 | FL | `fl_sos` | https://results.elections.myflorida.com/ResultsExtract.Asp | verified fixture (2024 general tab-delimited extract) |
-| MI, WI, NV, OH, NH, ME, IA, NE | — | — | not implemented in this pass; see notes below |
+| MN | `mn_sos` | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt | **verified fixture** — 2026 general text exports; live 2026-10-27 returns 871 contests (statewide) |
+| MI | `mi_county` | https://results.enr.clarityelections.com/MI/<County>/ | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)` |
+| WI | `wi_dane` | https://elections.countyofdane.com/Election-Result | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)` |
+| NV, NH, ME | — | — | blocked / PDF-only; see docs/results/alt-a.md |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under
 `tests/fixtures/<adapter>/` (each README.txt records the URL and fetch date). Nothing in

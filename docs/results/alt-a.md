@@ -115,8 +115,9 @@ one HTML page per contest that a plain GET returns:
       <tr><td><strong>REP Tom Tiffany /David Varnam</strong> <em>(REP)</em></td>
           <td><div class="progress">…</div>0.0%</td><td class="text-right">0</td></tr>
 
-- No API and no JSON are offered, so `scrape = True`, `enabled_by_default = False`, and
-  the adapter polls at most once a minute like every other scraper.
+- No API and no JSON are offered, so `scrape = True`, `enabled_by_default = False`; the
+  adapter adds no cache of its own, so the operator's poll interval (whole minutes, ≥ 1)
+  is what keeps the request rate at or below one a minute.
 - Keys: `Governor / Lieutenant Governor` -> `WI GOV`, `Attorney General` -> `WI AG`,
   `Secretary of State` -> `WI SOS`, `State Treasurer` -> `WI TREAS`, `Representative in
   Congress District n` -> `WI-nn`, `State Senator District n` -> `WI SD-nn`,
