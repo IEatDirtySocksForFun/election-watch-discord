@@ -52,6 +52,21 @@ def test_watch_posting_calls_and_odds_validation():
     assert gs.odds_alerts and gs.odds_swing_pts == 7.5 and gs.odds_window_minutes == 30
 
 
+def test_setup_sets_channel_and_optional_admin_role():
+    from electionwatch.bot.logic import change_setup
+
+    gs = GuildSettings(1)
+    message = change_setup(gs, 2)
+    assert gs.channel_id == 2 and gs.admin_role_id is None
+    assert "<#2>" in message
+
+    message = change_setup(gs, 3, 42)
+    assert gs.channel_id == 3 and gs.admin_role_id == 42
+    assert "<@&42>" in message
+    with pytest.raises(ValueError):
+        change_setup(gs, 0)
+
+
 def test_settings_dump_is_plain_yaml():
     import yaml
 

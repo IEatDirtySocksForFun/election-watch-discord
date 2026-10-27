@@ -52,6 +52,19 @@ def _default_races() -> list[ImportantRace]:
     return load_races()
 
 
+def change_setup(gs: GuildSettings, channel_id: int, admin_role_id: int | None = None) -> str:
+    """Point the guild at a post channel; optionally restrict admin commands to one role."""
+    if not channel_id:
+        raise ValueError("channel is required")
+    gs.channel_id = int(channel_id)
+    if admin_role_id is not None:
+        gs.admin_role_id = int(admin_role_id)
+    message = f"Election posts will go to <#{gs.channel_id}>."
+    if gs.admin_role_id is not None:
+        message += f" Admin commands: Manage Server or <@&{gs.admin_role_id}>."
+    return message
+
+
 def change_posting(gs: GuildSettings, mode: str, minutes: int | None = None) -> str:
     try:
         selected = PostMode(mode.lower())
