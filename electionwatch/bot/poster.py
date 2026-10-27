@@ -5,6 +5,20 @@ import discord
 
 from electionwatch.poster import Post
 
+# Discord's hard limits (https://discord.com/developers/docs/resources/channel#embed-object).
+MAX_TITLE = 256
+MAX_DESCRIPTION = 4096
+MAX_FIELD_NAME = 256
+MAX_FIELD_VALUE = 1024
+MAX_FOOTER = 2048
+
+
+def clip(text: str, limit: int) -> str:
+    """Cut text to a Discord limit so one huge race cannot drop the whole post."""
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rstrip() + "…"
+
 
 def render_embed(post: Post) -> discord.Embed:
     if post.color is not None:
@@ -16,15 +30,17 @@ def render_embed(post: Post) -> discord.Embed:
     else:
         color = discord.Color.light_gray()
     embed = discord.Embed(
-        title=post.title,
-        description="\n".join(post.lines),
+        title=clip(post.title, MAX_TITLE),
+        description=clip("\n".join(post.lines), MAX_DESCRIPTION),
         url=post.url,
         color=color,
     )
     for name, value in post.fields:
-        embed.add_field(name=name, value=value, inline=False)
+        embed.add_field(
+            name=clip(name, MAX_FIELD_NAME), value=clip(value, MAX_FIELD_VALUE), inline=False
+        )
     if post.footer:
-        embed.set_footer(text=post.footer)
+        embed.set_footer(text=clip(post.footer, MAX_FOOTER))
     return embed
 
 
