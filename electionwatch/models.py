@@ -226,6 +226,8 @@ _NOT_A_CANDIDATE = re.compile(
     r"|(total )?ballots cast|registered voters|total( votes)?|unqualified write-?ins?|scattering"
     r"|undervotes?|overvotes?|times cast"
 )
+_CHOICES = ("yes", "no", "for", "against")
+_SURNAME = re.compile(r"[A-Za-z][A-Za-z'\-]+")
 _SUFFIX = {"ii": "II", "iii": "III", "iv": "IV", "jr": "Jr.", "sr": "Sr."}
 
 
@@ -233,6 +235,16 @@ def pretty_name(name: str) -> str:
     """Display form of a candidate name from a feed: ALL-CAPS feeds get title case, and
     title-casing mistakes are repaired ("Mcsally" -> "McSally", "Iii" -> "III", "Jr" -> "Jr.")."""
     n = " ".join(name.split())
+    # "Begich, Nick" -> "Nick Begich" (Alaska and others list surname first); keep
+    # "Angus King, Jr." as is.
+    if n.count(",") == 1:
+        last, first = (x.strip() for x in n.split(","))
+        if (_SURNAME.fullmatch(last) and 1 <= len(first.split()) <= 3 and '"' not in first
+                and first.strip(".").lower() not in _SUFFIX
+                and last.lower() not in _CHOICES and first.split()[0].lower() not in _CHOICES):
+            if last.isupper() and not first.isupper():
+                last = last.title()
+            n = f"{first} {last}"
     caps = n.isupper() and len(n) > 1
     if caps:
         n = n.title()

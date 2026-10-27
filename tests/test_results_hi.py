@@ -41,7 +41,7 @@ def test_federal_results():
     assert "HI-01" in keys
     assert "HI-02" in keys
     pres = keys["HI LOCAL us-president"]
-    assert pres.candidates[0].name == "HARRIS, Kamala D."
+    assert pres.candidates[0].name == "Kamala D. Harris"
     assert pres.candidates[0].party == "DEM"
     assert pres.candidates[0].votes == 313044
     assert pres.total_votes == sum(c.votes for c in pres.candidates)

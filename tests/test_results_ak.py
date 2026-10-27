@@ -26,7 +26,7 @@ def test_us_house_is_at_large_and_sums_precincts():
     house = by_key()["AK-AL"]
     assert house.key.level is Level.HOUSE
     assert house.key.district == "AL"
-    assert house.candidates[0].name == "Begich, Nick"
+    assert house.candidates[0].name == "Nick Begich"
     assert house.candidates[0].party == "REP"
     # Every precinct row for the contest is summed, and percentages are filled in.
     assert house.total_votes == sum(x.votes for x in house.candidates)
@@ -134,4 +134,4 @@ async def test_fetch_uses_the_ak_tls_client(monkeypatch):
         results = await ak_doe.AkDoe().fetch([key], client)
     assert seen == ["https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv"]
     assert [r.key for r in results] == [key]
-    assert results[0].candidates[0].name == "Begich, Nick"
+    assert results[0].candidates[0].name == "Nick Begich"
