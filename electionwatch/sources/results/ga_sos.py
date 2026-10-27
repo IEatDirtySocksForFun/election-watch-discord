@@ -80,15 +80,15 @@ def race_key(name: str) -> RaceKey:
         return c.local_key("GA", "president-of-the-united-states")
     if n.startswith("US SENATE"):
         return RaceKey("GA", Level.SENATE, "SEN", None, special)
-    m = re.match(r"^US HOUSE (?:OF REPRESENTATIVES )?(?:DISTRICT|DIST)\s*(\d+)$", n)
+    m = re.match(r"^US HOUSE(?: OF REPRESENTATIVES)?\s*[-]?\s*(?:DISTRICT|DIST)\s*[-]?\s*(\d+)$", n)
     if m:
         return RaceKey("GA", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
     if n in _STATEWIDE:
         return RaceKey("GA", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = re.match(r"^STATE SENATE (?:DISTRICT|DIST)\s*(\d+)$", n)
+    m = re.match(r"^STATE SENATE\s*[-]?\s*(?:DISTRICT|DIST)?\s*[-]?\s*(\d+)$", n)
     if m:
         return RaceKey("GA", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE HOUSE (?:OF REPRESENTATIVES )?(?:DISTRICT|DIST)\s*(\d+)$", n)
+    m = re.match(r"^STATE HOUSE(?: OF REPRESENTATIVES)?\s*[-]?\s*(?:DISTRICT|DIST)\s*[-]?\s*(\d+)$", n)
     if m:
         return RaceKey("GA", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
     return c.local_key("GA", n)
