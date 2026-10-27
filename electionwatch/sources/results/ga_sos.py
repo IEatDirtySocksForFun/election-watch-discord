@@ -70,13 +70,14 @@ def _english(name: str) -> str:
 
 
 def _norm(name: str) -> str:
-    return re.sub(r"\s+", " ", _english(name)).upper()
+    # 2024+ exports write "US House of Representatives - District 1"; drop the dash.
+    return re.sub(r"\s+", " ", re.sub(r"\s+-\s+", " ", _english(name))).upper()
 
 
 def race_key(name: str) -> RaceKey:
     n = _norm(name)
     special = c.is_special(n)
-    if n in ("PRESIDENT OF THE UNITED STATES", "US PRESIDENT"):
+    if n in ("PRESIDENT OF THE UNITED STATES", "PRESIDENT OF THE US", "US PRESIDENT"):
         return c.local_key("GA", "president-of-the-united-states")
     if n.startswith("US SENATE"):
         return RaceKey("GA", Level.SENATE, "SEN", None, special)
