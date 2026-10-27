@@ -24,13 +24,14 @@ from electionwatch.bot.logic import (
     settings_dump,
 )
 from electionwatch.bot.navigator import RaceNavigator, list_races
-from electionwatch.bot.poster import DiscordPoster
+from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
 from electionwatch.racekeys import describe, parse
 from electionwatch.settings import GuildSettings, UserSettings
 
 logger = logging.getLogger(__name__)
+MAX_MESSAGE = 2000  # Discord's message content limit
 
 
 async def handle_app_command_error(interaction: discord.Interaction, error: Exception) -> None:
@@ -123,7 +124,8 @@ async def _user(interaction: discord.Interaction) -> UserSettings:
 
 
 async def _error(interaction: discord.Interaction, exc: Exception) -> None:
-    await interaction.response.send_message(str(exc), ephemeral=True)
+    # Parse errors quote the user's input, which may be up to 6000 characters long.
+    await interaction.response.send_message(clip(str(exc), MAX_MESSAGE), ephemeral=True)
 
 
 @app_commands.command(name="setup", description="Choose the channel for election posts")
