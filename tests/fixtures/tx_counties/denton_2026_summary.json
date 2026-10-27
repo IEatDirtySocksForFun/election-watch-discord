@@ -1,0 +1,270 @@
+[
+ {
+  "C": "United States Senator",
+  "CAT": "Federal",
+  "K": "2",
+  "VF": 1,
+  "TP": 252,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Ken Paxton",
+   "James Talarico",
+   "Ted Brown"
+  ],
+  "P": [
+   "REP",
+   "DEM",
+   "LIB"
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "United States Representative, District 26",
+  "CAT": "Federal",
+  "K": "5",
+  "VF": 1,
+  "TP": 187,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Brandon Gill",
+   "Steven Shook",
+   "Phil Gray"
+  ],
+  "P": [
+   "REP",
+   "DEM",
+   "LIB"
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Governor",
+  "CAT": "State",
+  "K": "6",
+  "VF": 1,
+  "TP": 252,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Greg Abbott",
+   "Gina Hinojosa",
+   "Pat Dixon"
+  ],
+  "P": [
+   "REP",
+   "DEM",
+   "LIB"
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "State Representative, District 65",
+  "CAT": "State",
+  "K": "24",
+  "VF": 1,
+  "TP": 54,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Mitch Little",
+   "Detrick DeBurr"
+  ],
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "V": [
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Justice, 15th Court of Appeals District, Place 2",
+  "CAT": "State",
+  "K": "27",
+  "VF": 1,
+  "TP": 252,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Scott K. Field",
+   "Tom Baker"
+  ],
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "V": [
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "CITY OF DALLAS PROPOSITION A",
+  "CAT": "City&#x2F;Town",
+  "K": "64",
+  "VF": 1,
+  "TP": 3,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "For",
+   "Against"
+  ],
+  "P": [
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "City of The Colony Place 3",
+  "CAT": "City&#x2F;Town",
+  "K": "72",
+  "VF": 1,
+  "TP": 4,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Brian R. Wade",
+   "Eldon J. Pipes"
+  ],
+  "P": [
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "City of The Colony Place 4",
+  "CAT": "City&#x2F;Town",
+  "K": "73",
+  "VF": 1,
+  "TP": 4,
+  "PR": 0,
+  "T": [
+   0
+  ],
+  "CH": [
+   "Dan McNew",
+   "Dan Rainey",
+   "Tim Costello"
+  ],
+  "P": [
+   "",
+   "",
+   ""
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ }
+]

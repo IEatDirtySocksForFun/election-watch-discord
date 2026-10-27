@@ -1,0 +1,265 @@
+[
+ {
+  "C": "President/Vice President",
+  "CAT": "Federal",
+  "K": "2",
+  "VF": 1,
+  "TP": 240,
+  "PR": 224,
+  "T": 449188,
+  "CH": [
+   "Donald J. Trump / JD Vance",
+   "Kamala D. Harris / Tim Walz",
+   "Chase Oliver / Mike ter Maat",
+   "Jill Stein / Rudolph Ware",
+   "Cherunda Fox / Harlan McVay",
+   "Claudia De la Cruz / Karina Garcia",
+   "Cornel West / Melina Abdullah",
+   "Jessie Cuellar / Wesley Lasley",
+   "Peter Sonski / Lauren Onak",
+   "Shiva Ayyadurai / Crystal Ellis"
+  ],
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "GRN",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "V": [
+   250521,
+   191503,
+   3100,
+   3605,
+   5,
+   116,
+   98,
+   5,
+   221,
+   14
+  ],
+  "PCT": [
+   55.7719707561199,
+   42.6331513753707,
+   0.690134197707864,
+   0.802559284753822,
+   0.00111311967372236,
+   0.0258243764303588,
+   0.0218171456049583,
+   0.00111311967372236,
+   0.0491998895785284,
+   0.00311673508642261
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "United States Senator",
+  "CAT": "Federal",
+  "K": "3",
+  "VF": 1,
+  "TP": 240,
+  "PR": 224,
+  "T": 448459,
+  "CH": [
+   "Ted Cruz",
+   "Colin Allred",
+   "Ted Brown",
+   "Analisa Roche",
+   "Tracy Andrus"
+  ],
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "",
+   ""
+  ],
+  "V": [
+   237978,
+   200676,
+   9660,
+   97,
+   48
+  ],
+  "PCT": [
+   53.0657206121407,
+   44.7479033757824,
+   2.1540430674822,
+   0.0216296250047384,
+   0.0107033195899737
+  ],
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "United States Representative, District 26",
+  "CAT": "Federal",
+  "K": "6",
+  "VF": 1,
+  "TP": 184,
+  "PR": 170,
+  "T": 342842,
+  "CH": [
+   "Brandon Gill",
+   "Ernest R. Lineberger III",
+   "Phil Gray"
+  ],
+  "P": [
+   "REP",
+   "DEM",
+   "LIB"
+  ],
+  "V": [
+   202850,
+   132127,
+   7865
+  ],
+  "PCT": [
+   59.167196551181,
+   38.5387437945176,
+   2.2940596543014
+  ],
+  "W": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Justice, Supreme Court, Place 2",
+  "CAT": "State",
+  "K": "9",
+  "VF": 1,
+  "TP": 240,
+  "PR": 224,
+  "T": 433090,
+  "CH": [
+   "Jimmy Blacklock",
+   "DaSean Jones"
+  ],
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "V": [
+   253066,
+   180024
+  ],
+  "PCT": [
+   58.4326583389134,
+   41.5673416610866
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "State Representative, District 65",
+  "CAT": "State",
+  "K": "21",
+  "VF": 1,
+  "TP": 51,
+  "PR": 47,
+  "T": 99970,
+  "CH": [
+   "Mitch Little",
+   "Detrick DeBurr"
+  ],
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "V": [
+   60284,
+   39686
+  ],
+  "PCT": [
+   60.3020906271882,
+   39.6979093728118
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "Sheriff",
+  "CAT": "County",
+  "K": "33",
+  "VF": 1,
+  "TP": 240,
+  "PR": 224,
+  "T": 420074,
+  "CH": [
+   "Tracy Murphree",
+   "Fredrick Bishop"
+  ],
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "V": [
+   250298,
+   169776
+  ],
+  "PCT": [
+   59.5842637249627,
+   40.4157362750373
+  ],
+  "W": [
+   0,
+   0
+  ]
+ },
+ {
+  "C": "City of The Colony Mayor",
+  "CAT": "City&#x2F;Town",
+  "K": "75",
+  "VF": 1,
+  "TP": 12,
+  "PR": 10,
+  "T": 16314,
+  "CH": [
+   "Everett Tenney",
+   "Richard Boyer"
+  ],
+  "P": [
+   "",
+   ""
+  ],
+  "V": [
+   6445,
+   9869
+  ],
+  "PCT": [
+   39.5059458134118,
+   60.4940541865882
+  ],
+  "W": [
+   0,
+   0
+  ]
+ }
+]

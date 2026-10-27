@@ -27,6 +27,13 @@ One module per feed family; each registers a `ResultsSource` in
     vt_sos            Vermont Secretary of State static JSON
     wa_sos            Washington Secretary of State XML export
 
+Alternates for states whose statewide site is blocked (docs/results/alt-b.md):
+
+    tx_counties       Texas county Clarity ENR feeds, merged (partial: N counties)
+    nj_counties       New Jersey county Clarity ENR feeds, merged
+    ny_nycboe         New York City Board of Elections recap CSVs
+    mo_stlouis        St. Louis County per-precinct CSV export
+
 `_common` holds the shared helpers (party normalisation, dates, payload decoding,
 RaceResult construction). See docs/sources-results.md for feed URLs and status.
 """

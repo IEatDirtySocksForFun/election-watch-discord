@@ -1,0 +1,244 @@
+"""Texas — county election-night feeds (Clarity ENR), used when results.texas-election.com
+is behind its Cloudflare challenge.
+
+The Secretary of State's statewide site (`tx_sos`) is the primary source; this adapter is the
+official alternate. The largest counties publish their own Clarity ENR feeds, which carry the
+full county ballot: US Senate, the congressional district(s) the county sits in, the statewide
+executives, the legislature, the appeals courts and the local races.
+
+    https://results.enr.clarityelections.com/TX/<County>/elections.json
+    https://results.enr.clarityelections.com/TX/<County>/<EID>/current_ver.txt
+    https://results.enr.clarityelections.com/TX/<County>/<EID>/<ver>/json/en/summary.json
+
+Counties publish different contest names for the same office ("United States Representative,
+District 4" in Denton, "US Representative, District 16" in El Paso), so the mapping lives here
+rather than in the shared vendor module. Races that every county publishes (Senate, governor,
+the statewide courts) are merged into one result flagged " (partial: N counties)"; local races
+are namespaced with the county slug so two counties' "Sheriff" do not collide.
+
+Dallas, Tarrant, Harris, Collin and Bexar do not list their elections on the CDN (or use a
+different vendor); they are tried through `elections.json` when present and skipped otherwise.
+Pin any county with TX_COUNTY_FEEDS:
+
+    TX_COUNTY_FEEDS='[{"county":"Harris","election_id":"123456","date":"2026-11-03"}]'
+"""
+from __future__ import annotations
+
+import re
+from datetime import datetime
+
+import httpx
+
+from electionwatch.models import Level, RaceKey, RaceResult
+from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
+
+from . import _common as c
+from . import _county
+from .clarity import parse_settings
+
+HUMAN = "https://results.texas-election.com/races"
+
+#: County name as it appears in the Clarity URL -> slug used for local race keys.
+COUNTIES: dict[str, str] = {
+    "Dallas": "dallas",
+    "Denton": "denton",
+    "El_Paso": "el-paso",
+    "Fort_Bend": "fort-bend",
+    "Tarrant": "tarrant",
+    "Travis": "travis",
+}
+
+#: date -> county -> election id. Anything missing is discovered from the county's
+#: elections.json; these are the ids verified while writing the fixtures.
+ELECTIONS: dict[str, dict[str, str]] = {
+    "2024-11-05": {"Denton": "122426", "El_Paso": "122595", "Travis": "122432"},
+    "2026-11-03": {"Denton": "127398", "El_Paso": "127348"},
+}
+
+_STATEWIDE = {
+    "GOVERNOR": "GOV",
+    "LIEUTENANT GOVERNOR": "LTGOV",
+    "ATTORNEY GENERAL": "AG",
+    "COMPTROLLER OF PUBLIC ACCOUNTS": "COMP",
+    "COMMISSIONER OF THE GENERAL LAND OFFICE": "LANDCOM",
+    "COMMISSIONER OF AGRICULTURE": "AGCOM",
+    "RAILROAD COMMISSIONER": "RRC",
+}
+
+_SENATE = {"UNITED STATES SENATOR", "US SENATOR", "U.S. SENATOR", "SENATOR"}
+
+#: County feeds abbreviate unevenly ("Chief Justice, 8th Crt of App Dist" in El Paso vs
+#: "... 8th Court of Appeals District" in Denton). Expand before matching so the same
+#: statewide contest merges.
+_ABBREV = {
+    "CRT": "COURT", "CNTY": "COUNTY", "CRTY": "COUNTY", "APP": "APPEALS",
+    "DIST": "DISTRICT", "PL": "PLACE", "ST": "STATE", "MUN": "MUNICIPAL",
+}
+
+_HOUSE = re.compile(
+    r"^(?:UNITED STATES|US|U\.S\.) REPRESENTATIVE,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)$")
+_STATE_SENATE = re.compile(r"^STATE SENATOR,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)")
+_STATE_HOUSE = re.compile(r"^STATE REPRESENTATIVE,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)")
+
+#: Contests on every county's ballot: merged statewide, so no county prefix.
+_SHARED_LOCAL = (
+    (re.compile(r"^CHIEF JUSTICE, SUPREME COURT$"), lambda m: "supreme-court-chief-justice"),
+    (re.compile(r"^JUSTICE, SUPREME COURT, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
+     lambda m: f"supreme-court-place-{_id(m.group(1))}"),
+    (re.compile(r"^PRESIDING JUDGE, COURT OF CRIMINAL APPEALS$"),
+     lambda m: "presiding-judge-court-criminal-appeals"),
+    (re.compile(r"^JUDGE, COURT OF CRIMINAL APPEALS, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
+     lambda m: f"court-criminal-appeals-place-{_id(m.group(1))}"),
+    (re.compile(r"^CHIEF JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS DISTRICT$"),
+     lambda m: f"court-of-appeals-{_id(m.group(1))}-chief-justice"),
+    (re.compile(r"^JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS DISTRICT"
+                r"(?:, PLACE (\d+))?$"),
+     lambda m: f"court-of-appeals-{_id(m.group(1))}-place-{_id(m.group(2) or '1')}"),
+    (re.compile(r"^MEMBER, STATE BOARD OF EDUCATION, DISTRICT (\d+)"),
+     lambda m: f"state-board-of-education-{_id(m.group(1))}"),
+    (re.compile(r"^PRESIDENT/VICE PRESIDENT$"), lambda m: "president-vice-president"),
+    (re.compile(r"^(?:STATE )?PROPOSITION (\d+)$"), lambda m: f"proposition-{_id(m.group(1))}"),
+    (re.compile(r"^CONSTITUTIONAL AMENDMENT (\d+)$"),
+     lambda m: f"constitutional-amendment-{_id(m.group(1))}"),
+)
+
+
+def _norm(name: str) -> str:
+    return re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
+
+
+def _id(part: str) -> str:
+    return part.lstrip("0") or "0"
+
+
+def _expand(name: str) -> str:
+    return re.sub(r"[A-Z]+", lambda m: _ABBREV.get(m.group(0), m.group(0)), name)
+
+
+def shared_key(name: str) -> RaceKey | None:
+    """Key for a contest every county publishes, or None for a purely local one."""
+    n = _expand(_norm(name))
+    if n in _SENATE:
+        return RaceKey("TX", Level.SENATE, "SEN")
+    m = _HOUSE.match(n)
+    if m:
+        return RaceKey("TX", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
+    if n in _STATEWIDE:
+        return RaceKey("TX", Level.GOVERNOR, _STATEWIDE[n])
+    m = _STATE_SENATE.match(n)
+    if m:
+        return RaceKey("TX", Level.STATE, "SD", f"{int(m.group(1)):02d}")
+    m = _STATE_HOUSE.match(n)
+    if m:
+        return RaceKey("TX", Level.STATE, "HD", f"{int(m.group(1)):02d}")
+    for pattern, build in _SHARED_LOCAL:
+        m = pattern.match(n)
+        if m:
+            return c.local_key("TX", build(m))
+    return None
+
+
+def race_key(county_slug: str, name: str) -> RaceKey:
+    """Every contest gets a key; unrecognised ones become TX LOCAL <county>-<race>."""
+    shared = shared_key(name)
+    if shared is not None:
+        return shared
+    return c.local_key("TX", f"{county_slug}-{_norm(name)}")
+
+
+def parse_tx_county(
+    summary,
+    settings=None,
+    *,
+    county: str,
+    fetched_at: datetime,
+) -> list[RaceResult]:
+    """Pure parse of one Texas county summary.json."""
+    slug = COUNTIES.get(county, county.lower())
+    updated = parse_settings(settings)
+    return _county.parse_contests(
+        summary,
+        key_fn=lambda name: race_key(slug, name),
+        source=TxCounties.name,
+        url=HUMAN,
+        fetched_at=fetched_at,
+        updated=updated,
+    )
+
+
+def counties(date: str) -> list[dict]:
+    """Configured counties for an election date, with optional pinned election ids."""
+    override = _county.county_feeds_from_env("TX_COUNTY_FEEDS")
+    pins = ELECTIONS.get(date, {})
+    configured = {str(k).lower(): v for k, v in COUNTIES.items()}
+    if override is None:
+        return [{"county": name, "slug": slug, "election_id": pins.get(name)}
+                for name, slug in COUNTIES.items()]
+    out = []
+    for entry in override:
+        county = str(entry["county"])
+        if entry.get("date") and entry["date"] != date:
+            continue
+        out.append({
+            "county": county,
+            "slug": configured.get(county.lower(), county.lower()),
+            "election_id": entry["election_id"],
+        })
+    return out
+
+
+async def _one(
+    client: httpx.AsyncClient,
+    entry: dict,
+    date: str,
+    fetched_at: datetime,
+) -> list[RaceResult]:
+    county = entry["county"]
+    eid = await _county.election_id(client, "TX", county, date, entry.get("election_id"))
+    if not eid:
+        return []
+    summary, settings, _ = await _county.fetch_summary(client, "TX", county, eid)
+    return parse_tx_county(summary, settings, county=county, fetched_at=fetched_at)
+
+
+@register
+class TxCounties(ResultsSource):
+    name = "tx_counties"
+    states = frozenset({"TX"})
+    scrape = False
+    enabled_by_default = True
+
+    async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
+        if not any(k.state == "TX" for k in keys):
+            return []
+        date = c.election_date()
+        fetched_at = c.utcnow()
+        collected: list[RaceResult] = []
+        failures = 0
+        entries = counties(date)
+        for entry in entries:
+            try:
+                collected.extend(await _one(client, entry, date, fetched_at))
+            except SourceUnavailable:
+                failures += 1  # one dead county must not hide the others
+        if failures and failures == len(entries):
+            raise SourceUnavailable("tx_counties: no Texas county feed answered")
+        return c.select(_county.merge(collected, source=self.name, url=HUMAN), keys)
+
+    async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
+        if state != "TX":
+            return []
+        date = c.election_date()
+        fetched_at = c.utcnow()
+        out: list[tuple[RaceKey, str]] = []
+        seen: set[str] = set()
+        for entry in counties(date):
+            try:
+                results = await _one(client, entry, date, fetched_at)
+            except SourceUnavailable:
+                continue
+            for r in results:
+                if str(r.key) not in seen:
+                    seen.add(str(r.key))
+                    out.append((r.key, r.title or str(r.key)))
+        return out
