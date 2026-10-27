@@ -17,7 +17,7 @@ from electionwatch.store.mongo import MongoStore
 
 def validate_env(environ: Mapping[str, str]) -> list[str]:
     """Return names of invalid/missing settings, never their values."""
-    errors = [name for name in ("DISCORD_TOKEN", "MONGO_URI") if not environ.get(name)]
+    errors = [name for name in ("DISCORD_TOKEN", "MONGODB_URI") if not environ.get(name)]
     if environ.get("DEV_GUILD_ID"):
         try:
             int(environ["DEV_GUILD_ID"])
@@ -36,7 +36,7 @@ async def check() -> int:
     except Exception as exc:
         print(f"Could not load races.yaml: {exc}", file=sys.stderr)
         return 2
-    store = MongoStore(os.environ["MONGO_URI"], os.environ.get("MONGO_DB", "electionwatch"))
+    store = MongoStore(os.environ["MONGODB_URI"], os.environ.get("MONGODB_DB", "electionwatch"))
     try:
         await store.ping()
         await store.create_indexes()
@@ -55,7 +55,7 @@ async def run() -> int:
         print("Invalid or missing environment: " + ", ".join(errors), file=sys.stderr)
         return 2
     load_races()  # fail before connecting if the YAML is invalid
-    store = MongoStore(os.environ["MONGO_URI"], os.environ.get("MONGO_DB", "electionwatch"))
+    store = MongoStore(os.environ["MONGODB_URI"], os.environ.get("MONGODB_DB", "electionwatch"))
     await store.ping()
     await store.create_indexes()
     registry = load_all()
