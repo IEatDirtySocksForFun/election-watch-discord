@@ -1,0 +1,302 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "United States Senator",
+  "K": "344490",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 127,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Abdul El-Sayed",
+   "Mike Rogers",
+   "Lydia Christensen",
+   "Tim Long",
+   "Douglas P. Marsh",
+   "Walter P. Kristy"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "LIB",
+   "UST",
+   "GRN",
+   "NLP"
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   0
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "Representative in Congress 2nd District",
+  "K": "344489",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 4,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Ben Ambrose",
+   "John Moolenaar",
+   "Charlotte Magoon",
+   "Richard Sills"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "GRN",
+   "NLP"
+  ],
+  "PCT": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "V": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   0
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "Representative in Congress 3rd District",
+  "K": "357650",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 48,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Hillary Scholten",
+   "Terri DeBoer",
+   "Joe Jock"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "GRN"
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   0
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "Representative in Congress 4th District",
+  "K": "357651",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 75,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Sean McCann",
+   "Bill Huizenga",
+   "Shafina Che Barnett"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "GRN"
+  ],
+  "PCT": [
+   0,
+   0,
+   0
+  ],
+  "V": [
+   0,
+   0,
+   0
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   0
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]
