@@ -1,4 +1,4 @@
-Fixtures for the tx_counties adapter (Tarrant/Harris/Collin/Bexar not listed on the CDN).
+Fixtures for the tx_counties adapter (Clarity counties + Harris County's own JSON feed).
 
 Captured 2026-10-27 with a plain curl/httpx GET. The first three files were fetched with
 "Mozilla/5.0 (compatible; election-watch-discord/0.1; ...)"; everything from the
@@ -81,3 +81,51 @@ travis_2024_summary.json       122432 / 355984   President / Vice President, Uni
 Hood's "Rejected write-ins" (227 votes) and "Unassigned write-ins" (0 votes) rows are left
 in the fixture on purpose: the parser must drop them, and keep the counted write-in
 "Chad Hagg" (93 votes).
+
+--- Added 2026-10-27 (design/state-fixes; plain bot User-Agent
+    "election-watch-discord/0.1 (open-source election results bot)", one GET each) ---
+
+Contest objects are kept verbatim; only the contest list is trimmed.
+
+tarrant_2024_general.json
+  https://results.enr.clarityelections.com/TX/Tarrant/122489/355610/json/en/summary.json
+  Id from https://www.tarrantcountytx.gov/en/elections/past-election-information/2024-archives/november-5--2024--general-election-results.html
+  (Tarrant's elections.json lists nothing). Kept: United States Senator (821,473 votes),
+  United States Representative, District 12.
+
+tarrant_2026_general.json
+  https://results.enr.clarityelections.com/TX/Tarrant/127297/379881/json/en/summary.json
+  Id from https://www.tarrantcountytx.gov/en/elections/current-election-information.html
+  ("Graphical Election Night Reporting Tool (ENR)"); electionsettings websiteupdatedat
+  10/7/2026. Zero votes. Kept: Senator, District 12, Governor,
+  "Justice, Supreme Court, Place 2, (Unexpired Term)".
+
+fort_bend_2024_general.json
+  https://results.enr.clarityelections.com/TX/Fort_Bend/122596/354717/json/en/summary.json
+  Id from https://www.fortbendcountytx.gov/government/departments/elections-voter-registration/2024-election-results
+  Kept: Senator (356,419), "United States Representative, District 7 District 7",
+  "State Senator, District 17 District 17", "State Representative, District 26 District 26"
+  (Fort Bend repeats the district in the contest name).
+
+fort_bend_2026_general.json
+  https://results.enr.clarityelections.com/TX/Fort_Bend/127480/381352/json/en/summary.json
+  Id from the county's 2026-election-results page; websiteupdatedat 10/19/2026. Zero votes.
+
+bexar_2026_general.json
+  https://results.enr.clarityelections.com/TX/Bexar/127291/379718/json/en/summary.json
+  Id from https://elections.bexar.gov/ (redirect target of www.bexar.org/1568/Elections).
+  Bexar's elections.json is []. Bexar reported 2024 with an ES&S HTML summary
+  (home.bexar.org/el45a.html, 740,804 Senate votes), so there is no 2024 Clarity file.
+
+harris_2024_resultsbyballot.json
+  https://appfiles.harrisvotes.com/harrisvotes/prd/Data/1124/resultsbyballot.json
+  The JSON behind https://app.harrisvotes.com/electionresults/electionday (embedded in
+  https://www.harrisvotes.com/Election-Results/Live-Results). Header kept verbatim
+  ("o": 1 = official canvass), 6 of 224 contests: President / Vice President, United States
+  Senator (1,548,914 votes), District 7, District 18 - Unexpired Term, Railroad
+  Commissioner, State Representative District 134.
+
+harris_2026_resultsbyballot.json
+  https://appfiles.harrisvotes.com/harrisvotes/prd/Data/1126/resultsbyballot.json
+  2026 general, zero votes ("dt": 2026-09-17), 6 of 231 contests: Senator, District 7,
+  Governor, Chief Justice 15th Court of Appeals, County Judge, City of Houston Prop A.
