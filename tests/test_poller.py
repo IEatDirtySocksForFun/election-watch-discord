@@ -194,7 +194,7 @@ async def test_calls_respect_guild_outlets_and_survive_another_source_failure():
     assert len(poster.sent) == 1
     assert poster.sent[0][0] == 1
     assert poster.sent[0][2].kind == "call"
-    assert "Projected winner: Ted Cruz (REP)" in poster.sent[0][2].lines
+    assert "🔴 Projected winner: Ted Cruz (REP)" in poster.sent[0][2].lines
 
 
 @pytest.mark.asyncio

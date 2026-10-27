@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import httpx
 
 from electionwatch.config import load_races
-from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult
+from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult, normalize_party
 from electionwatch.poster import Post, Poster
 from electionwatch.racekeys import describe
 from electionwatch.settings import GuildSettings, post_due
@@ -17,9 +17,11 @@ from electionwatch.store.base import Store
 
 logger = logging.getLogger(__name__)
 
+_PARTY_COLOR = {"REP": 0xE03C31, "DEM": 0x2F6FDB}
+
 
 def _party_marker(party: str | None) -> str:
-    return {"REP": "🔴", "DEM": "🔵"}.get((party or "").upper(), "⚪")
+    return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
 
 
 def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
@@ -34,7 +36,7 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
         )
     reporting = []
     if result.expected_vote_pct is not None:
-        reporting.append(f"{result.expected_vote_pct:g}% expected vote")
+        reporting.append(f"{result.expected_vote_pct:.0f}% expected vote")
     if result.precincts_reporting is not None:
         precincts = f"{result.precincts_reporting:,}"
         if result.precincts_total is not None:
@@ -65,8 +67,10 @@ def format_call(call: RaceCall) -> Post:
         lines = [f"Call retracted: {call.winner}", f"Outlet: {call.outlet}"]
     else:
         party = f" ({call.party})" if call.party else ""
-        lines = [f"Projected winner: {call.winner}{party}", f"Outlet: {call.outlet}"]
-    return Post("call", str(call.key), describe(call.key), lines, url=call.url)
+        lines = [f"{_party_marker(call.party)} Projected winner: {call.winner}{party}", f"Outlet: {call.outlet}"]
+    return Post("call", str(call.key), f"Race call · {describe(call.key)}", lines, url=call.url,
+                color=None if call.retracted else _PARTY_COLOR.get(normalize_party(call.party) or ""),
+                footer=f"Called {call.called_at:%b %d %H:%M} UTC")
 
 
 def format_exit_poll(poll: ExitPoll) -> Post:
