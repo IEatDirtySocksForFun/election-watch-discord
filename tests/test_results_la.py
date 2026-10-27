@@ -6,7 +6,7 @@ from electionwatch.models import Level
 from electionwatch.racekeys import format_key
 from electionwatch.sources.results.la_sos import parse_la, race_key, split_candidate
 
-FIX = Path(__file__).parent / "fixtures" / "la_sos"
+FIX = Path(__file__).parent / "fixtures" / "la_sos" / "LA"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 

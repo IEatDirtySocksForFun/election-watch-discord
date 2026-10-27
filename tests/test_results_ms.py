@@ -5,7 +5,7 @@ from electionwatch.models import Level
 from electionwatch.racekeys import format_key
 from electionwatch.sources.results.ms_sos import parse_ms, race_key
 
-FIX = Path(__file__).parent / "fixtures" / "ms_sos"
+FIX = Path(__file__).parent / "fixtures" / "ms_sos" / "MS"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
