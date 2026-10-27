@@ -75,12 +75,17 @@ def _as_utc(ts: datetime) -> datetime:
     return ts.replace(tzinfo=timezone.utc) if ts.tzinfo is None else ts.astimezone(timezone.utc)
 
 
+#: How an outlet is named in call posts, where its code alone would mislead.
+OUTLET_NAMES = {"CIVICAPI": "civicAPI (its own decision desk)"}
+
+
 def format_call(call: RaceCall) -> Post:
+    outlet = OUTLET_NAMES.get(call.outlet, call.outlet)
     if call.retracted:
-        lines = [f"Call retracted: {call.winner}", f"Outlet: {call.outlet}"]
+        lines = [f"Call retracted: {call.winner}", f"Outlet: {outlet}"]
     else:
         party = f" ({call.party})" if call.party else ""
-        lines = [f"{_party_marker(call.party)} Projected winner: {call.winner}{party}", f"Outlet: {call.outlet}"]
+        lines = [f"{_party_marker(call.party)} Projected winner: {call.winner}{party}", f"Outlet: {outlet}"]
     return Post("call", str(call.key), f"Race call · {describe(call.key)}", lines, url=call.url,
                 color=None if call.retracted else _PARTY_COLOR.get(normalize_party(call.party) or ""),
                 footer=f"Called {_as_utc(call.called_at):%b %d %H:%M} UTC")
@@ -225,28 +230,18 @@ class Poller:
     async def _results(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         by_race: dict[str, list[RaceResult]] = defaultdict(list)
         selected: dict[str, RaceResult] = {}
-        jobs = []
-        for source in self.sources.get("results", []):
-            if not self._enabled(source):
-                continue
-            source_keys = [key for key in keys if key.state in source.states]
-            if source_keys:
-                jobs.append((source, source_keys))
-        # One slow state site must not hold up the others: fetch concurrently, then walk the
-        # answers in adapter (priority) order.
-        answers = await asyncio.gather(
-            *(self._fetch(source, "fetch", source_keys) for source, source_keys in jobs),
-            return_exceptions=True,
-        )
-        for (source, source_keys), fetched in zip(jobs, answers):
-            if isinstance(fetched, BaseException):
-                logger.error("Results source %s failed", source.name, exc_info=fetched)
-                continue
-            for result in fetched:
-                race = str(result.key)
-                if race not in {str(key) for key in source_keys}:
-                    continue
-                by_race[race].append(result)
+        enabled = [source for source in self.sources.get("results", []) if self._enabled(source)]
+        # Fallbacks (civicAPI, the outlet feeds) are asked only about races no official feed
+        # answered completely: that keeps a big watch list from pulling every race from them
+        # every minute. A guild that picked a fallback by name with /settings gets it for all.
+        pinned = {name for guild in guilds for name in guild.results_sources}
+        primary = [s for s in enabled if not getattr(s, "fallback", False) or s.name in pinned]
+        fallback = [s for s in enabled if getattr(s, "fallback", False) and s.name not in pinned]
+        await self._gather_results(primary, keys, by_race)
+        complete = {race for race, answers in by_race.items() if any(not is_partial(r) for r in answers)}
+        missing = [key for key in keys if str(key) not in complete]
+        if missing:
+            await self._gather_results(fallback, missing, by_race)
         # Adapter order is priority order: the first complete answer is the stored result. A
         # county merge titled "(partial: N counties)" only wins when nothing complete answered,
         # so a reachable state feed (tx_sos) or an enabled national fallback is preferred over
@@ -281,6 +276,28 @@ class Poller:
                         )
                 except Exception:
                     logger.exception("Could not process results for guild %s", guild.guild_id)
+
+    async def _gather_results(self, sources: list, keys: list, by_race: dict) -> None:
+        """Fetch results for keys from sources concurrently; append answers to by_race in
+        adapter (priority) order. One slow state site must not hold up the others."""
+        jobs = []
+        for source in sources:
+            source_keys = [key for key in keys if key.state in source.states]
+            if source_keys:
+                jobs.append((source, source_keys))
+        answers = await asyncio.gather(
+            *(self._fetch(source, "fetch", source_keys) for source, source_keys in jobs),
+            return_exceptions=True,
+        )
+        for (source, source_keys), fetched in zip(jobs, answers):
+            if isinstance(fetched, BaseException):
+                logger.error("Results source %s failed", source.name, exc_info=fetched)
+                continue
+            asked = {str(key) for key in source_keys}
+            for result in fetched:
+                race = str(result.key)
+                if race in asked:
+                    by_race[race].append(result)
 
     async def _calls(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         for source in self.sources.get("calls", []):

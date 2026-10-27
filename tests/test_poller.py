@@ -610,3 +610,56 @@ async def test_partial_result_is_used_when_nothing_complete_answers():
     assert is_partial(partial) and not is_partial(result())
     assert best_result([partial]) is partial
     assert best_result([]) is None
+
+
+async def test_fallback_sources_are_only_asked_about_races_without_a_complete_answer():
+    """civicAPI and the outlet feeds are asked only about what the official feeds missed."""
+    from datetime import datetime, timezone
+
+    from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
+    from electionwatch.poller import Poller
+    from electionwatch.poster import RecordingPoster
+    from electionwatch.settings import GuildSettings
+    from electionwatch.store.memory import MemoryStore
+
+    now = datetime(2026, 11, 4, 2, 0, tzinfo=timezone.utc)
+    pa, tx, tn = (RaceKey(s, Level.SENATE, "SEN") for s in ("PA", "TX", "TN"))
+
+    class Source:
+        def __init__(self, name, answers, fallback=False, title=None):
+            self.name, self.answers, self.fallback, self.title = name, answers, fallback, title
+            self.states = frozenset({"PA", "TX", "TN"})
+            self.asked = []
+
+        def available(self):
+            return True
+
+        async def fetch(self, keys, client):
+            self.asked.append(sorted(str(k) for k in keys))
+            return [RaceResult(k, [CandidateResult("A", "DEM", 1)], self.name, now, title=self.title)
+                    for k in keys if k in self.answers]
+
+    official = Source("pa_sos", {pa})
+    counties = Source("tx_counties", {tx}, title="U.S. Senate (partial: 3 counties)")
+    civic = Source("civicapi", {pa, tx, tn}, fallback=True)
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=2, important=["PA SEN", "TX SEN", "TN SEN"]))
+    poller = Poller(store, {"results": [civic, official, counties]}, RecordingPoster(), lambda: now, None)
+    await poller.tick()
+    assert civic.asked == [["TN SEN", "TX SEN"]]       # PA answered completely by its state feed
+    assert (await store.latest_result(tx)).source == "civicapi"   # complete beats partial
+    assert (await store.latest_result(pa)).source == "pa_sos"
+
+
+def test_civicapi_calls_are_on_by_default_and_attributed():
+    from datetime import datetime, timezone
+
+    from electionwatch.models import Level, RaceCall, RaceKey
+    from electionwatch.poller import format_call
+    from electionwatch.settings import GuildSettings
+
+    assert "CIVICAPI" in GuildSettings(1).call_outlets
+    call = RaceCall(RaceKey("TX", Level.SENATE, "SEN"), "CIVICAPI", "Ted Cruz", "REP",
+                    datetime(2024, 11, 6, 2, 10, tzinfo=timezone.utc), "https://civicapi.org/results/elections/1")
+    post = format_call(call)
+    assert "Outlet: civicAPI (its own decision desk)" in post.lines and post.url.startswith("https://civicapi.org")

@@ -121,3 +121,30 @@ async def test_navigator_clicks_defer_before_listing_races():
     await view._state_callback(interaction)
     assert calls == ["defer", "list", "edit"]
     navigator._list_cache.clear()
+
+
+async def test_fallback_local_races_are_hidden_where_an_official_feed_lists_local_races():
+    from types import SimpleNamespace
+
+    from electionwatch.bot import navigator
+
+    class Lister:
+        def __init__(self, name, races, fallback=False):
+            self.name, self.races, self.fallback, self.states = name, races, fallback, {"TX", "WY"}
+
+        def available(self):
+            return True
+
+        async def list_races(self, state, client):
+            return [(parse(k), k) for k in self.races if k.startswith(state)]
+
+    official = Lister("tx_counties", ["TX LOCAL harris-county-judge"])
+    civic = Lister("civicapi", ["TX LOCAL harris-county-judge-general", "TX SEN", "WY LOCAL laramie-mayor"],
+                   fallback=True)
+    navigator._list_cache.clear()
+    client = SimpleNamespace(sources={"results": [civic, official]}, http_client=None)
+    tx = set(await navigator.list_races(client, "TX"))
+    wy = set(await navigator.list_races(client, "WY"))
+    navigator._list_cache.clear()
+    assert tx == {"TX LOCAL harris-county-judge", "TX SEN"}    # civicAPI's duplicate local race hidden
+    assert wy == {"WY LOCAL laramie-mayor"}                    # no official local feed: civicAPI's stay

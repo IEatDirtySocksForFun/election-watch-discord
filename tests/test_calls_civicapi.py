@@ -140,3 +140,33 @@ async def test_failures_raise_source_unavailable(response):
     async with httpx.AsyncClient() as client:
         with pytest.raises(SourceUnavailable):
             await CivicAPIResultsSource(_CivicAPI()).fetch([TX_SEN], client)
+
+
+@respx.mock
+async def test_a_called_race_is_not_asked_again():
+    respx.get(f"{API}/race/search").respond(json=_load("search_tx_2026.json"))
+    real = _load("race_tx_sen_2024.json") | {"called_at": "2024-11-06T02:10:00.000Z"}
+    detail = respx.get(f"{API}/race/87438").respond(json=real)
+    source = CivicAPICallSource(_CivicAPI())
+    async with httpx.AsyncClient() as client:
+        first = await source.fetch_calls([TX_SEN], client)
+        source.api.races.clear()                      # even with nothing cached
+        second = await source.fetch_calls([TX_SEN], client)
+    assert first == second and len(first) == 1
+    assert detail.call_count == 1
+
+
+@respx.mock
+async def test_uncalled_races_are_rechecked_every_five_minutes_not_every_tick(monkeypatch):
+    import electionwatch.sources.calls.civicapi as civic
+
+    respx.get(f"{API}/race/search").respond(json=_load("search_tx_2026.json"))
+    detail = respx.get(f"{API}/race/87438").respond(json=_load("race_tx_sen_2024.json"))
+    clock = [1000.0]
+    monkeypatch.setattr(civic.time, "monotonic", lambda: clock[0])
+    source = CivicAPICallSource(_CivicAPI())
+    async with httpx.AsyncClient() as client:
+        for minute in range(6):
+            clock[0] = 1000.0 + minute * 60
+            await source.fetch_calls([TX_SEN], client)
+    assert detail.call_count == 2                     # t=0 and t=300 s

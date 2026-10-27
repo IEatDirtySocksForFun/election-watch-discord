@@ -4,6 +4,9 @@ for that state's Senate, Governor and first House race, and prints one row per (
     python tools/health_check.py                      # the configured ELECTION_DATE (2026 default)
     ELECTION_DATE=2024-11-05 python tools/health_check.py --json out.json
 
+civicAPI is checked per state with its own status TEST: it lists the races but still flags them
+as test data (normal before election night; it must flip to OK once real returns arrive).
+
 Status: OK (returned results), EMPTY (reachable, nothing for these races yet: normal before
 the feed is published), UNAVAILABLE (the adapter reported the feed down/blocked), ERROR (an
 exception: a bug or an unexpected response), TIMEOUT.
@@ -16,6 +19,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime, timezone
 
 import httpx
 
@@ -88,9 +92,42 @@ async def main() -> int:
                                      "status": status, "secs": round(time.monotonic() - t0, 1),
                                      "detail": f"{type(e).__name__}: {str(e)[:150]}"})
 
+        async def civic(st, gate=asyncio.Semaphore(2)):
+            # civicAPI serves test data before election night (fake winners, test_data: true)
+            # and the adapter drops it: report TEST so the flag flipping off can be watched.
+            from electionwatch.sources.calls.civicapi import _CivicAPI, parse_race
+
+            api = _CivicAPI()
+            async with gate:
+                t0 = time.monotonic()
+                row = {"adapter": "civicapi", "state": st, "default": True}
+                try:
+                    index = await api.state_races(st, client)
+                    probes = [(k, index[k][0]) for k in probe_keys(st) if k in index]
+                    flags, shown = [], []
+                    for key, race_id in probes:
+                        race = await api.race(race_id, client) or {}
+                        flags.append(bool(race.get("test_data")))
+                        result = parse_race(race, race_id, key, datetime.now(timezone.utc))
+                        if result and result.total_votes:
+                            shown.append(f"{key}: {result.candidates[0].name} {result.total_votes:,}")
+                    federal = sum(1 for k in index if k.level in (Level.SENATE, Level.GOVERNOR, Level.HOUSE))
+                    row["status"] = ("OK" if shown else "TEST" if any(flags) else
+                                     "EMPTY")
+                    row["detail"] = (f"{len(index)} races ({federal} federal/governor); "
+                                     f"test_data on {sum(flags)}/{len(flags)} probed; " + ", ".join(shown))
+                except Exception as e:  # noqa: BLE001
+                    row["status"] = "UNAVAILABLE" if isinstance(e, SourceUnavailable) else "ERROR"
+                    row["detail"] = f"{type(e).__name__}: {str(e)[:150]}"
+                row["secs"] = round(time.monotonic() - t0, 1)
+                rows.append(row)
+
         nat = {n: c for n, c in reg.items() if n.endswith("_results") and len(c.states) > 40}
+        special = set(nat) | {"civicapi"}
         await asyncio.gather(*(national(n, c) for n, c in nat.items() if not only or n in only),
-                             *(one(n, c, st) for n, c in reg.items() if n not in nat
+                             *(civic(st) for st in sorted(reg["civicapi"].states)
+                               if "civicapi" in reg and (not only or "civicapi" in only)),
+                             *(one(n, c, st) for n, c in reg.items() if n not in special
                                and (not only or n in only) for st in sorted(c.states)))
     rows.sort(key=lambda r: (r["state"], r["adapter"]))
     for r in rows:

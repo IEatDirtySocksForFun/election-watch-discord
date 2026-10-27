@@ -9,6 +9,7 @@ import discord
 
 from electionwatch.bot.logic import LEVELS, NAV_TABS, filter_races, remember_navigation
 from electionwatch.bot.poster import render_embed
+from electionwatch.models import Level
 from electionwatch.poller import format_result
 from electionwatch.racekeys import ALL_JURISDICTIONS, describe, parse
 from electionwatch.settings import UserSettings
@@ -54,12 +55,25 @@ async def list_races(client, state: str) -> dict[str, tuple]:
 
     found: dict[str, tuple] = {}
     answers = await asyncio.gather(*(one(source) for source in sources), return_exceptions=True)
+    listed = []
     for source, races in zip(sources, answers):
         if isinstance(races, BaseException):
             logger.warning("Could not list %s races from %s: %s", state, source.name, type(races).__name__)
             continue
+        listed.append((source, races))
+    # Local race keys are slugs of each source's own contest name, so civicAPI's and a county
+    # feed's key for the same race differ: where an official feed lists local races, the
+    # fallbacks' local races would be duplicates under other names.
+    official_local = any(
+        key.level is Level.LOCAL
+        for source, races in listed if not getattr(source, "fallback", False)
+        for key, _ in races
+    )
+    for source, races in listed:
         for key, label in races:
-            found[str(key)] = (key, label)
+            if official_local and key.level is Level.LOCAL and getattr(source, "fallback", False):
+                continue
+            found.setdefault(str(key), (key, label))
     return found
 
 

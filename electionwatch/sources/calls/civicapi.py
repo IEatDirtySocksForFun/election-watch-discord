@@ -36,6 +36,7 @@ API = "https://civicapi.org/api/v2"
 PAGE = "https://civicapi.org/results/elections/{id}"
 INDEX_TTL = 1800      # race ids never change: re-list a state every 30 minutes
 RACE_TTL = 55         # one fetch per race per poll tick (the poller ticks every 60 s)
+CALL_TTL = 300        # call checks reuse a results fetch, else re-ask every 5 minutes
 PAGE_SIZE = 1000
 MAX_PAGES = 10
 CONCURRENCY = 4
@@ -167,25 +168,32 @@ class _CivicAPI:
         self.index[ident] = (time.monotonic() + INDEX_TTL, found)
         return found
 
-    async def race(self, race_id: int, client: httpx.AsyncClient) -> dict | None:
+    async def race(self, race_id: int, client: httpx.AsyncClient, max_age: float = RACE_TTL) -> dict | None:
         cached = self.races.get(race_id)
-        if cached and time.monotonic() < cached[0]:
+        if cached and time.monotonic() < cached[0] - RACE_TTL + max_age:
             return cached[1]
         payload = await self._get(client, f"race/{race_id}")
         self.races[race_id] = (time.monotonic() + RACE_TTL, payload)
         return payload
 
-    async def races_for(self, keys: list[RaceKey], client: httpx.AsyncClient):
-        """Yield (key, race id, race payload) for the requested keys civicAPI publishes."""
+    async def races_for(
+        self, keys: list[RaceKey], client: httpx.AsyncClient, max_age: float = RACE_TTL,
+        skip: set[int] = frozenset(),
+    ):
+        """(key, race id, race payload) for the requested keys civicAPI publishes; race ids
+        in skip are left out, and a cached race younger than max_age seconds is reused."""
         wanted: list[tuple[RaceKey, int]] = []
         for state in sorted({key.state for key in keys}):
             index = await self.state_races(state, client)
-            wanted += [(key, index[key][0]) for key in keys if key.state == state and key in index]
+            wanted += [
+                (key, index[key][0]) for key in keys
+                if key.state == state and key in index and index[key][0] not in skip
+            ]
         gate = asyncio.Semaphore(CONCURRENCY)
 
         async def one(race_id: int):
             async with gate:
-                return await self.race(race_id, client)
+                return await self.race(race_id, client, max_age)
 
         payloads = await asyncio.gather(*(one(race_id) for _, race_id in wanted))
         return [(key, race_id, race) for (key, race_id), race in zip(wanted, payloads) if race]
@@ -223,11 +231,15 @@ class CivicAPICallSource(CallSource):
 
     def __init__(self, api: _CivicAPI | None = None) -> None:
         self.api = api or _SHARED
+        self.called: dict[int, RaceCall] = {}   # race id -> call already made
 
     async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
-        calls = []
-        for key, race_id, race in await self.api.races_for(keys, client):
+        # A call is checked from the results fetch when there was one this minute, else at
+        # most every CALL_TTL seconds; a called race is not asked again (the store keeps it).
+        calls = [call for call in self.called.values() if call.key in set(keys)]
+        for key, race_id, race in await self.api.races_for(keys, client, CALL_TTL, set(self.called)):
             call = parse_call(race, race_id, key)
             if call is not None:
+                self.called[race_id] = call
                 calls.append(call)
         return calls
