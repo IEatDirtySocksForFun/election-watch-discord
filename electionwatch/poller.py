@@ -36,7 +36,7 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
         )
     reporting = []
     if result.expected_vote_pct is not None:
-        reporting.append(f"{result.expected_vote_pct:.0f}% expected vote")
+        reporting.append(f"{result.expected_vote_pct:.1f}".removesuffix(".0") + "% expected vote")
     if result.precincts_reporting is not None:
         precincts = f"{result.precincts_reporting:,}"
         if result.precincts_total is not None:

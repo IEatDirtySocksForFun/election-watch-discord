@@ -78,7 +78,7 @@ class RaceResult:
             "k": str(self.key),
             "c": sorted((c.name, c.votes) for c in self.candidates),
             "p": self.precincts_reporting,
-            "e": self.expected_vote_pct,
+            "e": None if self.expected_vote_pct is None else round(self.expected_vote_pct, 1),  # as displayed
         }
         return hashlib.sha1(json.dumps(core, sort_keys=True).encode()).hexdigest()
 
