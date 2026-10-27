@@ -162,13 +162,25 @@ def parse_pa(payload, *, fetched_at: datetime) -> list[RaceResult]:
     return results
 
 
+def latest_rows(payload) -> list[dict]:
+    """Rows from GetLatestElection, which is a JSON string of a JSON list."""
+    obj = payload
+    while isinstance(obj, str):
+        try:
+            obj = json.loads(obj)
+        except ValueError:
+            return []
+    if isinstance(obj, list):
+        return [r for r in obj if isinstance(r, dict)]
+    return [obj] if isinstance(obj, dict) else []
+
+
 async def _resolve(client: httpx.AsyncClient, date: str) -> dict:
     pinned = ELECTIONS.get(date)
     if pinned:
         return dict(pinned)
-    doc = _decode(await c.get_json(
+    rows = latest_rows(await c.get_json(
         client, f"{API}/GetLatestElection?methodName=GetLatestElection"))
-    rows = doc if isinstance(doc, list) else [doc]
     for row in rows:
         if str(row.get("ElectionDate", ""))[:10] == date:
             return {"election_id": str(row["ElectionID"]),

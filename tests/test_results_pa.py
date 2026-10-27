@@ -4,7 +4,7 @@ from pathlib import Path
 
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key
-from electionwatch.sources.results.pa_dos import parse_pa, race_key
+from electionwatch.sources.results.pa_dos import latest_rows, parse_pa, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "pa_dos"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
@@ -60,6 +60,16 @@ def test_office_name_mapping():
     # Unknown questions are kept as a stable LOCAL race, not dropped.
     assert format_key(race_key("Retention of Supreme Court Justice")) == \
         "PA LOCAL retention-of-supreme-court-justice"
+
+
+def test_latest_election_is_a_json_string_of_a_json_list():
+    inner = [{"ElectionID": 117, "ElectionName": "2026 General Election",
+              "ElectionDate": "2026-11-03T00:00:00", "ElectionType": "G"}]
+    body = json.dumps(json.dumps(inner))   # the API's double encoding, verbatim
+    rows = latest_rows(body)
+    assert rows and rows[0]["ElectionID"] == 117
+    assert latest_rows("") == []
+    assert latest_rows([]) == []
 
 
 def test_empty_payload_is_not_an_error():
