@@ -69,6 +69,8 @@ parties:
     bucket: libertarian
     emoji: "🟡"
     aliases:
+      - LIBERTARIN
+      - WRI LBT
       - LBN
       - L
       - LIB
@@ -423,6 +425,9 @@ parties:
     bucket: independent
     emoji: "⚪"
     aliases:
+      - PC
+      - Petitioning Candidate
+      - WI
       - UNENROLLED
       - NPD
       - NP
@@ -855,6 +860,15 @@ parties:
       - BP
       - Better Party
     source: https://www.sos.mo.gov/elections
+  - code: CTRY
+    name: Country Party
+    bucket: other
+    emoji: "🤠"
+    aliases:
+      - CTRY
+      - Country
+      - Country Party
+    source: https://sos.wyo.gov/Elections/Docs/2016/Results/General/2016_Statewide_Candidates_Summary.pdf
   - code: OPP
     name: Oregon Progressive Party
     bucket: other

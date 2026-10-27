@@ -18,7 +18,7 @@ parties pass through uppercased with the ⚪ marker.
 
 This page is generated — edit the YAML, then run `python tools/parties_table.py`.
 
-96 parties, 502 aliases.
+97 parties, 510 aliases.
 
 ## Buckets
 
@@ -33,7 +33,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `constitution` | Constitution Party, its state affiliates and ballot lines — 📜 (3) |
 | `independent` | independent and no-party labels — ⚪ (10) |
 | `centrist` | centrist and big-tent reform parties (15) |
-| `other` | everything else: progressive, conservative, single-issue and regional parties (41) |
+| `other` | everything else: progressive, conservative, single-issue and regional parties (42) |
 
 ## Table
 
@@ -41,7 +41,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | --- | --- | --- | --- | --- |
 | `DEM` | Democratic Party | dem | 🔵 | D, DEM, Democrat, Democrats, Democratic, Democratic Party, DFL, D-F-L, DFL Party, Minnesota DFL, Minnesota Democratic-Farmer-Labor Party, Democratic-Farmer-Labor, Democratic-Farmer-Labor Party, Democratic-NPL, D-NPL, North Dakota Democratic-Nonpartisan League Party, Democratic Nonpartisan League, NPL |
 | `REP` | Republican Party | rep | 🔴 | R, REP, GOP, Republican, Republicans, Republican Party, Grand Old Party |
-| `LIB` | Libertarian Party | libertarian | 🟡 | LBN, L, LIB, LBT, LP, Libertarian, Libertarian Party, Libertarian Party USA, Libertarian Party of New York, Libertarian Party of Pennsylvania, Libertarian Party of Texas, Libertarian Party of Florida, Libertarian Party of Ohio, Libertarian Party of Michigan, Libertarian Party of Virginia, Libertarian Party of Connecticut, Libertarian Party of New Hampshire, Libertarian Party of Wisconsin, Libertarian Association of Massachusetts |
+| `LIB` | Libertarian Party | libertarian | 🟡 | LIBERTARIN, WRI LBT, LBN, L, LIB, LBT, LP, Libertarian, Libertarian Party, Libertarian Party USA, Libertarian Party of New York, Libertarian Party of Pennsylvania, Libertarian Party of Texas, Libertarian Party of Florida, Libertarian Party of Ohio, Libertarian Party of Michigan, Libertarian Party of Virginia, Libertarian Party of Connecticut, Libertarian Party of New Hampshire, Libertarian Party of Wisconsin, Libertarian Association of Massachusetts |
 | `GRN` | Green Party of the United States | green | 🟢 | G, GRE, GRN, GP, GPUS, GP-US, Green, Greens, Green Party, Green Party USA, Green Party of the United States, Green Party of New York, Green Party of Pennsylvania, Green Party of Michigan, Green Party of California, Green Party of Texas, Green Party of Ohio, Green Party of Wisconsin, Green Party of Alaska, Green Party of Connecticut, Connecticut Green Party, Green Party of Rhode Island, DC Statehood Green Party, D.C. Statehood Green Party, Statehood Green |
 | `MGIP` | Maine Green Independent Party | green | 🟢 | MGIP, Maine Green Independent, Green Independent Party, Maine Greens |
 | `GRP` | Green-Rainbow Party | green | 🟢 | Green-Rainbow, GRP, Massachusetts Green-Rainbow Party |
@@ -70,7 +70,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `AIP` | American Independent Party | constitution | 📜 | AIP, AI, American Independent, American Independent Party, American Independent Party of California, California American Independent Party |
 | `UIAP` | Utah Independent American Party | constitution | 📜 | Independent American Party, UIAP, Independent American, Independent American Party of Nevada, Utah Independent American |
 | `IND` | Independent | independent | ⚪ | I, IND, Independent, Independents, Independent Candidate, Independent Party |
-| `NP` | No Party / Nonpartisan | independent | ⚪ | UNENROLLED, NPD, NP, NOP, NPA, NPP, U, UNA, UNK, No Party, No Party Affiliation, No Party Preference, No Affiliation, Nonpartisan, Non-Partisan, Unaffiliated, Decline to State, Blank, None, Not Affiliated, Unknown |
+| `NP` | No Party / Nonpartisan | independent | ⚪ | PC, Petitioning Candidate, WI, UNENROLLED, NPD, NP, NOP, NPA, NPP, U, UNA, UNK, No Party, No Party Affiliation, No Party Preference, No Affiliation, Nonpartisan, Non-Partisan, Unaffiliated, Decline to State, Blank, None, Not Affiliated, Unknown |
 | `IPNY` | Independence Party of New York | independent | ⚪ | IPNY, Independence Party of New York, NY Independence Party |
 | `IPDE` | Independent Party of Delaware | independent | ⚪ | IPDE, IDE, IPoD, Independent Party of Delaware, Delaware Independent Party |
 | `IPCT` | Independent Party of Connecticut | independent | ⚪ | IPCT, Independent Party of Connecticut, Connecticut Independent Party |
@@ -109,6 +109,7 @@ This page is generated — edit the YAML, then run `python tools/parties_table.p
 | `GMPJ` | Green Mountain Peace and Justice Party | other | 🌲 | PJP, Peace and Justice, Peace & Justice, GMPJ, Green Mountain Peace and Justice, Green Mountain Peace and Justice Party, Green Mountain Party, Liberty Union, Liberty Union Party |
 | `AMF` | America First Party | other | 🦁 | AMF, America First, America First Party |
 | `BP` | Better Party | other | 📈 | BP, Better Party |
+| `CTRY` | Country Party | other | 🤠 | CTRY, Country, Country Party |
 | `OPP` | Oregon Progressive Party | other | 🌳 | OPP, Oregon Progressive, Oregon Progressive Party, Progressive Party of Oregon |
 | `WAP` | Washington Progressive Party | other | 🌄 | WAP, WAPP, Washington Progressive, Washington Progressive Party |
 | `VPP` | Vermont Progressive Party | other | 🌿 | Progressive, PRO-VT, VPP, Vermont Progressive, Vermont Progressive Party, Progressive Party of Vermont |
