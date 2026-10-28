@@ -102,13 +102,19 @@ class FakeResults:
         ]
         races += [
             (
-                RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"),
-                f"{ALL_JURISDICTIONS[state]} Congressional District {n} – {LONG} vs {LONG}",
+                RaceKey(state, Level.HOUSE, "HOUSE", f"{district_number:02d}"),
+                f"{ALL_JURISDICTIONS[state]} Congressional District {district_number} – {LONG} vs {LONG}",
             )
-            for n in range(1, 39)
+            for district_number in range(1, 39)
         ]
-        races += [(RaceKey(state, Level.STATE, "HD", f"{n:03d}"), f"State House District {n}") for n in range(1, 31)]
-        races += [(local_key(state, f"{LONG_LOCAL} {n}"), f"{LONG_LOCAL} {n}") for n in range(3)]
+        races += [
+            (RaceKey(state, Level.STATE, "HD", f"{district_number:03d}"), f"State House District {district_number}")
+            for district_number in range(1, 31)
+        ]
+        races += [
+            (local_key(state, f"{LONG_LOCAL} {district_number}"), f"{LONG_LOCAL} {district_number}")
+            for district_number in range(3)
+        ]
         races += [(local_key(state, "Harris County Judge"), "Harris County Judge")]
         return races
 
@@ -116,17 +122,21 @@ class FakeResults:
 def odds_snapshots(key: RaceKey, outcomes: int, long_names: bool) -> list[OddsSnapshot]:
     snaps = []
     for market in ("kalshi", "polymarket"):
-        for n in range(outcomes):
-            name = f"{LONG} #{n}" if long_names else ("DEM", "REP", "IND")[n % 3] + (str(n) if n > 2 else "")
+        for index in range(outcomes):
+            name = (
+                f"{LONG} #{index}"
+                if long_names
+                else ("DEM", "REP", "IND")[index % 3] + (str(index) if index > 2 else "")
+            )
             snaps.append(
                 OddsSnapshot(
                     key,
                     market,
                     name,
-                    max(0.001, 1 / (n + 2)),
-                    NOW - timedelta(minutes=n),
-                    market_id=f"m{n}",
-                    url=f"https://{market}.com/markets/{key.state.lower()}-{key.office.lower()}-2026-outcome-{n}"
+                    max(0.001, 1 / (index + 2)),
+                    NOW - timedelta(minutes=index),
+                    market_id=f"m{index}",
+                    url=f"https://{market}.com/markets/{key.state.lower()}-{key.office.lower()}-2026-outcome-{index}"
                     "?utm_source=election-watch",
                 )
             )
@@ -134,59 +144,61 @@ def odds_snapshots(key: RaceKey, outcomes: int, long_names: bool) -> list[OddsSn
 
 
 def polls(key: RaceKey, n_polls: int, candidates: int, long_names: bool) -> list[Poll]:
-    out = []
-    for p in range(n_polls):
+    created = []
+    for poll_index in range(n_polls):
         results = [
             PollResult(
-                f"{LONG} {c}" if long_names else f"Candidate {c}", ("DEM", "REP", "LIB", None)[c % 4], 40.0 / (c + 1)
+                f"{LONG} {candidate_index}" if long_names else f"Candidate {candidate_index}",
+                ("DEM", "REP", "LIB", None)[candidate_index % 4],
+                40.0 / (candidate_index + 1),
             )
-            for c in range(candidates)
+            for candidate_index in range(candidates)
         ]
-        out.append(
+        created.append(
             Poll(
                 key,
-                f"{LONG} Research & Polling Partners {p}" if long_names else f"Pollster {p}",
+                f"{LONG} Research & Polling Partners {poll_index}" if long_names else f"Pollster {poll_index}",
                 results,
-                date(2026, 10, 30) - timedelta(days=p),
-                start_date=date(2026, 10, 20) - timedelta(days=p),
-                sample_size=1000 + p,
+                date(2026, 10, 30) - timedelta(days=poll_index),
+                start_date=date(2026, 10, 20) - timedelta(days=poll_index),
+                sample_size=1000 + poll_index,
                 population="LV",
-                sponsor=f"{LONG} Committee for Good Government {p}" if long_names else None,
-                partisan="REP" if p % 3 == 0 else None,
+                sponsor=f"{LONG} Committee for Good Government {poll_index}" if long_names else None,
+                partisan="REP" if poll_index % 3 == 0 else None,
                 source="live_check",
-                url=f"https://example.org/polls/{key.state.lower()}/{p}/" + "x" * (60 if long_names else 0),
+                url=f"https://example.org/polls/{key.state.lower()}/{poll_index}/" + "x" * (60 if long_names else 0),
             )
         )
-    return out
+    return created
 
 
 def result(key: RaceKey, candidates: int, long_names: bool) -> RaceResult:
-    cands = [
+    candidate_results = [
         CandidateResult(
-            (LONG * 4)[:250] + f" {c}" if long_names else f"Candidate Number {c}",
-            ("DEM", "REP", "LIB", "GRN", "IND", None)[c % 6],
-            1_000_000 // (c + 1),
-            incumbent=c == 0,
-            winner=c == 0,
+            (LONG * 4)[:250] + f" {candidate_index}" if long_names else f"Candidate Number {candidate_index}",
+            ("DEM", "REP", "LIB", "GRN", "IND", None)[candidate_index % 6],
+            1_000_000 // (candidate_index + 1),
+            incumbent=candidate_index == 0,
+            winner=candidate_index == 0,
         )
-        for c in range(candidates)
+        for candidate_index in range(candidates)
     ]
-    r = RaceResult(
+    race_result = RaceResult(
         key,
-        cands,
+        candidate_results,
         "live_check_results" + (" " + LONG * 3 if long_names else ""),
         NOW,
         precincts_reporting=8123,
         precincts_total=9001,
         expected_vote_pct=87.4,
-        total_votes=sum(c.votes for c in cands),
+        total_votes=sum(candidate_index.votes for candidate_index in candidate_results),
         registered_voters=12_345_678,
         turnout_pct=61.2,
         url="https://results.example.gov/2026/general/" + ("very-long-path/" * 8 if long_names else ""),
         title=(f"{LONG_LOCAL} " * 4) if long_names else None,
     )
-    r.finalize() if hasattr(r, "finalize") else None
-    return r
+    race_result.finalize() if hasattr(race_result, "finalize") else None
+    return race_result
 
 
 class CheckBot(ElectionBot):
@@ -197,50 +209,59 @@ class CheckBot(ElectionBot):
 # --------------------------------------------------------------------------- schema
 
 
-def _norm_option(o: dict) -> dict:
+def _norm_option(option: dict) -> dict:
     keep = {
-        k: o[k]
-        for k in ("type", "name", "description", "min_value", "max_value", "min_length", "max_length", "autocomplete")
-        if o.get(k) not in (None, False)
+        field: option[field]
+        for field in (
+            "type",
+            "name",
+            "description",
+            "min_value",
+            "max_value",
+            "min_length",
+            "max_length",
+            "autocomplete",
+        )
+        if option.get(field) not in (None, False)
     }
-    keep["required"] = bool(o.get("required", False))
-    if o.get("choices"):
-        keep["choices"] = [(c["name"], c["value"]) for c in o["choices"]]
-    if o.get("channel_types"):
-        keep["channel_types"] = sorted(o["channel_types"])
-    if o.get("options"):
-        keep["options"] = [_norm_option(x) for x in o["options"]]
+    keep["required"] = bool(option.get("required", False))
+    if option.get("choices"):
+        keep["choices"] = [(choice["name"], choice["value"]) for choice in option["choices"]]
+    if option.get("channel_types"):
+        keep["channel_types"] = sorted(option["channel_types"])
+    if option.get("options"):
+        keep["options"] = [_norm_option(sub_option) for sub_option in option["options"]]
     return keep
 
 
-def _norm_command(c: dict) -> dict:
+def _norm_command(command: dict) -> dict:
     return {
-        "name": c["name"],
-        "description": c["description"],
-        "type": c.get("type", 1),
-        "options": [_norm_option(o) for o in c.get("options", [])],
+        "name": command["name"],
+        "description": command["description"],
+        "type": command.get("type", 1),
+        "options": [_norm_option(option) for option in command.get("options", [])],
     }
 
 
 async def check_schema(bot: CheckBot, guild: discord.Object) -> dict:
-    local = {c.name: _norm_command(c.to_dict(bot.tree)) for c in bot.tree.get_commands()}
+    local = {command.name: _norm_command(command.to_dict(bot.tree)) for command in bot.tree.get_commands()}
     bot.tree.copy_global_to(guild=guild)
     report: dict = {"local_commands": sorted(local)}
     try:
         synced = await bot.tree.sync(guild=guild)
         report["sync"] = {"ok": True, "count": len(synced)}
-    except discord.HTTPException as e:
-        report["sync"] = {"ok": False, "status": e.status, "code": e.code, "error": e.text}
+    except discord.HTTPException as exc:
+        report["sync"] = {"ok": False, "status": exc.status, "code": exc.code, "error": exc.text}
         return report
     remote_cmds = await bot.tree.fetch_commands(guild=guild)
-    remote = {c.name: _norm_command(c.to_dict()) for c in remote_cmds}
+    remote = {command.name: _norm_command(command.to_dict()) for command in remote_cmds}
     diffs = {}
     for name in sorted(set(local) | set(remote)):
         if local.get(name) != remote.get(name):
             diffs[name] = {"local": local.get(name), "remote": remote.get(name)}
     report["remote_commands"] = sorted(remote)
     report["diff"] = diffs
-    report["global_commands_registered"] = sorted(c.name for c in await bot.tree.fetch_commands())
+    report["global_commands_registered"] = sorted(command.name for command in await bot.tree.fetch_commands())
     return report
 
 
@@ -275,7 +296,7 @@ async def build_payloads(bot: CheckBot):
         interval_minutes=1440,
     )
     for state in STATES:
-        big.important += [f"{state} SEN", f"{state} GOV"] + [f"{state}-{n:02d}" for n in range(1, 5)]
+        big.important += [f"{state} SEN", f"{state} GOV"] + [f"{state}-{index:02d}" for index in range(1, 5)]
     big.important = big.important[:300]
     yield "settings 300 races", {"content": wrap_yaml(settings_dump(big))}
 
@@ -296,21 +317,23 @@ async def build_payloads(bot: CheckBot):
         yield f"faq {code}", {"content": text}
 
     # /odds overview + per race.
-    keys = [RaceKey(s, Level.SENATE, "SEN") for s in STATES] + [
-        RaceKey(s, Level.HOUSE, "HOUSE", f"{n:02d}") for s in STATES for n in range(1, 6)
+    keys = [RaceKey(state_code, Level.SENATE, "SEN") for state_code in STATES] + [
+        RaceKey(state_code, Level.HOUSE, "HOUSE", f"{index:02d}") for state_code in STATES for index in range(1, 6)
     ]
     keys = keys[:300]
     yield (
         "odds overview 300 races, long names",
-        {"embed": format_odds_overview([(k, odds_snapshots(k, 6, True)) for k in keys])},
+        {"embed": format_odds_overview([(race_key, odds_snapshots(race_key, 6, True)) for race_key in keys])},
     )
     yield (
         "odds overview 15 races",
-        {"embed": format_odds_overview([(k, odds_snapshots(k, 2, False)) for k in keys[:15]])},
+        {"embed": format_odds_overview([(race_key, odds_snapshots(race_key, 2, False)) for race_key in keys[:15]])},
     )
-    yield "odds overview empty", {"embed": format_odds_overview([(k, []) for k in keys[:3]])}
+    yield "odds overview empty", {"embed": format_odds_overview([(race_key, []) for race_key in keys[:3]])}
     yield "odds overview no races", {"embed": format_odds_overview([])}
-    moves = {(m, f"{LONG} #{n}"): {1: 12.3, 24: -45.6} for m in ("kalshi", "polymarket") for n in range(40)}
+    moves = {
+        (market, f"{LONG} #{index}"): {1: 12.3, 24: -45.6} for market in ("kalshi", "polymarket") for index in range(40)
+    }
     yield "odds race 40 long outcomes", {"embed": format_odds(tx_sen, odds_snapshots(tx_sen, 40, True), moves)}
     yield "odds race 3 outcomes", {"embed": format_odds(tx_sen, odds_snapshots(tx_sen, 3, False))}
     yield "odds race none", {"embed": format_odds(tx_sen, [])}
@@ -326,14 +349,14 @@ async def build_payloads(bot: CheckBot):
     yield "polls no source", {"embed": format_polls(tx_sen, [], sources_available=False)}
 
     # Result / call / exit-poll embeds.
-    for label, key, n, long_names, turnout in (
+    for label, key, index, long_names, turnout in (
         ("result 50 candidates", tx_sen, 50, False, True),
         ("result long names", RaceKey("WA", Level.LOCAL, "LOCAL", "x" * 150), 8, True, True),
         ("result 1 candidate", RaceKey("AK", Level.HOUSE, "HOUSE", "AL"), 1, False, False),
     ):
-        r = result(key, n, long_names)
-        await bot.store.upsert_result(r)
-        yield label, {"embed": render_embed(format_result(r, turnout=turnout))}
+        race_result = result(key, index, long_names)
+        await bot.store.upsert_result(race_result)
+        yield label, {"embed": render_embed(format_result(race_result, turnout=turnout))}
     yield (
         "call",
         {
@@ -404,7 +427,7 @@ async def build_payloads(bot: CheckBot):
         view = RaceNavigator(bot, 1, UserSettings(1, home_state=territory, default_level="senate"))
         await view.refresh()
         yield f"navigator {territory}", {"embed": await view.embed(), "view": view}
-    favorites = ["PA SEN", "PA-07", "GA GOV", "TX SEN", "AK-AL"] + [f"CA-{n:02d}" for n in range(1, 31)]
+    favorites = ["PA SEN", "PA-07", "GA GOV", "TX SEN", "AK-AL"] + [f"CA-{index:02d}" for index in range(1, 31)]
     for label, favs in (("favorites tab", favorites), ("favorites tab empty", [])):
         view = RaceNavigator(bot, 1, UserSettings(1, default_level="favorites", favorites=favs))
         await view.refresh()
@@ -452,38 +475,38 @@ async def build_payloads(bot: CheckBot):
 # --------------------------------------------------------------------------- main
 
 
-async def run(a) -> int:
-    out = Path(a.out).expanduser()
-    out.mkdir(parents=True, exist_ok=True)
+async def run(args) -> int:
+    out_dir = Path(args.out).expanduser()
+    out_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    record_path = out / f"sends-{stamp}.jsonl"
-    summary_path = out / f"summary-{stamp}.json"
+    record_path = out_dir / f"sends-{stamp}.jsonl"
+    summary_path = out_dir / f"summary-{stamp}.json"
     token = os.environ.get("DISCORD_TOKEN")
     if not token:
         print("DISCORD_TOKEN is not set (env or EW_ENV_FILES)", file=sys.stderr)
         return 2
-    summary: dict = {"started": stamp, "guild": a.guild, "channel": a.channel}
+    summary: dict = {"started": stamp, "guild": args.guild, "channel": args.channel}
     async with httpx.AsyncClient() as http_client:
         bot = CheckBot(MemoryStore(), {"results": [FakeResults()]}, http_client)
         async with bot:
             await bot.login(token)
             summary["bot_user"] = str(bot.user)
-            if not a.skip_sync:
-                summary["schema"] = await check_schema(bot, discord.Object(id=a.guild))
+            if not args.skip_sync:
+                summary["schema"] = await check_schema(bot, discord.Object(id=args.guild))
                 print(
                     "schema:",
                     json.dumps(summary["schema"].get("sync")),
                     "diffs:",
                     list(summary["schema"].get("diff", {})),
                 )
-            channel = await bot.fetch_channel(a.channel)
+            channel = await bot.fetch_channel(args.channel)
             thread = await channel.create_thread(
                 name=f"[TEST] command render {stamp}"[:100],
                 type=discord.ChannelType.public_thread,
                 auto_archive_duration=1440,
             )
             summary["thread_id"] = thread.id
-            summary["thread_url"] = f"https://discord.com/channels/{a.guild}/{thread.id}"
+            summary["thread_url"] = f"https://discord.com/channels/{args.guild}/{thread.id}"
             print("thread:", summary["thread_url"])
             ok = failed = 0
             none = discord.AllowedMentions.none()
@@ -491,7 +514,7 @@ async def run(a) -> int:
                 index = 0
                 async for label, kwargs in build_payloads(bot):
                     index += 1
-                    if index > a.max_messages:
+                    if index > args.max_messages:
                         break
                     row = {"i": index, "label": label}
                     t0 = time.monotonic()
@@ -499,10 +522,10 @@ async def run(a) -> int:
                         message = await thread.send(allowed_mentions=none, **kwargs)
                         row.update(ok=True, message_id=message.id)
                         ok += 1
-                    except discord.HTTPException as e:
-                        row.update(ok=False, status=e.status, code=e.code, error=e.text[:2000])
+                    except discord.HTTPException as exc:
+                        row.update(ok=False, status=exc.status, code=exc.code, error=exc.text[:2000])
                         failed += 1
-                        print(f"FAIL {label}: HTTP {e.status} code {e.code}: {e.text[:300]}")
+                        print(f"FAIL {label}: HTTP {exc.status} code {exc.code}: {exc.text[:300]}")
                     finally:
                         view = kwargs.get("view")
                         if view is not None:
@@ -529,10 +552,10 @@ def main() -> None:
     ap.add_argument("--out", default=str(ROOT.parent.parent / "logs" / "cmdtest"))
     ap.add_argument("--max-messages", type=int, default=250)
     ap.add_argument("--skip-sync", action="store_true")
-    a = ap.parse_args()
+    args = ap.parse_args()
     logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
     load_env()
-    sys.exit(asyncio.run(run(a)))
+    sys.exit(asyncio.run(run(args)))
 
 
 if __name__ == "__main__":
