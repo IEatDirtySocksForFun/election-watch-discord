@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "respx>=0.21"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "respx>=0.21", "ruff==0.6.9"]
 
 [project.scripts]
 election-watch = "electionwatch.__main__:main"
@@ -27,3 +27,14 @@ include = ["electionwatch*"]
 
 [tool.setuptools.package-data]
 electionwatch = ["data/certs/*.pem", "data/certs/README.txt"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["tests/fixtures", "replay/out"]
+
+[tool.ruff.lint]
+# pycodestyle errors and warnings, pyflakes, import sorting.
+select = ["E", "F", "W", "I"]
+# The formatter takes care of line length; long strings and URLs are left alone.
+ignore = ["E501"]

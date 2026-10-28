@@ -1,0 +1,3 @@
+# Saved real responses are kept byte for byte.
+tests/fixtures/
+replay/out/
