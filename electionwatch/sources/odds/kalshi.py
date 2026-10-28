@@ -53,14 +53,14 @@ class KalshiSource(OddsSource):
             except Exception as exc:
                 raise SourceUnavailable(f"kalshi bad JSON: {exc}") from exc
             try:
-                snaps = parse_kalshi_event(payload)
+                parsed = parse_kalshi_event(payload)
             except Exception:
                 # Never raise on one bad race.
                 continue
             # Stamp with the fetch time: updated_time is market *metadata* time (often weeks
             # old), which would put every price outside the swing detector's look-back window.
             fetched = datetime.now(timezone.utc)
-            snapshots.extend(replace(s, ts=fetched) for s in snaps if s.key == key)
+            snapshots.extend(replace(snapshot, ts=fetched) for snapshot in parsed if snapshot.key == key)
         return snapshots
 
     def _key_to_event_ticker(self, key: RaceKey) -> str | None:
@@ -171,18 +171,18 @@ def _market_outcome(market: dict) -> str | None:
 
 def _market_prob(market: dict) -> float | None:
     for field in ("last_price_dollars", "yes_bid_dollars", "yes_ask_dollars"):
-        val = market.get(field)
-        if val:
+        price = market.get(field)
+        if price:
             try:
-                return _unit_interval(float(val))
+                return _unit_interval(float(price))
             except (TypeError, ValueError):
                 pass
     # Older payloads quote integer cents rather than *_dollars strings.
     for field in ("last_price", "yes_bid", "yes_ask"):
-        val = market.get(field)
-        if val is not None:
+        price = market.get(field)
+        if price is not None:
             try:
-                return _unit_interval(float(val) / 100.0)
+                return _unit_interval(float(price) / 100.0)
             except (TypeError, ValueError):
                 pass
     return None

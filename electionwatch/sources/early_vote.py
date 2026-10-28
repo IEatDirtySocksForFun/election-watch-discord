@@ -127,15 +127,15 @@ class EarlyVote:
 
     @property
     def total_ballots(self) -> int:
-        return sum(self.tallies[c].total for c in VOTED if c in self.tallies)
+        return sum(self.tallies[category].total for category in VOTED if category in self.tallies)
 
     @property
     def by_party(self) -> dict[str, int]:
-        return merge_parties(*(self.tallies[c].by_party for c in VOTED if c in self.tallies))
+        return merge_parties(*(self.tallies[category].by_party for category in VOTED if category in self.tallies))
 
     @property
     def by_method(self) -> dict[str, int]:
-        return {c: self.tallies[c].total for c in CATEGORIES if c in self.tallies}
+        return {category: self.tallies[category].total for category in CATEGORIES if category in self.tallies}
 
 
 @dataclass
@@ -145,7 +145,7 @@ class National:
 
     def total(self, state: str) -> int:
         tallies = self.states.get(state, {})
-        return sum(tallies[c].total for c in VOTED if c in tallies)
+        return sum(tallies[category].total for category in VOTED if category in tallies)
 
 
 def _int(value) -> int:
@@ -161,7 +161,7 @@ def merge_parties(*parts: dict[str, int]) -> dict[str, int]:
     for part in parts:
         for party, votes in part.items():
             merged[party] = merged.get(party, 0) + votes
-    return dict(sorted(merged.items(), key=lambda item: (-item[1], item[0])))
+    return dict(sorted(merged.items(), key=lambda party_votes: (-party_votes[1], party_votes[0])))
 
 
 def parse_breakdown(raw) -> tuple[int, dict[str, int]]:
@@ -236,8 +236,11 @@ def parse_capabilities(payload: dict | None) -> dict[str, dict[str, bool]]:
     provides = payload.get("provides") if isinstance(payload.get("provides"), dict) else {}
     categories = payload.get("categories")
     if not isinstance(categories, dict):
-        return {c: dict(provides) for c in CATEGORIES} if provides else {}
-    return {str(c): {**provides, **(flags if isinstance(flags, dict) else {})} for c, flags in categories.items()}
+        return {category: dict(provides) for category in CATEGORIES} if provides else {}
+    return {
+        str(category): {**provides, **(flags if isinstance(flags, dict) else {})}
+        for category, flags in categories.items()
+    }
 
 
 # --------------------------------------------------------------------------- client
@@ -339,7 +342,7 @@ class EarlyVoteClient:
         """Download every page the commands can show (national totals, then each state with
         data: counties, age, the comparison with four years earlier) into the store. Pages of
         past elections stay cached for 12 hours. Returns the number of states refreshed."""
-        self._cache = {k: v for k, v in self._cache.items() if "/historical/" in k}
+        self._cache = {url: payload for url, payload in self._cache.items() if "/historical/" in url}
         national = await self.national()
         for code in sorted(national.states):
             await self.state(code, counties=True, age=True)
@@ -347,7 +350,7 @@ class EarlyVoteClient:
 
     async def national(self) -> National:
         """Every state's totals per category (four requests, shared by every command)."""
-        payloads = {c: await self._get(f"US/{c}") for c in CATEGORIES}
+        payloads = {category: await self._get(f"US/{category}") for category in CATEGORIES}
         return parse_national(payloads)
 
     def cached_states(self) -> list[str] | None:
@@ -355,11 +358,11 @@ class EarlyVoteClient:
         if self.cache_only:
             return None
         payloads = {}
-        for c in CATEGORIES:
-            cached = self._fresh(f"{API}/US/{c}")
+        for category in CATEGORIES:
+            cached = self._fresh(f"{API}/US/{category}")
             if cached is _MISS:
                 return None
-            payloads[c] = cached
+            payloads[category] = cached
         return list(parse_national(payloads).states)
 
     async def states_with_data(self, timeout: float) -> list[str] | None:
@@ -391,19 +394,21 @@ class EarlyVoteClient:
         tallies = national.states.get(code)
         if not tallies:
             return None
-        result = EarlyVote(code, dict(tallies), national.updated_at, page_url(code))
-        voted = [c for c in VOTED if c in tallies]
+        early_vote = EarlyVote(code, dict(tallies), national.updated_at, page_url(code))
+        voted = [category for category in VOTED if category in tallies]
         if compare and national.updated_at is not None:
-            result.comparison = await self._comparison(code, voted, national.updated_at)
+            early_vote.comparison = await self._comparison(code, voted, national.updated_at)
         if counties:
             merged: dict[str, int] = {}
             for category in voted:
                 for county, votes in parse_counties(await self._get(f"{code}/{category}")).items():
                     merged[county] = merged.get(county, 0) + votes
-            result.counties = dict(sorted(merged.items(), key=lambda item: (-item[1], item[0])))
+            early_vote.counties = dict(
+                sorted(merged.items(), key=lambda county_votes: (-county_votes[1], county_votes[0]))
+            )
         if age:
             caps = parse_capabilities(await self._get(f"{code}/capabilities"))
-            covered = tuple(c for c in voted if caps.get(c, {}).get("age"))
+            covered = tuple(category for category in voted if caps.get(category, {}).get("age"))
             buckets: dict[str, int] = {}
             answered = []
             for category in covered:
@@ -412,30 +417,30 @@ class EarlyVoteClient:
                     answered.append(category)
                 for label, votes in values.items():
                     buckets[label] = buckets.get(label, 0) + votes
-            result.age = buckets
-            result.age_categories = tuple(answered)
-        return result
+            early_vote.age = buckets
+            early_vote.age_categories = tuple(answered)
+        return early_vote
 
     async def _comparison(self, code: str, categories: list[str], snapshot: date) -> Comparison | None:
         year = snapshot.year - 4  # the same kind of election (midterm / presidential)
-        on = comparison_date(snapshot, year)
-        if on is None or not categories:
+        match_day = comparison_date(snapshot, year)
+        if match_day is None or not categories:
             return None
         tallies = []
         for category in categories:
             payload = await self._get(
                 f"historical/{year}/{code}/{category}",
-                {"date": on.isoformat()},
+                {"date": match_day.isoformat()},
                 ttl=self.history_ttl,
             )
-            if (tally := parse_tally(payload, category)) is not None and tally.total:
-                tallies.append(tally)
+            if (parsed := parse_tally(payload, category)) is not None and parsed.total:
+                tallies.append(parsed)
         if not tallies:
             return None
         return Comparison(
             year,
-            on,
-            sum(t.total for t in tallies),
-            merge_parties(*(t.by_party for t in tallies)),
-            tuple(t.label for t in tallies if t.label),
+            match_day,
+            sum(tally.total for tally in tallies),
+            merge_parties(*(tally.by_party for tally in tallies)),
+            tuple(tally.label for tally in tallies if tally.label),
         )
