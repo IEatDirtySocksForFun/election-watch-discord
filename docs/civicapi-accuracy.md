@@ -1,57 +1,51 @@
 # civicAPI accuracy vs official results (2026-10-27)
 
-## Verdict
+## Bottom line
 
-- **Statewide/federal races, after certification: trustworthy.** VA Gov/LtGov/AG were within 1-2 votes, and NJ Gov was exact. NC 2024 Council of State was exact (only Treasurer was off, by 855 votes). TX and CA Senate totals equal the certified figures (Cruz 5,990,741; Schiff 9,036,252), where MEDSL runs slightly low.
-- **Legislative/down-ballot: mostly exact, but some data is stale or wrong and nothing flags it.** VA HD: 98 of 100 exact (HD-55 off by 3 write-ins). NC 2024 legislature: 4 bad races, including HD-61, where Harrison has 23,899 votes against 33,804 official and her opponent is inflated, and HD-82, which is exactly +3,000. **The NJ Assembly was never updated after election night**: all 40 districts are 2-11% low (HD-23 is 31% low), still say percent_reporting 99 (HD-15/28 say 0), and the SD-35 special is 5% low. Winners still agree in every race.
-- **NC 2026 primary: 81 of 81 exact** (as of today).
-- **Use as a fallback for election-night numbers and leads. Don't treat it as authoritative final totals, and don't use its calls.**
+- **Statewide and federal races after certification: trustworthy in these spot checks.** VA
+  statewide races were within 1-2 votes, NJ Governor was exact, and TX and CA Senate totals
+  matched the certified figures.
+- **Legislative and down-ballot races: mostly exact, with some stale or wrong data.** VA House
+  had 98 of 100 exact. NC 2024 had four bad races. The NJ Assembly figures were not updated
+  after election night, although every winner still agreed.
+- **NC 2026 primary: 81 of 81 exact at the time of the check.**
+- Use civicAPI for election-night numbers and leads, not as the final authority. Keep its calls
+  opt in until real call times can be checked.
 
 ## Calls / test data
 
 - `called_at` was **absent on every real race** (108 race details from 2024, 2025 and 2026 primaries/specials). It appears only on current **test_data=true** 2026-11-03 races with fake winners and times (TX Senate "Talarico" winner, called_at 2026-10-27T13:34Z; VA Senate called 2026-10-27T11:00Z). So call-time plausibility against AP **cannot be measured**. CivicAPICallSource has never produced a real call in the archive.
 - No past race has test_data=true. Search rows never carry `test_data`; only the race detail does (the adapter already reads the detail).
-- Today TX and VA 2026-11-03 carry test votes (40 TX rows, 12 VA rows). The adapter drops them correctly.
+- At capture, TX and VA 2026-11-03 carried test votes (40 TX rows, 12 VA rows). The adapter
+  drops them.
 
-## Structural problems found in the adapter
+## Data quirks and adapter safeguards
 
-1. **Duplicate rows per race key.** `state_races` does `setdefault`, so the first row wins and the result depends on row order:
-   - MA SEN has a phantom "Baker 1,791,579 vs Warren 1,615,529" row.
-   - VT SEN and DE SEN have 2-candidate shadow rows with different numbers. All of these have `has_breakdown=false`.
-   - TX HD-56 and TX-18 have a regular race and a "Special" race that collide, because `race_key` sets `special` only for "US Senate".
-   - Primaries collide across parties: VA-05 D and VA-05 R map to one key on 2026-08-04.
-2. **`type == "Senate"`** (used in AZ, CA, DE, MD) is not mapped to SEN, so those Senate races become LOCAL keys and are invisible to SEN lookups. Only "US Senate" is mapped.
-3. **percent_reporting is unreliable:**
-   - 590 of 5,862 rows say 0 while carrying votes (VA 2025-01-07 specials, NJ HD-15/28).
-   - NJ says 99 on undercounted totals.
-4. **region_results is not a county partition.** It mixes County with State House regions (DE, IA), CA congressional and supervisor districts, and an incomplete MA town list. Summing it is wrong in 13 races. Filter on `type in {County, City}` if county results are ever parsed.
-5. **Party strings pass through raw:** "Nonpartisan" (used for write-ins), "Non Partisan", "Write In", "NP", "Forward", "Petitioning Candidate", and "\x00".
+1. **Duplicate rows per race key.** The API can return phantom or shadow rows, party primaries
+   and special elections that collapse to one key. The adapter prefers rows with
+   `has_breakdown=true`, skips primaries and recognises special elections. Duplicates of the
+   same kind still depend on API row order.
+2. **Senate labels vary.** Some states use `type == "Senate"` instead of `"US Senate"`. The
+   adapter maps both to SEN.
+3. **percent_reporting is unreliable.** Some rows say 0 while carrying votes; others say 99 on
+   undercounted totals. The adapter treats 0 with votes as unknown.
+4. **region_results is not a county partition.** It mixes counties with legislative,
+   congressional, supervisor and town regions. The results adapter does not parse it.
+5. **Party strings vary.** The source uses several labels for nonpartisan and write-in
+   candidates. The adapter normalises `party_code` through the shared party table.
 
-## Name / write-in handling
+## Remaining cautions
 
-- civicAPI uses its own name forms:
-  - VA drops the period in "Jr." and "Sr." (2 races).
-  - NC 2024: 71 candidates differ (adds middle initials or legal names, e.g. "Walter Vincent Smith" vs "Vinny Smith"; strips nicknames).
-  - NC 2026: 10 differ ("DECEASED" dropped).
-- Write-ins: VA's aggregate "Write-in" matches the official count, with party "Nonpartisan".
-- NC: named write-ins lose their "(Write-In)" suffix, so they look like ballot candidates. "Write-In (Miscellaneous)" is dropped.
-- IA/VT/MD add a "Write-In" row that MEDSL lacks.
-
-## Recommended adapter changes
-
-1. Dedupe per key: prefer `has_breakdown`, then more candidates, then the latest `last_updated`. Set `special` from "Special" in election_name for every type. Add the party to the key, or skip primaries.
-2. Map `type in {"US Senate","Senate"}` to SEN.
-3. Normalize party with `results._common.norm_party`, adding aliases NONPARTISAN/NON PARTISAN/NP→NPA, WRITE IN→WRI and FORWARD→FWD. Mark a candidate named "Write-in" as WRI.
-4. Treat percent_reporting 0 with votes as unknown (None). Never let civicAPI totals override an official feed after election week.
-5. Match names across sources by surname plus first initial, ignoring suffix punctuation and nicknames.
-6. Disable or ignore CivicAPICallSource until a real `called_at` is seen on a non-test race.
+- Candidate names often differ from official sources through initials, suffix punctuation and
+  nicknames. The bot displays the source's names rather than trying to merge identities.
+- Keep civicAPI calls opt in until a real `called_at` appears on a non-test race.
 
 ## Coverage gaps
 
 - **2024 archive:** races exist for only 14 states (AL4, AZ, CA, CO1, CT1, DC1, DE, IA, MA, MD1, NC, NY13, SC1, TX, VT). There is nothing for PA, GA, MI, WI, NV, OH or FL.
 - **MA and VT legislature:** named districts, so 194 of 205 MA rows and 127 of 136 VT rows get no key.
 - **No region_results for single-county districts:** 15 NJ districts, 5 TX/CA/AZ House seats and NC-02.
-- **VA specials (2025-01-07, 2025-09-09, 2026-01-13) and the 2026-08-04 primary were not checked.** The VA ENR jurisdiction listing (`/api/elections/virginia`) now returns **404**, so `va_elect._election_id` discovery fails for any unpinned date. **This is a repo bug worth a pin or a fix.**
+- **VA specials (2025-01-07, 2025-09-09, 2026-01-13) and the 2026-08-04 primary were not checked.** The VA ENR jurisdiction listing (`/api/elections/virginia`) returned **404**, so `va_elect._election_id` discovery failed for unpinned dates. Pin the date or fix discovery before relying on it.
 
 ## Method caveats
 
@@ -61,7 +55,6 @@
   - 2024 county comparisons all use MEDSL.
 - **Unresolved:** AZ SD-25 (Dunn, uncontested): civic 59,826 vs MEDSL 88,531.
 - **NJ party column:** the "party issues" for NJ in the JSON are artifacts of the PDF party-column slicing and should be ignored.
-- **Files:** scripts are `civ.py`, `cmp.py`, `va2025.py`, `nj_pdf.py`, `nj2025.py`, `y2024.py`, `nc2026.py` and `make_report.py`. Raw JSON is in `results_*.json` and `phantoms_2024.json`, and official inputs are in `official/`.
 
 
 ## VA 2025 general (ENR certified)

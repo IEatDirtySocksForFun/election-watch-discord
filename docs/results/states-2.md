@@ -1,14 +1,11 @@
-# States — results adapters, round 2
+# Results adapters: AK, AL, AR, ID, IL, IN and more
 
-Package STATES-2 (`pkg/states-2b`). One section per state: adapter module, the feed
-it reads, and how far it was verified. "Verified fixture" means the parser is
-exercised by `tests/test_results_<st>.py` against a trimmed real response (URL and
-date recorded in `tests/fixtures/<adapter>/README.txt`); where noted, the adapter was
-also run against the live feed.
+Each section lists the adapter, its feed and how it was verified. "Verified fixture" means
+`tests/test_results_<st>.py` parses a trimmed real response. The fixture's README records the
+source URL and fetch date. Some adapters were also checked against their live feeds.
 
-Fixture layout follows the existing single-state adapters (`nc_sbe`, `ct_sots`):
-files sit directly in `tests/fixtures/<adapter>/`, no per-state sub-directory,
-because each of these adapters serves exactly one state.
+Fixtures sit directly in `tests/fixtures/<adapter>/` because each of these adapters serves one
+state.
 
 ## Summary
 
@@ -20,11 +17,11 @@ because each of these adapters serves exactly one state.
 | ID | `id_sos` | SOS results archive pages (embedded reactable JSON) | verified fixture + live run (2024 general) |
 | IL | `il_sbe` | SBE `ElectionVoteTotals.aspx` HTML | verified fixture + live run (2026 primary); 2026 general not published yet |
 | IN | `in_sos` | `enr.indianavoters.in.gov/archive/<election>/data/*.json` | verified fixture + live run (2024 general) |
-| CA | `ca_sos` | `media.sos.ca.gov/media/<office>.json` | verified fixture (commit 4790c13) |
-| CT | `ct_sots` | `ct.elstats.civera.com` search CSV | verified fixture (commit 0353add) |
-| DC | `dc_boe` | `electionresults.dcboe.org` XML export | verified fixture (commit feee25d) |
-| DE | `de_doe` | `elections.delaware.gov/reports/GE<year>.csv` | verified fixture (commit dffcb5c) |
-| HI | `hi_soe` | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture (commit 6702ce2) |
+| CA | `ca_sos` | `media.sos.ca.gov/media/<office>.json` | verified fixture |
+| CT | `ct_sots` | `ct.elstats.civera.com` search CSV | verified fixture |
+| DC | `dc_boe` | `electionresults.dcboe.org` XML export | verified fixture |
+| DE | `de_doe` | `elections.delaware.gov/reports/GE<year>.csv` | verified fixture |
+| HI | `hi_soe` | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture |
 
 ## AK — `electionwatch/sources/results/ak_doe.py`
 
@@ -56,9 +53,9 @@ because each of these adapters serves exactly one state.
 - The only machine-readable statewide artifact is a post-certification download,
   "2024-General Precinct Level Results.zip"
   (<https://www.sos.alabama.gov/sites/default/files/election-data/2024-12/2024-General%20Precinct%20Level%20Results.zip>):
-  67 per-county legacy **.xls** (BIFF) files. Reading those needs `xlrd`, a new
-  dependency this package does not add, and the data is a certified snapshot rather
-  than a feed usable on election night.
+  67 per-county legacy **.xls** (BIFF) files. Reading those needs `xlrd`, which the bot does
+  not include, and the data is a certified snapshot rather than a feed usable on election
+  night.
 - Revisit if the SOS republishes a working results app or a CSV/JSON export.
 
 ## AR — `electionwatch/sources/results/ar_sos.py`

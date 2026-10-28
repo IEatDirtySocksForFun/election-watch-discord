@@ -1,10 +1,10 @@
 # County feeds — Texas and the states whose statewide site is out of reach
 
-Several states' statewide results sites are behind a bot check or publish nothing a bot can
-read. For those, this package uses the official county feeds instead and labels every result
+Several states' statewide results sites are behind a bot check or publish nothing the bot can
+read. For those, the bot uses official county feeds instead and labels every result
 `(partial: N counties)` so nobody mistakes a county tally for a state total.
 
-Ground rules followed throughout:
+County adapters follow the same ground rules:
 
 * plain GET with the bot's own User-Agent (`election-watch-discord/0.1 (open-source election
   results bot)`) — no browser User-Agent, no UA rotation, no headless browser;
@@ -16,11 +16,11 @@ Ground rules followed throughout:
 
 Checks below were run on **2026-10-27**.
 
-> **Update (later on 2026-10-27, `docs/state-coverage-plan.md`):** Tarrant, Fort Bend and Bexar
-> *are* Clarity counties. Their ids are linked from the counties' own pages, and they are now
-> pinned. Dallas and Williamson list their 2026 elections. Harris publishes its own JSON, now
-> merged by `tx_counties`. Alabama's Madison County has its own adapter, `al_counties`.
-> Statements below that say otherwise describe the earlier state of the adapters.
+> **Newer additions:** Tarrant, Fort Bend and Bexar are Clarity counties. Their ids are linked
+> from the counties' own pages and are now pinned. Dallas and Williamson list their 2026
+> elections. Harris publishes its own JSON, now merged by `tx_counties`. Alabama's Madison
+> County has its own adapter, `al_counties`. See `docs/state-coverage-plan.md` for the current
+> coverage estimates; older statements below describe the initial county set.
 
 ## How the shared pieces fit
 

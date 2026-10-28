@@ -27,7 +27,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 ## Contents
 [Features](#features) · [Quick start](#quick-start) · [Recommended election-night setup](#recommended-election-night-setup) ·
 [Coverage](#coverage-by-state) · [Limitations](#limitations-read-this) · [Slash commands](#slash-commands) ·
-[Race keys](#race-keys) · [Party markers](#party-markers) · [Testing](#testing-with-past-elections) ·
+[Race keys](#race-keys) · [Party markers](#party-markers) · [Testing](#testing) ·
 [Extending](#adding-a-data-source) · [How it works](#how-it-works)
 
 ## Features
@@ -36,7 +36,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 |---|---|
 | **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
 | **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
-| **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted the moment they appear, with retractions. |
+| **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted as soon as they appear. |
 | **Odds** | Kalshi and Polymarket for every watched race, refreshed in the background. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
 | **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia (refreshed every 30 minutes). |
 | **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI (downloaded hourly), credited with a link in every embed. |
@@ -237,29 +237,22 @@ Plain names work too: `Texas Senate`, `North Carolina Congressional District 1`.
 
 🔵 Democratic · 🔴 Republican · 🟡 Libertarian · 🟢 Green (and state affiliates) · 📜 Constitution ·
 each socialist party its own marker (✊ 🌹 ☭ 🚩 …) · white-nationalist / neo-Nazi parties
-documented as such by reliable sources ⛓️ 🔒 🚔 · ⚪ independent or no party. 93 parties
+documented as such by reliable sources ⛓️ 🔒 🚔 · ⚪ independent or no party. 97 parties
 are covered, including state parties and the abbreviations feeds print (e.g. `DFL`, `LBT`,
 `WOR`, `DEMOCRATIC P`). The full table, with sources, is in [docs/parties.md](docs/parties.md).
 Edit `electionwatch/data/parties.yaml` to change any marker.
 
-## Testing with past elections
+## Testing
 
 ```sh
-pytest -q                                          # 2,100+ tests, no network
-python tools/health_check.py                       # which sources answer right now
-python tools/fetch_history.py --years 2022,2024    # results by state -> ~/Downloads/election-test-data
-python tools/build_timelines.py --years 2022       # synthesize election nights from county results
-python -m replay.run --year 2022 --races "PA SEN,PA-07" --speed max      # offline, recorded posts
-python -m replay.discord_live --year 2022 --races "$(…)" --post top-per-state \
-    --speed 10 --guild <id> --channel <id> --thread "2022 replay"         # into a real channel
-python -m replay.report_html --year 2022 --races "$(…)" --out night.html  # one page per run
-python -m replay.command_sim --years 2022,2024 --races top   # slash commands changed mid-night
+make test         # fast unit tests, no network, about 20 seconds
+make test-mongo   # also run the MongoDB store suite
+make sim          # quick election-night command simulation, no downloads needed
+make health       # check which live sources answer right now
 ```
 
-The replay drives the real poller minute by minute with a fake clock. Races with NYT
-election-night series use the real timeline; the rest are synthesized from certified county
-results in a plausible reporting order. Race calls and odds in replays are scripted test
-data. Details are in [docs/testing.md](docs/testing.md).
+Plain `pytest -q` works too. See [tests/README.md](tests/README.md) for the test layout,
+MongoDB setup and past-election replay tools.
 
 ## Adding a data source
 

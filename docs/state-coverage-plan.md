@@ -1,26 +1,24 @@
 # State coverage plan: election night 2026-11-03
 
-This plan covers the states where the bot has no complete official feed. It ranks every
-legitimate route per state, gives the evidence for each, and states what was built. It was
-checked on **2026-10-27**, from the bot host, with the bot's own User-Agent
-(`election-watch-discord/0.1 (open-source election results bot)`). Each host got one GET at a
-time with at least 2 s between requests. **Nothing here gets past a bot check.** A host that
-answered with a challenge, a WAF block or an IP block counts as a closed door. The working
-alternative is then another official publisher, or civicAPI.
+This guide covers states where the bot has no complete official feed. It compares the
+available routes, records the evidence and explains what the adapters do. The checks were run
+on **2026-10-27** with the bot's own User-Agent, one GET at a time and at least 2 seconds
+between requests. **Nothing here gets past a bot check.** A challenge, WAF block or IP block
+is a closed door; use another official publisher or civicAPI instead.
 
-Earlier findings are not repeated in full here. Read them in
+For the underlying feed notes, read
 [`docs/results/counties.md`](results/counties.md), [`alt-a.md`](results/alt-a.md),
 [`alt-b.md`](results/alt-b.md), [`alt-c.md`](results/alt-c.md) and
-[`states-*.md`](results/). The probe log for this pass is summarised in the evidence tables.
+[`states-*.md`](results/).
 
-## Summary: expected coverage, before and after
+## Summary: expected coverage
 
 "Share" is a county's share of the state's **2024 US Senate vote**. AL uses 2022 instead,
 because it had no 2024 Senate race. Denominators: TX 11,291,854 and TN 3,007,608 (from the CBS
 2024 fixtures in the repo, `logs/health/final-2024.json`); AL 2022 ≈ 1.41 M. County numerators
 were read from the counties' own 2024 (AL: 2022) files.
 
-| State | Official feed before | Official feed after (this branch) | Ready for 2026 today | National fallback |
+| State | Initial official feed | Current official feed | Ready for 2026 at the check | National fallback |
 |---|---|---|---|---|
 | **TX** | 14 Clarity counties = **17.9%** (tx_sos 403 Cloudflare) | + Harris (own JSON) 13.7%, Tarrant 7.3%, Bexar 6.6%, Fort Bend 3.2% = **48.6%** verified; Dallas (≈8%) and Williamson (≈3.6%) are picked up when they list the general → **≈60%** | 13 county feeds answer for 2026 now = **40.5%**; Travis, Bell, Midland, Gregg and Comal (8.1%) list their 2026 primaries and should list the general before Nov 3 | fox_results OK (Sen/Gov/House) |
 | **TN** | Shelby 10.6% (2026 export appears on the night) | unchanged; no other county publishes an open feed | 0% until Shelby's export appears | fox_results OK |
@@ -37,19 +35,18 @@ were read from the counties' own 2024 (AL: 2022) files.
 | NY | NYC (opt-in) | unchanged (Monroe, Erie, Westchester: no Clarity directory) | per `ny_nycboe` | fox_results OK |
 | NJ | 14 Clarity counties | unchanged | per `nj_counties` | fox_results OK |
 
-The **poller fix** on this branch matters as much as the new feeds. Before it, whichever
-adapter registered first won, and `tx_counties` sorts before both `tx_sos` and every national
-fallback. So a `(partial: N counties)` tally hid a complete statewide answer whenever both
-were present. The poller now takes the first complete result and uses a partial one only when
-nothing complete answered (`poller.best_result`). With the national fallback enabled, these
-states get a statewide Senate/Governor/House picture plus official county detail for every
-down-ballot race the counties publish.
+The poller prefers the first complete result and uses a partial county tally only when no
+complete source answers (`poller.best_result`). With a national fallback enabled, these states
+get a statewide Senate/Governor/House picture plus official county detail for every down-ballot
+race the counties publish.
 
 ## How to turn the fallback on for just these states
 
-National fallbacks read news sites' public JSON. Under `AGENTS.md` they stay `scrape = True`,
-`enabled_by_default = False`, so turning one on is the operator's decision. This branch adds
-`EW_SOURCE_STATES`, which narrows an enabled adapter to a list of states:
+National fallbacks read news sites' public JSON. They set `scrape = True` and
+`enabled_by_default = False`, so turning one on is your decision. **Fox's election-feed
+`robots.txt` disallows automated access. Keep `fox_results` off unless you have reviewed the
+current terms and deliberately chosen to use it.** `EW_SOURCE_STATES` narrows an enabled
+adapter to a list of states:
 
 ```sh
 EW_ENABLED_SOURCES=fox_results
@@ -59,7 +56,7 @@ EW_SOURCE_STATES=fox_results=AL,KY,MA,ME,MI,MO,MS,NH,NJ,NV,NY,OK,TN,TX,WI,WY
 Fox then serves only those 16 states. Everywhere else the official feeds are the only results
 source.
 
-### How good is the fallback? (from `logs/health/final-*.json` and the adapters)
+### How good is the fallback?
 
 | Adapter | 2026 today | 2024 replay | Races | Speed / detail | Notes |
 |---|---|---|---|---|---|
@@ -88,7 +85,7 @@ outlets' site terms, which do not grant redistribution: hence opt-in.
 | 1 | **County feeds, extended** (built) | see county table below | done | counties may rename contests on the night; one dead county never hides the others | public county results; no terms restrict reading them | **On by default (`tx_counties`)** |
 | 2 | **TX SOS media feed** (XML over SFTP; $250 per election in 2022; reservation deadline was in September) | Texas Press Assn. notice `texaspress.com/.../SOSGeneralMediaFeed.pdf`; TAB notice for 2023 | email/phone + payment; then a new parser for the XML spec | the 2026 deadline has probably passed; ask about late enrolment | subscriber agreement; ask whether an open-source bot may redistribute | not pursued |
 | 3 | **Ask SOS to allowlist the bot's User-Agent** on results.texas-election.com, or to publish the static JSON on an unchallenged host | same 403 | one email | none | — | not pursued |
-| 4 | Run the bot from a host that the site does not challenge (`tx_sos` works unchanged where the site serves JSON) | the challenge depends on the IP range | deployment choice | none, provided the host is the operator's own normal network (no proxy or IP rotation) | — | operator choice; documented in source-sweep §4 |
+| 4 | Run the bot from a host that the site does not challenge (`tx_sos` works unchanged where the site serves JSON) | the challenge depends on the IP range | deployment choice | none, provided the host is your normal network (no proxy or IP rotation) | — | your choice; see the research guide |
 | 5 | `fox_results` via `EW_SOURCE_STATES` | OK for TX SEN/GOV/TX-01 in 2026 | config | outlet terms | opt-in | **Enable for TX** |
 
 ### Texas counties by 2024 Senate vote
@@ -115,8 +112,8 @@ outlets' site terms, which do not grant redistribution: hence opt-in.
 general. A single live poll on 2026-10-27 merged **13 counties** for `TX SEN`, all at 0 votes.
 
 What to watch on the night: `tx_counties` merges whichever counties answer. Each title says
-`(partial: N counties)`. With the poller fix, a reachable `tx_sos` or an enabled `fox_results`
-takes precedence for TX SEN/GOV/House.
+`(partial: N counties)`. A reachable `tx_sos` or an enabled national fallback takes precedence
+for TX SEN/GOV/House.
 
 ---
 
@@ -130,7 +127,7 @@ alt-c.md; not re-probed). The state's own results site is the only statewide pub
 | 1 | Shelby County Enhanced Voting export (`tn_counties`, existing) | 2024 export verified; `export-General11032026.json` 404 until the night | done | keep |
 | 2 | **Ask the TN Division of Elections** to allowlist the bot or name a media feed | 403 everywhere on the domain | one email | not pursued |
 | 3 | Other counties on Enhanced Voting | `app.enhancedvoting.com/cdn/results/{davidson,knox,hamilton,rutherford,williamson}-county-tn/export-General11052024.json` → **404** (all five, 22:24Z) | — | none publish there |
-| 4 | Davidson (PDF), Knox (SPA with a per-session token), Hamilton (signed PDFs; `elect2.hamiltontn.gov/results/...` 404) | counties.md; this pass | — | not feasible without a PDF parser or token replay. Token replay is out of scope |
+| 4 | Davidson (PDF), Knox (SPA with a per-session token), Hamilton (signed PDFs; `elect2.hamiltontn.gov/results/...` 404) | county notes | — | not feasible without a PDF parser or token replay. Token replay is out of scope |
 | 5 | Third-party mirror `tnfirefly.com` (republishes SOS results) | web search only; not probed | — | **not recommended**: a scrape of a scrape, with unknown terms |
 | 6 | `fox_results` | 2026 OK | config | **Enable for TN** |
 
@@ -184,8 +181,7 @@ The bot uses civicAPI, then `fox_results`.
 ## Massachusetts, Maine, New Hampshire
 
 No live state feed exists (MA: PD43+ is certified-only; ME and NH towns report by phone/PDF;
-NH's SOS is CloudFront 403). Not even the AP gets a machine feed from these states: it uses
-stringers. **Recommendation:** `fox_results` only. No email is worth sending.
+NH's SOS is CloudFront 403). Use civicAPI or an enabled national fallback.
 
 ## Wyoming
 
@@ -198,7 +194,7 @@ election-night feed exists. Use `fox_results` on the night.
 
 ## Partial states: MI, WI, MO, NY, NJ
 
-Existing county adapters are unchanged. This pass checked a few more counties:
+The existing county adapters cover these states. Checks on a few more counties found:
 
 | State | Checked | Result |
 |---|---|---|
@@ -208,9 +204,9 @@ Existing county adapters are unchanged. This pass checked a few more counties:
 | WI | Milwaukee (Cloudflare) | unchanged |
 | NJ | Bergen, Camden | 404 on Clarity (alt-b.md) |
 
-For all five, the gain comes from the poller fix plus `EW_SOURCE_STATES=fox_results=...`. The
-statewide Senate/Governor/House picture then comes from Fox, and county detail and down-ballot
-races from the official county feeds.
+For all five, a complete statewide source takes precedence over the county tally. With
+`EW_SOURCE_STATES=fox_results=...`, the statewide Senate/Governor/House picture can come from
+Fox, while county detail and down-ballot races come from the official county feeds.
 
 ## Third-party aggregators
 
@@ -218,7 +214,7 @@ races from the official county feeds.
 |---|---|---|---|
 | VoteHub | polls API only (`votehub.com/polls/api/`); no results endpoint found | public, keyless | already used for polls |
 | OpenElections | certified, after the fact | open data | no live value |
-| Decision Desk HQ | paid API; free widgets only for qualifying newsrooms | contract | owner decision (source-sweep.md) |
+| Decision Desk HQ | paid API; free widgets only for qualifying newsrooms | contract | paid option; see source-sweep.md |
 | AP | paid; public pages are licensed data | contract | no free route |
 | Google Civic API | no results | free | n/a |
 | civicAPI.org | **yes**: live results for every state + DC down to county and local races, plus its own race calls (`/api/v2/race/search`, `/api/v2/race/{id}`) | keyless; free for commercial and non-commercial use with attribution. Its FAQ says the data is aggregated from Secretaries of State and state/county boards (local media only for some small or foreign elections); calls come from its own decision desk | **adopted** (`civicapi`, on by default, ranked after official feeds; test data dropped). Verified 2026-10-27: 2024 TX SEN/TX-28 match the official totals; every 2026 federal race is currently `test_data: true` (fake winners) and is dropped |
@@ -232,9 +228,10 @@ races from the official county feeds.
 * Bexar's 2024 ES&S HTML summary (`home.bexar.org/el45a.html`) is parseable, but it is moot:
   Bexar moved to Clarity for 2026.
 * Collin publishes a full precinct CSV after the canvass, not on the night.
-* `tools/health_check.py` imports `electionwatch` from the installed package unless the
-  worktree is on `PYTHONPATH`. Run it as
-  `PYTHONPATH=$PWD python tools/health_check.py` from a worktree.
+* When running from a source checkout, put it on `PYTHONPATH` so `tools/health_check.py`
+  imports that copy of `electionwatch`:
+
+  `PYTHONPATH=$PWD python tools/health_check.py`
 
 ## Election-morning checklist
 

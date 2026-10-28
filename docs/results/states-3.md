@@ -1,12 +1,10 @@
-# STATES-3 — results adapters for the remaining states (round 2)
+# Results adapters: KS, KY, LA, MA, MD, MO, MS, MT, ND, NJ and NM
 
-States in this package: KS KY LA MA MD MO MS MT ND NJ NM.
-Branch `pkg/states-3`, based on `integ`. Every adapter below registers itself through
-`@register` in `electionwatch.sources.results.<module>`; `docs/sources-results.md` (shared)
-is not touched.
+Every adapter below registers itself through `@register` in
+`electionwatch.sources.results.<module>`.
 
-Coverage: 6 states have an implemented adapter (KS, LA, MD, MS, ND, NM), 5 are documented
-as not possible / not implemented (KY, MA, MO, MT, NJ).
+Seven states have an implemented adapter (KS, LA, MD, MS, MT, ND and NM). The other four have
+no usable statewide adapter; the notes below explain why.
 
 ## Summary
 
@@ -19,7 +17,7 @@ as not possible / not implemented (KY, MA, MO, MT, NJ).
 | MD | `md_sbe` (new) | `https://elections.maryland.gov/elections/archive/<YYYY>/election_data/PG<YY>_{Congressional,Legislative}BreakDown.csv` | Verified fixture (2024 general). Certified files, published after the count. |
 | MO | — | `https://enr.sos.mo.gov/` | Not possible: Cloudflare bot challenge (`cf-mitigated: challenge`). |
 | MS | `ms_sos` (new) | `https://www.sos.ms.gov/elections/electionresults/<YYYY>ElectionRecapSheets.csv` | Verified fixture (2024 general). Certified recap, published after the count. |
-| MT | — | `https://electionresults.mt.gov/` | Not possible: Cloudflare bot challenge (`cf-mitigated: challenge`). |
+| MT | `mt_sos` | `electionresults.mt.gov/resultsSW.aspx` | Statewide adapter added through the alternate endpoint in [alt-c.md](alt-c.md); the main site is Cloudflare-blocked. |
 | ND | `nd_sos` (new) | `https://results.sos.nd.gov/resultsSW.aspx?text=All&type={SW,LG}&map=CTY` | HTML parser, `scrape=True`, enabled. Verified fixture (2024 general, 385/385 precincts). |
 | NJ | — | `https://www.nj.gov/state/elections/election-results.shtml` | Not possible: PDF only (statewide and per-county PDFs), no CSV/JSON/XLSX. |
 | NM | `nm_sos` (new) | `https://electionresults.sos.nm.gov/resultsSW.aspx?text=All&type={FED,LGX}&map=CTY` | HTML parser, `scrape=True`, enabled. Structure verified on the live 2026 general pages (0 of 2204 precincts at capture); no archived 2024 page exists. |
@@ -132,15 +130,16 @@ election's numbers on election night. Dated TODO: if a per-office search URL app
 `server: cloudflare`, `<title>Just a moment...</title>`. No JSON/CSV endpoint is reachable
 without solving the challenge, which is out of scope.
 
-### MT — Cloudflare bot challenge
-`https://electionresults.mt.gov/` returns **HTTP 403** with the same
-`cf-mitigated: challenge` headers. Out of scope.
+### MT — original site blocked
+`https://electionresults.mt.gov/` returns **HTTP 403** with
+`cf-mitigated: challenge`. The `mt_sos` adapter uses the alternate official endpoint described
+in [alt-c.md](alt-c.md) instead.
 
 ### NJ — PDF only
 `https://www.nj.gov/state/elections/election-results.shtml` links statewide and per-county
-result PDFs; the page contains no `.csv`, `.xlsx` or `.json` links. A PDF parser is not part
-of this package's scope and the per-county PDFs are re-typeset during the night, so NJ is
-left unadapted rather than scraped unreliably.
+result PDFs; the page contains no `.csv`, `.xlsx` or `.json` links. There is no PDF parser,
+and the per-county PDFs are re-typeset during the night, so NJ is left unadapted rather than
+scraped unreliably.
 
 ## Tests
 

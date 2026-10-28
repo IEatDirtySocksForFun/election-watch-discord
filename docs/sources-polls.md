@@ -1,7 +1,7 @@
 Poll sources: what is verified, how it is fetched, what it costs
 ==============================================================
 
-Package: `electionwatch/sources/polls/` (contract: `PollSource` in
+Code: `electionwatch/sources/polls/` (contract: `PollSource` in
 `electionwatch/sources/base.py`, model: `Poll` / `PollResult` in
 `electionwatch/models.py`).
 
@@ -15,8 +15,8 @@ All three are tested against trimmed **real** responses in
 never touch the network. No LLM / model API is involved anywhere: "partisan",
 "sponsor" and party codes are parsed, never inferred by a model.
 
-Sources in this package
------------------------
+Available sources
+-----------------
 
 1. votehub  -- `electionwatch/sources/polls/votehub.py`
    Method: JSON API, `GET https://api.votehub.com/polls`. The endpoint returns
@@ -94,7 +94,7 @@ Considered and not used (checked 2026-10-27)
 - Decision Desk HQ polls (`polls.decisiondeskhq.com`): HTTP 429 from this
   network, and no documented public API. Not scraped.
 - FiftyPlusOne (`fiftyplusone.news/polls/senate/general/<state>`): pages load,
-  but the data is rendered client-side; not parsed in this package yet.
+  but the data is rendered client-side; no adapter parses it yet.
 - FiveThirtyEight: the project is frozen (no 2026 polling data).
 
 Housekeeping
@@ -104,9 +104,7 @@ Housekeeping
   bot can de-duplicate across sources; de-duplication itself is out of scope
   here. `source` is always the adapter name.
 - Nothing reads an API key; `env` is empty for all three adapters.
-- HTML sources identify themselves with
-  `election-watch-discord/0.1 (polling bot; +https://github.com/IEatDirtySocksForFun/election-watch-discord)`
-  (Wikimedia requires contact information in the User-Agent).
+- HTML sources send a descriptive User-Agent with a project URL, as Wikimedia requires.
 - The poller refreshes polls for watched races, and races users asked about, every 30 minutes
   (longer if a host's request budget needs it) and stores them in MongoDB; `/polls` reads only
   the stored polls.

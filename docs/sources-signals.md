@@ -1,7 +1,7 @@
-# Signals package data sources
+# Race calls, odds and exit polls
 
-This package covers race calls, prediction-market odds, and exit polls for the
-2026 U.S. midterms.
+These adapters cover race calls, prediction-market odds and exit polls for the 2026 US
+midterms.
 
 ## Odds
 
@@ -47,6 +47,8 @@ in every state (off by default). See `docs/research/source-sweep.md` for the AP/
 route research, API keys and per-state fallbacks.
 
 All outlets other than AP/DDHQ are `scrape=True` and `enabled_by_default=False`.
+In particular, `fox` and `fox_results` stay opt in because Fox's election-feed `robots.txt`
+disallows automated access. Check the current terms before enabling any outlet adapter.
 Their parsers are tested against trimmed real 2024 responses saved in
 `tests/fixtures/<outlet>/`; the URLs and capture dates are recorded in each
 fixture directory's `README.txt`.

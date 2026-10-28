@@ -61,25 +61,11 @@ produce statewide (or district-wide) totals.
   as "PRESIDENT / VP".
 - Precincts reporting/total are summed across counties for each race.
 
-## Skipped states (reviewer pass)
+## More per-state notes
 
-These states were researched but not implemented because a verified 2024
-general-election machine-readable feed could not be confirmed before this
-commit:
-
-- **MI**: MVIC publishes `GetElectionResultFile?electionId=699` but it is an
-  Excel/CSV export behind a Cloudflare-protected endpoint; needs a browser-backed
-  download or a confirmed direct URL before writing a parser.
-- **WI**: The WEC site is HTML/ArcGIS-based. A FeatureServer endpoint exists for
-  2024 (`services1.arcgis.com/utVR6GjejYAZciWt/ArcGIS/rest/services/WisconsinElection2024/FeatureServer`)
-  but contest/candidate schema was not verified; skipping until the query URL
-  and field mapping are confirmed.
-- **NV**: SilverStateElection publishes HTML results; no public JSON/CSV API
-  endpoint was found.
-- **OH**: `liveresults.ohiosos.gov` is the election-night site; its data format
-  (likely HTML/JSON) was not verified and the 2026 general feed is not yet live.
-- **NH, ME, IA, NE**: Official SOS/BOE results pages are HTML-first for 2024;
-  no confirmed JSON/XML/CSV feed URL or stable election-id pattern was found.
+Statewide and county adapters have their own notes under [docs/results/](results/).
+Start with [states-1.md](results/states-1.md) through [states-4.md](results/states-4.md), then
+see the alternate-source and county notes for states whose main site is blocked or incomplete.
 
 ## Environment
 
@@ -200,6 +186,6 @@ usually a JSON array of contests; `{"Contests": [...]} ` is also accepted.
    (URLs + fetch date) and add `tests/test_results_<st>.py`.
 4. Add the row to the table above.
 
-Run the package tests with:
+Run the adapter tests with:
 
     python -m pytest -q tests/test_results_*.py

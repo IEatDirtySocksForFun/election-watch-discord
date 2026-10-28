@@ -1,6 +1,6 @@
 """Shared data model. Every source adapter returns these; the bot and store consume them.
 
-Keep this file stable: all work packages code against it. Times are timezone-aware UTC.
+Keep this file stable: adapters, storage and Discord code all rely on it. Times are UTC-aware.
 """
 from __future__ import annotations
 

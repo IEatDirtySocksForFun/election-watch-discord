@@ -1,4 +1,4 @@
-# Results adapters — package ALT-b (alternate official sources for blocked states: TX NY NJ MA KY MO)
+# Alternate official results: TX, NY, NJ, MA, KY and MO
 
 Second source for the six states whose statewide official results site is blocked, PDF-only or
 certified-only (see `states-*.md`). Status is what was verified against live responses on
@@ -109,8 +109,8 @@ User-Agent. The Secretary of State's own results archive, `https://electionstats
 `.../stage:General/download/csv` and `.../format:csv` both return the same HTML page, and the
 page contains no CSV/JSON/XLS link at all. Massachusetts does not administer elections at
 county level (city/town clerks do), so there is no county-feed alternative either. A scraper of
-PD43+ is possible in principle but is certified-results HTML, not election-night data; per the
-brief this state is written up instead of scraped.
+PD43+ is possible in principle but is certified-results HTML, not election-night data, so no
+statewide adapter is enabled.
 
 ## KY — not possible
 `https://vrsws.sos.ky.gov/liveresults/` (the State Board of Elections' live results) answers

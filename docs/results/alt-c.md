@@ -1,9 +1,8 @@
-# ALT-c — alternate official results sources for the blocked states
+# Alternate official results: MT, OK, OR, SD, TN, WY, MD and MS
 
-States in scope: **MT OK OR SD TN WY MD MS**. Everything below was checked by hand on
-2026-10-27 with a plain HTTP client and a descriptive User-Agent
-(`election-watch-discord/0.1 (+https://github.com/election-watch-discord)`), no cookies, no
-JavaScript, no browser fingerprints, no login/agreement pages.
+These sources were checked on 2026-10-27 with a plain HTTP client and a descriptive User-Agent
+(`election-watch-discord/0.1`). The checks used no cookies, JavaScript, browser fingerprints,
+login or agreement pages.
 
 ## Summary
 
@@ -115,8 +114,7 @@ New dependencies: none. Shared contracts unchanged.
   reachable but publishes no structured results feed (no results/CSV/JSON links on its
   Election Board page); `tulsacounty.org/283/Election-Board` 404s. A county-feed adapter
   would need Oklahoma, Tulsa, Cleveland, Canadian and Payne to approach half the state's
-  vote, and each would have to be scraped from ad-hoc HTML/PDF — not attempted inside this
-  package's budget.
+  vote, and each would need a parser for ad-hoc HTML or PDF.
 
 ## TN — nothing reachable
 
@@ -125,8 +123,8 @@ New dependencies: none. Shared contracts unchanged.
   per-precinct spreadsheets.
 * No alternate official host was found; county election commissions (Shelby `shelbyvote.com`,
   Davidson, Knox) are reachable but publish results through their own one-off pages/systems.
-  Covering most of Tennessee would need ~6 county feeds (Shelby, Davidson, Knox, Hamilton,
-  Williamson, Rutherford). Not attempted inside this budget.
+  Covering most of Tennessee would need about 6 county feeds (Shelby, Davidson, Knox,
+  Hamilton, Williamson and Rutherford), each with its own parser.
 
 ## WY — certified XLSX only
 
