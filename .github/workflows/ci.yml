@@ -20,10 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The oldest Python pyproject.toml promises, and the newest stable one.
         python-version: ["3.11", "3.14"]
     services:
-      # A real MongoDB, so the store suite runs against the server and not only the fakes.
       mongo:
         image: mongo:8.0
         ports: ["27017:27017"]

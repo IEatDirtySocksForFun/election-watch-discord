@@ -1,7 +1,5 @@
 name: Lint
 
-# Same checks as `make lint`. To fix things locally: `make format`.
-
 on:
   push:
     branches: [main]
@@ -26,7 +24,6 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
-      # Keep in step with the ruff pin in pyproject.toml.
       - run: pip install ruff==0.17.3
       - run: ruff check --output-format=github .
       - run: ruff format --check .
@@ -43,6 +40,5 @@ jobs:
         with:
           node-version: lts/*
           cache: npm
-      # Prettier's version comes from package.json / package-lock.json, same as locally.
       - run: npm ci
       - run: npm run format:check
