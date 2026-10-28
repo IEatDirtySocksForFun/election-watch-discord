@@ -18,6 +18,7 @@ from electionwatch.bot.cooldown import Cooldowns
 from electionwatch.bot.early_vote import (
     AUTOCOMPLETE_TIMEOUT,
     BREAKDOWNS,
+    county_choices,
     early_vote_client,
     early_vote_embed,
     post_daily_summaries,
@@ -47,6 +48,7 @@ from electionwatch.racelists import KIND as RACELISTS
 from electionwatch.racelists import READ_TIMEOUT, RaceLists, typed_state
 from electionwatch.ratelimit import RateBook
 from electionwatch.settings import GuildSettings, UserSettings
+from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
 logger = logging.getLogger(__name__)
@@ -443,11 +445,13 @@ async def early_vote_posts_command(interaction: discord.Interaction, enabled: Li
 @app_commands.describe(
     state="State code or name; omit it for every state with data",
     breakdown="Detail to show for the state",
+    county="One county of the state: its ballots, mail / in person and party registration",
 )
 async def early_vote_command(
     interaction: discord.Interaction,
     state: str | None = None,
     breakdown: Literal[BREAKDOWNS] | None = None,
+    county: str | None = None,
 ) -> None:
     code = None
     if state:
@@ -460,7 +464,11 @@ async def early_vote_command(
     # One cooldown per state: every breakdown comes from the same stored pages.
     if not await _cooldown(interaction, "earlyvote", code or "US", "earlyvote"):
         return
-    embed = await early_vote_embed(early_vote_client(interaction.client), code, breakdown)
+    try:
+        embed = await early_vote_embed(early_vote_client(interaction.client), code, breakdown, county)
+    except ValueError as exc:  # a county the state doesn't list, or a county without a state
+        await interaction.followup.send(clip(str(exc), MAX_MESSAGE), ephemeral=True)
+        return
     await interaction.followup.send(embed=embed, ephemeral=True)
 
 
@@ -476,6 +484,23 @@ async def early_vote_state_autocomplete(
 
 
 early_vote_command.autocomplete("state")(early_vote_state_autocomplete)
+
+
+@early_vote_command.autocomplete("county")
+async def early_vote_county_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    """The counties of the state already picked, from the stored pages (never a download)."""
+    try:
+        code = resolve_state(getattr(interaction.namespace, "state", None) or "")
+    except ValueError:
+        return []
+    client = getattr(interaction.client, "early_vote_db", None) or early_vote_client(interaction.client)
+    try:
+        ev = await asyncio.wait_for(client.state(code, counties=True, compare=False), AUTOCOMPLETE_TIMEOUT)
+    except (asyncio.TimeoutError, SourceUnavailable):
+        return []
+    return [app_commands.Choice(name=name, value=value) for name, value in county_choices(ev, current)]
 
 
 REFRESH_KINDS = {

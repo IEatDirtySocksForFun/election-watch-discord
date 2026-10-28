@@ -119,16 +119,16 @@ Replies are private (only you see them) unless they're posts in the election cha
 
 **For everyone**
 
-| Command                                  | What it does                                        |
-| ---------------------------------------- | --------------------------------------------------- |
-| `/races`                                 | your private race browser                           |
-| `/odds [race]`                           | Kalshi and Polymarket odds, with 1 h and 24 h moves |
-| `/polls race:<race> [count] [internals]` | the latest polls for a race                         |
-| `/earlyvote [state] [breakdown]`         | early-vote numbers (party, method, age, county)     |
-| `/faq [state]`                           | a state's voting FAQ                                |
-| `/favorite add·remove <race>`            | pin races in your browser                           |
-| `/settings`                              | this server's settings                              |
-| `/limits`                                | how often data refreshes, and this server's limits  |
+| Command                                   | What it does                                                                     |
+| ----------------------------------------- | -------------------------------------------------------------------------------- |
+| `/races`                                  | your private race browser                                                        |
+| `/odds [race]`                            | Kalshi and Polymarket odds, with 1 h and 24 h moves                              |
+| `/polls race:<race> [count] [internals]`  | the latest polls for a race                                                      |
+| `/earlyvote [state] [breakdown] [county]` | early-vote numbers (party, method, age, county; one county with its party split) |
+| `/faq [state]`                            | a state's voting FAQ                                                             |
+| `/favorite add·remove <race>`             | pin races in your browser                                                        |
+| `/settings`                               | this server's settings                                                           |
+| `/limits`                                 | how often data refreshes, and this server's limits                               |
 
 **For admins** (Manage Server, or the admin role from `/setup`)
 

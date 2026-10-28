@@ -105,7 +105,7 @@ async def test_state_in_any_spelling_and_every_breakdown(client, state, breakdow
         "party": ["Mail ballots returned", "In-person early votes", "All ballots cast", "Same point in 2022"],
         "method": ["Mail ballots returned", "In-person early votes", "Mail ballots requested"],
         "age": ["By age"],
-        "county": ["Top counties (6 of 6 reporting)"],
+        "county": ["Top counties (6 of 6 reporting)", "One county"],
     }[breakdown]
     assert [field.name for field in embed.fields] == expected
 
