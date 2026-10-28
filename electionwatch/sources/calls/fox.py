@@ -75,7 +75,7 @@ class FOXSource(CallSource):
             calls.extend(parse_fox_state(payload, key.state, key.level, self.YEAR))
 
         requested = set(keys)
-        return [c for c in calls if c.key in requested]
+        return [call for call in calls if call.key in requested]
 
 
 def parse_fox_state(payload: dict, state: str, level: Level, year: str | int = "") -> list[RaceCall]:
@@ -128,7 +128,7 @@ def _fox_winner(results: list) -> tuple[str, str | None] | None:
         # Senate/Governor nest isWinner in candidate; House puts it alongside.
         candidate = entry.get("candidate") or {}
         if entry.get("isWinner") or candidate.get("isWinner"):
-            name = " ".join(p for p in (candidate.get("firstName"), candidate.get("lastName")) if p)
+            name = " ".join(part for part in (candidate.get("firstName"), candidate.get("lastName")) if part)
             party = candidate.get("partyCode") or entry.get("partyCode")
             if not party:
                 party = candidate.get("partyName") or entry.get("partyName")

@@ -54,11 +54,11 @@ class NBCResultsSource(ResultsSource):
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         offices = {
-            _LEVEL_OFFICES[k.level]
-            for k in keys
-            if k.level in _LEVEL_OFFICES
-            and k.state in self.states
-            and (k.level is not Level.GOVERNOR or k.office == "GOV")
+            _LEVEL_OFFICES[key.level]
+            for key in keys
+            if key.level in _LEVEL_OFFICES
+            and key.state in self.states
+            and (key.level is not Level.GOVERNOR or key.office == "GOV")
         }
         if not offices:
             return []
@@ -67,15 +67,15 @@ class NBCResultsSource(ResultsSource):
         for office in sorted(offices):
             results.extend(parse_nbc_results(await self._get(client, office), fetched_at=now))
         requested = set(keys)
-        return [r for r in results if r.key in requested]
+        return [result for result in results if result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
         races: list[tuple[RaceKey, str]] = []
         for office in _LEVEL_OFFICES.values():
-            for r in parse_nbc_results(await self._get(client, office), fetched_at=now):
-                if r.key.state == state:
-                    races.append((r.key, r.title or str(r.key)))
+            for result in parse_nbc_results(await self._get(client, office), fetched_at=now):
+                if result.key.state == state:
+                    races.append((result.key, result.title or str(result.key)))
         return races
 
 
@@ -86,7 +86,7 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
     fetched_at = fetched_at or datetime.now(timezone.utc)
     observed = parse_http_date(payload.get("lastModified")) or fetched_at
     year = str(payload.get("electionSeason") or "")
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     for geo, entry in (payload.get("mapData") or {}).items():
         try:
             tooltip = entry.get("tooltip") or {}
@@ -95,21 +95,22 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
                 continue
             candidates = [
                 CandidateResult(
-                    name=c.get("name") or " ".join(p for p in (c.get("firstName"), c.get("lastName")) if p),
-                    party=normalize_party(c.get("party")),
-                    votes=int(c.get("votes") or c.get("vote") or 0),
-                    pct=c.get("percentVote"),
-                    incumbent=bool(c.get("isIncumbent")),
+                    name=candidate.get("name")
+                    or " ".join(part for part in (candidate.get("firstName"), candidate.get("lastName")) if part),
+                    party=normalize_party(candidate.get("party")),
+                    votes=int(candidate.get("votes") or candidate.get("vote") or 0),
+                    pct=candidate.get("percentVote"),
+                    incumbent=bool(candidate.get("isIncumbent")),
                     winner=False,  # NBC flag is a projection, not official.
                 )
-                for c in tooltip.get("candidates") or []
+                for candidate in tooltip.get("candidates") or []
             ]
             if not candidates:
                 continue
             title = _OFFICE_TITLES.get(_LEVEL_OFFICES.get(key.level, ""))
             if key.level is Level.HOUSE and key.district:
                 title = house_title(key.district)
-            out.append(
+            results.append(
                 RaceResult(
                     key=key,
                     candidates=candidates,
@@ -124,4 +125,4 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
             )
         except Exception:
             continue
-    return out
+    return results

@@ -86,19 +86,23 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
     if race.get("test_data"):
         return None
     opens = race.get("polls_open")
-    if opens and fetched_at < parse_iso_ts(opens) and any(c.get("votes") for c in race.get("candidates") or []):
+    if (
+        opens
+        and fetched_at < parse_iso_ts(opens)
+        and any(candidate.get("votes") for candidate in race.get("candidates") or [])
+    ):
         return None  # votes before the polls open can only be leftover test numbers
     candidates = [
         CandidateResult(
-            name=str(c.get("name") or "").strip(),
-            party=party_code(c.get("party")),
-            votes=int(c.get("votes") or 0),
-            pct=c.get("percent"),
-            incumbent=bool(c.get("incumbent")),
+            name=str(candidate.get("name") or "").strip(),
+            party=party_code(candidate.get("party")),
+            votes=int(candidate.get("votes") or 0),
+            pct=candidate.get("percent"),
+            incumbent=bool(candidate.get("incumbent")),
             winner=False,  # civicAPI's winner flag is its own call: published by the call source
         )
-        for c in race.get("candidates") or []
-        if c.get("name")
+        for candidate in race.get("candidates") or []
+        if candidate.get("name")
     ]
     if not candidates:
         return None
@@ -110,9 +114,9 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
         source_updated_at=parse_iso_ts(race.get("last_updated")) if race.get("last_updated") else None,
         # civicAPI shows 0% on hundreds of races that already carry votes: unknown, not zero.
         expected_vote_pct=(race.get("percent_reporting") or None)
-        if any(c.votes for c in candidates)
+        if any(candidate.votes for candidate in candidates)
         else race.get("percent_reporting"),
-        total_votes=sum(c.votes for c in candidates),
+        total_votes=sum(candidate.votes for candidate in candidates),
         registered_voters=race.get("registered_voters"),
         url=PAGE.format(id=race_id),
         title=race.get("election_name"),
@@ -123,7 +127,7 @@ def parse_call(race: dict, race_id: int, key: RaceKey) -> RaceCall | None:
     """civicAPI's call for a race (winner flag + called_at); None for test data or no call."""
     if race.get("test_data") or not race.get("called_at"):
         return None
-    winners = [c for c in race.get("candidates") or [] if c.get("winner")]
+    winners = [candidate for candidate in race.get("candidates") or [] if candidate.get("winner")]
     if len(winners) != 1:  # multi-seat races and ties are not single-winner calls
         return None
     return RaceCall(

@@ -52,7 +52,7 @@ class FOXResultsSource(ResultsSource):
         now = datetime.now(timezone.utc)
         results: list[RaceResult] = []
         seen: set[str] = set()
-        for office, key in sorted(pairs, key=lambda p: (p[0], str(p[1]))):
+        for office, key in sorted(pairs, key=lambda pair: (pair[0], str(pair[1]))):
             url = self._url(key)
             if url is None or url in seen:
                 continue
@@ -72,7 +72,7 @@ class FOXResultsSource(ResultsSource):
             results.extend(parse_fox_results(payload, key.state, key.level, self.YEAR, fetched_at=now))
 
         requested = set(keys)
-        return [r for r in results if r.key in requested]
+        return [result for result in results if result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
@@ -95,8 +95,8 @@ class FOXResultsSource(ResultsSource):
             except Exception:
                 continue
             races.extend(
-                (r.key, r.title or str(r.key))
-                for r in parse_fox_results(payload, state, level, self.YEAR, fetched_at=now)
+                (result.key, result.title or str(result.key))
+                for result in parse_fox_results(payload, state, level, self.YEAR, fetched_at=now)
             )
         return races
 
@@ -106,7 +106,7 @@ def parse_fox_results(
 ) -> list[RaceResult]:
     """Parse one Fox state-level feed into RaceResult rows."""
     fetched_at = fetched_at or datetime.now(timezone.utc)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     if level is Level.HOUSE:
         for race in payload.get("races") or []:
             try:
@@ -118,7 +118,7 @@ def parse_fox_results(
                 if not candidates:
                     continue
                 title = f"U.S. House District {int(district)}"
-                out.append(
+                results.append(
                     RaceResult(
                         key=key,
                         candidates=candidates,
@@ -134,7 +134,7 @@ def parse_fox_results(
                 )
             except Exception:
                 continue
-        return out
+        return results
 
     # Senate / Governor payloads are a list with one race object.
     races = payload if isinstance(payload, list) else [payload]
@@ -147,7 +147,7 @@ def parse_fox_results(
             if not candidates:
                 continue
             title = "U.S. Senate" if level is Level.SENATE else "Governor"
-            out.append(
+            results.append(
                 RaceResult(
                     key=key,
                     candidates=candidates,
@@ -163,7 +163,7 @@ def parse_fox_results(
             )
         except Exception:
             continue
-    return out
+    return results
 
 
 def _parse_fox_race(race: dict) -> tuple[list[CandidateResult], dict]:
@@ -174,7 +174,7 @@ def _parse_fox_race(race: dict) -> tuple[list[CandidateResult], dict]:
     for entry in results:
         try:
             candidate = entry.get("candidate") or {}
-            name = " ".join(p for p in (candidate.get("firstName"), candidate.get("lastName")) if p)
+            name = " ".join(part for part in (candidate.get("firstName"), candidate.get("lastName")) if part)
             party = (
                 entry.get("partyCode")
                 or candidate.get("partyCode")

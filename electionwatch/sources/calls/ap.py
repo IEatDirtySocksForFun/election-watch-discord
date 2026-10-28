@@ -70,8 +70,8 @@ class APSource(CallSource):
                 continue
 
         # Filter to the requested keys (AP may return more than one race per state).
-        requested = {k for k in keys}
-        return [c for c in calls if c.key in requested]
+        requested = set(keys)
+        return [call for call in calls if call.key in requested]
 
 
 def _office_id(key: RaceKey) -> str:
@@ -99,10 +99,10 @@ def _race_to_key(race: dict) -> RaceKey | None:
             district = "AL"
         else:
             # AP emits seatName as "1", "District 1" or "1st District".
-            m = re.search(r"\d{1,2}", seat)
-            if m is None:
+            match = re.search(r"\d{1,2}", seat)
+            if match is None:
                 return None
-            district = f"{int(m.group(0)):02d}"
+            district = f"{int(match.group(0)):02d}"
         return RaceKey(state, Level.HOUSE, "HOUSE", district)
     return None
 
@@ -124,7 +124,7 @@ def parse_ap_response(payload: dict) -> list[RaceCall]:
         key = _race_to_key(race)
         if key is None:
             continue
-        winner = next((c for c in race.get("candidates", []) if c.get("winner") == "X"), None)
+        winner = next((candidate for candidate in race.get("candidates", []) if candidate.get("winner") == "X"), None)
         if winner is None:
             continue
         calls.append(

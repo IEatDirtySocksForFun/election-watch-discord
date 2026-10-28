@@ -39,7 +39,7 @@ class CBSSource(CallSource):
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
-        pairs = {(_LEVEL_OFFICES[k.level], k.state) for k in keys if k.level in _LEVEL_OFFICES}
+        pairs = {(_LEVEL_OFFICES[key.level], key.state) for key in keys if key.level in _LEVEL_OFFICES}
         calls: list[RaceCall] = []
         for office, state in sorted(pairs):
             try:
@@ -63,7 +63,7 @@ class CBSSource(CallSource):
                 continue
 
         requested = set(keys)
-        return [c for c in calls if c.key in requested]
+        return [call for call in calls if call.key in requested]
 
 
 def parse_cbs_races(payload) -> list[RaceCall]:
@@ -76,7 +76,7 @@ def parse_cbs_races(payload) -> list[RaceCall]:
             key = _race_key(race)
             if key is None:
                 continue
-            winner = next((c for c in race.get("candidates") or [] if c.get("isWinner")), None)
+            winner = next((candidate for candidate in race.get("candidates") or [] if candidate.get("isWinner")), None)
             if winner is None:
                 continue
             calls.append(

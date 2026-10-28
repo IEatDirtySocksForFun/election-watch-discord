@@ -110,14 +110,17 @@ def parse_cnn_results(payload: dict, fetched_at: datetime | None = None) -> Race
         return None
     candidates = [
         CandidateResult(
-            name=c.get("fullName") or f"{c.get('firstName', '')} {c.get('lastName', '')}".strip(),
-            party=normalize_party(c.get("majorParty") or c.get("partyName") or c.get("candidatePartyCode")),
-            votes=int(c.get("voteNum") or 0),
-            pct=c.get("votePercentNum"),
-            incumbent=bool(c.get("isIncumbent")),
+            name=candidate.get("fullName")
+            or f"{candidate.get('firstName', '')} {candidate.get('lastName', '')}".strip(),
+            party=normalize_party(
+                candidate.get("majorParty") or candidate.get("partyName") or candidate.get("candidatePartyCode")
+            ),
+            votes=int(candidate.get("voteNum") or 0),
+            pct=candidate.get("votePercentNum"),
+            incumbent=bool(candidate.get("isIncumbent")),
             winner=False,  # CNN flag is a projection, not official.
         )
-        for c in payload.get("candidates", [])
+        for candidate in payload.get("candidates", [])
     ]
     if not candidates:
         return None
