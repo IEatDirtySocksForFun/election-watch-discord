@@ -648,7 +648,14 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
     choices: dict[str, str] = {}
     states: set[str] = set()
     # /odds and /polls work in DMs too: offer the default races there.
-    gs = await bot.store.get_guild(interaction.guild_id) if interaction.guild_id is not None else None
+    gs = None
+    if interaction.guild_id is not None:
+        # Discord drops an autocomplete answer after 3 s: a slow database falls back to the
+        # default races rather than leaving the menu empty.
+        try:
+            gs = await asyncio.wait_for(bot.store.get_guild(interaction.guild_id), 1.0)
+        except Exception:
+            logger.warning("Autocomplete could not read guild %s settings in time", interaction.guild_id)
     watched = gs.important if gs and gs.important else [str(r.key) for r in load_races()]
     for text in watched:
         try:

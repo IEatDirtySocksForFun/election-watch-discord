@@ -607,3 +607,17 @@ async def test_autocomplete_offers_stored_races_of_a_typed_state_and_queues_it()
 async def test_autocomplete_never_offers_a_value_over_100_chars():
     choices = await autocomplete(results_client(long_slug=True), "")
     assert {c.value for c in choices} == {"TX SEN"}
+
+
+async def test_race_autocomplete_answers_with_default_races_when_the_database_is_slow():
+    from electionwatch.bot.discord import race_autocomplete
+
+    class SlowStore(Store):
+        async def get_guild(self, guild_id):
+            await asyncio.sleep(5)
+
+    client = make_client(SlowStore(), {}, clock=lambda: NOW)
+    started = time.monotonic()
+    choices = await race_autocomplete(FakeInteraction(client, guild_id=1), "")
+    assert time.monotonic() - started < 2.5
+    assert any(choice.value == "TX SEN" for choice in choices)
