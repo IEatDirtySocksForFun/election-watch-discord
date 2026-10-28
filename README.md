@@ -39,6 +39,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 | **Race calls** | From the outlets you choose: civicAPI's own decision desk (free, on by default) plus AP, DDHQ, CNN, NBC, CBS, Fox, ABC. Posted the moment they appear, with retractions. |
 | **Odds** | Kalshi and Polymarket for every watched race. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
 | **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia. |
+| **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI, credited with a link in every embed. |
 | **Race browser** | `/races` is a private browser with Congressional, Senate, State and Local tabs and a state picker. Each race has Odds and Polls buttons, and it remembers your last view. |
 | **Voting FAQ** | `/faq <state>` covers poll-closing times, what each state counts first and last, mail deadlines, recount thresholds and typical call times. All 50 states + DC are covered, each with official sources. |
 | **Per-server settings** | Stored in MongoDB: channel, watched races, posting mode, outlets, alert thresholds and an admin role. |
@@ -184,6 +185,7 @@ Admin commands need **Manage Server**, or the admin role set in `/setup`. Replie
 | `/calls outlets:<…> on·off` | admin | which outlets' calls are posted |
 | `/oddsalerts on·off [threshold] [window]` | admin | Kalshi / Polymarket swing alerts |
 | `/turnout on·off`, `/exitpolls on·off` | admin | extra lines and posts |
+| `/earlyvote_posts on·off` | admin | daily early-vote summary for watched states (off by default) |
 | `/pause`, `/resume` | admin | stop or restart all posting |
 | `/settings` | everyone | this server's settings (private) |
 | `/races` | everyone | private race browser with Odds and Polls buttons |
@@ -191,6 +193,7 @@ Admin commands need **Manage Server**, or the admin role set in `/setup`. Replie
 | `/polls race:<race> [count] [internals]` | everyone | private latest polls, internals tagged |
 | `/favorite add·remove <race>` | everyone | pin races in your browser |
 | `/faq [state]` | everyone | private per-state election FAQ |
+| `/earlyvote [state] [breakdown:party·method·age·county]` | everyone | private early-vote numbers from [civicAPI](https://civicapi.org/early-vote) (attribution: each embed links civicapi.org and names it in the footer) |
 
 ## Race keys
 
