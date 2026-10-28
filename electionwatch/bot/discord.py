@@ -39,7 +39,7 @@ from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, UserSettings
 from electionwatch.demand import Demand
 from electionwatch.ratelimit import RateBook
-from electionwatch.sources.early_vote import EarlyVoteClient
+from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
 logger = logging.getLogger(__name__)
 MAX_MESSAGE = 2000  # Discord's message content limit
@@ -166,6 +166,8 @@ class ElectionBot(commands.Bot):
         # Posts at most once per civicAPI snapshot day, only for servers that opted in.
         try:
             await post_daily_summaries(self)
+        except NotCached:
+            logger.info("Early-vote summary waits for the first early-vote refresh")
         except Exception:
             logger.exception("Early-vote summary failed")
 
@@ -199,7 +201,8 @@ async def _error(interaction: discord.Interaction, exc: Exception) -> None:
 
 
 async def _cooldown(interaction: discord.Interaction, command: str, target: str, kind: str) -> bool:
-    """True if the user may run a data command now; otherwise tells them when they can."""
+    """True if the user may run a data command now; otherwise tells them when they can.
+    Called after defer(): the guild read must not count against Discord's 3 s deadline."""
     bot = interaction.client
     cooldowns = getattr(bot, "cooldowns", None)
     if cooldowns is None:
@@ -216,7 +219,7 @@ async def _cooldown(interaction: discord.Interaction, command: str, target: str,
     wait = cooldowns.hit(interaction.user.id, command, target, seconds, hourly)
     if not wait:
         return True
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"You can ask for this again in {_span(wait)}: {kind} data refreshes about every {_span(every)}, "
         "so a repeat would show the same numbers.", ephemeral=True)
     return False
@@ -343,9 +346,9 @@ async def odds_command(interaction: discord.Interaction, race: str | None = None
             return
     else:
         keys = await _watched_keys(interaction)
+    await interaction.response.defer(ephemeral=True)
     if not await _cooldown(interaction, "odds", str(keys[0]) if race else "watched", "odds"):
         return
-    await interaction.response.defer(ephemeral=True)
     if race:
         embed = await interaction.client.command_data.odds_embed(keys[0])
     else:
@@ -370,9 +373,10 @@ async def polls_command(
     except ValueError as exc:
         await _error(interaction, exc)
         return
-    if not await _cooldown(interaction, "polls", f"{key}|{count}|{internals}", "polls"):
-        return
     await interaction.response.defer(ephemeral=True)
+    # One cooldown per race: other counts or filters show the same stored polls.
+    if not await _cooldown(interaction, "polls", str(key), "polls"):
+        return
     embed = await interaction.client.command_data.polls_embed(key, count, internals)
     await interaction.followup.send(embed=embed, ephemeral=True)
 
@@ -420,9 +424,10 @@ async def early_vote_command(
         except ValueError as exc:
             await _error(interaction, exc)
             return
-    if not await _cooldown(interaction, "earlyvote", f"{code or 'US'}|{breakdown or ''}", "earlyvote"):
-        return
     await interaction.response.defer(ephemeral=True)
+    # One cooldown per state: every breakdown comes from the same stored pages.
+    if not await _cooldown(interaction, "earlyvote", code or "US", "earlyvote"):
+        return
     embed = await early_vote_embed(early_vote_client(interaction.client), code, breakdown)
     await interaction.followup.send(embed=embed, ephemeral=True)
 
@@ -474,17 +479,23 @@ async def refresh_command(
     if "earlyvote" in kinds:
         # A full early-vote download is a few hundred pages at one a second: run it in the
         # background instead of holding the reply.
-        task = asyncio.create_task(bot.refresh_early_vote_now())
-        bot._background.add(task)
-        task.add_done_callback(bot._background.discard)
-        message = " Early-vote pages are downloading in the background (one a second)."
+        if bot._early_vote_running.locked():
+            message = " Early-vote pages are already downloading."
+        elif not bot.rates.due("civicapi:earlyvote", "earlyvote"):
+            message = " Early vote waits for civicAPI's hourly request allowance; try later."
+        else:
+            task = asyncio.create_task(bot.refresh_early_vote_now())
+            bot._background.add(task)
+            task.add_done_callback(bot._background.discard)
+            message = " Early-vote pages are downloading in the background (one a second)."
     kinds = kinds - {"earlyvote"}
     if kinds:
         await bot.poller.tick()
         rows = [row for row in bot.rates.status() if row["source"] in forced and row["kind"] in kinds]
         done = [row for row in rows if (bot.rates.last_run(row["source"]) or -1) >= started]
         held = sorted({row["source"].split(":")[0] for row in rows if row not in done})
-        message = f"Refreshed {len(done)} source" + ("s" if len(done) != 1 else "") + "." + message
+        message = (f"Refreshed {len(done)} source" + ("s" if len(done) != 1 else "") + "."
+                   if rows else "Refreshed.") + message
         if held:
             message += (" Waiting for their hourly request allowance or a back-off: "
                         + clip(", ".join(held), 1500) + ".")

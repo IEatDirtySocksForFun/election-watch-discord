@@ -58,10 +58,60 @@ async def test_interval_grows_with_requests_per_refresh_and_never_beats_the_floo
     clock = Clock()
     book = RateBook({"feed.example": Limit(600, 3600)}, clock=clock)   # allowance 300/h
     await spend(book, "a:results", "results", "feed.example", 2)
-    assert book.interval("a:results", "results") == FLOORS["results"]   # 2 x 3600/300 = 24 s < 60 s
+    assert book.interval("a:results", "results") == FLOORS["results"]   # 120/h wanted < 90% of 300
     await spend(book, "a:results", "results", "feed.example", 50)
-    assert book.interval("a:results", "results") == 50 * 3600 / 300     # 600 s: a big watch list
+    # 50 a minute = 3000/h wanted; 90% of 300/h allowed: 11.1x slower than the 60 s floor.
+    assert book.interval("a:results", "results") == pytest.approx(60 * 3000 / 270)
     assert book.status()[0]["requests_per_refresh"] == 50
+
+
+async def test_sources_sharing_a_host_are_slowed_evenly_instead_of_bursting_then_stalling():
+    clock = Clock()
+    book = RateBook({"cdn.example": Limit(3600, 3600)}, clock=clock)   # allowance 1800/h
+    costs = {"tx:results": 76, "nj:results": 56, "mi:results": 16, "al:results": 3}
+    runs = {name: [] for name in costs}
+    for minute in range(180):
+        clock.t = 1000.0 + minute * 60
+        for name, cost in costs.items():
+            if book.due(name, "results"):
+                runs[name].append(minute)
+                await spend(book, name, "results", "cdn.example", cost)
+        assert book.used("cdn.example") <= 1800
+    for name, minutes in runs.items():
+        gaps = [b - a for a, b in zip(minutes, minutes[1:])][1:]      # after every cost is known
+        assert gaps and max(gaps) - min(gaps) <= 1, (name, gaps)     # an even cadence, no 40-min stall
+    assert book.interval("tx:results", "results") == book.interval("al:results", "results")
+
+
+async def test_refreshes_started_in_the_same_tick_reserve_their_requests():
+    clock = Clock()
+    book = RateBook({"feed.example": Limit(200, 3600)}, clock=clock)   # allowance 100/h
+    for name in ("a:results", "b:results", "c:results"):
+        await spend(book, name, "results", "feed.example", 40)
+    clock.t += 3601                                                    # all due, hour empty
+    book._hits.clear()
+    started = []
+    contexts = []
+    for name in ("a:results", "b:results", "c:results"):
+        if book.due(name, "results"):
+            started.append(name)
+            ctx = book.track(name, "results")
+            ctx.__enter__()
+            contexts.append(ctx)
+            await book.on_request(Request("feed.example"))             # first request in flight
+    assert started == ["a:results"] or len(started) <= 2
+    assert book.used("feed.example") + book.reserved("feed.example") <= 100 + 40
+    for ctx in contexts:
+        ctx.__exit__(None, None, None)
+    assert book.reserved("feed.example") == 0
+
+
+def test_subdomains_share_their_parent_domains_allowance():
+    book = RateBook()
+    book.record("politics.api.cnn.io")
+    book.record("api.cnn.io")
+    assert book.bucket("politics.api.cnn.io") == "cnn.io"
+    assert book.used("cnn.io") == book.used("politics.api.cnn.io") == 2
 
 
 async def test_due_waits_for_the_interval_and_for_room_in_the_hourly_allowance():
@@ -70,27 +120,29 @@ async def test_due_waits_for_the_interval_and_for_room_in_the_hourly_allowance()
     assert book.due("a:odds", "odds")
     await spend(book, "a:odds", "odds", "feed.example", 40)
     assert not book.due("a:odds", "odds")
-    clock.t += 3600 * 40 / 100                                         # its computed interval
+    clock.t += book.interval("a:odds", "odds")
     assert book.due("a:odds", "odds")
+    book._next["a:odds"] = -1                                          # interval passed
     await spend(book, "b:calls", "calls", "feed.example", 40)          # another source, same host
-    clock.t += 3600 * 40 / 100
-    assert book.used("feed.example") == 80
-    assert not book.due("a:odds", "odds")                              # 80 + 40 > 100
+    await spend(book, "c:calls", "calls", "feed.example", 30)
+    book._next["a:odds"] = -1
+    assert book.used("feed.example") == 110
+    assert not book.due("a:odds", "odds")                              # 110 + 40 > 100
     clock.t += 3600                                                    # the hour rolls over
     assert book.due("a:odds", "odds")
 
 
-async def test_a_refresh_bigger_than_the_allowance_still_runs_once_an_hour():
+async def test_a_refresh_bigger_than_the_allowance_still_runs():
     clock = Clock()
     book = RateBook({"feed.example": Limit(20, 3600)}, clock=clock)    # allowance 10/h
     await spend(book, "a:results", "results", "feed.example", 30)
-    clock.t += 3600 * 3 + 1
+    clock.t += book.interval("a:results", "results")
     assert book.due("a:results", "results")
 
 
 async def test_operator_intervals_replace_the_computed_ones_and_force_overrides_the_wait():
     clock = Clock()
-    book = RateBook(intervals={"odds": 300, "polymarket:odds": 900}, clock=clock)
+    book = RateBook(intervals={"odds": 300, "polymarket": 900}, clock=clock)
     await spend(book, "kalshi:odds", "odds", "api.elections.kalshi.com", 1)
     await spend(book, "polymarket:odds", "odds", "gamma-api.polymarket.com", 1)
     assert book.interval("kalshi:odds", "odds") == 300
@@ -281,3 +333,49 @@ async def test_early_vote_embed_says_loading_when_nothing_is_stored():
     reader = EarlyVoteClient(object(), store=MemoryStore(), cache_only=True)
     embed = await early_vote_embed(reader, "TX", None)
     assert "still being loaded" in embed.description
+
+
+class FlakyOfficial(CountingResults):
+    def __init__(self):
+        super().__init__()
+        self.fail = False
+
+    async def fetch(self, keys, client):
+        if self.fail:
+            self.calls += 1
+            raise RuntimeError("blip")
+        return await super().fetch(keys, client)
+
+
+async def test_a_short_outage_keeps_the_official_numbers_instead_of_flipping_to_a_fallback():
+    clock = Clock()
+    official, fallback = FlakyOfficial(), Fallback()
+    store, poller = await make_poller(clock, results=[official, fallback])
+    poller.rates.intervals = {"results": 60}
+    await poller.tick()
+    official.fail = True
+    for _ in range(3):                         # fails, then backs off 1 and 2 minutes
+        clock.t += 60
+        await poller.tick()
+    assert fallback.calls == 0
+    assert (await store.latest_result(TX)).source == "official"
+
+
+def test_limits_text_fits_one_message_with_every_adapter_and_leads_with_command_limits():
+    book = RateBook()
+    for n in range(70):
+        book.due(f"source{n}:results", "results")
+        with book.track(f"source{n}:results", "results"):
+            for _ in range(40):
+                book.record(f"host{n % 5}.example")
+    text = limits_text(GuildSettings(1), book, Cooldowns())
+    assert len(text) <= 1950
+    assert text.startswith("Command limits in this server:")
+    assert "results: every" in text
+
+
+def test_the_cooldown_key_ignores_presentation_options():
+    from electionwatch.bot.discord import polls_command
+    import inspect
+    source = inspect.getsource(polls_command.callback)
+    assert '_cooldown(interaction, "polls", str(key), "polls")' in source

@@ -113,6 +113,9 @@ def best_result(answers: list[RaceResult]) -> RaceResult | None:
 METHOD_KIND = {"fetch": "results", "fetch_calls": "calls", "fetch_exit_polls": "exitpolls",
                "fetch_odds": "odds", "fetch_polls": "polls"}
 POLLS_CACHE = "polls"
+#: A results source's last answer stands in for it while it is not due or backing off, for at
+#: most this long; after that the fallbacks answer for its races.
+ANSWER_REUSE = timedelta(minutes=10)
 ODDS_CHECKED = "odds_checked"   # races the odds refresh asked about and no market answered
 
 
@@ -186,7 +189,8 @@ class Poller:
         # Request budgets (electionwatch/ratelimit.py): None asks every source every tick.
         self.rates = rates
         self.demand = demand
-        self._answers: dict[str, list] = {}      # source -> its last results, reused until it is due
+        self._answers: dict[str, tuple] = {}     # source -> (when, its last results), see _fetch
+        self._odds_checked: dict[str, datetime] = {}   # race -> when its "no market" marker was written
         self._lock = asyncio.Lock()              # /refresh and the minute loop never overlap
 
     def _watched(self, guild: GuildSettings) -> set[str]:
@@ -202,6 +206,18 @@ class Poller:
             logger.warning("Could not check availability of source %s", getattr(source, "name", "?"))
             return False
 
+    def last_answers(self, source, method: str, keys: list) -> list:
+        """A results source's last answer for keys if it is recent, else []. It stands in
+        while the source is not due, backing off or failing, so a fallback is not asked about
+        races an official feed answered, and the posted numbers don't flip to another
+        outlet's and back during a short outage."""
+        kind = METHOD_KIND.get(method, method)
+        at, answers = self._answers.get(f"{getattr(source, 'name', repr(source))}:{kind}", (None, []))
+        if at is None or self.clock() - at > ANSWER_REUSE:
+            return []
+        asked = {str(key) for key in keys}
+        return [r for r in answers if str(r.key) in asked]
+
     async def _fetch(self, source, method: str, keys: list):
         """Fetch with a per-source back-off: after a failure the source is skipped for 1, 2, 4,
         8, then 15 minutes, so a site that starts refusing us (CNN answers 406 to bursts) is not
@@ -209,15 +225,12 @@ class Poller:
         name = getattr(source, "name", repr(source))
         failures, until = self._backoff.get(name, (0, None))
         now = self.clock()
-        if until is not None and now < until:
-            return []
         kind = METHOD_KIND.get(method, method)
         budget_name = f"{name}:{kind}"   # one adapter can be a results and a calls source
+        if until is not None and now < until:
+            return self.last_answers(source, method, keys)
         if self.rates is not None and not self.rates.due(budget_name, kind):
-            # Not due yet: results sources answer with what they said last time, so the
-            # fallbacks are not asked about races an official feed already answered.
-            asked = {str(key) for key in keys}
-            return [r for r in self._answers.get(budget_name, []) if str(r.key) in asked]
+            return self.last_answers(source, method, keys)
         tracking = self.rates.track(budget_name, kind) if self.rates is not None else nullcontext()
         try:
             with tracking:
@@ -229,7 +242,7 @@ class Poller:
         if failures:
             self._backoff.pop(name, None)
         if kind == "results":
-            self._answers[budget_name] = list(got)
+            self._answers[budget_name] = (now, list(got))
         return got
 
     async def _post(self, guild: GuildSettings, kind: str, ref: str, post: Post, now: datetime) -> None:
@@ -382,7 +395,7 @@ class Poller:
         for (source, source_keys), fetched in zip(jobs, answers):
             if isinstance(fetched, BaseException):
                 logger.error("Results source %s failed", source.name, exc_info=fetched)
-                continue
+                fetched = self.last_answers(source, "fetch", source_keys)
             asked = {str(key) for key in source_keys}
             for result in fetched:
                 race = str(result.key)
@@ -481,11 +494,15 @@ class Poller:
             # /odds tells "no market for this race" apart from "not fetched yet" with this.
             priced = {str(snapshot.key) for snapshot in snapshots}
             for key in keys:
-                if str(key) not in priced:
-                    try:
-                        await self.store.put_cached(ODDS_CHECKED, str(key), "", now)
-                    except Exception:
-                        logger.exception("Could not store the odds check for %s", key)
+                race = str(key)
+                written = self._odds_checked.get(race)
+                if race in priced or (written is not None and now - written < timedelta(minutes=30)):
+                    continue
+                try:
+                    await self.store.put_cached(ODDS_CHECKED, race, "", now)
+                    self._odds_checked[race] = now
+                except Exception:
+                    logger.exception("Could not store the odds check for %s", key)
         if not snapshots or not any(guild.odds_alerts for guild in guilds):
             return
         try:

@@ -159,44 +159,47 @@ def _span(seconds: float) -> str:
 
 
 def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
-    """/limits: refresh intervals, request budgets and this server's command limits."""
-    lines = ["Data refresh (background; commands read the database only):"]
-    rows = rates.status() if rates is not None else []
-    kinds: dict[str, list[dict]] = {}
-    for row in rows:
-        kinds.setdefault(row["kind"], []).append(row)
+    """/limits: this server's command limits, then refresh intervals and request budgets.
+    Only sources slowed below their kind's floor (or set by the operator) are listed one by
+    one; the full list would not fit one message with ~70 adapters."""
     from electionwatch.ratelimit import FLOORS
-    for kind in FLOORS:
-        every = rates.kind_interval(kind) if rates is not None else FLOORS[kind]
-        lines.append(f"  {kind}: every {_span(every)}")
-        for row in kinds.get(kind, []):
-            budget = ", ".join(f"{host} {used}/{allow:g} per h" for host, (used, allow) in row["hosts"].items())
-            lines.append(f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
-                         + (" (set by operator)" if row["overridden"] else "")
-                         + (f"; {row['requests_per_refresh']} request{'s' if row['requests_per_refresh'] != 1 else ''} per refresh"
-                            if row["requests_per_refresh"] else "")
-                         + (f"; {budget}" if budget else ""))
-    if rates is not None:
-        lines.append(f"Each host gets at most 1/{rates.safety:g} of its published limit per hour.")
+
+    def every(kind: str) -> float:
+        return rates.kind_interval(kind) if rates is not None else FLOORS[kind]
+
+    lines = []
     if cooldowns is not None:
         server = gs or GuildSettings(0)
-        odds = rates.kind_interval("odds") if rates is not None else FLOORS["odds"]
-        user = cooldowns.user_seconds(odds, server.user_cooldown_seconds)
+        user = cooldowns.user_seconds(every("odds"), server.user_cooldown_seconds)
         hourly = server.user_commands_per_hour if server.user_commands_per_hour is not None else cooldowns.user_hourly
-        refresh = cooldowns.refresh_seconds(min(FLOORS.values()) if rates is None else
-                                            min(rates.kind_interval(k) for k in FLOORS),
-                                            server.refresh_cooldown_seconds)
+        set_user = server.user_cooldown_seconds is not None or cooldowns.user_cooldown is not None
+        set_refresh = server.refresh_cooldown_seconds is not None or cooldowns.refresh_cooldown is not None
+        refresh = cooldowns.refresh_seconds(min(every(k) for k in FLOORS), server.refresh_cooldown_seconds)
         lines += [
             "Command limits in this server:",
-            "  same race/state again: " + (f"after {_span(user)}" if server.user_cooldown_seconds is not None
-                                            or cooldowns.user_cooldown is not None
-                                            else "after 2 refreshes of its data (odds: " + _span(user) + ")"),
+            "  same race/state again: " + (f"after {_span(user)}" if set_user
+                                            else f"after 2 refreshes of its data (odds: {_span(user)})"),
             "  per user per hour: " + (f"{hourly:g}" if hourly else "no cap"),
-            "  /refresh: once every " + _span(refresh) + " (or more, for slower data)"
-            if server.refresh_cooldown_seconds is None and cooldowns.refresh_cooldown is None
-            else "  /refresh: once every " + _span(refresh),
+            "  /refresh: once every " + _span(refresh) + ("" if set_refresh else " (longer for slower data)"),
         ]
-    return "\n".join(lines)
+    lines.append("Data refresh (in the background; commands read the database only):")
+    rows = rates.status() if rates is not None else []
+    for kind in FLOORS:
+        mine = [row for row in rows if row["kind"] == kind]
+        slowed = [row for row in mine if row["overridden"] or row["interval"] > row["floor"] + 1]
+        lines.append(f"  {kind}: every {_span(every(kind))}"
+                     + (f" ({len(mine) - len(slowed)} sources at this rate)" if len(mine) > len(slowed) else ""))
+        for row in slowed:
+            budget = ", ".join(f"{host} {used}/{allow:g} per h" for host, (used, allow) in row["hosts"].items())
+            n = row["requests_per_refresh"]
+            lines.append(f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
+                         + (" (set by operator)" if row["overridden"] else "")
+                         + (f"; {n} request{'s' if n != 1 else ''} per refresh" if n else "")
+                         + (f"; {budget}" if budget else ""))
+    if rates is not None:
+        lines.append(f"Each host gets at most 1/{rates.safety:g} of its published limit per hour, "
+                     "shared evenly by the sources that use it.")
+    return _clip_lines(lines, limit=1950, marker="… (more sources slowed by their budget)")
 
 
 def settings_dump(gs: GuildSettings) -> str:

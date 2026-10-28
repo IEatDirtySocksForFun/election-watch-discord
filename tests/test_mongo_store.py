@@ -74,6 +74,7 @@ class FakeCollection:
         """The one pipeline MongoStore.latest_odds sends: $match, $sort ts desc, $group $first."""
         match, _sort, group = pipeline
         docs = sorted((d for d in self.docs if _match(d, match["$match"])), key=lambda d: d["ts"], reverse=True)
+        assert _sort["$sort"] == {"market": 1, "outcome": 1, "ts": -1}
         first: dict = {}
         for doc in docs:
             first.setdefault((doc["market"], doc["outcome"]), doc)

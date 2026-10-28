@@ -1432,14 +1432,18 @@ async def sc_source_outage(ctx: Ctx, c: Checks):
     res = await night.run(["21:30 !source_down minutes=30", "21:45 settings", "21:46 !navigator"])
     tries = [t for t, ok in res.source_attempts if res.t("21:30") <= t < res.t("22:00")]
     c.ok(len(tries) <= 6, f"{len(tries)} fetch attempts during a 30-min outage (back-off expected)")
-    no_posts(c, res, res.t("21:30"), res.t("22:00"), kind="results", label="source down: ")
+    # The source's last answer stands in for up to 10 minutes (poller.ANSWER_REUSE): numbers
+    # fetched before 21:30 may still go out on the posting schedule, nothing after that.
+    no_posts(c, res, res.t("21:41"), res.t("22:00"), kind="results", label="source down: ")
+    held = len(res.posts_for(kind="results", t0=res.t("21:30"), t1=res.t("21:41")))
     first = min((p.at for p in res.posts_for(kind="results", t0=res.t("22:00"))), default=None)
     c.ok(first is not None and first - res.t("22:00") <= timedelta(minutes=16),
          f"results recovered at {et(first) if first else 'never'}")
     c.ok(bool(res.posts_for(kind="call", t0=res.t("21:30"), t1=res.t("22:00"))) or True, "")
     calls_during = len(res.posts_for(kind="call", t0=res.t("21:30"), t1=res.t("22:00")))
     replies_ok(c, res)
-    c.note(f"attempts during outage at {[et(t) for t in tries]}; first results post after: "
+    c.note(f"{held} posts of numbers fetched before the outage, 21:30-21:40; "
+           f"attempts during outage at {[et(t) for t in tries]}; first results post after: "
            f"{et(first) if first else '-'}; {calls_during} call posts continued during the outage")
     return res
 
@@ -1525,7 +1529,7 @@ SCENARIOS: dict[str, tuple[str, Callable]] = {
     "twoguilds": ("10 two guilds, guild 1 changes everything", sc_two_guilds),
     "storeerr": ("11a MongoStore with store errors for 20 min", sc_store_errors),
     "mongorestart": ("11b private mongod stopped/started mid-night", sc_mongo_restart),
-    "sourcedown": ("12 results source outage 30 min", sc_source_outage),
+    "sourcedown": ("12 results source outage 30 min (last answer reused 10 min)", sc_source_outage),
     "roleadmin": ("13 /setup admin_role delegates admin to a role", sc_roleadmin),
     "invalid": ("14 invalid inputs mid-night change nothing", sc_invalid),
     "pausechange": ("15 /posting changed while paused applies after resume", sc_pause_change),

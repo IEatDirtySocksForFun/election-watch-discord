@@ -180,7 +180,8 @@ class MongoStore:
     async def latest_odds(self, key: RaceKey) -> list[OddsSnapshot]:
         pipeline = [
             {"$match": {"key": str(key)}},
-            {"$sort": {"ts": -1}},
+            # Follows the (key, market, outcome, ts) index instead of sorting every snapshot.
+            {"$sort": {"market": 1, "outcome": 1, "ts": -1}},
             {"$group": {"_id": {"market": "$market", "outcome": "$outcome"}, "doc": {"$first": "$$ROOT"}}},
         ]
         cursor = await self.odds.aggregate(pipeline)
