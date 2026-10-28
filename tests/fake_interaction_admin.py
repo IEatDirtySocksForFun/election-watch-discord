@@ -120,11 +120,11 @@ class FakeInteraction:
     @property
     def replies(self) -> list[Sent]:
         """Messages the user sees (a defer alone is not a reply)."""
-        return [item for item in self.sent if item.via != "defer"]
+        return [sent_message for sent_message in self.sent if sent_message.via != "defer"]
 
     @property
     def text(self) -> str:
-        return "\n".join(item.content or "" for item in self.replies)
+        return "\n".join(sent_message.content or "" for sent_message in self.replies)
 
 
 # The four callers of every command.

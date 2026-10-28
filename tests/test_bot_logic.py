@@ -72,9 +72,9 @@ def test_settings_dump_is_plain_yaml():
     from electionwatch.bot.logic import settings_dump
 
     gs = GuildSettings(1, channel_id=2, post_mode=PostMode.INTERVAL, interval_minutes=15)
-    data = yaml.safe_load(settings_dump(gs))
-    assert data["guild_id"] == 1 and data["post_mode"] == "interval"
-    assert data["interval_minutes"] == 15
+    dumped = yaml.safe_load(settings_dump(gs))
+    assert dumped["guild_id"] == 1 and dumped["post_mode"] == "interval"
+    assert dumped["interval_minutes"] == 15
 
 
 def test_favorites_navigation_and_faq_are_pure_data_operations():
@@ -113,7 +113,7 @@ def test_faq_without_a_state_lists_available_states_and_fits_one_message():
 def test_settings_dump_and_watch_list_fit_in_one_discord_message():
     from electionwatch.bot.logic import change_watch, settings_dump
 
-    gs = GuildSettings(1, important=[f"TX HD-{n:02d}" for n in range(1, 151)])
+    gs = GuildSettings(1, important=[f"TX HD-{district_number:02d}" for district_number in range(1, 151)])
     assert len(f"```yaml\n{settings_dump(gs)}\n```") <= 2000
     assert len(change_watch(gs, "list")) <= 2000
 
@@ -128,7 +128,7 @@ def test_settings_dump_shows_every_setting_even_with_hundreds_of_watched_races()
     gs = GuildSettings(
         1,
         channel_id=2,
-        important=[f"TX HD-{n:03d}" for n in range(1, 151)],
+        important=[f"TX HD-{district_number:03d}" for district_number in range(1, 151)],
         post_mode=PostMode.INTERVAL,
         interval_minutes=10,
         paused=True,

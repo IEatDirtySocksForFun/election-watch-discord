@@ -28,9 +28,9 @@ def test_parse_texas_senate():
     event = _load("texas-senate.json")
     snaps = parse_polymarket_event(event)
     assert len(snaps) == 2
-    assert all(s.key == RaceKey("TX", Level.SENATE, "SEN") for s in snaps)
-    dem = next(s for s in snaps if s.outcome == "DEM")
-    rep = next(s for s in snaps if s.outcome == "REP")
+    assert all(snapshot.key == RaceKey("TX", Level.SENATE, "SEN") for snapshot in snaps)
+    dem = next(snapshot for snapshot in snaps if snapshot.outcome == "DEM")
+    rep = next(snapshot for snapshot in snaps if snapshot.outcome == "REP")
     assert dem.prob == 0.675
     assert rep.prob == 0.325
     assert dem.market_id == "630963"
@@ -40,9 +40,9 @@ def test_parse_california_governor():
     event = _load("california-governor.json")
     snaps = parse_polymarket_event(event)
     assert len(snaps) >= 2
-    assert all(s.key == RaceKey("CA", Level.GOVERNOR, "GOV") for s in snaps)
+    assert all(snapshot.key == RaceKey("CA", Level.GOVERNOR, "GOV") for snapshot in snaps)
     # At least one named-candidate outcome should be present.
-    assert any(s.outcome not in ("DEM", "REP") for s in snaps)
+    assert any(snapshot.outcome not in ("DEM", "REP") for snapshot in snaps)
 
 
 def test_source_has_expected_registry_name():
@@ -86,7 +86,7 @@ async def test_snapshots_are_stamped_with_fetch_time_not_stale_metadata_time():
     async with httpx.AsyncClient(transport=transport) as client:
         snaps = await PolymarketSource().fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
     assert snaps
-    assert all(datetime.now(timezone.utc) - s.ts < timedelta(minutes=1) for s in snaps)
+    assert all(datetime.now(timezone.utc) - snapshot.ts < timedelta(minutes=1) for snapshot in snaps)
 
 
 def test_two_candidates_of_one_party_do_not_share_an_outcome_label():
@@ -109,5 +109,5 @@ def test_two_candidates_of_one_party_do_not_share_an_outcome_label():
             market(3, "Carl Cole (R)", 0.05),
         ],
     }
-    outcomes = {s.outcome: s.prob for s in parse_polymarket_event(event)}
+    outcomes = {snapshot.outcome: snapshot.prob for snapshot in parse_polymarket_event(event)}
     assert outcomes == {"Alice Adams (D)": 0.7, "Bob Brown (D)": 0.25, "REP": 0.05}

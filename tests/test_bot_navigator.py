@@ -139,7 +139,7 @@ async def test_fallback_local_races_are_hidden_where_an_official_feed_lists_loca
             return True
 
         async def list_races(self, state, client):
-            return [(parse(k), k) for k in self.races if k.startswith(state)]
+            return [(parse(race_key), race_key) for race_key in self.races if race_key.startswith(state)]
 
     official = Lister("tx_counties", ["TX LOCAL harris-county-judge"])
     civic = Lister(

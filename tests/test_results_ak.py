@@ -21,7 +21,7 @@ def parse():
 
 
 def by_key():
-    return {format_key(r.key): r for r in parse()}
+    return {format_key(race_result.key): race_result for race_result in parse()}
 
 
 def test_us_house_is_at_large_and_sums_precincts():
@@ -31,7 +31,7 @@ def test_us_house_is_at_large_and_sums_precincts():
     assert house.candidates[0].name == "Nick Begich"
     assert house.candidates[0].party == "REP"
     # Every precinct row for the contest is summed, and percentages are filled in.
-    assert house.total_votes == sum(x.votes for x in house.candidates)
+    assert house.total_votes == sum(candidate.votes for candidate in house.candidates)
     assert house.candidates[0].pct == round(100.0 * house.candidates[0].votes / house.total_votes, 2)
     assert house.url == "https://www.elections.alaska.gov/results/24GENR/"
 
@@ -70,7 +70,7 @@ def test_empty_payload_is_not_an_error():
 def _subject_text(ca: dict) -> str:
     """'GlobalSign GCC R46 OV TLS CA 2025' from get_ca_certs()'s nested tuples."""
     return (
-        " ".join(v for rdn in ca.get("subject") or () for _k, v in rdn)
+        " ".join(value for rdn in ca.get("subject") or () for _k, value in rdn)
         if not isinstance(ca.get("subject"), str)
         else ca["subject"]
     )
@@ -137,5 +137,5 @@ async def test_fetch_uses_the_ak_tls_client(monkeypatch):
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         results = await ak_doe.AkDoe().fetch([key], client)
     assert seen == ["https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv"]
-    assert [r.key for r in results] == [key]
+    assert [race_result.key for race_result in results] == [key]
     assert results[0].candidates[0].name == "Nick Begich"

@@ -16,29 +16,29 @@ def load(name):
 
 
 def parse():
-    out = []
+    results = []
     for name in (
         "office_us_senate.json",
         "office_us_house.json",
         "office_state_senate.json",
         "office_state_house.json",
     ):
-        out.extend(parse_pa(load(name), fetched_at=AT))
-    return {format_key(r.key): r for r in out}
+        results.extend(parse_pa(load(name), fetched_at=AT))
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_senate_payload_is_double_encoded_and_parsed():
-    r = parse()["PA SEN"]
-    assert r.key.level is Level.SENATE
-    assert r.title == "United States Senator"
-    assert r.source == "pa_dos"
-    assert {"DEM", "REP"} <= {c.party for c in r.candidates}
-    top = r.candidates[0]
+    race_result = parse()["PA SEN"]
+    assert race_result.key.level is Level.SENATE
+    assert race_result.title == "United States Senator"
+    assert race_result.source == "pa_dos"
+    assert {"DEM", "REP"} <= {candidate.party for candidate in race_result.candidates}
+    top = race_result.candidates[0]
     assert top.name == "Dave McCormick"
     assert top.votes == 3399295
     assert top.pct == 48.82
-    assert r.total_votes == sum(c.votes for c in r.candidates)
-    assert all(c.winner is False for c in r.candidates)
+    assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
+    assert all(candidate.winner is False for candidate in race_result.candidates)
 
 
 def test_house_and_state_legislature_districts():

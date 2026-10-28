@@ -24,17 +24,17 @@ def test_senate_rows_are_mapped_to_races():
         _fixture("senate-polls.html"), Level.SENATE, [parse("ME SEN"), parse("TX SEN"), parse("MI SEN")]
     )
     assert len(polls) == 4  # the fixture also holds a North Carolina row we did not ask for
-    assert all(p.key.level is Level.SENATE and p.source == "270towin" for p in polls)
+    assert all(poll.key.level is Level.SENATE and poll.source == "270towin" for poll in polls)
     # newest first
-    assert [p.end_date for p in polls] == sorted((p.end_date for p in polls), reverse=True)
+    assert [poll.end_date for poll in polls] == sorted((poll.end_date for poll in polls), reverse=True)
 
-    marist = next(p for p in polls if p.pollster == "Marist Poll")
+    marist = next(poll for poll in polls if poll.pollster == "Marist Poll")
     assert marist.key == parse("ME SEN")
     assert marist.end_date == date(2026, 10, 27)
     assert marist.start_date is None  # one date column -> no invented field period
     assert (marist.sample_size, marist.population) == (1449, "LV")
     assert marist.url.startswith("https://maristpoll.marist.edu/")
-    assert [(r.name, r.party, r.pct) for r in marist.results] == [
+    assert [(poll_result.name, poll_result.party, poll_result.pct) for poll_result in marist.results] == [
         ("Jackson", "DEM", 49.0),
         ("Collins", "REP", 47.0),  # "(incumbent)" star stripped from the surname
     ]
@@ -47,14 +47,14 @@ def test_house_districts_and_at_large():
         Level.HOUSE,
         [parse("CA-34"), parse("AK-AL"), parse("MI-07"), parse("TX-15")],
     )
-    by_key = {str(p.key): p for p in polls}
+    by_key = {str(poll.key): poll for poll in polls}
     assert set(by_key) == {"CA-34", "AK-AL", "MI-07", "TX-15"}
     assert by_key["AK-AL"].key.district == "AL"
     assert by_key["TX-15"].key.district == "15"
     assert by_key["TX-15"].sample_size is None  # site lists no sample for that row
     assert by_key["TX-15"].population == "LV"
     ak = by_key["AK-AL"]
-    assert [(r.name, r.party) for r in ak.results] == [
+    assert [(poll_result.name, poll_result.party) for poll_result in ak.results] == [
         ("Begich", "REP"),
         ("Hill", "IND"),
         ("Hafner", "DEM"),
@@ -95,7 +95,7 @@ def test_fetch_asks_once_per_office_with_the_documented_parameters():
     assert seen[0]["limit"] == "40"
     assert seen[0]["election_types[]"] == "S"
     assert seen[1]["election_types[]"] == "G"
-    assert {str(p.key) for p in polls} == {"TX SEN"}
+    assert {str(poll.key) for poll in polls} == {"TX SEN"}
 
 
 def test_fetch_raises_when_every_list_fails():

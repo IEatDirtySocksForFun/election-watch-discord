@@ -22,7 +22,7 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def merged_2024():
@@ -33,7 +33,7 @@ def merged_2024():
 
 def test_senate_votes_are_summed_across_counties():
     sen = by_key(merged_2024())["TX SEN"]
-    cands = {c.name: c.votes for c in sen.candidates}
+    cands = {candidate.name: candidate.votes for candidate in sen.candidates}
     # Denton 237978 + El Paso 92997 for Cruz; 200676 + 141826 for Allred.
     assert cands["Ted Cruz"] == 237978 + 92997
     assert cands["Colin Allred"] == 200676 + 141826
@@ -121,7 +121,7 @@ def test_elections_listing_ignores_wrong_year_and_primaries():
 
 def test_county_override_from_env(monkeypatch):
     monkeypatch.delenv("TX_COUNTY_FEEDS", raising=False)
-    assert [c["county"] for c in tx_counties.counties("2026-11-03")][0] == "Dallas"
+    assert [candidate["county"] for candidate in tx_counties.counties("2026-11-03")][0] == "Dallas"
     monkeypatch.setenv(
         "TX_COUNTY_FEEDS",
         json.dumps(
@@ -157,8 +157,8 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await tx_counties.TxCounties().fetch([parse("TX SEN"), parse("TX-16"), parse("TX GOV")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await tx_counties.TxCounties().fetch([parse("TX SEN"), parse("TX-16"), parse("TX GOV")], client)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"TX SEN", "TX-16"}
@@ -170,8 +170,8 @@ def test_fetch_reports_unavailable_when_no_county_answers(monkeypatch):
     monkeypatch.setenv("TX_COUNTY_FEEDS", json.dumps([{"county": "Harris", "election_id": "1", "date": "2024-11-05"}]))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(503))) as c:
-            await tx_counties.TxCounties().fetch([parse("TX SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(503))) as client:
+            await tx_counties.TxCounties().fetch([parse("TX SEN")], client)
 
     with pytest.raises(SourceUnavailable):
         asyncio.run(go())
@@ -217,7 +217,7 @@ def test_county_list_covers_nineteen_clarity_feeds():
 
 def test_senate_merges_across_thirteen_2024_counties():
     sen = merged_all_2024()["TX SEN"]
-    cands = {c.name: c for c in sen.candidates}
+    cands = {candidate.name: candidate for candidate in sen.candidates}
     # 13 of the 2024 fixtures report a Senate contest; totals are the fixtures' T values.
     assert sen.title == "US Senator (partial: 13 counties)"
     assert sen.total_votes == 1949354
@@ -231,7 +231,7 @@ def test_repeated_party_prefix_is_stripped_before_merging():
     # Lamar, Rockwall, Rusk and Bastrop print "REP Ted Cruz" although P already says REP.
     keys = by_key(_parse("lamar_2024_summary.json", "Lamar"))
     assert keys["TX SEN"].candidates[0].name == "Ted Cruz"
-    assert {c.name: c.party for c in keys["TX SEN"].candidates}["Ted Cruz"] == "REP"
+    assert {candidate.name: candidate.party for candidate in keys["TX SEN"].candidates}["Ted Cruz"] == "REP"
     # The prefix is only stripped when it repeats the party column, so a title is kept.
     assert _county.split_party_prefix("Rep. John Lewis", None) == "Rep. John Lewis"
     assert _county.split_party_prefix("REP Ted Cruz", "DEM") == "REP Ted Cruz"
@@ -266,30 +266,30 @@ def test_2026_aliases_for_land_commissioner_and_unexpired_terms():
 
 def test_rejected_and_unassigned_write_in_rows_are_not_candidates():
     keys = by_key(_parse("hood_2024_summary.json", "Hood"))
-    names = [c.name for c in keys["TX-25"].candidates]
+    names = [candidate.name for candidate in keys["TX-25"].candidates]
     assert names == ["Roger Williams", "Chad Hagg"]  # counted write-in kept, tallies dropped
 
 
 def test_president_merges_across_every_county_that_reports_it():
     pres = merged_all_2024()["TX LOCAL president-vice-president"]
     assert pres.title == "President/Vice President (partial: 8 counties)"
-    cands = {c.name: c for c in pres.candidates}
-    assert {c.party for c in pres.candidates[:2]} == {"REP", "DEM"}
+    cands = {candidate.name: candidate for candidate in pres.candidates}
+    assert {candidate.party for candidate in pres.candidates[:2]} == {"REP", "DEM"}
     # Three ticket spellings collapse to the presidential name:
     # "Donald J. Trump/JD Vance" (most), "Donald J. Trump JD Vance" (Comal, no slash)
     # and "(R) Donald J. Trump" (Travis, no running mate at all).
     assert cands["Donald J. Trump"].votes == 729798
     assert cands["Kamala D. Harris"].votes == 721587
-    assert not [n for n in cands if n.startswith(("Donald", "Kamala")) and "/" in n]
+    assert not [name for name in cands if name.startswith(("Donald", "Kamala")) and "/" in name]
 
 
 def test_parenthesised_party_prefixes_are_stripped():
     # Travis prints "(R) Ted Cruz" with the party also in the column, like Lamar's "REP ...".
     keys = by_key(_parse("travis_2024_summary.json", "Travis"))
-    names = [c.name for c in keys["TX SEN"].candidates]
+    names = [candidate.name for candidate in keys["TX SEN"].candidates]
     assert names == ["Colin Allred", "Ted Cruz", "Ted Brown", "Write-in"]
-    assert {c.name: c.party for c in keys["TX SEN"].candidates}["Ted Cruz"] == "REP"
-    pres = {c.name: c.party for c in keys["TX LOCAL president-vice-president"].candidates}
+    assert {candidate.name: candidate.party for candidate in keys["TX SEN"].candidates}["Ted Cruz"] == "REP"
+    pres = {candidate.name: candidate.party for candidate in keys["TX LOCAL president-vice-president"].candidates}
     assert pres["Donald J. Trump"] == "REP" and pres["Kamala D. Harris"] == "DEM"
 
 
@@ -338,7 +338,7 @@ def test_tarrant_and_bexar_2026_files_parse_with_zero_votes():
 def test_harris_2024_feed_parses_party_suffixes_and_totals():
     got = by_key(tx_counties.parse_harris(load("harris_2024_resultsbyballot.json"), fetched_at=AT))
     sen = got["TX SEN"]
-    cands = {c.name.upper(): (c.party, c.votes) for c in sen.candidates}
+    cands = {candidate.name.upper(): (candidate.party, candidate.votes) for candidate in sen.candidates}
     assert cands["TED CRUZ"] == ("REP", 666027)
     assert cands["COLIN ALLRED"] == ("DEM", 841784)
     assert cands["ANALISA ROCHE"][0] == "WRI"
@@ -353,7 +353,7 @@ def test_harris_merges_with_clarity_counties():
     harris = tx_counties.parse_harris(load("harris_2024_resultsbyballot.json"), fetched_at=AT)
     sen = by_key(_county.merge(tarrant + harris, source="tx_counties", url=tx_counties.HUMAN))["TX SEN"]
     assert sen.total_votes == 821473 + 1548914
-    cruz = next(c for c in sen.candidates if c.name.upper() == "TED CRUZ")
+    cruz = next(candidate for candidate in sen.candidates if candidate.name.upper() == "TED CRUZ")
     assert cruz.votes == 399927 + 666027
     assert sen.title.endswith("(partial: 2 counties)")
 
@@ -398,8 +398,8 @@ def test_fetch_includes_harris_alongside_clarity(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await tx_counties.TxCounties().fetch([parse("TX SEN"), parse("TX-07")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await tx_counties.TxCounties().fetch([parse("TX SEN"), parse("TX-07")], client)
 
     got = by_key(asyncio.run(go()))
     assert got["TX SEN"].total_votes == 821473 + 1548914

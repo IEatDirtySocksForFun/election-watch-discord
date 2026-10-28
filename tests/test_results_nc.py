@@ -18,17 +18,17 @@ def parse():
 
 
 def test_governor_and_party():
-    gov = {format_key(r.key): r for r in parse()}["NC GOV"]
+    gov = {format_key(race_result.key): race_result for race_result in parse()}["NC GOV"]
     assert gov.key.level is Level.GOVERNOR
     assert gov.candidates[0].name == "Josh Stein"
     assert gov.candidates[0].party == "DEM"
     assert gov.candidates[0].pct == 54.9  # source sends 0.5490
-    assert gov.total_votes == sum(c.votes for c in gov.candidates)
+    assert gov.total_votes == sum(candidate.votes for candidate in gov.candidates)
     assert gov.title == "NC GOVERNOR"
 
 
 def test_federal_state_and_house_keys():
-    keys = {format_key(r.key) for r in parse()}
+    keys = {format_key(race_result.key) for race_result in parse()}
     assert "NC-01" in keys  # US House district 01
     assert "NC SD-01" in keys  # state senate
     assert "NC HD-01" in keys  # state house (district 001)
@@ -45,13 +45,13 @@ def test_turnout_and_updated_at_come_from_county_file():
 
 def test_precincts_and_percent_reported():
     # District contests only count the precincts inside the district (43 for HD-01).
-    r = {format_key(x.key): x for x in parse()}["NC HD-01"]
-    assert r.precincts_total == r.precincts_reporting > 0
-    assert r.expected_vote_pct == 100.0
+    race_result = {format_key(reporting.key): reporting for reporting in parse()}["NC HD-01"]
+    assert race_result.precincts_total == race_result.precincts_reporting > 0
+    assert race_result.expected_vote_pct == 100.0
 
 
 def test_constitutional_amendment_becomes_local():
-    keys = {format_key(r.key) for r in parse()}
+    keys = {format_key(race_result.key) for race_result in parse()}
     assert "NC LOCAL constitutional-amendment-citizens-only-voting" in keys
 
 

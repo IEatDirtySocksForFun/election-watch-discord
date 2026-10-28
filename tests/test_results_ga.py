@@ -11,8 +11,8 @@ AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
 def parse():
-    doc = json.loads((FIX / "export-2020NovGen.json").read_text())
-    return {format_key(r.key): r for r in parse_ga(doc, fetched_at=AT)}
+    payload = json.loads((FIX / "export-2020NovGen.json").read_text())
+    return {format_key(race_result.key): race_result for race_result in parse_ga(payload, fetched_at=AT)}
 
 
 def test_senate_and_special_are_distinct_races():
@@ -26,17 +26,17 @@ def test_senate_and_special_are_distinct_races():
 
 
 def test_candidate_names_drop_party_and_incumbent_suffixes():
-    r = parse()["GA SEN"]
-    perdue = next(c for c in r.candidates if c.name == "David A. Perdue")
+    race_result = parse()["GA SEN"]
+    perdue = next(candidate for candidate in race_result.candidates if candidate.name == "David A. Perdue")
     assert perdue.incumbent is True
     assert perdue.party == "REP"
-    ossoff = next(c for c in r.candidates if c.name == "Jon Ossoff")
+    ossoff = next(candidate for candidate in race_result.candidates if candidate.name == "Jon Ossoff")
     assert ossoff.incumbent is False
     assert ossoff.party == "DEM"
     # Percentages are computed from the vote counts, since the export has none.
-    assert ossoff.pct == round(100.0 * ossoff.votes / r.total_votes, 2)
-    assert r.candidates == sorted(r.candidates, key=lambda c: c.votes, reverse=True)
-    assert all(c.winner is False for c in r.candidates)
+    assert ossoff.pct == round(100.0 * ossoff.votes / race_result.total_votes, 2)
+    assert race_result.candidates == sorted(race_result.candidates, key=lambda candidate: candidate.votes, reverse=True)
+    assert all(candidate.winner is False for candidate in race_result.candidates)
 
 
 def test_house_and_state_legislature():
@@ -51,8 +51,8 @@ def test_ballot_measure_and_psc_become_local_races():
     keys = parse()
     amendment = keys["GA LOCAL constitutional-amendment-1"]
     assert amendment.key.level is Level.LOCAL
-    assert {c.name for c in amendment.candidates} == {"Yes", "No"}
-    assert {c.party for c in amendment.candidates} == {"NPA"}
+    assert {candidate.name for candidate in amendment.candidates} == {"Yes", "No"}
+    assert {candidate.party for candidate in amendment.candidates} == {"NPA"}
     assert "GA LOCAL public-service-commission-district-4" in keys
     assert "GA LOCAL president-of-the-united-states" in keys
 

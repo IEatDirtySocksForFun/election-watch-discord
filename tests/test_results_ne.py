@@ -18,7 +18,7 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def parsed(*names):
@@ -48,7 +48,7 @@ def test_precincts_come_from_the_precincts_fully_line():
 
 def test_us_house_and_legislature_keys():
     got = by_key(parsed("cg.html", "ld.html"))
-    assert set(k for k in got if k.startswith("NE-")) == {"NE-01", "NE-02", "NE-03"}
+    assert set(race_key for race_key in got if race_key.startswith("NE-")) == {"NE-01", "NE-02", "NE-03"}
     assert got["NE-02"].key.level is Level.HOUSE
     assert got["NE SD-02"].key.level is Level.STATE
     assert got["NE SD-02"].candidates[0].party == "NONPARTISAN"

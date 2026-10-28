@@ -19,7 +19,7 @@ def load(name):
 
 
 def by_key(name="federal_statewide.html"):
-    return {format_key(r.key): r for r in parse_il(load(name), fetched_at=AT)}
+    return {format_key(race_result.key): race_result for race_result in parse_il(load(name), fetched_at=AT)}
 
 
 def test_statewide_offices():
@@ -28,7 +28,7 @@ def test_statewide_offices():
     assert senate.key.level is Level.SENATE
     assert senate.candidates[0].name == "Juliana Stratton"
     assert senate.candidates[0].party == "DEM"
-    assert senate.total_votes == sum(x.votes for x in senate.candidates)
+    assert senate.total_votes == sum(candidate.votes for candidate in senate.candidates)
     assert keys["IL GOV"].candidates[0].name == "JB Pritzker"
     assert keys["IL AG"].key.level is Level.GOVERNOR
     assert keys["IL SOS"].key.office == "SOS"
@@ -55,7 +55,7 @@ def test_state_legislature_pages():
 def test_percent_is_recomputed_not_the_primary_party_share():
     senate = by_key()["IL SEN"]
     assert senate.candidates[0].pct == round(100.0 * senate.candidates[0].votes / senate.total_votes, 2)
-    assert sum(x.pct for x in senate.candidates) < 100.5  # only one party's field here
+    assert sum(candidate.pct for candidate in senate.candidates) < 100.5  # only one party's field here
 
 
 def test_election_label_and_category_links():
@@ -63,7 +63,7 @@ def test_election_label_and_category_links():
     assert election_label(html) == "2026 GENERAL PRIMARY"
     urls = categories(html)
     assert len(urls) == 2  # Senate (state Senate) + District All (state House)
-    assert all("OfficeType=" in u for u in urls)
+    assert all("OfficeType=" in url for url in urls)
 
 
 def test_race_key_mapping():

@@ -17,8 +17,8 @@ def test_parse_senate_tx():
     payload = _load("senatetx-26.json")
     snaps = parse_kalshi_event(payload)
     assert len(snaps) == 2
-    reps = [s for s in snaps if s.outcome == "REP"]
-    dems = [s for s in snaps if s.outcome == "DEM"]
+    reps = [snapshot for snapshot in snaps if snapshot.outcome == "REP"]
+    dems = [snapshot for snapshot in snaps if snapshot.outcome == "DEM"]
     assert len(reps) == 1 and len(dems) == 1
     assert reps[0].key == RaceKey("TX", Level.SENATE, "SEN")
     assert dems[0].key == RaceKey("TX", Level.SENATE, "SEN")
@@ -30,17 +30,17 @@ def test_parse_governor_tx():
     payload = _load("govpartytexas-26.json")
     snaps = parse_kalshi_event(payload)
     assert len(snaps) == 2
-    assert all(s.key == RaceKey("TX", Level.GOVERNOR, "GOV") for s in snaps)
-    assert {s.outcome for s in snaps} == {"REP", "DEM"}
+    assert all(snapshot.key == RaceKey("TX", Level.GOVERNOR, "GOV") for snapshot in snaps)
+    assert {snapshot.outcome for snapshot in snaps} == {"REP", "DEM"}
 
 
 def test_parse_house_ca22():
     payload = _load("houseca22-26.json")
     snaps = parse_kalshi_event(payload)
     assert len(snaps) == 2
-    assert all(s.key == RaceKey("CA", Level.HOUSE, "HOUSE", "22") for s in snaps)
-    dem = next(s for s in snaps if s.outcome == "DEM")
-    rep = next(s for s in snaps if s.outcome == "REP")
+    assert all(snapshot.key == RaceKey("CA", Level.HOUSE, "HOUSE", "22") for snapshot in snaps)
+    dem = next(snapshot for snapshot in snaps if snapshot.outcome == "DEM")
+    rep = next(snapshot for snapshot in snaps if snapshot.outcome == "REP")
     assert dem.prob == pytest.approx(0.915, abs=0.01)
     assert rep.prob == pytest.approx(0.09, abs=0.01)
 
@@ -129,7 +129,7 @@ async def test_snapshots_are_stamped_with_fetch_time_not_stale_metadata_time():
     async with httpx.AsyncClient(transport=transport) as client:
         snaps = await KalshiSource().fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
     assert snaps
-    assert all(datetime.now(timezone.utc) - s.ts < timedelta(minutes=1) for s in snaps)
+    assert all(datetime.now(timezone.utc) - snapshot.ts < timedelta(minutes=1) for snapshot in snaps)
 
 
 def test_parse_house_at_large_ak():
@@ -137,8 +137,8 @@ def test_parse_house_at_large_ak():
     payload = _load("houseakal-26.json")
     snaps = parse_kalshi_event(payload)
     assert len(snaps) == 2
-    assert all(s.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for s in snaps)
-    by_outcome = {s.outcome: s for s in snaps}
+    assert all(snapshot.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for snapshot in snaps)
+    by_outcome = {snapshot.outcome: snapshot for snapshot in snaps}
     assert by_outcome["REP"].prob == pytest.approx(0.78, abs=1e-6)
     assert by_outcome["DEM"].prob == pytest.approx(0.03, abs=1e-6)
     assert by_outcome["REP"].url == "https://kalshi.com/markets/houseakal"
@@ -167,5 +167,5 @@ async def test_fetch_odds_requests_the_at_large_event():
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         snaps = await KalshiSource().fetch_odds([RaceKey("AK", Level.HOUSE, "HOUSE", "AL")], client)
     assert seen == ["/trade-api/v2/events/HOUSEAKAL-26"]
-    assert {s.outcome for s in snaps} == {"REP", "DEM"}
-    assert all(s.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for s in snaps)
+    assert {snapshot.outcome for snapshot in snaps} == {"REP", "DEM"}
+    assert all(snapshot.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for snapshot in snaps)

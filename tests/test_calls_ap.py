@@ -98,7 +98,7 @@ async def test_at_large_call_is_kept_for_the_al_key(monkeypatch):
         transport=httpx.MockTransport(lambda request: httpx.Response(200, json=payload))
     ) as client:
         calls = await APSource().fetch_calls([RaceKey("AK", Level.HOUSE, "HOUSE", "AL")], client)
-    assert [c.key for c in calls] == [RaceKey("AK", Level.HOUSE, "HOUSE", "AL")]
+    assert [call.key for call in calls] == [RaceKey("AK", Level.HOUSE, "HOUSE", "AL")]
     assert calls[0].winner == "Nick Begich"
     assert calls[0].party == "REP"
 
@@ -106,4 +106,4 @@ async def test_at_large_call_is_kept_for_the_al_key(monkeypatch):
 def test_at_large_seat_name_maps_to_al():
     payload = _load("2024-AK-HOUSE.json")
     calls = parse_ap_response(payload)
-    assert [c.key for c in calls] == [RaceKey("AK", Level.HOUSE, "HOUSE", "AL")]
+    assert [call.key for call in calls] == [RaceKey("AK", Level.HOUSE, "HOUSE", "AL")]

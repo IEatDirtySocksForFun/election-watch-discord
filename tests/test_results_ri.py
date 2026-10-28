@@ -19,7 +19,9 @@ AT = datetime(2026, 10, 27, 17, 0, tzinfo=timezone.utc)
 
 
 def docs():
-    return [json.loads((FIX / f).read_text()) for f in ("statewide.json", "ga_senator.json", "ga_representative.json")]
+    return [
+        json.loads((FIX / fh).read_text()) for fh in ("statewide.json", "ga_senator.json", "ga_representative.json")
+    ]
 
 
 def parse():
@@ -27,7 +29,7 @@ def parse():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_keys_cover_all_levels():
@@ -58,7 +60,7 @@ def test_race_key_mapping():
 def test_party_prefix_only_stripped_when_it_matches():
     got = by_key(parse())
     senate = got["RI SEN"]
-    whitehouse = next(c for c in senate.candidates if c.name == "Sheldon Whitehouse")
+    whitehouse = next(candidate for candidate in senate.candidates if candidate.name == "Sheldon Whitehouse")
     assert whitehouse.party == "DEM"
     assert whitehouse.votes == 294665
     # General-assembly files repeat the party code in the name.
@@ -103,14 +105,14 @@ def _handler(bodies, seen):
 def test_fetch_reads_three_documents(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
     seen = []
-    bodies = {f: (FIX / f).read_text() for f in ("statewide.json", "ga_senator.json", "ga_representative.json")}
+    bodies = {fh: (FIX / fh).read_text() for fh in ("statewide.json", "ga_senator.json", "ga_representative.json")}
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as c:
-            return await ri_boe.RiBoe().fetch([parse_key("RI SEN"), parse_key("RI HD-03")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as client:
+            return await ri_boe.RiBoe().fetch([parse_key("RI SEN"), parse_key("RI HD-03")], client)
 
     assert set(by_key(asyncio.run(go()))) == {"RI SEN", "RI HD-03"}
-    assert seen == [f"{BASE}/2024/general_election/{f}" for f in ri_boe.FILES]
+    assert seen == [f"{BASE}/2024/general_election/{fh}" for fh in ri_boe.FILES]
 
 
 def test_general_assembly_files_are_optional(monkeypatch):
@@ -119,8 +121,8 @@ def test_general_assembly_files_are_optional(monkeypatch):
     bodies = {"statewide.json": (FIX / "statewide.json").read_text()}
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as c:
-            return await ri_boe.RiBoe().fetch([parse_key("RI SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as client:
+            return await ri_boe.RiBoe().fetch([parse_key("RI SEN")], client)
 
     assert set(by_key(asyncio.run(go()))) == {"RI SEN"}
     assert len(seen) == 3
@@ -131,8 +133,8 @@ def test_unavailable_before_first_publish(monkeypatch):
     seen = []
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler({}, seen))) as c:
-            return await ri_boe.RiBoe().fetch([parse_key("RI SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler({}, seen))) as client:
+            return await ri_boe.RiBoe().fetch([parse_key("RI SEN")], client)
 
     with pytest.raises(SourceUnavailable, match="not published yet"):
         asyncio.run(go())
@@ -144,7 +146,7 @@ def test_list_races_returns_empty_when_unpublished(monkeypatch):
     seen = []
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler({}, seen))) as c:
-            return await ri_boe.RiBoe().list_races("RI", c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler({}, seen))) as client:
+            return await ri_boe.RiBoe().list_races("RI", client)
 
     assert asyncio.run(go()) == []

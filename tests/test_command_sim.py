@@ -45,10 +45,10 @@ def test_dsl_parses_yaml_and_short_forms():
 
 @pytest.mark.parametrize("name", ["pause", "posting", "nonadmin"])
 async def test_scenario_passes_on_synthetic_night(ctx, name):
-    c = Checks()
-    res = await SCENARIOS[name][1](ctx, c)
-    assert not c.problems, c.problems
-    assert res.posts and res.cmds
+    checks = Checks()
+    run_result = await SCENARIOS[name][1](ctx, checks)
+    assert not checks.problems, checks.problems
+    assert run_result.posts and run_result.cmds
 
 
 async def test_checks_catch_a_command_that_does_nothing(ctx, monkeypatch):
@@ -59,17 +59,17 @@ async def test_checks_catch_a_command_that_does_nothing(ctx, monkeypatch):
         await interaction.response.send_message("Election posts paused.", ephemeral=True)
 
     monkeypatch.setattr(bot_discord.pause_command, "_callback", broken_pause)
-    c = Checks()
-    await SCENARIOS["pause"][1](ctx, c)
-    assert any("posts in" in p for p in c.problems), c.problems
+    checks = Checks()
+    await SCENARIOS["pause"][1](ctx, checks)
+    assert any("posts in" in problem for problem in checks.problems), checks.problems
 
 
 async def test_admin_command_from_member_is_refused_and_recorded(ctx):
     night = Night(YEAR, ctx.timelines, [], until="20:05")
-    res = await night.run(
+    run_result = await night.run(
         [{"at": "20:00", "cmd": "pause", "as": "member"}, {"at": "20:01", "cmd": "posting interval 0"}]
     )  # Discord's client blocks 0
-    member, bad = res.cmds
+    member, bad = run_result.cmds
     assert "required" in member.text and member.replies[0].ephemeral
     assert bad.rejected and not bad.replies
     assert not limit_problems(member.replies[0])
@@ -93,5 +93,5 @@ def test_quick_mode_needs_no_history_data(tmp_path):
     )
     assert code == 0
     rows = json.loads((tmp_path / "summary-top.json").read_text())
-    assert [r["scenario"] for r in rows] == ["pause", "posting"]
-    assert all(r["ok"] for r in rows), rows
+    assert [row["scenario"] for row in rows] == ["pause", "posting"]
+    assert all(row["ok"] for row in rows), rows

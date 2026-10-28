@@ -172,7 +172,7 @@ async def test_first_result_source_wins_and_guild_source_restrictions():
 
     latest = await store.latest_result(KEY)
     assert latest.source == "first"
-    assert next(c.votes for c in latest.candidates if c.name == "Ted Cruz") == 100
+    assert next(candidate.votes for candidate in latest.candidates if candidate.name == "Ted Cruz") == 100
     by_guild = {guild: post for guild, _, post in poster.sent}
     assert any("Ted Cruz (REP) 100" in line for line in by_guild[1].lines)
     assert any("Ted Cruz (REP) 200" in line for line in by_guild[2].lines)
@@ -429,14 +429,14 @@ async def test_unchanged_result_fetched_after_tick_start_is_not_reposted():
     poster = RecordingPoster()
     clock = {"now": NOW}
     source = FakeResults(result(at=NOW + timedelta(seconds=5)))
-    p = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
+    poller = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
 
-    await p.tick()
+    await poller.tick()
     assert len(poster.sent) == 1
     for minutes in range(1, 16):
         clock["now"] = NOW + timedelta(minutes=minutes)
         source.value = result(at=clock["now"] + timedelta(seconds=5))  # same votes
-        await p.tick()
+        await poller.tick()
     assert len(poster.sent) == 1
 
 
@@ -447,14 +447,14 @@ async def test_immediate_mode_posts_each_change_once():
     poster = RecordingPoster()
     clock = {"now": NOW}
     source = FakeResults(result(at=NOW + timedelta(seconds=5)))
-    p = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
-    await p.tick()
+    poller = Poller(store, {"results": [source]}, poster, lambda: clock["now"], object())
+    await poller.tick()
     clock["now"] = NOW + timedelta(minutes=1)
     source.value = result(at=clock["now"] + timedelta(seconds=5))
-    await p.tick()
+    await poller.tick()
     clock["now"] = NOW + timedelta(minutes=2)
     source.value = result(votes=2_200_000, at=clock["now"] + timedelta(seconds=5))
-    await p.tick()
+    await poller.tick()
     assert len(poster.sent) == 2
 
 
@@ -503,7 +503,7 @@ async def test_outlet_call_without_special_flag_reaches_a_watched_special_race()
     poster = RecordingPoster()
     await poller(store, {"calls": [PlainCalls()]}, poster).tick()
     assert special in asked and plain in asked
-    assert [(p.kind, p.race) for _, _, p in poster.sent] == [("call", "OH SEN S")]
+    assert [(post.kind, post.race) for _, _, post in poster.sent] == [("call", "OH SEN S")]
 
 
 def test_call_footer_is_in_utc_even_for_an_offset_timestamp():
@@ -534,12 +534,12 @@ async def test_identical_results_post_is_skipped():
     poster = RecordingPoster()
     now = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
     async with httpx.AsyncClient() as http:
-        p = Poller(MemoryStore(), {}, poster, lambda: now, http)
+        poller = Poller(MemoryStore(), {}, poster, lambda: now, http)
         gs = GuildSettings(guild_id=1, channel_id=2, post_mode=PostMode.IMMEDIATE)
         post = Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 10 · 60.0%"])
-        await p._post(gs, "results", "TX SEN", post, now)
-        await p._post(gs, "results", "TX SEN", post, now)
-        await p._post(
+        await poller._post(gs, "results", "TX SEN", post, now)
+        await poller._post(gs, "results", "TX SEN", post, now)
+        await poller._post(
             gs, "results", "TX SEN", Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 11 · 61.0%"]), now
         )
     assert len(poster.sent) == 2
@@ -565,18 +565,18 @@ async def test_failing_source_backs_off_then_recovers():
 
     now = [datetime(2026, 11, 3, 23, tzinfo=timezone.utc)]
     async with httpx.AsyncClient() as http:
-        p = Poller(MemoryStore(), {}, RecordingPoster(), lambda: now[0], http)
+        poller = Poller(MemoryStore(), {}, RecordingPoster(), lambda: now[0], http)
         src = Flaky()
         for _ in range(3):  # fails once, then skipped for 1 minute
             try:
-                await p._fetch(src, "fetch", [])
+                await poller._fetch(src, "fetch", [])
             except RuntimeError:
                 pass
         assert Flaky.calls == 1
         now[0] += timedelta(minutes=1)
         Flaky.fail = False
-        assert await p._fetch(src, "fetch", []) == ["ok"] and Flaky.calls == 2
-        assert "flaky" not in p._backoff
+        assert await poller._fetch(src, "fetch", []) == ["ok"] and Flaky.calls == 2
+        assert "flaky" not in poller._backoff
 
 
 @pytest.mark.asyncio
@@ -630,7 +630,7 @@ async def test_fallback_sources_are_only_asked_about_races_without_a_complete_an
     from electionwatch.store.memory import MemoryStore
 
     now = datetime(2026, 11, 4, 2, 0, tzinfo=timezone.utc)
-    pa, tx, tn = (RaceKey(s, Level.SENATE, "SEN") for s in ("PA", "TX", "TN"))
+    pa, tx, tn = (RaceKey(state_code, Level.SENATE, "SEN") for state_code in ("PA", "TX", "TN"))
 
     class Source:
         def __init__(self, name, answers, fallback=False, title=None):
@@ -642,11 +642,11 @@ async def test_fallback_sources_are_only_asked_about_races_without_a_complete_an
             return True
 
         async def fetch(self, keys, client):
-            self.asked.append(sorted(str(k) for k in keys))
+            self.asked.append(sorted(str(race_key) for race_key in keys))
             return [
-                RaceResult(k, [CandidateResult("A", "DEM", 1)], self.name, now, title=self.title)
-                for k in keys
-                if k in self.answers
+                RaceResult(race_key, [CandidateResult("A", "DEM", 1)], self.name, now, title=self.title)
+                for race_key in keys
+                if race_key in self.answers
             ]
 
     official = Source("pa_sos", {pa})
@@ -699,7 +699,9 @@ async def test_outlet_flagging_specials_does_not_alias_the_regular_race():
     store = MemoryStore()
     await store.save_guild(GuildSettings(1, channel_id=10, important=["CA SEN S"]))
     poster = RecordingPoster()
-    p = poller(store, {"calls": [BothCalls()]}, poster)
+    night_poller = poller(store, {"calls": [BothCalls()]}, poster)
     for _ in range(3):
-        await p.tick()
-    assert [(p.race, p.lines[0]) for _, _, p in poster.sent] == [("CA SEN S", "🔵 Projected winner: Adam Schiff (DEM)")]
+        await night_poller.tick()
+    assert [(poller.race, poller.lines[0]) for _, _, poller in poster.sent] == [
+        ("CA SEN S", "🔵 Projected winner: Adam Schiff (DEM)")
+    ]

@@ -18,7 +18,7 @@ CSV = (FIX / "st_louis_2024_csv.csv").read_bytes().decode("cp1252")
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def parse_csv():
@@ -38,7 +38,7 @@ def test_votes_are_summed_over_precincts():
     got = by_key(merged())
     sen = got["MO SEN"]
     assert sen.key.level is Level.SENATE
-    assert {c.name: c.votes for c in sen.candidates}["Lucas Kunce"] == 798
+    assert {candidate.name: candidate.votes for candidate in sen.candidates}["Lucas Kunce"] == 798
     assert sen.total_votes == 1246
     assert sen.candidates[0].pct == round(100.0 * 798 / 1246, 2)
     assert sen.precincts_reporting == 5
@@ -62,11 +62,11 @@ def test_ballot_measures_and_retention_are_local():
     assert "st-louis-county-st-louis-county" not in str(prop.key)
     # Judicial retention contests are titled with the judge's name and use YES/NO.
     retention = got["MO LOCAL st-louis-county-kelly-c-broniec"]
-    assert {c.name: c.votes for c in retention.candidates} == {"No": 544, "Yes": 479}
+    assert {candidate.name: candidate.votes for candidate in retention.candidates} == {"No": 544, "Yes": 479}
 
 
 def test_unfiled_write_ins_are_dropped():
-    names = {c.name for c in by_key(merged())["MO SEN"].candidates}
+    names = {candidate.name for candidate in by_key(merged())["MO SEN"].candidates}
     assert "Gina Bufe" not in names  # empty party, zero votes, choice id 0
     assert "Jared Young" in names  # zero votes but a filed party
 
@@ -85,8 +85,8 @@ def test_fetch_requests_the_election_directory(monkeypatch):
         return httpx.Response(200, content=CSV.encode("cp1252"))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await mo_stlouis.MoStLouis().fetch([parse("MO SEN"), parse("MO-01")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await mo_stlouis.MoStLouis().fetch([parse("MO SEN"), parse("MO-01")], client)
 
     got = by_key(asyncio.run(go()))
     assert seen == ["https://extcontent.stlouisco.com/BOE/eResults/el241105/CSV.csv"]
@@ -97,8 +97,8 @@ def test_fetch_reports_a_missing_export(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as c:
-            await mo_stlouis.MoStLouis().fetch([parse("MO SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as client:
+            await mo_stlouis.MoStLouis().fetch([parse("MO SEN")], client)
 
     with pytest.raises(SourceUnavailable) as err:
         asyncio.run(go())

@@ -24,7 +24,7 @@ def client(handler):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_tx_fetch_uses_pinned_election(monkeypatch):
@@ -43,8 +43,8 @@ def test_tx_fetch_uses_pinned_election(monkeypatch):
         return httpx.Response(200, json=json.loads(path.read_text()))
 
     async def go():
-        async with client(handler) as c:
-            return await tx_sos.TxSos().fetch([parse("TX SEN"), parse("TX-01")], c)
+        async with client(handler) as http_client:
+            return await tx_sos.TxSos().fetch([parse("TX SEN"), parse("TX-01")], http_client)
 
     got = by_key(run(go()))
     assert set(got) == {"TX SEN", "TX-01"}
@@ -62,8 +62,8 @@ def test_nc_fetch_reads_enr_files(monkeypatch):
         return httpx.Response(200, text=path.read_text(encoding="utf-8"))
 
     async def go():
-        async with client(handler) as c:
-            return await nc_sbe.NcSbe().fetch([parse("NC GOV")], c)
+        async with client(handler) as http_client:
+            return await nc_sbe.NcSbe().fetch([parse("NC GOV")], http_client)
 
     got = by_key(run(go()))
     assert set(got) == {"NC GOV"}
@@ -78,8 +78,8 @@ def test_ga_fetch_parses_export(monkeypatch):
         return httpx.Response(200, json=json.loads((FIX / "ga_sos" / "export-2020NovGen.json").read_text()))
 
     async def go():
-        async with client(handler) as c:
-            return await ga_sos.GaSos().fetch([parse("GA SEN"), parse("GA-01")], c)
+        async with client(handler) as http_client:
+            return await ga_sos.GaSos().fetch([parse("GA SEN"), parse("GA-01")], http_client)
 
     got = by_key(run(go()))
     assert set(got) == {"GA SEN", "GA-01"}
@@ -104,8 +104,8 @@ def test_pa_fetch_queries_every_office(monkeypatch):
         return httpx.Response(200, text=payloads[office])
 
     async def go():
-        async with client(handler) as c:
-            return await pa_dos.PaDos().fetch([parse("PA SEN"), parse("PA-01")], c)
+        async with client(handler) as http_client:
+            return await pa_dos.PaDos().fetch([parse("PA SEN"), parse("PA-01")], http_client)
 
     got = by_key(run(go()))
     assert set(got) == {"PA SEN", "PA-01"}
@@ -133,15 +133,15 @@ def test_clarity_fetch_resolves_version_then_summary(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with client(handler) as c:
-            return await clarity.Clarity().fetch([parse("IL SEN"), parse("IL LOCAL county-clerk")], c)
+        async with client(handler) as http_client:
+            return await clarity.Clarity().fetch([parse("IL SEN"), parse("IL LOCAL county-clerk")], http_client)
 
     got = by_key(run(go()))
     # A county feed answers for its local races only, never with one county's IL SEN total.
     assert set(got) == {"IL LOCAL county-clerk"}
     assert got["IL LOCAL county-clerk"].source == "clarity"
     assert got["IL LOCAL county-clerk"].source_updated_at == datetime(2026, 10, 26, 16, 42, 44, tzinfo=timezone.utc)
-    assert any(p.endswith("/127349/current_ver.txt") for p in paths)
+    assert any(request_path.endswith("/127349/current_ver.txt") for request_path in paths)
 
 
 def test_clarity_without_feed_is_unavailable(monkeypatch):
@@ -149,8 +149,8 @@ def test_clarity_without_feed_is_unavailable(monkeypatch):
     monkeypatch.delenv("CLARITY_FEEDS", raising=False)
 
     async def go():
-        async with client(lambda r: httpx.Response(404)) as c:
-            return await clarity.Clarity().fetch([parse("NV SEN")], c)
+        async with client(lambda request: httpx.Response(404)) as http_client:
+            return await clarity.Clarity().fetch([parse("NV SEN")], http_client)
 
     with pytest.raises(SourceUnavailable, match="no feed configured"):
         run(go())

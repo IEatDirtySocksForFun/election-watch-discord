@@ -21,7 +21,7 @@ def _payload():
 
 
 def _polls(*keys):
-    return votehub.parse_votehub_polls(_payload(), [parse(k) for k in keys])
+    return votehub.parse_votehub_polls(_payload(), [parse(race_key) for race_key in keys])
 
 
 def test_maps_a_partisan_poll_to_the_race():
@@ -38,7 +38,7 @@ def test_maps_a_partisan_poll_to_the_race():
     assert poll.partisan == "REP" and poll.internal is True
     assert poll.sponsor == "Alliance for a Better Future"
     assert poll.url.startswith("https://www.breitbart.com/")
-    assert [(r.name, r.party, r.pct) for r in poll.results] == [
+    assert [(poll_result.name, poll_result.party, poll_result.pct) for poll_result in poll.results] == [
         ("Abdul El-Sayed", None, 44.0),
         ("Mike Rogers", None, 43.0),
     ]
@@ -47,7 +47,7 @@ def test_maps_a_partisan_poll_to_the_race():
 def test_four_way_poll_keeps_every_candidate():
     poll = _polls("OH SEN")[0]
     assert poll.partisan is None and poll.internal is False
-    assert [r.name for r in poll.results] == [
+    assert [poll_result.name for poll_result in poll.results] == [
         "Sherrod Brown",
         "Jon Husted",
         "Bill Redpath",
@@ -71,20 +71,20 @@ def test_governor_key():
 
 
 def test_only_requested_races_are_returned():
-    assert {str(p.key) for p in _polls("TX SEN")} == {"TX SEN"}
-    assert {str(p.key) for p in _polls("TX SEN", "NC SEN")} == {"TX SEN", "NC SEN"}
+    assert {str(poll.key) for poll in _polls("TX SEN")} == {"TX SEN"}
+    assert {str(poll.key) for poll in _polls("TX SEN", "NC SEN")} == {"TX SEN", "NC SEN"}
 
 
 def test_non_race_polls_are_ignored():
     """Generic ballot ("2026") and approval polls ("JD Vance") are not races."""
     polls = votehub.parse_votehub_polls(_payload(), [parse("TX SEN")])
-    assert all(p.key.state == "TX" for p in polls)
+    assert all(poll.key.state == "TX" for poll in polls)
     assert len(polls) == 1
 
 
 def test_newest_first():
     polls = _polls("TX SEN", "NC SEN", "MI SEN", "IA GOV", "IL-04", "OH SEN")
-    end_dates = [p.end_date for p in polls]
+    end_dates = [poll.end_date for poll in polls]
     assert end_dates == sorted(end_dates, reverse=True)
     assert len(polls) == 6
 
@@ -128,8 +128,8 @@ def test_fetch_hits_the_api_once_and_parses():
 
     first, second = asyncio.run(go())
     assert calls == ["https://api.votehub.com/polls"]
-    assert {str(p.key) for p in first} == {"TX SEN"}
-    assert {str(p.key) for p in second} == {"MI SEN"}
+    assert {str(poll.key) for poll in first} == {"TX SEN"}
+    assert {str(poll.key) for poll in second} == {"MI SEN"}
 
 
 def test_fetch_raises_when_the_endpoint_is_dead():

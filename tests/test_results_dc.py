@@ -16,7 +16,7 @@ def parse():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_federal_keys():
@@ -28,12 +28,12 @@ def test_federal_keys():
 
 
 def test_delegate_votes_and_party():
-    r = by_key(parse())["DC-AL"]
-    assert r.key.level is Level.HOUSE
-    assert r.candidates[0].name == "Eleanor Holmes Norton"
-    assert r.candidates[0].party == "DEM"
-    assert r.candidates[0].votes == 251540
-    assert r.total_votes == sum(c.votes for c in r.candidates)
+    race_result = by_key(parse())["DC-AL"]
+    assert race_result.key.level is Level.HOUSE
+    assert race_result.candidates[0].name == "Eleanor Holmes Norton"
+    assert race_result.candidates[0].party == "DEM"
+    assert race_result.candidates[0].votes == 251540
+    assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
 
 
 def test_local_keys():
@@ -47,14 +47,14 @@ def test_local_keys():
 
 
 def test_turnout_from_pseudo_contests():
-    r = by_key(parse())["DC LOCAL us-president"]
-    assert r.registered_voters == 464502
-    assert r.turnout_pct == round(100.0 * 328871 / 464502, 2)
+    race_result = by_key(parse())["DC LOCAL us-president"]
+    assert race_result.registered_voters == 464502
+    assert race_result.turnout_pct == round(100.0 * 328871 / 464502, 2)
 
 
 def test_over_under_votes_are_excluded():
-    r = by_key(parse())["DC LOCAL us-president"]
-    names = {c.name for c in r.candidates}
+    race_result = by_key(parse())["DC LOCAL us-president"]
+    names = {candidate.name for candidate in race_result.candidates}
     assert "OVER VOTES" not in names
     assert "UNDER VOTES" not in names
     assert "Write-in" not in names

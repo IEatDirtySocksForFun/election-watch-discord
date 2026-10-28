@@ -20,11 +20,11 @@ def parse(name):
 
 
 def by_key(name="OffCatC_1005_A.json"):
-    return {format_key(r.key): r for r in parse(name)}
+    return {format_key(race_result.key): race_result for race_result in parse(name)}
 
 
 def test_us_senate_and_house_districts():
-    senate = {format_key(r.key): r for r in parse("OffCatC_1006_A.json")}["IN SEN"]
+    senate = {format_key(race_result.key): race_result for race_result in parse("OffCatC_1006_A.json")}["IN SEN"]
     assert senate.key.level is Level.SENATE
     assert senate.candidates[0].name == "Jim Banks"
     assert senate.candidates[0].party == "REP"
@@ -35,7 +35,7 @@ def test_us_senate_and_house_districts():
     assert house["IN-01"].candidates[0].name == "Frank J. Mrvan"
     assert house["IN-01"].candidates[0].winner is True
     assert house["IN-02"].key.level is Level.HOUSE
-    assert house["IN-02"].total_votes == sum(x.votes for x in house["IN-02"].candidates)
+    assert house["IN-02"].total_votes == sum(candidate.votes for candidate in house["IN-02"].candidates)
 
 
 def test_state_legislature_districts_are_zero_padded():
@@ -46,7 +46,7 @@ def test_state_legislature_districts_are_zero_padded():
 
 
 def test_governor_ticket_and_percentages():
-    gov = {format_key(r.key): r for r in parse("OffCatC_1007_A.json")}["IN GOV"]
+    gov = {format_key(race_result.key): race_result for race_result in parse("OffCatC_1007_A.json")}["IN GOV"]
     assert gov.candidates[0].name.startswith("Mike Braun")
     assert gov.candidates[0].winner is True
     assert gov.candidates[0].pct == round(100.0 * gov.candidates[0].votes / gov.total_votes, 2)
