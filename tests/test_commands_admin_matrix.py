@@ -137,6 +137,7 @@ from fake_interaction_admin import (  # noqa: E402  (tests/ is on sys.path under
 
 DEFAULT_KEYS = [str(race.key) for race in load_races()]
 NOW = datetime(2026, 11, 3, 23, 0, tzinfo=timezone.utc)
+_MONGO_DOWN = False   # one reachability probe per session instead of ~1 s per mongo-param test
 
 
 # --------------------------------------------------------------------------- fixtures
@@ -145,11 +146,15 @@ NOW = datetime(2026, 11, 3, 23, 0, tzinfo=timezone.utc)
 async def _mongo_store():
     from pymongo.asynchronous.mongo_client import AsyncMongoClient
 
+    global _MONGO_DOWN
+    if _MONGO_DOWN:
+        pytest.skip("no local mongod reachable")
     uri = os.environ.get("EW_TEST_ADMIN_MONGO_URI", "mongodb://127.0.0.1:27017")
     client = AsyncMongoClient(uri, tz_aware=True, serverSelectionTimeoutMS=800)
     try:
         await client.admin.command("ping")
     except Exception:
+        _MONGO_DOWN = True
         await client.close()
         pytest.skip("no local mongod reachable")
     name = f"ew_admin_test_{uuid.uuid4().hex}"

@@ -2,6 +2,7 @@
 
     python -m replay.command_sim --years 2014,2016,2018,2020,2022,2024 --races top
     python -m replay.command_sim --years 2020,2024 --races all --scenarios latency,posting
+    python -m replay.command_sim --quick          # no data needed: a bundled tiny night, ~15 s
     python -m replay.command_sim --list
 
 A replay night runs at max speed (FakeClock, MemoryStore or MongoStore, ReplaySource plus
@@ -26,6 +27,11 @@ Pseudo-commands: !readonly (the read-only battery, run concurrently with poller 
 
 No network, no Discord (unless --live), no LLM. Outputs go to --out-dir (default
 replay/out/sims/<stamp>/, which git ignores).
+
+`--quick` needs no downloaded history data: it builds the hand-made night of `quick_timelines()` in
+memory (five Senate races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs a dozen
+scenarios that work on it, none of which need MongoDB or a mongod. Use it to check a change in a few
+seconds; the real timelines from tools/fetch_history.py make `--years` and `--races` meaningful.
 """
 from __future__ import annotations
 
@@ -55,7 +61,8 @@ import discord
 import httpx
 import yaml
 
-from electionwatch.models import ExitPoll, OddsSnapshot, Poll, PollResult, RaceCall, RaceKey
+from electionwatch.models import (CandidateResult, ExitPoll, OddsSnapshot, Poll, PollResult, RaceCall,
+                                 RaceKey, RaceResult)
 from electionwatch.poller import format_result
 from electionwatch.poster import Post
 from electionwatch.racekeys import STATES, parse
@@ -67,7 +74,7 @@ from replay.clock import FakeClock
 from replay.discord_live import top_race_per_state
 from replay.run import DEFAULT_DATA
 from replay.source import ReplaySource
-from replay.timeline import load_year
+from replay.timeline import Snapshot, load_year
 
 log = logging.getLogger("replay.command_sim")
 ET = ZoneInfo("America/New_York")
@@ -595,6 +602,36 @@ def bind_args(command, tokens: list[str]) -> tuple[dict, str | None]:
     if missing:
         rejected = "missing required option(s): " + ", ".join(missing)
     return out, rejected
+
+
+# ---------------------------------------------------------------- quick start data
+
+# `--quick` runs on a hand-made night instead of downloaded history. Five Senate races, one
+# snapshot every two minutes from 8 PM to 1 AM ET: long enough for the posting rules (default
+# 5 minutes, interval 15) to produce real gaps and changes, and it builds in a few milliseconds.
+QUICK_YEAR = "2024"
+QUICK_RACES = ["AZ SEN", "GA SEN", "OH SEN", "PA SEN", "TX SEN"]
+QUICK_SCENARIOS = ("pause", "posting", "calls", "toggles", "oddsalerts", "setup", "nonadmin",
+                   "sourcedown", "roleadmin", "invalid", "pausechange", "twoguilds")
+
+
+def quick_timelines(year: str = QUICK_YEAR, races: list[str] | None = None) -> dict:
+    """{race key: [Snapshot, ...]} for the bundled quick night. Made-up candidates and vote
+    counts (the tests use the same data), so nothing is downloaded and nothing is claimed to be
+    real. `races` defaults to QUICK_RACES."""
+    out: dict[str, list[Snapshot]] = {}
+    t0 = sim_time(year, "20:00")
+    for n, race in enumerate(races or QUICK_RACES):
+        snaps = []
+        for i in range(150):
+            ts = t0 + timedelta(minutes=2 * i + n)
+            dem, rep = 1000 * i + 37 * n, 1010 * i + 11 * n
+            r = RaceResult(parse(race), [CandidateResult("Dee Mock", "DEM", dem),
+                                         CandidateResult("Ray Publican", "REP", rep)],
+                           "replay", ts, expected_vote_pct=min(99.0, i * 0.7))
+            snaps.append(Snapshot(ts, r.finalize(), True))
+        out[race] = snaps
+    return out
 
 
 # ---------------------------------------------------------------- the night
@@ -1559,10 +1596,12 @@ def write_run(out_dir: Path, name: str, res: NightResult | None, c: Checks, secs
     return row
 
 
-async def run_scenarios(years, mode, names, data, out_dir, mongo_uri, mongod_bin) -> list[dict]:
+async def run_scenarios(years, mode, names, data, out_dir, mongo_uri, mongod_bin,
+                        bundled: dict | None = None) -> list[dict]:
+    """`bundled` maps year -> timelines for `--quick`, so no data directory is read."""
     rows = []
     for year in years:
-        timelines = load_year(Path(data).expanduser(), year)
+        timelines = (bundled or {}).get(year) or load_year(Path(data).expanduser(), year)
         watched = top_race_per_state(timelines) if mode == "top" else sorted(timelines)
         for name in names:
             c = Checks()
@@ -1727,6 +1766,9 @@ def main(argv=None) -> int:
     ap.add_argument("--scenarios", default="all", help="comma-separated names, or 'all' (see --list)")
     ap.add_argument("--skip", default="", help="scenarios to leave out")
     ap.add_argument("--data", default=str(DEFAULT_DATA))
+    ap.add_argument("--quick", action="store_true",
+                    help="bundled tiny night, no history data: a few scenarios, about 15 s "
+                         "(--years is ignored)")
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--mongo-uri", default=None, help="for storeerr, e.g. mongodb://127.0.0.1:27017")
     ap.add_argument("--mongod-bin", default=None, help="for mongorestart (private mongod on a free port)")
@@ -1748,11 +1790,14 @@ def main(argv=None) -> int:
             print(f"{k:12} {d}")
         return 0
     logging.basicConfig(level=logging.CRITICAL)   # the poller logs every injected failure
-    names = list(SCENARIOS) if a.scenarios == "all" else [s.strip() for s in a.scenarios.split(",")]
+    bundled = {QUICK_YEAR: quick_timelines()} if a.quick else None
+    years = [QUICK_YEAR] if a.quick else [y.strip() for y in a.years.split(",")]
+    default_names = list(QUICK_SCENARIOS) if a.quick else list(SCENARIOS)
+    names = default_names if a.scenarios == "all" else [s.strip() for s in a.scenarios.split(",")]
     names = [n for n in names if n not in set(a.skip.split(","))]
     out = Path(a.out_dir) if a.out_dir else LOGS / datetime.now().strftime("%Y%m%d-%H%M%S")
-    rows = asyncio.run(run_scenarios([y.strip() for y in a.years.split(",")], a.races, names, a.data, out,
-                                     a.mongo_uri, a.mongod_bin))
+    rows = asyncio.run(run_scenarios(years, a.races, names, a.data, out, a.mongo_uri, a.mongod_bin,
+                                     bundled))
     (out / f"summary-{a.races}.json").write_text(json.dumps(rows, indent=1, default=str))
     (out / f"matrix-{a.races}.md").write_text(matrix(rows) + "\n")
     print(matrix(rows))
