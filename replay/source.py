@@ -20,33 +20,35 @@ class ReplaySource(ResultsSource):
     enabled_by_default = False  # only the sandbox constructs it (it needs timelines + clock)
 
     def __init__(self, timelines: dict[str, list[Snapshot]], clock: Callable[[], datetime]) -> None:
-        self.timelines = {k: sorted(v, key=lambda s: s.ts) for k, v in timelines.items()}
-        self._ts = {k: [s.ts for s in v] for k, v in self.timelines.items()}
+        self.timelines = {
+            race_key: sorted(snapshots, key=lambda snapshot: snapshot.ts) for race_key, snapshots in timelines.items()
+        }
+        self._ts = {race_key: [snapshot.ts for snapshot in snapshots] for race_key, snapshots in self.timelines.items()}
         self.clock = clock
 
     def current(self, key: RaceKey | str) -> Snapshot | None:
-        k = str(key)
-        if k not in self.timelines:
+        race_key = str(key)
+        if race_key not in self.timelines:
             return None
-        i = bisect.bisect_right(self._ts[k], self.clock())
-        return self.timelines[k][i - 1] if i else None
+        i = bisect.bisect_right(self._ts[race_key], self.clock())
+        return self.timelines[race_key][i - 1] if i else None
 
     async def fetch(self, keys, client=None) -> list[RaceResult]:
-        out = []
+        results = []
         for key in keys:
             snap = self.current(key)
             if snap is None:
                 continue
-            r = copy.deepcopy(snap.result)
-            r.fetched_at = self.clock()
-            out.append(r)
-        return out
+            result = copy.deepcopy(snap.result)
+            result.fetched_at = self.clock()
+            results.append(result)
+        return results
 
     async def list_races(self, state, client=None):
         return [
-            (s[0].result.key, describe(s[0].result.key))
-            for k, s in self.timelines.items()
-            if s[0].result.key.state == state
+            (series[0].result.key, describe(series[0].result.key))
+            for race_key, series in self.timelines.items()
+            if series[0].result.key.state == state
         ]
 
     def next_change(self, after: datetime) -> datetime | None:
@@ -55,6 +57,6 @@ class ReplaySource(ResultsSource):
         return min(nxt, default=None)
 
     def span(self) -> tuple[datetime, datetime]:
-        firsts = [v[0].ts for v in self.timelines.values()]
-        lasts = [v[-1].ts for v in self.timelines.values()]
+        firsts = [snapshots[0].ts for snapshots in self.timelines.values()]
+        lasts = [snapshots[-1].ts for snapshots in self.timelines.values()]
         return min(firsts), max(lasts)
