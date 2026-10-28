@@ -1,0 +1,39 @@
+{
+ "election_year": 2024,
+ "state": "NC",
+ "category": "returned",
+ "election_name": "NC Absentee Ballots Returned and Accepted",
+ "snapshot_date": "2024-10-29",
+ "regions": {
+  "Mecklenburg": {
+   "Unspecified": {
+    "votes": 337629,
+    "color": "#999999"
+   }
+  },
+  "Wake": {
+   "Unspecified": {
+    "votes": 371785,
+    "color": "#999999"
+   }
+  }
+ },
+ "statewide_total": {
+  "Democratic": {
+   "votes": 1106300,
+   "color": "#4874a3"
+  },
+  "No Party Affiliation": {
+   "votes": 1093058,
+   "color": "#63c660"
+  },
+  "Other": {
+   "votes": 20380,
+   "color": "#e0bb24"
+  },
+  "Republican": {
+   "votes": 1148620,
+   "color": "#c6606b"
+  }
+ }
+}

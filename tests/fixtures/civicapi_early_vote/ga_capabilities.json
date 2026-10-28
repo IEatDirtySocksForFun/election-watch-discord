@@ -1,0 +1,33 @@
+{
+ "state": "GA",
+ "provides": {
+  "party": false,
+  "gender": true,
+  "race": true,
+  "ethnicity": true,
+  "age": true
+ },
+ "categories": {
+  "requested": {
+   "party": false,
+   "gender": true,
+   "race": true,
+   "ethnicity": true,
+   "age": true
+  },
+  "returned": {
+   "party": false,
+   "gender": true,
+   "race": true,
+   "ethnicity": true,
+   "age": true
+  },
+  "inperson": {
+   "party": false,
+   "gender": true,
+   "race": true,
+   "ethnicity": true,
+   "age": true
+  }
+ }
+}

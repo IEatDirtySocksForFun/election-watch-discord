@@ -1,0 +1,33 @@
+{
+ "state": "NC",
+ "provides": {
+  "party": true,
+  "gender": true,
+  "race": true,
+  "ethnicity": true,
+  "age": true
+ },
+ "categories": {
+  "requested": {
+   "party": true,
+   "gender": true,
+   "race": true,
+   "ethnicity": true,
+   "age": true
+  },
+  "returned": {
+   "party": true,
+   "gender": true,
+   "race": true,
+   "ethnicity": true,
+   "age": false
+  },
+  "inperson": {
+   "party": true,
+   "gender": true,
+   "race": true,
+   "ethnicity": true,
+   "age": false
+  }
+ }
+}
