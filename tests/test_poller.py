@@ -416,8 +416,8 @@ def test_results_post_shows_only_top_five():
 
     cands = [CandidateResult(f"C{i}", "IND", 100 - i) for i in range(8)]
     post = format_result(RaceResult(parse("TX SEN"), cands, "t", datetime.now(timezone.utc)).finalize())
-    names = [l for l in post.lines if l.split(" ", 1)[1].startswith("C")]
-    assert [l.split()[1] for l in names] == ["C0", "C1", "C2", "C3", "C4"]
+    names = [line for line in post.lines if line.split(" ", 1)[1].startswith("C")]
+    assert [line.split()[1] for line in names] == ["C0", "C1", "C2", "C3", "C4"]
 
 
 @pytest.mark.asyncio

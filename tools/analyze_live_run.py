@@ -80,9 +80,11 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
             "p95": sorted(lat)[int(len(lat) * 0.95) - 1],
             "max": max(lat),
         }
-    out["rate_limited"] = sum("rate limit" in l.lower() for l in log_lines)
+    out["rate_limited"] = sum("rate limit" in line.lower() for line in log_lines)
     out["app_errors"] = Counter(
-        re.sub(r"\d+", "N", l.split(": ", 1)[-1])[:120] for l in log_lines if " ERROR " in l or "Traceback" in l
+        re.sub(r"\d+", "N", line.split(": ", 1)[-1])[:120]
+        for line in log_lines
+        if " ERROR " in line or "Traceback" in line
     )
     issues: dict[str, list] = defaultdict(list)
     last_votes: dict[tuple[str, str], int] = {}
@@ -144,7 +146,11 @@ def main() -> int:
     ap.add_argument("--expected", default="", help="comma-separated races that should have posted")
     ap.add_argument("--json")
     a = ap.parse_args()
-    records = [json.loads(l) for l in open(a.record, encoding="utf-8") if l.strip()]
+    records = [
+        json.loads(line)
+        for line in open(a.record, encoding="utf-8")
+        if line.strip()
+    ]
     log_lines = open(a.log, encoding="utf-8", errors="replace").read().splitlines()
     res = analyse(records, log_lines, [r for r in a.expected.split(",") if r])
     text = json.dumps(
