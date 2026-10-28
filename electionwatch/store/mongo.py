@@ -34,40 +34,40 @@ def _utc(value: datetime) -> datetime:
 
 
 def _guild(doc: dict[str, Any]) -> GuildSettings:
-    data = {key: value for key, value in doc.items() if key != "_id"}
-    data["guild_id"] = doc["_id"]
-    data["post_mode"] = PostMode(data.get("post_mode", PostMode.DEFAULT.value))
-    return GuildSettings(**data)
+    fields = {key: value for key, value in doc.items() if key != "_id"}
+    fields["guild_id"] = doc["_id"]
+    fields["post_mode"] = PostMode(fields.get("post_mode", PostMode.DEFAULT.value))
+    return GuildSettings(**fields)
 
 
 def _user(doc: dict[str, Any]) -> UserSettings:
-    data = {key: value for key, value in doc.items() if key != "_id"}
-    data["user_id"] = doc["_id"]
-    return UserSettings(**data)
+    fields = {key: value for key, value in doc.items() if key != "_id"}
+    fields["user_id"] = doc["_id"]
+    return UserSettings(**fields)
 
 
 def _result(doc: dict[str, Any]) -> RaceResult:
-    data = {key: value for key, value in doc.items() if not key.startswith("_") and key != "changed_at"}
-    data["key"] = parse(data["key"])
-    data["fetched_at"] = _utc(data["fetched_at"])
-    if data.get("source_updated_at"):
-        data["source_updated_at"] = _utc(data["source_updated_at"])
-    data["candidates"] = [CandidateResult(**candidate) for candidate in data["candidates"]]
-    return RaceResult(**data)
+    fields = {key: value for key, value in doc.items() if not key.startswith("_") and key != "changed_at"}
+    fields["key"] = parse(fields["key"])
+    fields["fetched_at"] = _utc(fields["fetched_at"])
+    if fields.get("source_updated_at"):
+        fields["source_updated_at"] = _utc(fields["source_updated_at"])
+    fields["candidates"] = [CandidateResult(**candidate) for candidate in fields["candidates"]]
+    return RaceResult(**fields)
 
 
 def _call(doc: dict[str, Any]) -> RaceCall:
-    data = {key: value for key, value in doc.items() if key != "_id"}
-    data["key"] = parse(data["key"])
-    data["called_at"] = _utc(data["called_at"])
-    return RaceCall(**data)
+    fields = {key: value for key, value in doc.items() if key != "_id"}
+    fields["key"] = parse(fields["key"])
+    fields["called_at"] = _utc(fields["called_at"])
+    return RaceCall(**fields)
 
 
 def _odds(doc: dict[str, Any]) -> OddsSnapshot:
-    data = {key: value for key, value in doc.items() if key != "_id"}
-    data["key"] = parse(data["key"])
-    data["ts"] = _utc(data["ts"])
-    return OddsSnapshot(**data)
+    fields = {key: value for key, value in doc.items() if key != "_id"}
+    fields["key"] = parse(fields["key"])
+    fields["ts"] = _utc(fields["ts"])
+    return OddsSnapshot(**fields)
 
 
 class MongoStore:
@@ -189,9 +189,9 @@ class MongoStore:
         cursor = await self.odds.aggregate(pipeline)
         return [_odds(row["doc"]) async for row in cursor]
 
-    async def put_cached(self, kind: str, ident: str, data: str, at: datetime) -> None:
+    async def put_cached(self, kind: str, ident: str, payload: str, at: datetime) -> None:
         await self.cache.replace_one(
-            {"_id": f"{kind}|{ident}"}, {"kind": kind, "ident": ident, "data": data, "at": at}, upsert=True
+            {"_id": f"{kind}|{ident}"}, {"kind": kind, "ident": ident, "data": payload, "at": at}, upsert=True
         )
 
     async def get_cached(self, kind: str, ident: str) -> tuple[datetime, str] | None:
