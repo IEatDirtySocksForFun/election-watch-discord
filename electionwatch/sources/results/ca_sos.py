@@ -239,4 +239,7 @@ class CaSos(ResultsSource):
         payloads: dict[str, list[dict]] = {}
         for filename in FILES:
             payloads[filename] = await _fetch_file(client, base, filename)
-        return [(result.key, result.title or str(result.key)) for result in parse_ca(payloads, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ca(payloads, fetched_at=c.utcnow())
+        ]

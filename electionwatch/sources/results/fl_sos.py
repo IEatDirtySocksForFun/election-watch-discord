@@ -219,4 +219,7 @@ class FlSos(ResultsSource):
         if state != "FL":
             return []
         text = await _fetch(client, c.election_date())
-        return [(result.key, result.title or str(result.key)) for result in parse_fl(text, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_fl(text, fetched_at=c.utcnow())
+        ]

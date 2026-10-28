@@ -187,4 +187,7 @@ class MsSos(ResultsSource):
         if state != "MS":
             return []
         text = await c.get_text(client, await _feed(client, c.election_date()))
-        return [(result.key, result.title or str(result.key)) for result in parse_ms(text, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ms(text, fetched_at=c.utcnow())
+        ]

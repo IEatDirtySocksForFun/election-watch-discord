@@ -172,7 +172,7 @@ def make_result(
 
 def select(results: list[RaceResult], keys: list[RaceKey]) -> list[RaceResult]:
     wanted = {str(race_key) for race_key in keys}
-    return [result for result in results if str(result.key) in wanted]
+    return [race_result for race_result in results if str(race_result.key) in wanted]
 
 
 def _decode_payload(resp: httpx.Response) -> object:

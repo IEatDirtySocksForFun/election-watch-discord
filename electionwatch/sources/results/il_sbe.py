@@ -205,11 +205,11 @@ async def _all_races(client: httpx.AsyncClient, date: str, fetched_at: datetime)
     results: list[RaceResult] = []
     seen: set[str] = set()
     for html, url in await _pages(client, date):
-        for result in parse_il(html, fetched_at=fetched_at, url=url):
-            if str(result.key) in seen:
+        for race_result in parse_il(html, fetched_at=fetched_at, url=url):
+            if str(race_result.key) in seen:
                 continue
-            seen.add(str(result.key))
-            results.append(result)
+            seen.add(str(race_result.key))
+            results.append(race_result)
     return results
 
 
@@ -229,6 +229,6 @@ class IlSbe(ResultsSource):
         if state != "IL":
             return []
         return [
-            (result.key, result.title or str(result.key))
-            for result in await _all_races(client, c.election_date(), c.utcnow())
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in await _all_races(client, c.election_date(), c.utcnow())
         ]

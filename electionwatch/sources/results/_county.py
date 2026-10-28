@@ -260,8 +260,8 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
     Titles get the " (partial: N counties)" suffix the bot uses to flag partial coverage.
     """
     groups: dict[str, list[RaceResult]] = {}
-    for result in results:
-        groups.setdefault(str(result.key), []).append(result)
+    for race_result in results:
+        groups.setdefault(str(race_result.key), []).append(race_result)
 
     combined: list[RaceResult] = []
     for parts in groups.values():

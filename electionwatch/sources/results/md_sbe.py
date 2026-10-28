@@ -364,11 +364,11 @@ class MdSbe(ResultsSource):
             overview = enr_page_info(html)
             if not overview["general"]:
                 raise SourceUnavailable(f"MD: {entry['href']} is not a general-election page")
-            result = parse_md_enr(
+            race_result = parse_md_enr(
                 html, fetched_at=c.utcnow(), office=entry["office"], district=entry["district"], url=url
             )
-            if result is not None:
-                results.append(result)
+            if race_result is not None:
+                results.append(race_result)
         return c.select(results, wanted)
 
     async def _fetch_files(self, wanted: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
@@ -399,8 +399,8 @@ class MdSbe(ResultsSource):
             text = await c.get_text(client, url)
             legislative = await c.get_text(client, legislative_url) if legislative_url else None
             return [
-                (result.key, result.title or str(result.key))
-                for result in parse_md(text, legislative, fetched_at=c.utcnow())
+                (race_result.key, race_result.title or str(race_result.key))
+                for race_result in parse_md(text, legislative, fetched_at=c.utcnow())
             ]
         seen: dict[str, tuple[RaceKey, str]] = {}
         for entry in entries:

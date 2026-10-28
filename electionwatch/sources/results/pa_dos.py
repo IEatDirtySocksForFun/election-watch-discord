@@ -230,6 +230,6 @@ class PaDos(ResultsSource):
         found: list[tuple[RaceKey, str]] = []
         for office_id in OFFICES.values():
             office_data = await _office(client, office_id, election)
-            for result in parse_pa(office_data, fetched_at=c.utcnow()) if office_data else []:
-                found.append((result.key, result.title or str(result.key)))
+            for race_result in parse_pa(office_data, fetched_at=c.utcnow()) if office_data else []:
+                found.append((race_result.key, race_result.title or str(race_result.key)))
         return found

@@ -191,8 +191,10 @@ class TnCounties(ResultsSource):
             # `_county.merge` always pluralises; a single configured county should not
             # read "(partial: 1 counties)".
             merged = [
-                replace(result, title=(result.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
-                for result in merged
+                replace(
+                    race_result, title=(race_result.title or "").replace("(partial: 1 counties)", "(partial: 1 county)")
+                )
+                for race_result in merged
             ]
         return merged
 
@@ -209,4 +211,4 @@ class TnCounties(ResultsSource):
             results = await self._all(client, c.election_date())
         except SourceUnavailable:
             return []
-        return [(result.key, result.title or str(result.key)) for result in results]
+        return [(race_result.key, race_result.title or str(race_result.key)) for race_result in results]

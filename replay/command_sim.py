@@ -368,11 +368,11 @@ class SimReplaySource(ReplaySource):
             raise httpx.ConnectError("simulated results-source outage")
         results = await super().fetch(keys, client)
         if self.turnout:
-            for result in results:
-                reg = self._reg.get(str(result.key))
-                if reg and result.total_votes:
-                    result.registered_voters = reg
-                    result.turnout_pct = round(100.0 * result.total_votes / reg, 2)
+            for race_result in results:
+                reg = self._reg.get(str(race_result.key))
+                if reg and race_result.total_votes:
+                    race_result.registered_voters = reg
+                    race_result.turnout_pct = round(100.0 * race_result.total_votes / reg, 2)
         return results
 
     async def list_races(self, state, client=None):
@@ -541,12 +541,14 @@ class ObservedStore:
         except ImportError:  # pragma: no cover
             raise StoreDown("simulated store outage")
 
-    async def upsert_result(self, result):
+    async def upsert_result(self, race_result):
         if self._down():
             self._fail()
-        changed = await self.inner.upsert_result(result)
+        changed = await self.inner.upsert_result(race_result)
         if changed:
-            self.changes.append((self.clock(), str(result.key), tuple(format_result(result, turnout=True).lines)))
+            self.changes.append(
+                (self.clock(), str(race_result.key), tuple(format_result(race_result, turnout=True).lines))
+            )
         return changed
 
     def __getattr__(self, name):
@@ -758,14 +760,14 @@ def quick_timelines(year: str = QUICK_YEAR, races: list[str] | None = None) -> d
         for tick in range(150):
             ts = t0 + timedelta(minutes=2 * tick + race_index)
             dem, rep = 1000 * tick + 37 * race_index, 1010 * tick + 11 * race_index
-            result = RaceResult(
+            race_result = RaceResult(
                 parse(race),
                 [CandidateResult("Dee Mock", "DEM", dem), CandidateResult("Ray Publican", "REP", rep)],
                 "replay",
                 ts,
                 expected_vote_pct=min(99.0, tick * 0.7),
             )
-            snaps.append(Snapshot(ts, result.finalize(), True))
+            snaps.append(Snapshot(ts, race_result.finalize(), True))
         timelines[race] = snaps
     return timelines
 

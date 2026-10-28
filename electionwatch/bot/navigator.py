@@ -230,9 +230,9 @@ class RaceNavigator(discord.ui.View):
 
     async def embed(self) -> discord.Embed:
         if self.selected_race:
-            result = await self.client.store.latest_result(parse(self.selected_race))
-            if result:
-                return render_embed(format_result(result))
+            race_result = await self.client.store.latest_result(parse(self.selected_race))
+            if race_result:
+                return render_embed(format_result(race_result))
         if self.level == "favorites":
             title = _TAB_LABELS["favorites"]
             description = (

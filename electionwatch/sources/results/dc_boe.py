@@ -176,9 +176,9 @@ def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
 
     # Apply turnout to every race now that we have the totals.
     if registered and ballots:
-        for result in results:
-            result.registered_voters = registered
-            result.turnout_pct = round(100.0 * ballots / registered, 2)
+        for race_result in results:
+            race_result.registered_voters = registered
+            race_result.turnout_pct = round(100.0 * ballots / registered, 2)
     return results
 
 
@@ -227,6 +227,6 @@ class DcBoe(ResultsSource):
         xml = await _xml_url(client, c.election_date())
         text = await c.get_text(client, xml)
         return [
-            (result.key, result.title or str(result.key))
-            for result in parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=c.utcnow())
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=c.utcnow())
         ]

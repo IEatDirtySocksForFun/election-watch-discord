@@ -183,6 +183,6 @@ class NmSos(ResultsSource):
                 html = await c.get_text(client, URL.format(page))
             except SourceUnavailable:
                 continue
-            for result in parse_nm(html, fetched_at=c.utcnow()):
-                seen.setdefault(str(result.key), (result.key, result.title or str(result.key)))
+            for race_result in parse_nm(html, fetched_at=c.utcnow()):
+                seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))
         return list(seen.values())

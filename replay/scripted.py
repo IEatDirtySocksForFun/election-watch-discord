@@ -103,16 +103,16 @@ class ScriptedOddsSource(OddsSource):
             snapshot = self.results.current(key)
             if snapshot is None:
                 continue
-            result = snapshot.result
-            total = sum(candidate.votes for candidate in result.candidates) or 1
+            race_result = snapshot.result
+            total = sum(candidate.votes for candidate in race_result.candidates) or 1
             parties = {}
-            for candidate in result.candidates:
+            for candidate in race_result.candidates:
                 if candidate.party and candidate.party not in parties:
                     parties[candidate.party] = 100.0 * candidate.votes / total
             if len(parties) < 2:
                 continue
             (pa, sa), (pb, sb) = sorted(parties.items(), key=lambda kv: -kv[1])[:2]
-            p = implied_prob(sa - sb, result.expected_vote_pct or 50.0)
+            p = implied_prob(sa - sb, race_result.expected_vote_pct or 50.0)
             probs = {pa: p, pb: 1 - p}
             for sw in self.swings:
                 if sw.key == str(key) and sw.start <= now <= sw.start + timedelta(minutes=sw.minutes):
@@ -121,7 +121,7 @@ class ScriptedOddsSource(OddsSource):
                     other = pb if sw.outcome == pa else pa
                     probs[other] = 1 - probs[sw.outcome]
             snapshots += [
-                OddsSnapshot(key if isinstance(key, RaceKey) else result.key, self.market, o, round(v, 4), now)
+                OddsSnapshot(key if isinstance(key, RaceKey) else race_result.key, self.market, o, round(v, 4), now)
                 for o, v in probs.items()
             ]
         return snapshots

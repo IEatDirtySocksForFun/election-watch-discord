@@ -39,9 +39,9 @@ class ReplaySource(ResultsSource):
             snap = self.current(key)
             if snap is None:
                 continue
-            result = copy.deepcopy(snap.result)
-            result.fetched_at = self.clock()
-            results.append(result)
+            race_result = copy.deepcopy(snap.result)
+            race_result.fetched_at = self.clock()
+            results.append(race_result)
         return results
 
     async def list_races(self, state, client=None):

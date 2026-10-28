@@ -153,7 +153,7 @@ def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]
         )
 
     # The site lists statewide offices first; keep that order rather than dict order.
-    results.sort(key=lambda result: order.get(str(result.title), len(order)))
+    results.sort(key=lambda race_result: order.get(str(race_result.title), len(order)))
     return results
 
 

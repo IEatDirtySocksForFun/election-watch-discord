@@ -137,31 +137,33 @@ def merge_counties(
         return []
     merged: dict[str, dict] = {}
     for county_results in by_county.values():
-        for result in county_results:
+        for race_result in county_results:
             entry = merged.setdefault(
-                str(result.key),
+                str(race_result.key),
                 {
-                    "key": result.key,
-                    "title": result.title or str(result.key),
+                    "key": race_result.key,
+                    "title": race_result.title or str(race_result.key),
                     "cands": {},
                     "prt": 0,
                     "ptl": 0,
                     "updated": None,
                 },
             )
-            for cand in result.candidates:
+            for cand in race_result.candidates:
                 slot = entry["cands"].setdefault(
                     (cand.name, cand.party), {"votes": 0, "incumbent": cand.incumbent, "winner": cand.winner}
                 )
                 slot["votes"] += cand.votes
                 slot["winner"] = slot["winner"] or cand.winner
                 slot["incumbent"] = slot["incumbent"] or cand.incumbent
-            if result.precincts_reporting:
-                entry["prt"] += result.precincts_reporting
-            if result.precincts_total:
-                entry["ptl"] += result.precincts_total
-            if result.source_updated_at and (entry["updated"] is None or result.source_updated_at > entry["updated"]):
-                entry["updated"] = result.source_updated_at
+            if race_result.precincts_reporting:
+                entry["prt"] += race_result.precincts_reporting
+            if race_result.precincts_total:
+                entry["ptl"] += race_result.precincts_total
+            if race_result.source_updated_at and (
+                entry["updated"] is None or race_result.source_updated_at > entry["updated"]
+            ):
+                entry["updated"] = race_result.source_updated_at
 
     combined: list[RaceResult] = []
     for entry in merged.values():
@@ -190,23 +192,23 @@ def merge_counties(
 def rekey(results: list[RaceResult]) -> list[RaceResult]:
     """Re-key parsed Clarity results with Michigan contest names."""
     rekeyed: list[RaceResult] = []
-    for result in results:
-        key = race_key(result.title or "")
+    for race_result in results:
+        key = race_key(race_result.title or "")
         rekeyed.append(
             RaceResult(
                 key=key,
-                candidates=result.candidates,
-                source=result.source,
-                fetched_at=result.fetched_at,
-                source_updated_at=result.source_updated_at,
-                precincts_reporting=result.precincts_reporting,
-                precincts_total=result.precincts_total,
-                expected_vote_pct=result.expected_vote_pct,
-                total_votes=result.total_votes,
-                registered_voters=result.registered_voters,
-                turnout_pct=result.turnout_pct,
-                url=result.url,
-                title=result.title,
+                candidates=race_result.candidates,
+                source=race_result.source,
+                fetched_at=race_result.fetched_at,
+                source_updated_at=race_result.source_updated_at,
+                precincts_reporting=race_result.precincts_reporting,
+                precincts_total=race_result.precincts_total,
+                expected_vote_pct=race_result.expected_vote_pct,
+                total_votes=race_result.total_votes,
+                registered_voters=race_result.registered_voters,
+                turnout_pct=race_result.turnout_pct,
+                url=race_result.url,
+                title=race_result.title,
             )
         )
     return rekeyed
@@ -268,4 +270,4 @@ class MiCounty(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "MI":
             return []
-        return [(result.key, result.title or str(result.key)) for result in await self._all(client)]
+        return [(race_result.key, race_result.title or str(race_result.key)) for race_result in await self._all(client)]

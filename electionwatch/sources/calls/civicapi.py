@@ -252,9 +252,9 @@ class CivicAPIResultsSource(ResultsSource):
         now = datetime.now(timezone.utc)
         results = []
         for key, race_id, race in await self.api.races_for(keys, client):
-            result = parse_race(race, race_id, key, now)
-            if result is not None:
-                results.append(result)
+            race_result = parse_race(race, race_id, key, now)
+            if race_result is not None:
+                results.append(race_result)
         return results
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:

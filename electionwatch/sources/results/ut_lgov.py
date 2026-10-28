@@ -195,4 +195,7 @@ class UtLgov(ResultsSource):
             payload = await c.get_json(client, export_url(c.election_date()))
         except SourceUnavailable:
             return []
-        return [(result.key, result.title or str(result.key)) for result in parse_ut(payload, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ut(payload, fetched_at=c.utcnow())
+        ]

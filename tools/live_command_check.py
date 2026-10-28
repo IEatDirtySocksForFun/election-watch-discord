@@ -172,7 +172,7 @@ def polls(key: RaceKey, n_polls: int, candidates: int, long_names: bool) -> list
     return created
 
 
-def result(key: RaceKey, candidates: int, long_names: bool) -> RaceResult:
+def race_result(key: RaceKey, candidates: int, long_names: bool) -> RaceResult:
     candidate_results = [
         CandidateResult(
             (LONG * 4)[:250] + f" {candidate_index}" if long_names else f"Candidate Number {candidate_index}",
@@ -354,9 +354,9 @@ async def build_payloads(bot: CheckBot):
         ("result long names", RaceKey("WA", Level.LOCAL, "LOCAL", "x" * 150), 8, True, True),
         ("result 1 candidate", RaceKey("AK", Level.HOUSE, "HOUSE", "AL"), 1, False, False),
     ):
-        race_result = result(key, index, long_names)
-        await bot.store.upsert_result(race_result)
-        yield label, {"embed": render_embed(format_result(race_result, turnout=turnout))}
+        stored_result = race_result(key, index, long_names)
+        await bot.store.upsert_result(stored_result)
+        yield label, {"embed": render_embed(format_result(stored_result, turnout=turnout))}
     yield (
         "call",
         {

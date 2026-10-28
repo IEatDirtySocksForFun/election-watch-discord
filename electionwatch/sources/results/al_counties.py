@@ -119,24 +119,26 @@ def parse_al_county(summary, settings=None, *, county: str, fetched_at: datetime
         updated=parse_settings(settings),
     )
     filtered = []
-    for result in results:
-        cands = [candidate for candidate in result.candidates if _norm(candidate.name) not in ("WRITE-IN", "WRITE IN")]
+    for race_result in results:
+        cands = [
+            candidate for candidate in race_result.candidates if _norm(candidate.name) not in ("WRITE-IN", "WRITE IN")
+        ]
         if not cands:
             continue
-        if len(cands) != len(result.candidates):
-            result = c.make_result(
-                result.key,
-                result.title or "",
+        if len(cands) != len(race_result.candidates):
+            race_result = c.make_result(
+                race_result.key,
+                race_result.title or "",
                 cands,
-                result.fetched_at,
-                source=result.source,
-                url=result.url,
+                race_result.fetched_at,
+                source=race_result.source,
+                url=race_result.url,
                 total_votes=sum(candidate.votes for candidate in cands),
-                precincts_reporting=result.precincts_reporting,
-                precincts_total=result.precincts_total,
-                source_updated_at=result.source_updated_at,
+                precincts_reporting=race_result.precincts_reporting,
+                precincts_total=race_result.precincts_total,
+                source_updated_at=race_result.source_updated_at,
             )
-        filtered.append(result)
+        filtered.append(race_result)
     return filtered
 
 
@@ -164,8 +166,8 @@ async def _one(client: httpx.AsyncClient, entry: dict, date: str, fetched_at: da
 
 def _singular(results: list[RaceResult]) -> list[RaceResult]:
     return [
-        replace(result, title=(result.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
-        for result in results
+        replace(race_result, title=(race_result.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
+        for race_result in results
     ]
 
 
@@ -205,4 +207,4 @@ class AlCounties(ResultsSource):
             results = await self._all(client)
         except SourceUnavailable:
             return []
-        return [(result.key, result.title or str(result.key)) for result in results]
+        return [(race_result.key, race_result.title or str(race_result.key)) for race_result in results]

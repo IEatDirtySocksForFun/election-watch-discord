@@ -251,6 +251,6 @@ class MnSos(ResultsSource):
         payload = await _load(client, c.election_date())
         counties = payload.pop("__counties__", {})
         return [
-            (result.key, result.title or str(result.key))
-            for result in parse_mn(payload, fetched_at=c.utcnow(), counties=counties)
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_mn(payload, fetched_at=c.utcnow(), counties=counties)
         ]

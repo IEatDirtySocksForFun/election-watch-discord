@@ -136,16 +136,16 @@ class MongoStore:
         doc.pop("user_id", None)
         await self.users.replace_one({"_id": us.user_id}, doc, upsert=True)
 
-    async def upsert_result(self, result: RaceResult) -> bool:
-        key, fingerprint = str(result.key), result.fingerprint()
+    async def upsert_result(self, race_result: RaceResult) -> bool:
+        key, fingerprint = str(race_result.key), race_result.fingerprint()
         old = await self.results.find_one({"key": key})
         changed = not old or old.get("_fingerprint") != fingerprint
-        doc = to_doc(result)
+        doc = to_doc(race_result)
         doc["_fingerprint"] = fingerprint
-        doc["changed_at"] = result.fetched_at if changed else old.get("changed_at", result.fetched_at)
+        doc["changed_at"] = race_result.fetched_at if changed else old.get("changed_at", race_result.fetched_at)
         await self.results.replace_one({"key": key}, doc, upsert=True)
         if changed:
-            await self.result_history.insert_one(to_doc(result))
+            await self.result_history.insert_one(to_doc(race_result))
         return changed
 
     async def latest_result(self, key: RaceKey) -> RaceResult | None:

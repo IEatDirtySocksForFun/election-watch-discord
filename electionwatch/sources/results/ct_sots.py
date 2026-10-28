@@ -185,6 +185,6 @@ class CtSots(ResultsSource):
         text = await _search_csv(client, c.election_date())
         rows = list(csv.DictReader(text.splitlines()))
         return [
-            (result.key, result.title or str(result.key))
-            for result in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())
         ]

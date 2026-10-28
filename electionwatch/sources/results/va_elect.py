@@ -211,4 +211,7 @@ class VaElect(ResultsSource):
         if state != "VA":
             return []
         payload = await _payload(client, c.election_date())
-        return [(result.key, result.title or str(result.key)) for result in parse_va(payload, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_va(payload, fetched_at=c.utcnow())
+        ]

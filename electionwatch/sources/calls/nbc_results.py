@@ -67,15 +67,15 @@ class NBCResultsSource(ResultsSource):
         for office in sorted(offices):
             results.extend(parse_nbc_results(await self._get(client, office), fetched_at=now))
         requested = set(keys)
-        return [result for result in results if result.key in requested]
+        return [race_result for race_result in results if race_result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
         races: list[tuple[RaceKey, str]] = []
         for office in _LEVEL_OFFICES.values():
-            for result in parse_nbc_results(await self._get(client, office), fetched_at=now):
-                if result.key.state == state:
-                    races.append((result.key, result.title or str(result.key)))
+            for race_result in parse_nbc_results(await self._get(client, office), fetched_at=now):
+                if race_result.key.state == state:
+                    races.append((race_result.key, race_result.title or str(race_result.key)))
         return races
 
 

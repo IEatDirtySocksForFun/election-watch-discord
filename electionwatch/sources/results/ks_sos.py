@@ -233,6 +233,6 @@ class KsSos(ResultsSource):
                 html = await c.get_text(client, BASE + page)
             except SourceUnavailable:
                 continue
-            for result in parse_ks(html, fetched_at=c.utcnow()):
-                seen.setdefault(str(result.key), (result.key, result.title or str(result.key)))
+            for race_result in parse_ks(html, fetched_at=c.utcnow()):
+                seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))
         return list(seen.values())

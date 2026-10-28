@@ -214,4 +214,7 @@ class AkDoe(ResultsSource):
         if state != "AK":
             return []
         text = await get_text(client, csv_url(c.election_date()))
-        return [(result.key, result.title or str(result.key)) for result in parse_ak(text, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ak(text, fetched_at=c.utcnow())
+        ]

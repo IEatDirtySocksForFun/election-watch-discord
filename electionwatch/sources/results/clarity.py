@@ -279,7 +279,7 @@ def scope(entry: dict, results: list[RaceResult]) -> list[RaceResult]:
     statewide result (this adapter registers ahead of the state's own adapter)."""
     if not entry.get("jurisdiction"):
         return results
-    return [result for result in results if result.key.level is Level.LOCAL]
+    return [race_result for race_result in results if race_result.key.level is Level.LOCAL]
 
 
 def configured_states() -> frozenset[str]:
@@ -350,7 +350,7 @@ class Clarity(ResultsSource):
             except SourceUnavailable:
                 continue
             return [
-                (result.key, result.title or str(result.key))
-                for result in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))
+                (race_result.key, race_result.title or str(race_result.key))
+                for race_result in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))
             ]
         return []

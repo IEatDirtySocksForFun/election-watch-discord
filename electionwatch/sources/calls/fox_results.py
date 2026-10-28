@@ -72,7 +72,7 @@ class FOXResultsSource(ResultsSource):
             results.extend(parse_fox_results(payload, key.state, key.level, self.YEAR, fetched_at=now))
 
         requested = set(keys)
-        return [result for result in results if result.key in requested]
+        return [race_result for race_result in results if race_result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
@@ -95,8 +95,8 @@ class FOXResultsSource(ResultsSource):
             except Exception:
                 continue
             races.extend(
-                (result.key, result.title or str(result.key))
-                for result in parse_fox_results(payload, state, level, self.YEAR, fetched_at=now)
+                (race_result.key, race_result.title or str(race_result.key))
+                for race_result in parse_fox_results(payload, state, level, self.YEAR, fetched_at=now)
             )
         return races
 

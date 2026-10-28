@@ -16,7 +16,7 @@ class Store(Protocol):
     async def get_user(self, user_id: int) -> UserSettings | None: ...
     async def save_user(self, us: UserSettings) -> None: ...
 
-    async def upsert_result(self, result: RaceResult) -> bool:
+    async def upsert_result(self, race_result: RaceResult) -> bool:
         """Save ``result`` as the latest result for ``result.key``. True iff its fingerprint
         differs from the stored one (this is the README's `updated_results`). Keeps a history
         snapshot on change."""

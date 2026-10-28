@@ -233,4 +233,7 @@ class ScSec(ResultsSource):
             payload = await fetch_summary(client, election_id)
         except SourceUnavailable:
             return []
-        return [(result.key, result.title or str(result.key)) for result in parse_sc(payload, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_sc(payload, fetched_at=c.utcnow())
+        ]

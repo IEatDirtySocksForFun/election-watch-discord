@@ -233,8 +233,8 @@ class NjCounties(ResultsSource):
                 results = await _one(client, entry, date, fetched_at)
             except SourceUnavailable:
                 continue
-            for result in results:
-                if str(result.key) not in seen:
-                    seen.add(str(result.key))
-                    found.append((result.key, result.title or str(result.key)))
+            for race_result in results:
+                if str(race_result.key) not in seen:
+                    seen.add(str(race_result.key))
+                    found.append((race_result.key, race_result.title or str(race_result.key)))
         return found

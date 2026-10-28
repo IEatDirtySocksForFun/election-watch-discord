@@ -177,8 +177,8 @@ async def _feed(client: httpx.AsyncClient) -> list[RaceResult]:
     except SourceUnavailable:
         settings = None
     results = parse_ia(summary, settings, fetched_at=c.utcnow())
-    for result in results:
-        result.url = f"{HUMAN}{election_id}/"
+    for race_result in results:
+        race_result.url = f"{HUMAN}{election_id}/"
     return results
 
 
@@ -197,4 +197,4 @@ class IaSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != STATE:
             return []
-        return [(result.key, result.title or str(result.key)) for result in await _feed(client)]
+        return [(race_result.key, race_result.title or str(race_result.key)) for race_result in await _feed(client)]

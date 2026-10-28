@@ -275,5 +275,6 @@ class SdSos(ResultsSource):
             except SourceUnavailable:
                 continue
         return [
-            (result.key, result.title or str(result.key)) for result in parse_sd(texts, media, fetched_at=c.utcnow())
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_sd(texts, media, fetched_at=c.utcnow())
         ]

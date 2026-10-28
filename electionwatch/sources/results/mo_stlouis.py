@@ -197,8 +197,8 @@ class MoStLouis(ResultsSource):
         text = await _download(client, c.election_date())
         races: list[tuple[RaceKey, str]] = []
         seen: set[str] = set()
-        for result in parse_csv(text, fetched_at=c.utcnow()):
-            if str(result.key) not in seen:
-                seen.add(str(result.key))
-                races.append((result.key, result.title or str(result.key)))
+        for race_result in parse_csv(text, fetched_at=c.utcnow()):
+            if str(race_result.key) not in seen:
+                seen.add(str(race_result.key))
+                races.append((race_result.key, race_result.title or str(race_result.key)))
         return races

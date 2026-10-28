@@ -81,7 +81,7 @@ class ABCResultsSource(ResultsSource):
                 continue
 
         requested = set(keys)
-        return [result for result in results if result.key in requested]
+        return [race_result for race_result in results if race_result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
@@ -107,9 +107,9 @@ class ABCResultsSource(ResultsSource):
                 continue
             try:
                 races.extend(
-                    (result.key, result.title or str(result.key))
-                    for result in parse_abc_results(resp.text, fetched_at=now)
-                    if result.key.state == state
+                    (race_result.key, race_result.title or str(race_result.key))
+                    for race_result in parse_abc_results(resp.text, fetched_at=now)
+                    if race_result.key.state == state
                 )
             except Exception:
                 continue
@@ -133,9 +133,9 @@ def parse_abc_results(html: str, fetched_at: datetime | None = None) -> list[Rac
     for agg_key, aggregate in (page.get("aggregates") or {}).items():
         for race in aggregate.get("races") or []:
             try:
-                result = _race_result(race, state, agg_key, fetched_at, page_updated)
-                if result is not None:
-                    results.append(result)
+                race_result = _race_result(race, state, agg_key, fetched_at, page_updated)
+                if race_result is not None:
+                    results.append(race_result)
             except Exception:
                 continue
     return results

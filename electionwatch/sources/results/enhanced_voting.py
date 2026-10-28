@@ -125,19 +125,19 @@ class EnhancedVoting(ResultsSource):
                 continue
             payload = await _fetch_export(client, st, entry.get("slug"), date)
             # Re-map Georgia keys to the requested state (usually the same).
-            for result in parse_ga(payload, fetched_at=c.utcnow()):
+            for race_result in parse_ga(payload, fetched_at=c.utcnow()):
                 results.append(
                     c.make_result(
-                        race_key(st, result.title or ""),
-                        result.title or "",
-                        result.candidates,
-                        result.fetched_at,
+                        race_key(st, race_result.title or ""),
+                        race_result.title or "",
+                        race_result.candidates,
+                        race_result.fetched_at,
                         source=EnhancedVoting.name,
                         url=f"{HUMAN}/{st.lower()}/elections/{entry.get('slug') or date[:4] + 'NovGen'}",
-                        total_votes=result.total_votes,
-                        precincts_reporting=result.precincts_reporting,
-                        precincts_total=result.precincts_total,
-                        source_updated_at=result.source_updated_at,
+                        total_votes=race_result.total_votes,
+                        precincts_reporting=race_result.precincts_reporting,
+                        precincts_total=race_result.precincts_total,
+                        source_updated_at=race_result.source_updated_at,
                     )
                 )
         return c.select(results, keys)
@@ -148,7 +148,7 @@ class EnhancedVoting(ResultsSource):
             st = entry["state"].upper()
             payload = await _fetch_export(client, st, entry.get("slug"), date)
             return [
-                (race_key(st, result.title or ""), result.title or str(result.key))
-                for result in parse_ga(payload, fetched_at=c.utcnow())
+                (race_key(st, race_result.title or ""), race_result.title or str(race_result.key))
+                for race_result in parse_ga(payload, fetched_at=c.utcnow())
             ]
         return []

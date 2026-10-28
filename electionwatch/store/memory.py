@@ -42,14 +42,14 @@ class MemoryStore:
     async def save_user(self, us: UserSettings):
         self.users[us.user_id] = copy.deepcopy(us)
 
-    async def upsert_result(self, result: RaceResult) -> bool:
-        key, fingerprint = str(result.key), result.fingerprint()
+    async def upsert_result(self, race_result: RaceResult) -> bool:
+        key, fingerprint = str(race_result.key), race_result.fingerprint()
         changed = self.fps.get(key) != fingerprint
-        self.results[key] = copy.deepcopy(result)
+        self.results[key] = copy.deepcopy(race_result)
         if changed:
             self.fps[key] = fingerprint
-            self.changed[key] = result.fetched_at
-            self.history.append(copy.deepcopy(result))
+            self.changed[key] = race_result.fetched_at
+            self.history.append(copy.deepcopy(race_result))
         return changed
 
     async def latest_result(self, key: RaceKey):

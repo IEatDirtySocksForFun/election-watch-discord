@@ -199,5 +199,6 @@ class WiDane(ResultsSource):
         if response.status_code >= 400:
             raise SourceUnavailable(f"GET {URL} -> HTTP {response.status_code}")
         return [
-            (result.key, result.title or str(result.key)) for result in parse_dane(response.text, fetched_at=c.utcnow())
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_dane(response.text, fetched_at=c.utcnow())
         ]

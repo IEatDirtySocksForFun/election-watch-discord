@@ -190,5 +190,6 @@ class HiSoe(ResultsSource):
             return []
         text = await _summary(client, c.election_date())
         return [
-            (result.key, result.title or str(result.key)) for result in parse_hi(_rows(text), fetched_at=c.utcnow())
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_hi(_rows(text), fetched_at=c.utcnow())
         ]

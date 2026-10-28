@@ -36,7 +36,7 @@ class Snapshot:
 
 def snapshot_from_line(line: dict) -> Snapshot:
     ts = parse_ts(line["ts"])
-    result = RaceResult(
+    race_result = RaceResult(
         key=parse(line["key"]),
         candidates=[
             CandidateResult(
@@ -57,25 +57,25 @@ def snapshot_from_line(line: dict) -> Snapshot:
         url=line.get("url"),
         title=line.get("title"),
     )
-    return Snapshot(ts, result.finalize(), bool(line.get("synthetic")))
+    return Snapshot(ts, race_result.finalize(), bool(line.get("synthetic")))
 
 
-def snapshot_to_line(result: RaceResult, ts: datetime, synthetic: bool) -> dict:
+def snapshot_to_line(race_result: RaceResult, ts: datetime, synthetic: bool) -> dict:
     return {
         "ts": ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "key": str(result.key),
-        "source": result.source,
+        "key": str(race_result.key),
+        "source": race_result.source,
         "synthetic": synthetic,
         "candidates": [
             {"name": candidate.name, "party": candidate.party, "votes": candidate.votes}
-            for candidate in result.candidates
+            for candidate in race_result.candidates
         ],
-        "total_votes": result.total_votes,
-        "expected_vote_pct": result.expected_vote_pct,
-        "precincts_reporting": result.precincts_reporting,
-        "precincts_total": result.precincts_total,
-        "url": result.url,
-        "title": result.title,
+        "total_votes": race_result.total_votes,
+        "expected_vote_pct": race_result.expected_vote_pct,
+        "precincts_reporting": race_result.precincts_reporting,
+        "precincts_total": race_result.precincts_total,
+        "url": race_result.url,
+        "title": race_result.title,
     }
 
 

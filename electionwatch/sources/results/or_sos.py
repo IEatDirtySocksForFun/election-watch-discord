@@ -210,7 +210,7 @@ class OrSos(ResultsSource):
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         if not any(key.state == "OR" for key in keys):
             return []
-        results = [result for page in await self._pages(client) for result in page]
+        results = [race_result for page in await self._pages(client) for race_result in page]
         return c.select(results, [key for key in keys if key.state == "OR"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -218,6 +218,6 @@ class OrSos(ResultsSource):
             return []
         seen: dict[str, tuple[RaceKey, str]] = {}
         for page in await self._pages(client):
-            for result in page:
-                seen.setdefault(str(result.key), (result.key, result.title or str(result.key)))
+            for race_result in page:
+                seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))
         return list(seen.values())

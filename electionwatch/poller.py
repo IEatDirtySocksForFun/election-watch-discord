@@ -41,40 +41,40 @@ def _party_marker(party: str | None) -> str:
         return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
 
 
-def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
+def format_result(race_result: RaceResult, *, turnout: bool = False) -> Post:
     """Render a compact, source-neutral race result."""
     lines = []
-    leaders = sorted(result.candidates, key=lambda candidate: candidate.votes, reverse=True)[:TOP_CANDIDATES]
+    leaders = sorted(race_result.candidates, key=lambda candidate: candidate.votes, reverse=True)[:TOP_CANDIDATES]
     for candidate in leaders:
         pct = f" · {candidate.pct:.1f}%" if candidate.pct is not None else ""
         party = f" ({candidate.party})" if candidate.party else ""
         winner = " ✓" if candidate.winner else ""
         lines.append(f"{_party_marker(candidate.party)} {candidate.name}{party} {candidate.votes:,}{pct}{winner}")
     reporting = []
-    if result.expected_vote_pct is not None:
-        reporting.append(f"{result.expected_vote_pct:.1f}".removesuffix(".0") + "% expected vote")
-    if result.precincts_reporting is not None:
-        precincts = f"{result.precincts_reporting:,}"
-        if result.precincts_total is not None:
-            precincts += f"/{result.precincts_total:,}"
+    if race_result.expected_vote_pct is not None:
+        reporting.append(f"{race_result.expected_vote_pct:.1f}".removesuffix(".0") + "% expected vote")
+    if race_result.precincts_reporting is not None:
+        precincts = f"{race_result.precincts_reporting:,}"
+        if race_result.precincts_total is not None:
+            precincts += f"/{race_result.precincts_total:,}"
         reporting.append(f"{precincts} precincts")
     if reporting:
         lines.append(" · ".join(reporting))
     if turnout:
         numbers = []
-        if result.turnout_pct is not None:
-            numbers.append(f"{result.turnout_pct:g}%")
-        if result.total_votes is not None and result.registered_voters is not None:
-            numbers.append(f"{result.total_votes:,}/{result.registered_voters:,} ballots")
+        if race_result.turnout_pct is not None:
+            numbers.append(f"{race_result.turnout_pct:g}%")
+        if race_result.total_votes is not None and race_result.registered_voters is not None:
+            numbers.append(f"{race_result.total_votes:,}/{race_result.registered_voters:,} ballots")
         if numbers:
             lines.append("Turnout: " + " · ".join(numbers))
     return Post(
         "results",
-        str(result.key),
-        result.title or describe(result.key),
+        str(race_result.key),
+        race_result.title or describe(race_result.key),
         lines,
-        url=result.url,
-        footer=f"Source: {result.source}",
+        url=race_result.url,
+        footer=f"Source: {race_result.source}",
     )
 
 
@@ -110,9 +110,9 @@ def format_exit_poll(poll: ExitPoll) -> Post:
     return Post("exitpoll", str(poll.key), f"Exit poll · {describe(poll.key)}", lines, url=poll.url)
 
 
-def is_partial(result: RaceResult) -> bool:
+def is_partial(race_result: RaceResult) -> bool:
     """County-merge adapters flag a partial-state tally in the title: "(partial: N counties)"."""
-    return "(partial:" in (result.title or "")
+    return "(partial:" in (race_result.title or "")
 
 
 def best_result(answers: list[RaceResult]) -> RaceResult | None:
@@ -335,16 +335,16 @@ class Poller:
         answers are the *regular* race (CA SEN vs CA SEN S in 2024, GA 2020, OK 2022). Aliasing
         those made the regular and the special call alternate as "new" every tick."""
         name = getattr(source, "name", repr(source))
-        if any(getattr(result.key, "special", False) for result in results):
+        if any(getattr(race_result.key, "special", False) for race_result in results):
             self._flags_specials.add(name)
         if name in self._flags_specials:
             return list(results)
-        return [self._canonical(result) for result in results]
+        return [self._canonical(race_result) for race_result in results]
 
-    def _canonical(self, result):
+    def _canonical(self, race_result):
         """The result with its key replaced by the watched special race it stands for, if any."""
-        special = getattr(self, "_aliases", {}).get(result.key)
-        return replace(result, key=special) if special is not None else result
+        special = getattr(self, "_aliases", {}).get(race_result.key)
+        return replace(race_result, key=special) if special is not None else race_result
 
     async def _results(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         by_race: dict[str, list[RaceResult]] = defaultdict(list)
@@ -367,11 +367,11 @@ class Poller:
         # a partial-state county tally for the same race.
         for race, answers in by_race.items():
             selected[race] = best_result(answers)
-        for race, result in selected.items():
+        for race, race_result in selected.items():
             try:
                 # The store's change time is compared with mark_posted() times, which are on
                 # the poller's clock; adapters stamp fetched_at with the wall clock mid-tick.
-                await self.store.upsert_result(replace(result, fetched_at=now))
+                await self.store.upsert_result(replace(race_result, fetched_at=now))
             except Exception:
                 logger.exception("Could not store results for %s", race)
 
@@ -380,15 +380,17 @@ class Poller:
             allowed = set(guild.results_sources)
             for race in watched:
                 candidates = by_race.get(race, [])
-                result = best_result([answer for answer in candidates if not allowed or answer.source in allowed])
-                if result is None:
+                race_result = best_result([answer for answer in candidates if not allowed or answer.source in allowed])
+                if race_result is None:
                     continue
                 try:
                     last = await self.store.last_posted(guild.guild_id, "results", race)
-                    changed_at = await self.store.result_changed_at(result.key)
+                    changed_at = await self.store.result_changed_at(race_result.key)
                     updated = changed_at is not None and (last is None or changed_at > last)
                     if post_due(guild, last, now, updated):
-                        await self._post(guild, "results", race, format_result(result, turnout=guild.post_turnout), now)
+                        await self._post(
+                            guild, "results", race, format_result(race_result, turnout=guild.post_turnout), now
+                        )
                 except Exception:
                     logger.exception("Could not process results for guild %s", guild.guild_id)
 
@@ -409,10 +411,10 @@ class Poller:
                 logger.error("Results source %s failed", source.name, exc_info=fetched)
                 fetched = self.last_answers(source, "fetch", source_keys)
             asked = {str(key) for key in source_keys}
-            for result in fetched:
-                race = str(result.key)
+            for race_result in fetched:
+                race = str(race_result.key)
                 if race in asked:
-                    by_race[race].append(result)
+                    by_race[race].append(race_result)
 
     async def _calls(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         for source in self.sources.get("calls", []):
