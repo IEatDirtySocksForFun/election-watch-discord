@@ -1,0 +1,142 @@
+{
+ "state": "US",
+ "category": "returned",
+ "election_name": "US Ballots Returned",
+ "snapshot_date": "2026-10-27",
+ "regions": {
+  "AZ": {
+   "Democratic": {
+    "votes": 424334,
+    "color": "#4874a3"
+   },
+   "Other": {
+    "votes": 262120,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 435845,
+    "color": "#c6606b"
+   }
+  },
+  "FL": {
+   "Democratic": {
+    "votes": 678674,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 299910,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 38265,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 559041,
+    "color": "#c6606b"
+   }
+  },
+  "GA": {
+   "Unspecified": {
+    "votes": 82620,
+    "color": "#999999"
+   }
+  },
+  "LA": {
+   "Unspecified": {
+    "votes": 69383,
+    "color": "#999999"
+   }
+  },
+  "MI": {
+   "Unspecified": {
+    "votes": 1197558,
+    "color": "#999999"
+   }
+  },
+  "NC": {
+   "Democratic": {
+    "votes": 27481,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 26223,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 188,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 11949,
+    "color": "#c6606b"
+   }
+  },
+  "NV": {
+   "Democratic": {
+    "votes": 110737,
+    "color": "#4874a3"
+   },
+   "Other": {
+    "votes": 72053,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 80624,
+    "color": "#c6606b"
+   }
+  },
+  "PA": {
+   "Democratic": {
+    "votes": 585621,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 81278,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 2333,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 221114,
+    "color": "#c6606b"
+   }
+  },
+  "TX": {
+   "Unspecified": {
+    "votes": 220904,
+    "color": "#999999"
+   }
+  },
+  "WI": {
+   "Unspecified": {
+    "votes": 513602,
+    "color": "#999999"
+   }
+  }
+ },
+ "statewide_total": {
+  "Unspecified": {
+   "votes": 8924983,
+   "color": "#999999"
+  },
+  "Democratic": {
+   "votes": 3414687,
+   "color": "#4874a3"
+  },
+  "Other": {
+   "votes": 1277701,
+   "color": "#e0bb24"
+  },
+  "Republican": {
+   "votes": 2318826,
+   "color": "#c6606b"
+  },
+  "No Party Affiliation": {
+   "votes": 442616,
+   "color": "#63c660"
+  }
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "state": "GA",
+ "category": "inperson",
+ "snapshot_date": "2026-10-27",
+ "region": null,
+ "breakdown_by": "age_range",
+ "values": {
+  "Age 18 - 25": 99189,
+  "Age 26 - 40": 214619,
+  "Age 41 - 65": 730831,
+  "Age Over 65": 649274
+ },
+ "total": 1693913
+}

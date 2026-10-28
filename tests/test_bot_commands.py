@@ -15,7 +15,7 @@ from electionwatch.store.memory import MemoryStore
 #: The command surface the brief specifies.
 EXPECTED_COMMANDS = {
     "setup", "watch", "posting", "calls", "oddsalerts", "odds", "polls", "turnout", "exitpolls",
-    "pause", "resume", "settings", "races", "favorite", "faq",
+    "pause", "resume", "settings", "races", "favorite", "faq", "earlyvote", "earlyvote_posts",
 }
 
 
