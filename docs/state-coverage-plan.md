@@ -6,8 +6,7 @@ checked on **2026-10-27**, from the bot host, with the bot's own User-Agent
 (`election-watch-discord/0.1 (open-source election results bot)`). Each host got one GET at a
 time with at least 2 s between requests. **Nothing here gets past a bot check.** A host that
 answered with a challenge, a WAF block or an IP block counts as a closed door. The working
-alternative is then another official publisher, or a request for sanctioned access
-([`docs/access-requests/`](access-requests/)).
+alternative is then another official publisher, or civicAPI.
 
 Earlier findings are not repeated in full here. Read them in
 [`docs/results/counties.md`](results/counties.md), [`alt-a.md`](results/alt-a.md),
@@ -87,8 +86,8 @@ outlets' site terms, which do not grant redistribution: hence opt-in.
 | # | Option | Evidence (2026-10-27) | Effort | Risk | Terms | Recommendation |
 |---|---|---|---|---|---|---|
 | 1 | **County feeds, extended** (built) | see county table below | done | counties may rename contests on the night; one dead county never hides the others | public county results; no terms restrict reading them | **On by default (`tx_counties`)** |
-| 2 | **TX SOS media feed** (XML over SFTP; $250 per election in 2022; reservation deadline was in September) | Texas Press Assn. notice `texaspress.com/.../SOSGeneralMediaFeed.pdf`; TAB notice for 2023 | email/phone + payment; then a new parser for the XML spec | the 2026 deadline has probably passed; ask about late enrolment | subscriber agreement; ask whether an open-source bot may redistribute | **Owner decision.** Draft: [`access-requests/tx-sos.md`](access-requests/tx-sos.md) |
-| 3 | **Ask SOS to allowlist the bot's User-Agent** on results.texas-election.com, or to publish the static JSON on an unchallenged host | same 403 | one email | none | — | send with #2 |
+| 2 | **TX SOS media feed** (XML over SFTP; $250 per election in 2022; reservation deadline was in September) | Texas Press Assn. notice `texaspress.com/.../SOSGeneralMediaFeed.pdf`; TAB notice for 2023 | email/phone + payment; then a new parser for the XML spec | the 2026 deadline has probably passed; ask about late enrolment | subscriber agreement; ask whether an open-source bot may redistribute | not pursued |
+| 3 | **Ask SOS to allowlist the bot's User-Agent** on results.texas-election.com, or to publish the static JSON on an unchallenged host | same 403 | one email | none | — | not pursued |
 | 4 | Run the bot from a host that the site does not challenge (`tx_sos` works unchanged where the site serves JSON) | the challenge depends on the IP range | deployment choice | none, provided the host is the operator's own normal network (no proxy or IP rotation) | — | operator choice; documented in source-sweep §4 |
 | 5 | `fox_results` via `EW_SOURCE_STATES` | OK for TX SEN/GOV/TX-01 in 2026 | config | outlet terms | opt-in | **Enable for TX** |
 
@@ -129,7 +128,7 @@ alt-c.md; not re-probed). The state's own results site is the only statewide pub
 | # | Option | Evidence | Effort | Recommendation |
 |---|---|---|---|---|
 | 1 | Shelby County Enhanced Voting export (`tn_counties`, existing) | 2024 export verified; `export-General11032026.json` 404 until the night | done | keep |
-| 2 | **Ask the TN Division of Elections** to allowlist the bot or name a media feed | 403 everywhere on the domain | one email | **send** [`access-requests/tn-sos.md`](access-requests/tn-sos.md) |
+| 2 | **Ask the TN Division of Elections** to allowlist the bot or name a media feed | 403 everywhere on the domain | one email | not pursued |
 | 3 | Other counties on Enhanced Voting | `app.enhancedvoting.com/cdn/results/{davidson,knox,hamilton,rutherford,williamson}-county-tn/export-General11052024.json` → **404** (all five, 22:24Z) | — | none publish there |
 | 4 | Davidson (PDF), Knox (SPA with a per-session token), Hamilton (signed PDFs; `elect2.hamiltontn.gov/results/...` 404) | counties.md; this pass | — | not feasible without a PDF parser or token replay. Token replay is out of scope |
 | 5 | Third-party mirror `tnfirefly.com` (republishes SOS results) | web search only; not probed | — | **not recommended**: a scrape of a scrape, with unknown terms |
@@ -149,7 +148,7 @@ shell for every election code. The only machine-readable statewide data is certi
 |---|---|---|---|
 | 1 | **Madison County Clarity** | `AL/Madison/elections.json` 200, lists `126524 2026 Primary Runoff Election`; 2022 general `116245/313343` summary 200 | **built: `al_counties`**, on by default, discovers the general by date |
 | 2 | Jefferson, Mobile, Baldwin, Shelby on Clarity | elections.json 200 but newest entry is the **2012** general | not usable |
-| 3 | Ask the SOS for a media/results file | — | [`access-requests/al-sos.md`](access-requests/al-sos.md) |
+| 3 | Ask the SOS for a media/results file | — | not pursued |
 | 4 | `fox_results` | 2026 OK | **Enable for AL** |
 
 Coverage: Madison **≈ 8.5%** (120,500 of ≈ 1.41 M Senate votes in 2022).
@@ -166,25 +165,21 @@ is therefore flagged. **Do not probe it again.** The SBE documents an XML data f
 found by web search). That feed is the right source, but only with the Board's permission.
 Kentucky counties' Clarity paths answered 403 earlier (alt-b.md).
 
-Recommendation: send [`access-requests/ky-sbe.md`](access-requests/ky-sbe.md) through the form,
-quoting the reference ID. If the Board allows the XML feed, `ky_sbe` is a small adapter
-(XML → `RaceResult`). Until then, `fox_results`.
+Not pursued: the bot uses civicAPI, then `fox_results`.
 
 ## Nevada
 
 The statewide site is Imperva, Clark County is Blazor/SignalR, and Washoe publishes PDFs
 (alt-a.md). The SOS runs "a secure, closed website" that gives a small number of media outlets
-results at poll close (*Nevada Independent*, 2026 primary). Recommendation: request access,
-[`access-requests/nv-sos.md`](access-requests/nv-sos.md). `NV/Washoe` is 404 on Clarity. Use
-`fox_results` meanwhile.
+results at poll close (*Nevada Independent*, 2026 primary). `NV/Washoe` is 404 on Clarity. The bot uses civicAPI, then
+`fox_results`.
 
 ## Oklahoma
 
 `results.okelections.gov` / `.us` answer 403 to every request (states-4.md, alt-c.md). The
 board's own pages (oklahoma.gov) say its results "Export" tab offers zipped county, race and
 precinct files. Those sit behind the same host. Tulsa's Clarity listing ends in 2012.
-Recommendation: [`access-requests/ok-seb.md`](access-requests/ok-seb.md), asking for an
-allowlist or a published export URL. Use `fox_results` meanwhile.
+The bot uses civicAPI, then `fox_results`.
 
 ## Massachusetts, Maine, New Hampshire
 
