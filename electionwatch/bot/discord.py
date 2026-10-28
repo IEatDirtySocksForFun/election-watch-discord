@@ -35,6 +35,7 @@ from electionwatch.bot.logic import (
     faq_text,
     is_admin,
     limits_text,
+    odds_alerts_text,
     settings_dump,
 )
 from electionwatch.bot.navigator import RaceNavigator, race_lists
@@ -46,11 +47,12 @@ from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.racelists import KIND as RACELISTS
 from electionwatch.racelists import READ_TIMEOUT, RaceLists, typed_state
 from electionwatch.ratelimit import RateBook
-from electionwatch.settings import GuildSettings, UserSettings
+from electionwatch.settings import ODDS_CATEGORIES, GuildSettings, UserSettings
 from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
 logger = logging.getLogger(__name__)
 MAX_MESSAGE = 2000  # Discord's message content limit
+ODDS_CATEGORY_IDS = tuple(ODDS_CATEGORIES)  # /oddsalerts category choices
 
 
 async def handle_app_command_error(interaction: discord.Interaction, error: Exception) -> None:
@@ -333,18 +335,33 @@ async def calls_command(interaction: discord.Interaction, outlets: str, enabled:
     await interaction.response.send_message(message, ephemeral=True)
 
 
-@app_commands.command(name="oddsalerts", description="Configure prediction-market swing alerts")
+@app_commands.command(name="oddsalerts", description="Configure prediction-market swing alerts, or list them")
+@app_commands.describe(
+    enabled="on or off; default removes the race or category override. Leave everything out to list",
+    threshold="Alert when the implied probability moves at least this many points",
+    window="... within this many minutes",
+    race="Set an override for one race instead of the server default",
+    category="Set an override for a kind of race instead of the server default",
+)
 async def odds_alerts_command(
     interaction: discord.Interaction,
-    enabled: Literal["on", "off"],
+    enabled: Literal["on", "off", "default"] | None = None,
     threshold: app_commands.Range[float, 0.1, 100.0] | None = None,
     window: app_commands.Range[int, 1, 1440] | None = None,
+    race: str | None = None,
+    category: Literal[ODDS_CATEGORY_IDS] | None = None,
 ) -> None:
-    gs = await _guild(interaction, admin=True)
+    changing = any(value is not None for value in (enabled, threshold, window))
+    # Listing is read-only and open to everyone, like /watch list: nothing is saved.
+    gs = await _guild(interaction, admin=changing)
     if gs is None:
         return
     try:
-        message = change_odds(gs, enabled == "on", threshold, window)
+        if not changing:
+            text = odds_alerts_text(gs, race, category)
+            await interaction.response.send_message(text, ephemeral=True)
+            return
+        message = change_odds(gs, enabled, threshold, window, race, category)
     except ValueError as exc:
         await _error(interaction, exc)
         return
@@ -708,4 +725,5 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
 watch_command.autocomplete("race")(race_autocomplete)
 favorite_command.autocomplete("race")(race_autocomplete)
 odds_command.autocomplete("race")(race_autocomplete)
+odds_alerts_command.autocomplete("race")(race_autocomplete)
 polls_command.autocomplete("race")(race_autocomplete)

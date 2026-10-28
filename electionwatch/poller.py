@@ -21,7 +21,7 @@ from electionwatch.config import load_races
 from electionwatch.models import ExitPoll, OddsSnapshot, Poll, RaceCall, RaceResult, normalize_party, to_doc
 from electionwatch.poster import Post, Poster
 from electionwatch.racekeys import describe
-from electionwatch.settings import GuildSettings, post_due
+from electionwatch.settings import GuildSettings, odds_alert_for, odds_alerts_anywhere, post_due
 from electionwatch.store.base import Store
 
 logger = logging.getLogger(__name__)
@@ -512,7 +512,7 @@ class Poller:
                     self._odds_checked[race] = now
                 except Exception:
                     logger.exception("Could not store the odds check for %s", key)
-        if not snapshots or not any(guild.odds_alerts for guild in guilds):
+        if not snapshots or not any(odds_alerts_anywhere(guild) for guild in guilds):
             return
         try:
             from electionwatch.swings import detect_swing
@@ -521,21 +521,25 @@ class Poller:
             return
 
         for guild in guilds:
-            if not guild.odds_alerts:
+            if not odds_alerts_anywhere(guild):
                 continue
             watched = self._watched(guild)
-            window = timedelta(minutes=guild.odds_window_minutes)
             for snapshot in snapshots:
                 if str(snapshot.key) not in watched or snapshot.market not in guild.odds_markets:
                     continue
                 ref = f"{snapshot.key}:{snapshot.market}:{snapshot.outcome}"
                 try:
+                    # Per race: a race or category override can change all three (/oddsalerts).
+                    alert = odds_alert_for(guild, snapshot.key)
+                    if not alert.enabled:
+                        continue
+                    window = timedelta(minutes=alert.window)
                     last = await self.store.last_posted(guild.guild_id, "odds_swing", ref)
                     if last is not None and now - last < window:
                         continue
                     history = await self.store.odds_since(snapshot.key, snapshot.market, snapshot.outcome, now - window)
                     # detect_swing takes a timedelta window (see electionwatch/swings.py).
-                    swing = detect_swing(history, guild.odds_swing_pts, window)
+                    swing = detect_swing(history, alert.threshold, window)
                     if not swing:
                         continue
                     move, latest = swing_detail(swing, history, snapshot)
@@ -546,7 +550,7 @@ class Poller:
                         "odds_swing",
                         str(snapshot.key),
                         f"Odds swing · {describe(snapshot.key)}",
-                        [headline, f"Swing within {guild.odds_window_minutes} minutes"],
+                        [headline, f"Swing within {alert.window} minutes"],
                         url=snapshot.url,
                     )
                     await self._post(guild, "odds_swing", ref, post, now)

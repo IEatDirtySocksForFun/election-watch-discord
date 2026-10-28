@@ -2,11 +2,22 @@
 
 from __future__ import annotations
 
+import math
+
 import yaml
 
 from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
-from electionwatch.settings import GuildSettings, PostMode, UserSettings
+from electionwatch.settings import (
+    ODDS_CATEGORIES,
+    GuildSettings,
+    OddsAlert,
+    PostMode,
+    UserSettings,
+    odds_alert_for,
+    odds_alert_from,
+    odds_category,
+)
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT", "CIVICAPI"}
 #: Longest race text accepted by /watch and /favorite: Discord's limit for an autocomplete
@@ -109,20 +120,127 @@ def change_calls(gs: GuildSettings, outlets: str, enabled: bool) -> str:
     return f"Race calls off (stopped {', '.join(selected)}; no outlets left)"
 
 
-def change_odds(gs: GuildSettings, enabled: bool, threshold: float | None = None, window: int | None = None) -> str:
+#: Most race overrides one server can keep (/oddsalerts race:); categories cover the rest.
+MAX_ODDS_RACE_OVERRIDES = 100
+
+
+def change_odds(
+    gs: GuildSettings,
+    enabled: bool | str | None,
+    threshold: float | None = None,
+    window: int | None = None,
+    race: str | None = None,
+    category: str | None = None,
+) -> str:
+    """/oddsalerts: the server default, or an override for one race or one category.
+    enabled None leaves it as it is; "default" removes the race or category override."""
+    if isinstance(enabled, bool):
+        enabled = "on" if enabled else "off"
+    if enabled not in (None, "on", "off", "default"):
+        raise ValueError("enabled must be on, off, or default")
     if threshold is not None and not 0 < threshold <= 100:
         raise ValueError("threshold must be greater than 0 and at most 100 points")
     if window is not None and not 1 <= window <= 1440:
         raise ValueError("window must be between 1 and 1440 minutes")
-    gs.odds_alerts = enabled
+    if race and category:
+        raise ValueError("pick a race or a category, not both")
+    if category is not None and category not in ODDS_CATEGORIES:
+        raise ValueError("category must be one of " + ", ".join(ODDS_CATEGORIES))
+    if enabled is None and threshold is None and window is None:
+        raise ValueError("give enabled, threshold or window to change")
+    if not race and category is None:
+        if enabled == "default":
+            raise ValueError("enabled:default removes a race or category override: pick a race or a category")
+        if enabled is not None:
+            gs.odds_alerts = enabled == "on"
+        if threshold is not None:
+            gs.odds_swing_pts = threshold
+        if window is not None:
+            gs.odds_window_minutes = window
+        count = len(gs.odds_alert_categories) + len(gs.odds_alert_races)
+        return (
+            f"Odds alerts {'on' if gs.odds_alerts else 'off'}; threshold {gs.odds_swing_pts:g} points "
+            f"within {gs.odds_window_minutes} minutes"
+        ) + (f" ({count} race/category override{'s still apply' if count != 1 else ' still applies'})" if count else "")
+    if enabled == "default" and (threshold is not None or window is not None):
+        raise ValueError("enabled:default removes the whole override: leave out threshold and window")
+
+    if race:
+        target = _race_key(race)
+        overrides, label = gs.odds_alert_races, target
+    else:
+        target = category
+        overrides, label = gs.odds_alert_categories, f"{ODDS_CATEGORIES[category]} ({category})"
+    if enabled == "default":
+        if overrides.pop(target, None) is None:
+            return f"{label} has no odds alert override"
+        return f"Removed the odds alert override for {label}"
+    if race and target not in overrides and len(overrides) >= MAX_ODDS_RACE_OVERRIDES:
+        raise ValueError(
+            f"This server already has {MAX_ODDS_RACE_OVERRIDES} race overrides. Remove one with "
+            "enabled:default, or use a category instead."
+        )
+    override = dict(overrides.get(target) or {})
+    if enabled is not None:
+        override["enabled"] = enabled == "on"
     if threshold is not None:
-        gs.odds_swing_pts = threshold
+        override["threshold"] = float(threshold)
     if window is not None:
-        gs.odds_window_minutes = window
-    return (
-        f"Odds alerts {'on' if enabled else 'off'}; threshold {gs.odds_swing_pts:g} points "
-        f"within {gs.odds_window_minutes} minutes"
-    )
+        override["window"] = int(window)
+    overrides[target] = override
+    message = f"Odds alerts for {label}: {_override_text(override)}."
+    if not race:
+        alert = _alert_text(odds_alert_from(gs, override))
+        return message + f" Races in it get: {alert}, unless a race override says otherwise."
+    message += f" In effect: {_alert_text(odds_alert_for(gs, parse(target)))}."
+    watched = gs.important or [str(default_race.key) for default_race in _default_races()]
+    if target not in watched:
+        message += f" {target} isn't watched, so it won't alert until it's added with /watch."
+    return message
+
+
+def _alert_text(alert: OddsAlert) -> str:
+    return f"{'on' if alert.enabled else 'off'}, {alert.threshold:g} points within {alert.window} minutes"
+
+
+def _override_text(override: dict) -> str:
+    parts = []
+    if override.get("enabled") is not None:
+        parts.append("on" if override["enabled"] else "off")
+    if override.get("threshold") is not None:
+        parts.append(f"threshold {override['threshold']:g} points")
+    if override.get("window") is not None:
+        parts.append(f"window {override['window']} minutes")
+    return ", ".join(parts) or "nothing set"
+
+
+def odds_alerts_text(gs: GuildSettings, race: str | None = None, category: str | None = None) -> str:
+    """/oddsalerts without changes: the server default and every override, one per line."""
+    if race and category:
+        raise ValueError("pick a race or a category, not both")
+    if category is not None and category not in ODDS_CATEGORIES:
+        raise ValueError("category must be one of " + ", ".join(ODDS_CATEGORIES))
+    lines = []
+    if race:
+        key = parse(_race_key(race))
+        lines.append(f"{key} ({odds_category(key)}) gets: {_alert_text(odds_alert_for(gs, key))}")
+    elif category is not None:
+        alert = odds_alert_from(gs, gs.odds_alert_categories.get(category))
+        lines.append(f"{ODDS_CATEGORIES[category]} ({category}) gets: {_alert_text(alert)}")
+    lines.append(f"Server default: {_alert_text(odds_alert_from(gs))}")
+    if gs.odds_alert_categories:
+        lines.append("Categories:")
+        lines += [
+            f"  {ODDS_CATEGORIES.get(name, name)} ({name}): {_override_text(override)}"
+            for name, override in gs.odds_alert_categories.items()
+        ]
+    if gs.odds_alert_races:
+        lines.append(f"Races ({len(gs.odds_alert_races)} of {MAX_ODDS_RACE_OVERRIDES}):")
+        lines += [f"  {key}: {_override_text(override)}" for key, override in gs.odds_alert_races.items()]
+    if not gs.odds_alert_categories and not gs.odds_alert_races:
+        lines.append("No race or category overrides.")
+    lines.append("A race setting beats its category's, which beats the server default. Only watched races alert.")
+    return _clip_lines(lines, marker="… (more overrides than fit here; /settings has them too)")
 
 
 MAX_LIMIT_SECONDS = 7 * 24 * 3600
@@ -222,10 +340,21 @@ def settings_dump(gs: GuildSettings) -> str:
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
     # The watch list goes last so a long one can't push the other settings out, and the
     # truncation marker is a YAML comment so the clipped dump still parses.
+    # Odds alert overrides are written one per line ({enabled: true, threshold: 5.0}), not one
+    # line per field, so a hundred of them still leave room for the watch list. No line
+    # wrapping: clipping between the halves of a wrapped override would break the YAML.
     doc = to_doc(gs)
-    doc["important"] = doc.pop("important")
-    lines = yaml.safe_dump(doc, sort_keys=False).strip().splitlines()
-    return _clip_lines(lines, marker=f"# … (truncated; {len(gs.important)} watched races in total)")
+    overrides = {name: doc.pop(name) for name in ("odds_alert_categories", "odds_alert_races")}
+    important = {"important": doc.pop("important")}
+    lines = (
+        _yaml_lines(doc)
+        + yaml.safe_dump(overrides, sort_keys=False, default_flow_style=None, width=math.inf).strip().splitlines()
+        + _yaml_lines(important)
+    )
+    total = f"{len(gs.important)} watched races in total"
+    if gs.odds_alert_races:
+        total = f"{len(gs.odds_alert_races)} race overrides and {total}"
+    return _clip_lines(lines, marker=f"# … (truncated; {total})")
 
 
 def _race_key(race: str) -> str:

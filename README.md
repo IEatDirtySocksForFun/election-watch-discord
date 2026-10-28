@@ -127,6 +127,7 @@ Replies are private (only you see them) unless they're posts in the election cha
 | `/earlyvote [state] [breakdown]`         | early-vote numbers (party, method, age, county)     |
 | `/faq [state]`                           | a state's voting FAQ                                |
 | `/favorite add·remove <race>`            | pin races in your browser                           |
+| `/oddsalerts`                            | this server's odds-alert settings                   |
 | `/settings`                              | this server's settings                              |
 | `/limits`                                | how often data refreshes, and this server's limits  |
 
@@ -138,12 +139,18 @@ Replies are private (only you see them) unless they're posts in the election cha
 | `/watch add·remove·list <race>`                            | the races your server follows                                    |
 | `/posting mode:<default·interval·immediate> [minutes]`     | how often results are posted                                     |
 | `/calls outlets:<…> on·off`                                | which outlets' race calls are posted                             |
-| `/oddsalerts on·off [threshold] [window]`                  | alerts when the odds swing hard                                  |
+| `/oddsalerts on·off [threshold] [window] [race·category]`  | alerts when the odds swing hard, server-wide or per race         |
 | `/turnout on·off`, `/exitpolls on·off`                     | turnout lines and exit-poll links                                |
 | `/earlyvote_posts on·off`                                  | a daily early-vote summary for the races you watch               |
 | `/pause`, `/resume`                                        | stop and restart all posting                                     |
 | `/refresh [what]`                                          | fetch fresh data now instead of waiting for the next refresh     |
 | `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | change this server's command limits (`-1` puts back the default) |
+
+Odds alerts can be tuned for one race (`race:PA-08`) or a kind of race (`category:` senate,
+house, statewide, state-senate, state-house, mayor or local). A race setting beats its
+category's, which beats the server-wide one, and anything left out comes from the next level
+down. `enabled:default` removes an override. Only watched races alert, and a server can keep up
+to 100 race overrides.
 
 ## Where the numbers come from
 

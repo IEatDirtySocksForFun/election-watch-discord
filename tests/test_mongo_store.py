@@ -196,6 +196,32 @@ async def test_settings_results_history_and_posts(store):
 
 
 @pytest.mark.asyncio
+async def test_odds_alert_overrides_round_trip(store):
+    guild = GuildSettings(
+        100000000000000001,
+        odds_alerts=True,
+        odds_alert_categories={"house": {"enabled": False}, "mayor": {"threshold": 2.5, "window": 15}},
+        # A local slug can hold a dot; MongoDB 5.0+ stores it as a plain field name.
+        odds_alert_races={"PA-08": {"threshold": 5.0, "window": 30}, "NY LOCAL st.-george-mayor": {"enabled": True}},
+    )
+    await store.save_guild(guild)
+    loaded = await store.get_guild(guild.guild_id)
+    assert loaded == guild
+    assert isinstance(loaded.odds_alert_races["PA-08"]["window"], int)
+    assert await store.all_guilds() == [guild]
+
+
+@pytest.mark.asyncio
+async def test_guild_document_from_before_odds_alert_overrides_loads():
+    store = MongoStore("mongodb://unused", database="ew_test", client=FakeMongoClient())
+    old = {"_id": 7, "channel_id": 8, "post_mode": "interval", "interval_minutes": 15, "odds_alerts": True}
+    await store.guilds.replace_one({"_id": 7}, old, upsert=True)
+    guild = await store.get_guild(7)
+    assert guild == GuildSettings(7, channel_id=8, post_mode=PostMode.INTERVAL, interval_minutes=15, odds_alerts=True)
+    assert guild.odds_alert_categories == {} and guild.odds_alert_races == {}
+
+
+@pytest.mark.asyncio
 async def test_calls_and_odds(store):
     call = RaceCall(KEY, "AP", "Ted Cruz", "REP", NOW)
     assert await store.record_call(call) is True
