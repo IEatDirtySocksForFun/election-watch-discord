@@ -21,6 +21,10 @@ overridden by the operator (docs/customizing.md):
                                     seconds, by kind, source, or source:kind (most specific wins)
 
 An interval set in EW_INTERVALS replaces the computed one; the hourly allowance still applies.
+
+A source can be budgeted in parts, named "source:kind:part" (race lists: one part per state,
+each refreshed on its own). A part that has never run is expected to cost what its sibling
+last cost, so the hourly check holds back a sweep of new parts too.
 """
 from __future__ import annotations
 
@@ -81,6 +85,7 @@ FLOORS: dict[str, float] = {
     "results": 60, "calls": 60, "exitpolls": 60, "odds": 60,
     "polls": 30 * 60,        # polls are published a few times a day
     "earlyvote": 60 * 60,    # civicAPI updates early-vote numbers about once a day
+    "racelists": 60 * 60,    # a state's list of races rarely changes (one entry per state)
 }
 DEFAULT_FLOOR = 60.0
 
@@ -138,6 +143,7 @@ class RateBook:
         self._next: dict[str, float] = {}         # source -> when it is due again
         self._last: dict[str, float] = {}         # source -> when its last refresh ended
         self._kind: dict[str, str] = {}
+        self._family: dict[str, Counter] = {}     # "source:kind" -> cost of its last part's refresh
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str], clock: Callable[[], float] = time.monotonic) -> "RateBook":
@@ -200,8 +206,10 @@ class RateBook:
 
     # ------------------------------------------------------------------ scheduling
     def _override(self, name: str, kind: str) -> float | None:
+        # Names are "source:kind", or "source:kind:part" for a source budgeted in parts
+        # (race lists: one entry per state), so "source:kind" in EW_INTERVALS covers all parts.
         source = name.split(":", 1)[0]
-        for key in (name, source, kind):
+        for key in (name, ":".join(name.split(":", 2)[:2]), source, kind):
             if key in self.intervals:
                 return self.intervals[key]
         return None
@@ -210,26 +218,55 @@ class RateBook:
         override = self._override(name, kind)
         return override if override is not None else FLOORS.get(kind, DEFAULT_FLOOR)
 
-    def stretch(self, bucket: str) -> float:
+    def _demands(self) -> dict[str, float]:
+        """Requests per second each host's sources want at their floors, in one pass (race
+        lists add an entry per source and state, so a pass per host per row would be slow)."""
+        demands: dict[str, float] = defaultdict(float)
+        for name, cost in self._cost.items():
+            base = None
+            for bucket, count in cost.items():
+                if count:
+                    if base is None:
+                        base = max(self._base(name, self._kind.get(name, "")), 1.0)
+                    demands[bucket] += count / base
+        return demands
+
+    def stretch(self, bucket: str, demands: Mapping[str, float] | None = None) -> float:
         """How much slower than their floors the sources on a host must run to share it."""
-        demand = sum(cost[bucket] / max(self._base(name, self._kind.get(name, "")), 1.0)
-                     for name, cost in self._cost.items() if cost.get(bucket))
+        demand = (demands if demands is not None else self._demands()).get(bucket, 0.0)
         return max(1.0, demand * WINDOW / (TARGET * self.allowance(bucket)))
 
-    def interval(self, name: str, kind: str) -> float:
+    def interval(self, name: str, kind: str, demands: Mapping[str, float] | None = None) -> float:
         """Seconds between refreshes of source `name`: the operator's value, else computed."""
         override = self._override(name, kind)
         if override is not None:
             return override
-        stretch = max((self.stretch(bucket) for bucket in self._cost.get(name, {})), default=1.0)
+        buckets = self._cost.get(name, {})
+        if buckets and demands is None:
+            demands = self._demands()
+        stretch = max((self.stretch(bucket, demands) for bucket in buckets), default=1.0)
         return FLOORS.get(kind, DEFAULT_FLOOR) * stretch
+
+    @staticmethod
+    def _family_of(name: str) -> str | None:
+        parts = name.split(":")
+        return ":".join(parts[:2]) if len(parts) > 2 else None
+
+    def _expected(self, name: str) -> Counter:
+        """Requests per host `name` is expected to make: its last refresh's, else (a part that
+        never ran) its sibling's."""
+        cost = self._cost.get(name)
+        if cost is None:
+            family = self._family_of(name)
+            cost = self._family.get(family) if family else None
+        return cost or Counter()
 
     def due(self, name: str, kind: str) -> bool:
         """Whether `name` may refresh now: its interval passed and its hosts have room."""
         self._kind.setdefault(name, kind)
         if self.clock() < self._next.get(name, -math.inf):
             return False
-        for bucket, cost in self._cost.get(name, {}).items():
+        for bucket, cost in self._expected(name).items():
             used = self.used(bucket) + self.reserved(bucket)
             # A host nobody used in the last hour is always allowed one refresh, or a source
             # whose single refresh is bigger than the allowance would never run.
@@ -244,7 +281,7 @@ class RateBook:
         each other's (call due() and enter with no await in between)."""
         self._kind[name] = kind
         self._running[name] = Counter()
-        self._held[name] = Counter(self._cost.get(name, {}))
+        self._held[name] = Counter(self._expected(name))
         token = current_source.set(name)
         try:
             yield
@@ -252,6 +289,9 @@ class RateBook:
             current_source.reset(token)
             self._held.pop(name, None)
             self._cost[name] = self._running.pop(name)
+            family = self._family_of(name)
+            if family:
+                self._family[family] = self._cost[name]
             now = self.clock()
             self._last[name] = now
             self._next[name] = now + self.interval(name, kind)
@@ -262,6 +302,11 @@ class RateBook:
         for name in forced:
             self._next[name] = -math.inf
         return forced
+
+    def retry_in(self, name: str, seconds: float) -> None:
+        """Make `name` due again after `seconds` if that is sooner than its interval (a failed
+        refresh with a long interval); the hourly allowance still holds."""
+        self._next[name] = min(self._next.get(name, math.inf), self.clock() + seconds)
 
     def last_run(self, name: str) -> float | None:
         """When `name` last finished a refresh (clock seconds), None if never."""
@@ -277,16 +322,18 @@ class RateBook:
         if not names:
             override = self.intervals.get(kind)
             return override if override is not None else FLOORS.get(kind, DEFAULT_FLOOR)
-        return min(self.interval(name, kind) for name in names)
+        demands = self._demands()
+        return min(self.interval(name, kind, demands) for name in names)
 
     def status(self) -> list[dict]:
         """One row per known source, for /limits."""
         rows = []
+        demands = self._demands()
         for name, kind in sorted(self._kind.items(), key=lambda item: (item[1], item[0])):
             cost = self._cost.get(name, Counter())
             rows.append({
                 "source": name, "kind": kind,
-                "interval": self.interval(name, kind),
+                "interval": self.interval(name, kind, demands),
                 "floor": FLOORS.get(kind, DEFAULT_FLOOR),
                 "overridden": self._override(name, kind) is not None,
                 "next_in": self.wait(name),

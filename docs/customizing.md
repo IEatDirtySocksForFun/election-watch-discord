@@ -25,7 +25,7 @@ than sending more requests. Sources sharing a host (the county adapters on Clari
 results, calls and early vote) are slowed by the same factor, so the host is used evenly through
 the hour instead of being spent early. A refresh also only starts while its hosts have room in
 the last hour, counting the requests of refreshes already running. Floors: results, calls, exit polls and odds 60 s; polls 30 min; early vote
-1 h. Published limits used by default (researched 2026-10-28):
+1 h; race lists (for `/races` and autocomplete) 1 h per state, at most 3 states per source a minute. Published limits used by default (researched 2026-10-28):
 
 | host | limit | note |
 |---|---|---|
@@ -45,7 +45,7 @@ data (odds: 2 min), and a server can `/refresh` once every 2 intervals of what i
 |---|---|---|
 | `EW_RATE_SAFETY=2` | env | use at most 1/N of each published limit |
 | `EW_RATE_LIMITS=civicapi.org=600/60,...` | env | your own limits, `host=requests/seconds` |
-| `EW_INTERVALS=odds=120,polls=1800,polymarket=300` | env | fixed intervals in seconds, by kind (`results`, `calls`, `exitpolls`, `odds`, `polls`, `earlyvote`), source (`polymarket`) or source and kind (`civicapi:calls`); the most specific wins; replaces the computed value, the hourly allowance still applies |
+| `EW_INTERVALS=odds=120,polls=1800,polymarket=300` | env | fixed intervals in seconds, by kind (`results`, `calls`, `exitpolls`, `odds`, `polls`, `earlyvote`, `racelists`), source (`polymarket`) or source and kind (`civicapi:calls`); the most specific wins; replaces the computed value, the hourly allowance still applies |
 | `EW_USER_COOLDOWN`, `EW_USER_HOURLY`, `EW_REFRESH_COOLDOWN` | env | operator defaults for every server (seconds; commands per user per hour, 0 = no cap) |
 | `EW_DEMAND_MAX=200`, `EW_DEMAND_HOURS=24` | env | races users asked about that no server watches: how many are refreshed, and for how long after the last request |
 | `/limits user_cooldown user_hourly refresh_cooldown` | Discord, admin | this server's values; `-1` returns to the default |

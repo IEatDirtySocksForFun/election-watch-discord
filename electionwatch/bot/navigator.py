@@ -1,17 +1,16 @@
-"""Ephemeral race navigator view. All data comes from Store and ResultsSource."""
+"""Ephemeral race navigator view (/races). It reads only the database: race lists come from
+the background refresh in electionwatch/racelists.py, results from the poller."""
 from __future__ import annotations
 
-import asyncio
 import logging
-import time
 
 import discord
 
 from electionwatch.bot.logic import LEVELS, NAV_TABS, filter_races, remember_navigation
 from electionwatch.bot.poster import render_embed
-from electionwatch.models import Level
 from electionwatch.poller import format_result
 from electionwatch.racekeys import ALL_JURISDICTIONS, describe, parse
+from electionwatch.racelists import RaceLists
 from electionwatch.settings import UserSettings
 
 logger = logging.getLogger(__name__)
@@ -20,69 +19,34 @@ _TAB_LABELS = {
     "favorites": "★ Favorites",
 }
 RACE_PAGE = 23   # race-select options per page when two are taken by previous/next
+LOADING = ("{state}'s race list is still loading: race lists are fetched in the background and "
+           "this state is now first in line. Check back in a few minutes; meanwhile this shows "
+           "the server's watched races and your favorites.")
 
-LIST_TTL_SECONDS = 300        # scrape adapters must not be hit more than once a minute
-LIST_RETRY_SECONDS = 60       # a failed or slow source is retried after this
-LIST_TIMEOUT_SECONDS = 2.0    # autocomplete has to answer within Discord's 3 s deadline
-_list_cache: dict[tuple[str, str], tuple[float, list]] = {}   # (source, state) -> (expires, races)
+
+def race_lists(client) -> RaceLists:
+    """The bot's RaceLists, or a read-only one over the client's store for a bot stand-in."""
+    lists = getattr(client, "race_lists", None)
+    if lists is None:
+        lists = RaceLists(client.store, client.sources, getattr(client, "http_client", None))
+        client.race_lists = lists
+    return lists
 
 
 async def list_races(client, state: str) -> dict[str, tuple]:
-    """Races the available results sources publish for a state, as {key: (key, label)}.
-
-    Cached and time-boxed: the navigator and autocomplete call this on every click and
-    keystroke, and both must answer within Discord's interaction deadline.
-    """
-    sources = [
-        source for source in client.sources.get("results", [])
-        if state in source.states and source.available()
-    ]
-
-    async def one(source) -> list:
-        ident = (source.name, state)
-        cached = _list_cache.get(ident)
-        if cached and time.monotonic() < cached[0]:
-            return cached[1]
-        try:
-            races = await asyncio.wait_for(
-                source.list_races(state, client.http_client), LIST_TIMEOUT_SECONDS
-            )
-        except Exception:
-            _list_cache[ident] = (time.monotonic() + LIST_RETRY_SECONDS, [])
-            raise
-        _list_cache[ident] = (time.monotonic() + LIST_TTL_SECONDS, races)
-        return races
-
-    found: dict[str, tuple] = {}
-    answers = await asyncio.gather(*(one(source) for source in sources), return_exceptions=True)
-    listed = []
-    for source, races in zip(sources, answers):
-        if isinstance(races, BaseException):
-            logger.warning("Could not list %s races from %s: %s", state, source.name, type(races).__name__)
-            continue
-        listed.append((source, races))
-    # Local race keys are slugs of each source's own contest name, so civicAPI's and a county
-    # feed's key for the same race differ: where an official feed lists local races, the
-    # fallbacks' local races would be duplicates under other names.
-    official_local = any(
-        key.level is Level.LOCAL
-        for source, races in listed if not getattr(source, "fallback", False)
-        for key, _ in races
-    )
-    for source, races in listed:
-        for key, label in races:
-            if official_local and key.level is Level.LOCAL and getattr(source, "fallback", False):
-                continue
-            found.setdefault(str(key), (key, label))
+    """The stored races of a state, as {key: (key, label)}. Never calls a source."""
+    found, _ = await race_lists(client).stored(state)
     return found
 
 
 class RaceNavigator(discord.ui.View):
-    def __init__(self, client, user_id: int, settings: UserSettings):
+    def __init__(self, client, user_id: int, settings: UserSettings, watched: list[str] | None = None):
         super().__init__(timeout=600)
         self.client = client
         self.user_id = user_id
         self.settings = settings
+        self.watched = watched                 # the server's watch list; None = the default races
+        self.loading = False                   # no source has stored this state's list yet
         self.state = settings.home_state or "TX"
         self.level = settings.default_level if settings.default_level in NAV_TABS else "senate"
         self.races: list[tuple] = []
@@ -102,13 +66,31 @@ class RaceNavigator(discord.ui.View):
             return [(key, describe(key)) for key in keys]
         return filter_races(self.races, self.state, self.level)
 
+    def _known_races(self) -> list[tuple]:
+        """The server's watched races and the user's favorites: navigable even when no source
+        lists them, or while the state's list is still loading."""
+        known = []
+        if self.watched is not None:
+            texts = list(self.watched)
+        else:
+            poller = getattr(self.client, "poller", None)
+            known += [(race.key, race.label or str(race.key)) for race in getattr(poller, "default_races", ())]
+            texts = []
+        for text in texts + list(self.settings.favorites):
+            try:
+                key = parse(text)
+            except ValueError:
+                continue
+            known.append((key, describe(key)))
+        return known
+
     async def refresh(self) -> None:
-        found = await list_races(self.client, self.state)
-        # Watched races remain navigable even if a source has no list_races endpoint.
-        if self.client.poller:
-            for race in self.client.poller.default_races:
-                if race.key.state == self.state:
-                    found.setdefault(str(race.key), (race.key, race.label or str(race.key)))
+        lists = race_lists(self.client)
+        lists.want(self.state)
+        found, self.loading = await lists.stored(self.state)
+        for key, label in self._known_races():
+            if key.state == self.state:
+                found.setdefault(str(key), (key, label))
         self.races = sorted(found.values(), key=lambda item: str(item[0]))
         visible = self._visible()
         if self.selected_race not in {str(key) for key, _ in visible}:
@@ -228,7 +210,8 @@ class RaceNavigator(discord.ui.View):
         await interaction.response.edit_message(embed=await self.embed(), view=self)
 
     async def _save_and_refresh(self, interaction: discord.Interaction) -> None:
-        # Listing races can hit the network: acknowledge within Discord's 3 s deadline first.
+        # Saving the settings and reading the lists are database round trips: acknowledge
+        # within Discord's 3 s deadline first.
         await interaction.response.defer()
         remember_navigation(self.settings, self.state, self.level)
         await self.client.store.save_user(self.settings)
@@ -255,6 +238,8 @@ class RaceNavigator(discord.ui.View):
         else:
             title = f"{ALL_JURISDICTIONS[self.state]} · {_TAB_LABELS[self.level]}"
             description = "No current result is available. Choose a state, tab, and race."
+            if self.loading:
+                description += "\n\n" + LOADING.format(state=ALL_JURISDICTIONS[self.state])
         return discord.Embed(
             title=title,
             description=description,

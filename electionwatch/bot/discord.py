@@ -31,13 +31,14 @@ from electionwatch.bot.logic import (
     limits_text,
     settings_dump,
 )
-from electionwatch.bot.navigator import RaceNavigator, list_races
+from electionwatch.bot.navigator import RaceNavigator, race_lists
 from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
 from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, UserSettings
 from electionwatch.demand import Demand
+from electionwatch.racelists import KIND as RACELISTS, READ_TIMEOUT, RaceLists, typed_state
 from electionwatch.ratelimit import RateBook
 from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
@@ -93,6 +94,9 @@ class ElectionBot(commands.Bot):
             rates=self.rates,
             demand=self.demand,
         )
+        # The /races browser and race autocomplete read the lists this refresher stores.
+        self.race_lists = RaceLists(store, sources, http_client, clock, rates=self.rates, demand=self.demand,
+                                    default_races=self.poller.default_races)
         self.tree.on_error = handle_app_command_error
         for command in (
             setup_command,
@@ -126,6 +130,7 @@ class ElectionBot(commands.Bot):
         else:
             await self.tree.sync()
         self.poll_results.start()
+        self.refresh_race_lists.start()
         self.refresh_early_vote.start()
         self.early_vote_posts.start()
 
@@ -138,6 +143,19 @@ class ElectionBot(commands.Bot):
 
     @poll_results.before_loop
     async def before_poll(self) -> None:
+        await self.wait_until_ready()
+
+    @tasks.loop(seconds=60)
+    async def refresh_race_lists(self) -> None:
+        # Its own loop, not part of the poller's tick: a slow state site listing its races
+        # must not hold up election results.
+        try:
+            await self.race_lists.refresh()
+        except Exception:
+            logger.exception("Race list refresh failed")
+
+    @refresh_race_lists.before_loop
+    async def before_refresh_race_lists(self) -> None:
         await self.wait_until_ready()
 
     async def refresh_early_vote_now(self) -> bool:
@@ -447,11 +465,12 @@ early_vote_command.autocomplete("state")(early_vote_state_autocomplete)
 
 
 REFRESH_KINDS = {
-    "all": {"results", "calls", "exitpolls", "odds", "polls", "earlyvote"},
+    "all": {"results", "calls", "exitpolls", "odds", "polls", "earlyvote", RACELISTS},
     "results": {"results", "calls", "exitpolls"},
     "odds": {"odds"},
     "polls": {"polls"},
     "earlyvote": {"earlyvote"},
+    "races": {RACELISTS},
 }
 
 
@@ -459,7 +478,7 @@ REFRESH_KINDS = {
 @app_commands.describe(what="What to refresh (default: everything)")
 async def refresh_command(
     interaction: discord.Interaction,
-    what: Literal["all", "results", "odds", "polls", "earlyvote"] = "all",
+    what: Literal["all", "results", "odds", "polls", "earlyvote", "races"] = "all",
 ) -> None:
     gs = await _guild(interaction, admin=True)
     if gs is None:
@@ -488,7 +507,16 @@ async def refresh_command(
             bot._background.add(task)
             task.add_done_callback(bot._background.discard)
             message = " Early-vote pages are downloading in the background (one a second)."
-    kinds = kinds - {"earlyvote"}
+    if RACELISTS in kinds:
+        # Race lists are a few states per source a minute (racelists.STATES_PER_TICK): forcing
+        # them marks every stored list stale and the background refresh works through them.
+        bot.race_lists.force()
+        if not bot.race_lists.running:
+            task = asyncio.create_task(bot.race_lists.refresh())
+            bot._background.add(task)
+            task.add_done_callback(bot._background.discard)
+        message += " Race lists are refreshing in the background, a few states per source a minute."
+    kinds = kinds - {"earlyvote", RACELISTS}
     if kinds:
         await bot.poller.tick()
         rows = [row for row in bot.rates.status() if row["source"] in forced and row["kind"] in kinds]
@@ -562,10 +590,19 @@ async def settings_command(interaction: discord.Interaction) -> None:
 
 @app_commands.command(name="races", description="Browse current race results")
 async def races_command(interaction: discord.Interaction) -> None:
-    # refresh() lists races from the state sites: defer so the 3 s deadline cannot expire.
+    # Several database reads before the reply: defer so the 3 s deadline cannot expire.
     await interaction.response.defer(ephemeral=True)
     settings = await _user(interaction)
-    view = RaceNavigator(interaction.client, interaction.user.id, settings)
+    watched = None   # outside a server, or a server without its own list: the default races
+    if interaction.guild_id is not None:
+        try:
+            gs = await interaction.client.store.get_guild(interaction.guild_id)
+        except Exception:
+            logger.exception("Could not read the watch list of guild %s", interaction.guild_id)
+            gs = None
+        if gs and gs.important:
+            watched = list(gs.important)
+    view = RaceNavigator(interaction.client, interaction.user.id, settings, watched)
     await view.refresh()
     await interaction.followup.send(embed=await view.embed(), view=view, ephemeral=True)
 
@@ -620,10 +657,21 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
             continue
         choices[str(key)] = describe(key)
         states.add(key.state)
-    # One state at a time would add a LIST_TIMEOUT_SECONDS per state with a slow source and
-    # miss Discord's 3 s autocomplete deadline: list every state concurrently.
-    listed = await asyncio.gather(*(list_races(bot, state) for state in sorted(states)))
-    for found in listed:
+    # Typing a state ("PA", "pa sen", "Texas gov") offers that state's races too, and puts the
+    # state first in line for the background race-list refresh.
+    lists = race_lists(bot)
+    typed = typed_state(current)
+    if typed:
+        states.add(typed)
+        lists.want(typed)
+    # Stored lists only; a slow database must not cost the whole answer (3 s deadline).
+    try:
+        listed = await asyncio.wait_for(
+            asyncio.gather(*(lists.stored(state) for state in sorted(states))), READ_TIMEOUT)
+    except Exception:
+        logger.warning("Race autocomplete answered without the stored race lists", exc_info=True)
+        listed = []
+    for found, _ in listed:
         for key, label in found.values():
             choices[str(key)] = label or describe(key)
     needle = current.casefold()
