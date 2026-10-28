@@ -15,9 +15,8 @@
 - Scrapers of sites without an API set `scrape = True` and `enabled_by_default = False`,
   and send a descriptive User-Agent.
 - Don't call a data source from a slash command: commands read MongoDB; the poller and the
-  early-vote refresher fetch, on the request budgets of `electionwatch/ratelimit.py`. (The one
-  exception is the `/races` browser's per-state race list, cached 5 minutes per state.) Record a
-  host's published rate limit in `HOST_LIMITS` there.
+  early-vote and race-list refreshers fetch, on the request budgets of
+  `electionwatch/ratelimit.py`. Record a host's published rate limit in `HOST_LIMITS` there.
 - Never get past a bot check (Cloudflare challenge, captcha, WAF, IP block): a blocked host is a
   closed door; use another publisher or civicAPI.
 - Small commits, message style `feat(area): ...` / `fix(area): ...`.

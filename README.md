@@ -208,7 +208,7 @@ Admin commands need **Manage Server**, or the admin role set in `/setup`. Replie
 | `/turnout on·off`, `/exitpolls on·off` | admin | extra lines and posts |
 | `/earlyvote_posts on·off` | admin | daily early-vote summary for watched states (off by default) |
 | `/pause`, `/resume` | admin | stop or restart all posting |
-| `/refresh [what:all·results·odds·polls·earlyvote]` | admin | fetch fresh data now instead of waiting for the next refresh (once per 2 refresh intervals per server; the hourly request allowance still applies) |
+| `/refresh [what:all·results·odds·polls·earlyvote·races]` | admin | fetch fresh data now instead of waiting for the next refresh (once per 2 refresh intervals per server; the hourly request allowance still applies) |
 | `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | everyone sees · admin sets | refresh rates, request budgets and this server's command limits (`-1` = back to default) |
 | `/settings` | everyone | this server's settings (private) |
 | `/races` | everyone | private race browser with Odds and Polls buttons |
@@ -297,8 +297,9 @@ and register it with `@register`. The rules (contract in
 ```
 
 `/odds`, `/polls` and `/earlyvote` never call a data source, so users repeating a command can't
-make the bot hammer an API. (The `/races` browser asks the results sources for a state's list of
-races, cached for 5 minutes per state.) A race nobody watches is queued by the first request and fetched by the next refresh. A
+make the bot hammer an API. The `/races` browser and race autocomplete read state race lists
+from MongoDB too: a background refresh stores each results source's list per state, about hourly,
+a few states per source a minute. A race nobody watches is queued by the first request and fetched by the next refresh. A
 results source that is not due, backing off or failing answers with its last results for up to
 10 minutes, so the fallbacks aren't asked about races an official feed already answered. How
 often each source is asked is computed from its host's published rate limit; every number is
