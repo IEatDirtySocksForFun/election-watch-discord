@@ -10,7 +10,7 @@
 # Long names work too: "Texas Senate", "North Carolina Congressional District 1".
 # Here is a list of generic important races 
 election_date: 2026-11-03
-important:important:
+important:
   # U.S. Senate
   - key: TX SEN
     label: Texas Senate
