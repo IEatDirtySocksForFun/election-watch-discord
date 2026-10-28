@@ -1,41 +1,24 @@
-"""Command changes during a running replay night (replay/command_sim.py) on a tiny synthetic
-timeline: five races, a snapshot every 2 minutes from 8 PM to 1 AM ET. No network."""
+"""Command changes during a running replay night (replay/command_sim.py) on the bundled tiny
+night (`quick_timelines`: five races, a snapshot every 2 minutes from 8 PM to 1 AM ET, hand-made
+numbers). No network, no history data."""
 from __future__ import annotations
 
+import json
 from datetime import timedelta
 
 import pytest
 
-from electionwatch.models import CandidateResult, RaceResult
-from electionwatch.racekeys import parse
-from replay.command_sim import (SCENARIOS, Checks, Ctx, FakeInteraction, Night, Step, limit_problems,
-                                parse_steps, sim_time)
-from replay.timeline import Snapshot
+from replay.command_sim import (QUICK_RACES, QUICK_SCENARIOS, QUICK_YEAR, SCENARIOS, Checks, Ctx,
+                                FakeInteraction, Night, Step, limit_problems, main, parse_steps,
+                                quick_timelines, sim_time)
 
-YEAR = "2024"
-RACES = ["AZ SEN", "GA SEN", "OH SEN", "PA SEN", "TX SEN"]
-
-
-def _timelines() -> dict:
-    out = {}
-    t0 = sim_time(YEAR, "20:00")
-    for n, race in enumerate(RACES):
-        snaps = []
-        for i in range(0, 150):
-            ts = t0 + timedelta(minutes=2 * i + n)
-            dem, rep = 1000 * i + 37 * n, 1010 * i + 11 * n
-            r = RaceResult(parse(race), [CandidateResult("Dee Mock", "DEM", dem),
-                                         CandidateResult("Ray Publican", "REP", rep)],
-                           "replay", ts, expected_vote_pct=min(99.0, i * 0.7))
-            snaps.append(Snapshot(ts, r.finalize(), True))
-        out[race] = snaps
-    return out
+YEAR = QUICK_YEAR
+RACES = QUICK_RACES
 
 
 @pytest.fixture(scope="module")
 def ctx(tmp_path_factory):
-    tl = _timelines()
-    return Ctx(YEAR, tl, list(RACES), "top", tmp_path_factory.mktemp("sim"))
+    return Ctx(YEAR, quick_timelines(), list(RACES), "top", tmp_path_factory.mktemp("sim"))
 
 
 def test_dsl_parses_yaml_and_short_forms():
@@ -75,3 +58,15 @@ async def test_admin_command_from_member_is_refused_and_recorded(ctx):
     assert bad.rejected and not bad.replies
     assert not limit_problems(member.replies[0])
     assert isinstance(FakeInteraction(None, 1, "admin", "x").user.guild_permissions.manage_guild, bool)
+
+
+def test_quick_mode_needs_no_history_data(tmp_path):
+    """`--quick` is what `make sim` runs: bundled night, a few scenarios, no fetched timelines."""
+    assert set(QUICK_SCENARIOS) <= set(SCENARIOS)
+    assert not {"storeerr", "latencymongo", "mongorestart"} & set(QUICK_SCENARIOS)
+    code = main(["--quick", "--scenarios", "pause,posting", "--out-dir", str(tmp_path),
+                 "--data", str(tmp_path / "no-such-directory")])
+    assert code == 0
+    rows = json.loads((tmp_path / "summary-top.json").read_text())
+    assert [r["scenario"] for r in rows] == ["pause", "posting"]
+    assert all(r["ok"] for r in rows), rows
