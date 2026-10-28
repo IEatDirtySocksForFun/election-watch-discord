@@ -1,9 +1,11 @@
 {
+  "private": true,
+  "description": "Formatting for the Markdown docs. The bot itself is Python.",
   "devDependencies": {
     "prettier": "3.9.10"
   },
   "scripts": {
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --write \"**/*.md\"",
+    "format:check": "prettier --check \"**/*.md\""
   }
 }

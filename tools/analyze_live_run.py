@@ -146,11 +146,7 @@ def main() -> int:
     ap.add_argument("--expected", default="", help="comma-separated races that should have posted")
     ap.add_argument("--json")
     a = ap.parse_args()
-    records = [
-        json.loads(line)
-        for line in open(a.record, encoding="utf-8")
-        if line.strip()
-    ]
+    records = [json.loads(line) for line in open(a.record, encoding="utf-8") if line.strip()]
     log_lines = open(a.log, encoding="utf-8", errors="replace").read().splitlines()
     res = analyse(records, log_lines, [r for r in a.expected.split(",") if r])
     text = json.dumps(

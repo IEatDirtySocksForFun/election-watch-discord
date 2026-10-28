@@ -112,7 +112,7 @@ against a fake pymongo client, and `MongoStore` against a real server. The admin
 also runs its mongo cases against a local server when one is reachable.
 
 ```sh
-docker run -d -p 27017:27017 mongo:7       # one throwaway server
+docker run -d -p 27017:27017 mongo:8.0     # one throwaway server
 make test-mongo                            # the whole suite, mongo cases included
 EW_TEST_MONGO_URI=mongodb://other-host:27017 make test-mongo
 ```

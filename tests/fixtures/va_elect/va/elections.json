@@ -1,183 +1,183 @@
 {
-  "name": [
+ "name": [
+  {
+   "languageId": "en",
+   "text": "Virginia "
+  },
+  {
+   "languageId": "1",
+   "text": "Virginia"
+  },
+  {
+   "languageId": "2",
+   "text": "버지니아 "
+  },
+  {
+   "languageId": "5",
+   "text": "Virginia"
+  }
+ ],
+ "shortName": "virginia",
+ "elections": [
+  {
+   "publicElectionId": "2026-November-General",
+   "electionDate": "2026-11-03",
+   "name": [
     {
-      "languageId": "en",
-      "text": "Virginia "
+     "languageId": "en",
+     "text": "2026 November General"
     },
     {
-      "languageId": "1",
-      "text": "Virginia"
+     "languageId": "1",
+     "text": "Elecciones generales de noviembre de 2026"
     },
     {
-      "languageId": "2",
-      "text": "버지니아 "
+     "languageId": "2",
+     "text": "2026년 총선거"
     },
     {
-      "languageId": "5",
-      "text": "Virginia"
+     "languageId": "5",
+     "text": "Tổng tuyển cử tháng 11 năm 2026"
     }
-  ],
-  "shortName": "virginia",
-  "elections": [
+   ],
+   "dateText": [
     {
-      "publicElectionId": "2026-November-General",
-      "electionDate": "2026-11-03",
-      "name": [
-        {
-          "languageId": "en",
-          "text": "2026 November General"
-        },
-        {
-          "languageId": "1",
-          "text": "Elecciones generales de noviembre de 2026"
-        },
-        {
-          "languageId": "2",
-          "text": "2026년 총선거"
-        },
-        {
-          "languageId": "5",
-          "text": "Tổng tuyển cử tháng 11 năm 2026"
-        }
-      ],
-      "dateText": [
-        {
-          "languageId": "en",
-          "text": "November 3, 2026"
-        },
-        {
-          "languageId": "1",
-          "text": "3 de noviembre de 2026"
-        },
-        {
-          "languageId": "2",
-          "text": "2026년 11월 3일"
-        },
-        {
-          "languageId": "5",
-          "text": "3 tháng 11, 2026"
-        }
-      ]
+     "languageId": "en",
+     "text": "November 3, 2026"
     },
     {
-      "publicElectionId": "2025-November-General",
-      "electionDate": "2025-11-04",
-      "name": [
-        {
-          "languageId": "en",
-          "text": "2025 November General"
-        },
-        {
-          "languageId": "1",
-          "text": "Elecciones generales de noviembre de 2025"
-        },
-        {
-          "languageId": "2",
-          "text": "2025년 총선거"
-        },
-        {
-          "languageId": "5",
-          "text": "Tổng tuyển cử tháng 11 năm 2025"
-        }
-      ],
-      "dateText": [
-        {
-          "languageId": "en",
-          "text": "November 4, 2025"
-        },
-        {
-          "languageId": "1",
-          "text": "4 de noviembre de 2025"
-        },
-        {
-          "languageId": "2",
-          "text": "2025년 11월 4일"
-        },
-        {
-          "languageId": "5",
-          "text": "4 tháng 11, 2025"
-        }
-      ]
+     "languageId": "1",
+     "text": "3 de noviembre de 2026"
     },
     {
-      "publicElectionId": "2024NovemberGeneral",
-      "electionDate": "2024-11-05",
-      "name": [
-        {
-          "languageId": "en",
-          "text": "2024 November General"
-        },
-        {
-          "languageId": "1",
-          "text": "Elecciones generales de noviembre de 2024"
-        },
-        {
-          "languageId": "2",
-          "text": "2024년 총선거"
-        },
-        {
-          "languageId": "5",
-          "text": "Tổng tuyển cử tháng 11 năm 2024 "
-        }
-      ],
-      "dateText": [
-        {
-          "languageId": "en",
-          "text": "November 5, 2024"
-        },
-        {
-          "languageId": "1",
-          "text": "5 de noviembre de 2024"
-        },
-        {
-          "languageId": "2",
-          "text": "2024년 11월 5일"
-        },
-        {
-          "languageId": "5",
-          "text": "5 tháng 11, 2024"
-        }
-      ]
+     "languageId": "2",
+     "text": "2026년 11월 3일"
     },
     {
-      "publicElectionId": "2023-Nov-Gen",
-      "electionDate": "2023-11-07",
-      "name": [
-        {
-          "languageId": "en",
-          "text": "2023 November General and Special Elections"
-        },
-        {
-          "languageId": "1",
-          "text": "Elecciones generales y especiales de noviembre de 2023"
-        },
-        {
-          "languageId": "2",
-          "text": "2023 11월 총선거 및 보궐선거"
-        },
-        {
-          "languageId": "5",
-          "text": "2023 Tháng 11 Tổng tuyển cử và Bầu cử đặc biệt "
-        }
-      ],
-      "dateText": [
-        {
-          "languageId": "en",
-          "text": "November 7, 2023"
-        },
-        {
-          "languageId": "1",
-          "text": "7 de noviembre de 2023"
-        },
-        {
-          "languageId": "2",
-          "text": "2023년 11월 7일"
-        },
-        {
-          "languageId": "5",
-          "text": "7 tháng 11, 2023"
-        }
-      ]
+     "languageId": "5",
+     "text": "3 tháng 11, 2026"
     }
-  ]
+   ]
+  },
+  {
+   "publicElectionId": "2025-November-General",
+   "electionDate": "2025-11-04",
+   "name": [
+    {
+     "languageId": "en",
+     "text": "2025 November General"
+    },
+    {
+     "languageId": "1",
+     "text": "Elecciones generales de noviembre de 2025"
+    },
+    {
+     "languageId": "2",
+     "text": "2025년 총선거"
+    },
+    {
+     "languageId": "5",
+     "text": "Tổng tuyển cử tháng 11 năm 2025"
+    }
+   ],
+   "dateText": [
+    {
+     "languageId": "en",
+     "text": "November 4, 2025"
+    },
+    {
+     "languageId": "1",
+     "text": "4 de noviembre de 2025"
+    },
+    {
+     "languageId": "2",
+     "text": "2025년 11월 4일"
+    },
+    {
+     "languageId": "5",
+     "text": "4 tháng 11, 2025"
+    }
+   ]
+  },
+  {
+   "publicElectionId": "2024NovemberGeneral",
+   "electionDate": "2024-11-05",
+   "name": [
+    {
+     "languageId": "en",
+     "text": "2024 November General"
+    },
+    {
+     "languageId": "1",
+     "text": "Elecciones generales de noviembre de 2024"
+    },
+    {
+     "languageId": "2",
+     "text": "2024년 총선거"
+    },
+    {
+     "languageId": "5",
+     "text": "Tổng tuyển cử tháng 11 năm 2024 "
+    }
+   ],
+   "dateText": [
+    {
+     "languageId": "en",
+     "text": "November 5, 2024"
+    },
+    {
+     "languageId": "1",
+     "text": "5 de noviembre de 2024"
+    },
+    {
+     "languageId": "2",
+     "text": "2024년 11월 5일"
+    },
+    {
+     "languageId": "5",
+     "text": "5 tháng 11, 2024"
+    }
+   ]
+  },
+  {
+   "publicElectionId": "2023-Nov-Gen",
+   "electionDate": "2023-11-07",
+   "name": [
+    {
+     "languageId": "en",
+     "text": "2023 November General and Special Elections"
+    },
+    {
+     "languageId": "1",
+     "text": "Elecciones generales y especiales de noviembre de 2023"
+    },
+    {
+     "languageId": "2",
+     "text": "2023 11월 총선거 및 보궐선거"
+    },
+    {
+     "languageId": "5",
+     "text": "2023 Tháng 11 Tổng tuyển cử và Bầu cử đặc biệt "
+    }
+   ],
+   "dateText": [
+    {
+     "languageId": "en",
+     "text": "November 7, 2023"
+    },
+    {
+     "languageId": "1",
+     "text": "7 de noviembre de 2023"
+    },
+    {
+     "languageId": "2",
+     "text": "2023년 11월 7일"
+    },
+    {
+     "languageId": "5",
+     "text": "7 tháng 11, 2023"
+    }
+   ]
+  }
+ ]
 }

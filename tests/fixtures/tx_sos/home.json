@@ -1,19 +1,19 @@
 {
-  "CountiesReporting": {
-    "CR": 254,
-    "CT": 254
-  },
-  "LastUpdatedTime": "Nov 26, 2024 12:57:43",
-  "Report": "Y",
-  "Search": "Y",
-  "Rss": "N",
-  "RefreshTime": 5,
-  "PrecinctsReporting": {
-    "PR": 9885,
-    "PT": 9885
-  },
-  "PollingReporting": {
-    "PLR": 5807,
-    "PLT": 5807
-  }
+ "CountiesReporting": {
+  "CR": 254,
+  "CT": 254
+ },
+ "LastUpdatedTime": "Nov 26, 2024 12:57:43",
+ "Report": "Y",
+ "Search": "Y",
+ "Rss": "N",
+ "RefreshTime": 5,
+ "PrecinctsReporting": {
+  "PR": 9885,
+  "PT": 9885
+ },
+ "PollingReporting": {
+  "PLR": 5807,
+  "PLT": 5807
+ }
 }

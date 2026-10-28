@@ -1,19 +1,19 @@
 {
-  "state": "TN",
-  "provides": {
-    "party": false,
-    "gender": false,
-    "race": false,
-    "ethnicity": false,
-    "age": false
-  },
-  "categories": {
-    "inperson": {
-      "party": false,
-      "gender": false,
-      "race": false,
-      "ethnicity": false,
-      "age": false
-    }
+ "state": "TN",
+ "provides": {
+  "party": false,
+  "gender": false,
+  "race": false,
+  "ethnicity": false,
+  "age": false
+ },
+ "categories": {
+  "inperson": {
+   "party": false,
+   "gender": false,
+   "race": false,
+   "ethnicity": false,
+   "age": false
   }
+ }
 }

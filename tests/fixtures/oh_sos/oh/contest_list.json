@@ -1,124 +1,124 @@
 [
-  {
+ {
+  "displayName": "Governor and Lieutenant Governor",
+  "contestChildCount": 1,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA542A09A3E0633390EE0AE290",
     "displayName": "Governor and Lieutenant Governor",
-    "contestChildCount": 1,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA542A09A3E0633390EE0AE290",
-        "displayName": "Governor and Lieutenant Governor",
-        "contestName": "Governor and Lieutenant Governor",
-        "isChecked": false
-      }
-    ]
-  },
-  {
+    "contestName": "Governor and Lieutenant Governor",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "Attorney General",
+  "contestChildCount": 1,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA548509A3E0633390EE0AE290",
     "displayName": "Attorney General",
-    "contestChildCount": 1,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA548509A3E0633390EE0AE290",
-        "displayName": "Attorney General",
-        "contestName": "Attorney General",
-        "isChecked": false
-      }
-    ]
-  },
-  {
-    "displayName": "Justice of the Supreme Court",
-    "contestChildCount": 2,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA55F109A3E0633390EE0AE290",
-        "displayName": "Justice of the Supreme Court - Term Commencing 01/01/2027",
-        "contestName": "Justice of the Supreme Court",
-        "isChecked": false
-      }
-    ]
-  },
-  {
-    "displayName": "U.S. Senator",
-    "contestChildCount": 1,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA56A709A3E0633390EE0AE290",
-        "displayName": "U.S. Senator - Unexpired Term Ending 01/03/2029",
-        "contestName": "U.S. Senator",
-        "isChecked": false
-      }
-    ]
-  },
-  {
-    "displayName": "Representative to Congress",
-    "contestChildCount": 15,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA574909A3E0633390EE0AE290",
-        "displayName": "Representative to Congress - District 01",
-        "contestName": "Representative to Congress",
-        "isChecked": false
-      },
-      {
-        "contestObjectId": "_55A742EA574F09A3E0633390EE0AE290",
-        "displayName": "Representative to Congress - District 02",
-        "contestName": "Representative to Congress",
-        "isChecked": false
-      }
-    ]
-  },
-  {
-    "displayName": "State Senator",
-    "contestChildCount": 17,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA584409A3E0633390EE0AE290",
-        "displayName": "State Senator - District 01",
-        "contestName": "State Senator",
-        "isChecked": false
-      },
-      {
-        "contestObjectId": "_55A742EA583709A3E0633390EE0AE290",
-        "displayName": "State Senator - District 03",
-        "contestName": "State Senator",
-        "isChecked": false
-      }
-    ]
-  },
-  {
-    "displayName": "State Representative",
-    "contestChildCount": 99,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_55A742EA5A3809A3E0633390EE0AE290",
-        "displayName": "State Representative - District 01",
-        "contestName": "State Representative",
-        "isChecked": false
-      },
-      {
-        "contestObjectId": "_55A742EA589909A3E0633390EE0AE290",
-        "displayName": "State Representative - District 02",
-        "contestName": "State Representative",
-        "isChecked": false
-      }
-    ]
-  },
-  {
-    "displayName": "Statewide Issues",
-    "contestChildCount": 1,
-    "isParentChecked": false,
-    "contestGroupings": [
-      {
-        "contestObjectId": "_58F2C0185A8C8A6AE0633390EE0AF8C5",
-        "displayName": "State Issue 3 To require voters to present photo identification in order to vote",
-        "contestName": "Statewide Issues",
-        "isChecked": false
-      }
-    ]
-  }
+    "contestName": "Attorney General",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "Justice of the Supreme Court",
+  "contestChildCount": 2,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA55F109A3E0633390EE0AE290",
+    "displayName": "Justice of the Supreme Court - Term Commencing 01/01/2027",
+    "contestName": "Justice of the Supreme Court",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "U.S. Senator",
+  "contestChildCount": 1,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA56A709A3E0633390EE0AE290",
+    "displayName": "U.S. Senator - Unexpired Term Ending 01/03/2029",
+    "contestName": "U.S. Senator",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "Representative to Congress",
+  "contestChildCount": 15,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA574909A3E0633390EE0AE290",
+    "displayName": "Representative to Congress - District 01",
+    "contestName": "Representative to Congress",
+    "isChecked": false
+   },
+   {
+    "contestObjectId": "_55A742EA574F09A3E0633390EE0AE290",
+    "displayName": "Representative to Congress - District 02",
+    "contestName": "Representative to Congress",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "State Senator",
+  "contestChildCount": 17,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA584409A3E0633390EE0AE290",
+    "displayName": "State Senator - District 01",
+    "contestName": "State Senator",
+    "isChecked": false
+   },
+   {
+    "contestObjectId": "_55A742EA583709A3E0633390EE0AE290",
+    "displayName": "State Senator - District 03",
+    "contestName": "State Senator",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "State Representative",
+  "contestChildCount": 99,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA5A3809A3E0633390EE0AE290",
+    "displayName": "State Representative - District 01",
+    "contestName": "State Representative",
+    "isChecked": false
+   },
+   {
+    "contestObjectId": "_55A742EA589909A3E0633390EE0AE290",
+    "displayName": "State Representative - District 02",
+    "contestName": "State Representative",
+    "isChecked": false
+   }
+  ]
+ },
+ {
+  "displayName": "Statewide Issues",
+  "contestChildCount": 1,
+  "isParentChecked": false,
+  "contestGroupings": [
+   {
+    "contestObjectId": "_58F2C0185A8C8A6AE0633390EE0AF8C5",
+    "displayName": "State Issue 3 To require voters to present photo identification in order to vote",
+    "contestName": "Statewide Issues",
+    "isChecked": false
+   }
+  ]
+ }
 ]

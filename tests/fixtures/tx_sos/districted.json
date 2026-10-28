@@ -1,98 +1,98 @@
 {
-  "OffType": "DISTRICT OFFICES",
-  "OffTypeID": 1002,
-  "Races": [
+ "OffType": "DISTRICT OFFICES",
+ "OffTypeID": 1002,
+ "Races": [
+  {
+   "id": 2047,
+   "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 1",
+   "Candidates": [
     {
-      "id": 2047,
-      "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 1",
-      "Candidates": [
-        {
-          "ID": 339021,
-          "N": "GUSTAVO REVELES",
-          "P": "DEM",
-          "V": 314162,
-          "PE": 50.94,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 240532
-        },
-        {
-          "ID": 333229,
-          "N": "MICHAEL (TRAVIS) STEVENS",
-          "P": "REP",
-          "V": 302544,
-          "PE": 49.06,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 230667
-        }
-      ],
-      "T": 616706,
-      "RTEV": 471199
+     "ID": 339021,
+     "N": "GUSTAVO REVELES",
+     "P": "DEM",
+     "V": 314162,
+     "PE": 50.94,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 240532
     },
     {
-      "id": 2049,
-      "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 13 - UNEXPIRED TERM",
-      "Candidates": [
-        {
-          "ID": 340808,
-          "N": "TIFFANY CLARK",
-          "P": "DEM",
-          "V": 418823,
-          "PE": 100.0,
-          "C": "#007BBD",
-          "O": 1,
-          "EV": 311592
-        }
-      ],
-      "T": 418823,
-      "RTEV": 311592
-    },
-    {
-      "id": 2063,
-      "N": "STATE SENATOR, DISTRICT 6",
-      "Candidates": [
-        {
-          "ID": 1301,
-          "N": "CAROL ALVARADO (I)",
-          "P": "DEM",
-          "V": 119280,
-          "PE": 63.01,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 87506
-        },
-        {
-          "ID": 4994,
-          "N": "MARTHA FIERRO",
-          "P": "REP",
-          "V": 70013,
-          "PE": 36.99,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 49453
-        }
-      ],
-      "T": 189293,
-      "RTEV": 136959
-    },
-    {
-      "id": 2095,
-      "N": "STATE REPRESENTATIVE DISTRICT 1",
-      "Candidates": [
-        {
-          "ID": 3471,
-          "N": "GARY VANDEAVER (I)",
-          "P": "REP",
-          "V": 66843,
-          "PE": 100.0,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 50600
-        }
-      ],
-      "T": 66843,
-      "RTEV": 50600
+     "ID": 333229,
+     "N": "MICHAEL (TRAVIS) STEVENS",
+     "P": "REP",
+     "V": 302544,
+     "PE": 49.06,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 230667
     }
-  ]
+   ],
+   "T": 616706,
+   "RTEV": 471199
+  },
+  {
+   "id": 2049,
+   "N": "MEMBER, STATE BOARD OF EDUCATION, DISTRICT 13 - UNEXPIRED TERM",
+   "Candidates": [
+    {
+     "ID": 340808,
+     "N": "TIFFANY CLARK",
+     "P": "DEM",
+     "V": 418823,
+     "PE": 100.0,
+     "C": "#007BBD",
+     "O": 1,
+     "EV": 311592
+    }
+   ],
+   "T": 418823,
+   "RTEV": 311592
+  },
+  {
+   "id": 2063,
+   "N": "STATE SENATOR, DISTRICT 6",
+   "Candidates": [
+    {
+     "ID": 1301,
+     "N": "CAROL ALVARADO (I)",
+     "P": "DEM",
+     "V": 119280,
+     "PE": 63.01,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 87506
+    },
+    {
+     "ID": 4994,
+     "N": "MARTHA FIERRO",
+     "P": "REP",
+     "V": 70013,
+     "PE": 36.99,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 49453
+    }
+   ],
+   "T": 189293,
+   "RTEV": 136959
+  },
+  {
+   "id": 2095,
+   "N": "STATE REPRESENTATIVE DISTRICT 1",
+   "Candidates": [
+    {
+     "ID": 3471,
+     "N": "GARY VANDEAVER (I)",
+     "P": "REP",
+     "V": 66843,
+     "PE": 100.0,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 50600
+    }
+   ],
+   "T": 66843,
+   "RTEV": 50600
+  }
+ ]
 }

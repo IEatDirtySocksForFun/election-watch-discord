@@ -1,16 +1,16 @@
 {
-  "state": "NC",
-  "category": "returned",
-  "snapshot_date": "2026-10-27",
-  "region": null,
-  "breakdown_by": "party",
-  "values": {
-    "Democratic": 27481,
-    "Republican": 11949,
-    "No Party Affiliation": 26223,
-    "Libertarian": 161,
-    "Green": 27,
-    "Other": 0
-  },
-  "total": 65841
+ "state": "NC",
+ "category": "returned",
+ "snapshot_date": "2026-10-27",
+ "region": null,
+ "breakdown_by": "party",
+ "values": {
+  "Democratic": 27481,
+  "Republican": 11949,
+  "No Party Affiliation": 26223,
+  "Libertarian": 161,
+  "Green": 27,
+  "Other": 0
+ },
+ "total": 65841
 }

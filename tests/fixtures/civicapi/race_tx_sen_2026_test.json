@@ -1,150 +1,150 @@
 {
-  "election_name": "Texas US Senate",
-  "election_type": "US Senate",
-  "election_scope": "General",
-  "election_date": "2026-11-03T05:00:00.000Z",
-  "country": "US",
-  "province": "TX",
-  "district": null,
-  "municipality": null,
-  "polls_open": "2026-11-03T13:00:00.000Z",
-  "polls_close": "2026-11-04T01:00:00.000Z",
-  "is_disputed": false,
-  "has_map": true,
-  "registered_voters": null,
-  "percent_reporting": 100,
-  "test_data": true,
-  "last_updated": "2026-10-27T14:41:19.758Z",
-  "called_at": "2026-10-27T13:34:03.002Z",
-  "round": 1,
-  "maps": [
-    {
-      "name": "Texas",
-      "map": "assets/Texas.svg"
-    }
-  ],
-  "candidates": [
-    {
-      "name": "James Talarico",
-      "candidate_id": 221153,
-      "party": "Democratic",
-      "incumbent": false,
-      "major_candidate": false,
-      "winner": true,
-      "advanced": false,
-      "color": "#4874a3",
-      "votes": 5008333,
-      "percent": 49.72
-    },
-    {
-      "name": "Ken Paxton",
-      "candidate_id": 221152,
-      "party": "Republican",
-      "incumbent": false,
-      "major_candidate": false,
-      "winner": false,
-      "advanced": false,
-      "color": "#c6606b",
-      "votes": 4775756,
-      "percent": 47.42
-    },
-    {
-      "name": "Ted Brown",
-      "candidate_id": 1175698,
-      "party": "Libertarian",
-      "incumbent": false,
-      "major_candidate": false,
-      "winner": false,
-      "advanced": false,
-      "color": "#d4c029",
-      "votes": 288157,
-      "percent": 2.86
-    }
-  ],
-  "region_results": {
-    "anderson": {
-      "name": "Anderson",
-      "type": "County",
-      "fips": "48001",
-      "fill": "#c6606b",
-      "percent_reporting": 100,
-      "candidates": [
-        {
-          "name": "Ken Paxton",
-          "party": "Republican",
-          "votes": 14122,
-          "percent": 70.89,
-          "color": "#c6606b",
-          "winner": false,
-          "advanced": false,
-          "incumbent": false,
-          "major_candidate": false
-        },
-        {
-          "name": "James Talarico",
-          "party": "Democratic",
-          "votes": 5370,
-          "percent": 26.96,
-          "color": "#4874a3",
-          "winner": false,
-          "advanced": false,
-          "incumbent": false,
-          "major_candidate": false
-        },
-        {
-          "name": "Ted Brown",
-          "party": "Libertarian",
-          "votes": 428,
-          "percent": 2.15,
-          "color": "#d4c029",
-          "winner": false,
-          "advanced": false,
-          "incumbent": false,
-          "major_candidate": false
-        }
-      ]
-    },
-    "andrews": {
-      "name": "Andrews",
-      "type": "County",
-      "fips": "48003",
-      "fill": "#c6606b",
-      "percent_reporting": 100,
-      "candidates": [
-        {
-          "name": "Ken Paxton",
-          "party": "Republican",
-          "votes": 5811,
-          "percent": 76.62,
-          "color": "#c6606b",
-          "winner": false,
-          "advanced": false,
-          "incumbent": false,
-          "major_candidate": false
-        },
-        {
-          "name": "James Talarico",
-          "party": "Democratic",
-          "votes": 1329,
-          "percent": 17.52,
-          "color": "#4874a3",
-          "winner": false,
-          "advanced": false,
-          "incumbent": false,
-          "major_candidate": false
-        },
-        {
-          "name": "Ted Brown",
-          "party": "Libertarian",
-          "votes": 444,
-          "percent": 5.85,
-          "color": "#d4c029",
-          "winner": false,
-          "advanced": false,
-          "incumbent": false,
-          "major_candidate": false
-        }
-      ]
-    }
+ "election_name": "Texas US Senate",
+ "election_type": "US Senate",
+ "election_scope": "General",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "TX",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2026-11-03T13:00:00.000Z",
+ "polls_close": "2026-11-04T01:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 100,
+ "test_data": true,
+ "last_updated": "2026-10-27T14:41:19.758Z",
+ "called_at": "2026-10-27T13:34:03.002Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "Texas",
+   "map": "assets/Texas.svg"
   }
+ ],
+ "candidates": [
+  {
+   "name": "James Talarico",
+   "candidate_id": 221153,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": true,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 5008333,
+   "percent": 49.72
+  },
+  {
+   "name": "Ken Paxton",
+   "candidate_id": 221152,
+   "party": "Republican",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 4775756,
+   "percent": 47.42
+  },
+  {
+   "name": "Ted Brown",
+   "candidate_id": 1175698,
+   "party": "Libertarian",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#d4c029",
+   "votes": 288157,
+   "percent": 2.86
+  }
+ ],
+ "region_results": {
+  "anderson": {
+   "name": "Anderson",
+   "type": "County",
+   "fips": "48001",
+   "fill": "#c6606b",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Ken Paxton",
+     "party": "Republican",
+     "votes": 14122,
+     "percent": 70.89,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "James Talarico",
+     "party": "Democratic",
+     "votes": 5370,
+     "percent": 26.96,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "Ted Brown",
+     "party": "Libertarian",
+     "votes": 428,
+     "percent": 2.15,
+     "color": "#d4c029",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  },
+  "andrews": {
+   "name": "Andrews",
+   "type": "County",
+   "fips": "48003",
+   "fill": "#c6606b",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Ken Paxton",
+     "party": "Republican",
+     "votes": 5811,
+     "percent": 76.62,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "James Talarico",
+     "party": "Democratic",
+     "votes": 1329,
+     "percent": 17.52,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "Ted Brown",
+     "party": "Libertarian",
+     "votes": 444,
+     "percent": 5.85,
+     "color": "#d4c029",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  }
+ }
 }

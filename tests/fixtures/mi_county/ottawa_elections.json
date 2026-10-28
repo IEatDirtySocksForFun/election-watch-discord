@@ -1,38 +1,38 @@
 [
-  {
-    "State": "MI",
-    "StateId": "290",
-    "County": "Ottawa",
-    "CountyId": "1251",
-    "EID": "127391",
-    "ElectionName": "11/03/2026 State General Election",
-    "Date": "11/3/2026 12:00:00 AM"
-  },
-  {
-    "State": "MI",
-    "StateId": "290",
-    "County": "Ottawa",
-    "CountyId": "1251",
-    "EID": "126772",
-    "ElectionName": "08/04/2026 Primary Election",
-    "Date": "8/4/2026 12:00:00 AM"
-  },
-  {
-    "State": "MI",
-    "StateId": "290",
-    "County": "Ottawa",
-    "CountyId": "1251",
-    "EID": "126063",
-    "ElectionName": "05/05/2026 Special Election",
-    "Date": "5/5/2026 12:00:00 AM"
-  },
-  {
-    "State": "MI",
-    "StateId": "290",
-    "County": "Ottawa",
-    "CountyId": "1251",
-    "EID": "124187",
-    "ElectionName": "11/04/2025 City General & Special Election",
-    "Date": "11/4/2025 12:00:00 AM"
-  }
+ {
+  "State": "MI",
+  "StateId": "290",
+  "County": "Ottawa",
+  "CountyId": "1251",
+  "EID": "127391",
+  "ElectionName": "11/03/2026 State General Election",
+  "Date": "11/3/2026 12:00:00 AM"
+ },
+ {
+  "State": "MI",
+  "StateId": "290",
+  "County": "Ottawa",
+  "CountyId": "1251",
+  "EID": "126772",
+  "ElectionName": "08/04/2026 Primary Election",
+  "Date": "8/4/2026 12:00:00 AM"
+ },
+ {
+  "State": "MI",
+  "StateId": "290",
+  "County": "Ottawa",
+  "CountyId": "1251",
+  "EID": "126063",
+  "ElectionName": "05/05/2026 Special Election",
+  "Date": "5/5/2026 12:00:00 AM"
+ },
+ {
+  "State": "MI",
+  "StateId": "290",
+  "County": "Ottawa",
+  "CountyId": "1251",
+  "EID": "124187",
+  "ElectionName": "11/04/2025 City General & Special Election",
+  "Date": "11/4/2025 12:00:00 AM"
+ }
 ]

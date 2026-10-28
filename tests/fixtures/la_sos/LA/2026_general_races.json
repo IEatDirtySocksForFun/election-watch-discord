@@ -1,151 +1,151 @@
 {
-  "Races": {
-    "WriteTime": "2026-10-27T05:00:29.223",
-    "Race": [
-      {
-        "ID": "67997",
-        "SpecificTitle": "U. S. Senator",
-        "GeneralTitle": "U.S. Senator",
-        "OfficeLevel": "140",
-        "IsPresidentialNominee": "0",
-        "IsMultiParish": "1",
-        "NumberToBeElected": "1",
-        "SummaryText": null,
-        "FullText": null,
-        "IsClosedParty": "0",
-        "CanHaveRunoff": "0",
-        "Choice": [
-          {
-            "Color": "0x8970cb",
-            "ID": "124654",
-            "Desc": "\"Jamie\" Davis (DEM)"
-          },
-          {
-            "Color": "0xb6dc6b",
-            "ID": "124655",
-            "Desc": "Julia Letlow (REP)"
-          }
-        ]
-      },
-      {
-        "ID": "70195",
-        "SpecificTitle": "U. S. Representative -- 1st Congressional District",
-        "GeneralTitle": "U.S. Representative",
-        "OfficeLevel": "145",
-        "IsPresidentialNominee": "0",
-        "IsMultiParish": "1",
-        "NumberToBeElected": "1",
-        "SummaryText": null,
-        "FullText": null,
-        "IsClosedParty": "0",
-        "CanHaveRunoff": "1",
-        "Choice": [
-          {
-            "Color": "0x8970cb",
-            "ID": "124838",
-            "Desc": "Randall Arrington (REP)"
-          },
-          {
-            "Color": "0xb6dc6b",
-            "ID": "128364",
-            "Desc": "E. \"Liddy\" Glass (NOPTY)"
-          },
-          {
-            "Color": "0xffec6c",
-            "ID": "124814",
-            "Desc": "Lauren Jewett (DEM)"
-          },
-          {
-            "Color": "0xff836b",
-            "ID": "128488",
-            "Desc": "Steve Scalise (REP)"
-          }
-        ]
-      },
-      {
-        "ID": "67989",
-        "SpecificTitle": "PSC -- District 1",
-        "GeneralTitle": "Public Service Commission Member",
-        "OfficeLevel": "160",
-        "IsPresidentialNominee": "0",
-        "IsMultiParish": "1",
-        "NumberToBeElected": "1",
-        "SummaryText": null,
-        "FullText": null,
-        "IsClosedParty": "0",
-        "CanHaveRunoff": "0",
-        "Choice": [
-          {
-            "Color": "0x8970cb",
-            "ID": "124653",
-            "Desc": "Stephanie Hilferty (REP)"
-          },
-          {
-            "Color": "0xb6dc6b",
-            "ID": "124524",
-            "Desc": "Christopher \"Chris\" Justin (NOPTY)"
-          },
-          {
-            "Color": "0xffec6c",
-            "ID": "124641",
-            "Desc": "Connie Norris (DEM)"
-          }
-        ]
-      },
-      {
-        "ID": "70161",
-        "SpecificTitle": "State Representative --  92nd Representative District",
-        "GeneralTitle": "State Representative",
-        "OfficeLevel": "205",
-        "IsPresidentialNominee": "0",
-        "IsMultiParish": "1",
-        "NumberToBeElected": "1",
-        "SummaryText": null,
-        "FullText": null,
-        "IsClosedParty": "0",
-        "CanHaveRunoff": "1",
-        "Choice": [
-          {
-            "Color": "0x8970cb",
-            "ID": "126304",
-            "Desc": "Gregory Carroll (DEM)"
-          },
-          {
-            "Color": "0xb6dc6b",
-            "ID": "125766",
-            "Desc": "Alex Perdomo (REP)"
-          },
-          {
-            "Color": "0xffec6c",
-            "ID": "128702",
-            "Desc": "Michael \"Mike\" Sigur (REP)"
-          }
-        ]
-      },
-      {
-        "ID": "13833",
-        "SpecificTitle": "CA No.  1 (ACT No. 39, 2026-RS - SB 180) -- Allows a one-time transfer of a property tax exemption for surviving spouse of a disabled veteran",
-        "GeneralTitle": "Constitutional Amendment",
-        "OfficeLevel": "998",
-        "IsPresidentialNominee": "0",
-        "IsMultiParish": "1",
-        "NumberToBeElected": "1",
-        "SummaryText": "Amendment No. 1",
-        "FullText": "Do you support an amendment to allow the surviving spouse of a deceased veteran with a service-connected disability, who receives the additional property tax exemption, to make a one-time transfer of the additional property tax exemption to a subsequent qualifying property? (Effective January 1, 2027) (Amends Article VII, Section 21(K)(1))",
-        "IsClosedParty": "0",
-        "Choice": [
-          {
-            "Color": "0x8970cb",
-            "ID": "3",
-            "Desc": "YES"
-          },
-          {
-            "Color": "0xb6dc6b",
-            "ID": "4",
-            "Desc": "NO"
-          }
-        ]
-      }
+ "Races": {
+  "WriteTime": "2026-10-27T05:00:29.223",
+  "Race": [
+   {
+    "ID": "67997",
+    "SpecificTitle": "U. S. Senator",
+    "GeneralTitle": "U.S. Senator",
+    "OfficeLevel": "140",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "0",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "124654",
+      "Desc": "\"Jamie\" Davis (DEM)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "124655",
+      "Desc": "Julia Letlow (REP)"
+     }
     ]
-  }
+   },
+   {
+    "ID": "70195",
+    "SpecificTitle": "U. S. Representative -- 1st Congressional District",
+    "GeneralTitle": "U.S. Representative",
+    "OfficeLevel": "145",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "124838",
+      "Desc": "Randall Arrington (REP)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "128364",
+      "Desc": "E. \"Liddy\" Glass (NOPTY)"
+     },
+     {
+      "Color": "0xffec6c",
+      "ID": "124814",
+      "Desc": "Lauren Jewett (DEM)"
+     },
+     {
+      "Color": "0xff836b",
+      "ID": "128488",
+      "Desc": "Steve Scalise (REP)"
+     }
+    ]
+   },
+   {
+    "ID": "67989",
+    "SpecificTitle": "PSC -- District 1",
+    "GeneralTitle": "Public Service Commission Member",
+    "OfficeLevel": "160",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "0",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "124653",
+      "Desc": "Stephanie Hilferty (REP)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "124524",
+      "Desc": "Christopher \"Chris\" Justin (NOPTY)"
+     },
+     {
+      "Color": "0xffec6c",
+      "ID": "124641",
+      "Desc": "Connie Norris (DEM)"
+     }
+    ]
+   },
+   {
+    "ID": "70161",
+    "SpecificTitle": "State Representative --  92nd Representative District",
+    "GeneralTitle": "State Representative",
+    "OfficeLevel": "205",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": null,
+    "FullText": null,
+    "IsClosedParty": "0",
+    "CanHaveRunoff": "1",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "126304",
+      "Desc": "Gregory Carroll (DEM)"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "125766",
+      "Desc": "Alex Perdomo (REP)"
+     },
+     {
+      "Color": "0xffec6c",
+      "ID": "128702",
+      "Desc": "Michael \"Mike\" Sigur (REP)"
+     }
+    ]
+   },
+   {
+    "ID": "13833",
+    "SpecificTitle": "CA No.  1 (ACT No. 39, 2026-RS - SB 180) -- Allows a one-time transfer of a property tax exemption for surviving spouse of a disabled veteran",
+    "GeneralTitle": "Constitutional Amendment",
+    "OfficeLevel": "998",
+    "IsPresidentialNominee": "0",
+    "IsMultiParish": "1",
+    "NumberToBeElected": "1",
+    "SummaryText": "Amendment No. 1",
+    "FullText": "Do you support an amendment to allow the surviving spouse of a deceased veteran with a service-connected disability, who receives the additional property tax exemption, to make a one-time transfer of the additional property tax exemption to a subsequent qualifying property? (Effective January 1, 2027) (Amends Article VII, Section 21(K)(1))",
+    "IsClosedParty": "0",
+    "Choice": [
+     {
+      "Color": "0x8970cb",
+      "ID": "3",
+      "Desc": "YES"
+     },
+     {
+      "Color": "0xb6dc6b",
+      "ID": "4",
+      "Desc": "NO"
+     }
+    ]
+   }
+  ]
+ }
 }

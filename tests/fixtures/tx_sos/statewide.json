@@ -1,242 +1,242 @@
 {
-  "OffType": "STATEWIDE OFFICES",
-  "OffTypeID": 1002,
-  "Races": [
+ "OffType": "STATEWIDE OFFICES",
+ "OffTypeID": 1002,
+ "Races": [
+  {
+   "id": 7956,
+   "N": "RAILROAD COMMISSIONER ",
+   "Candidates": [
     {
-      "id": 7956,
-      "N": "RAILROAD COMMISSIONER ",
-      "Candidates": [
-        {
-          "ID": 1146,
-          "N": "CHRISTI CRADDICK (I)",
-          "P": "REP",
-          "V": 6100218,
-          "PE": 55.63,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 4959158
-        },
-        {
-          "ID": 338568,
-          "N": "KATHERINE CULBERT",
-          "P": "DEM",
-          "V": 4275904,
-          "PE": 39.0,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3476136
-        },
-        {
-          "ID": 339545,
-          "N": "HAWK DUNLAP",
-          "P": "LIB",
-          "V": 285544,
-          "PE": 2.6,
-          "C": "#e0b30e",
-          "O": 3,
-          "EV": 199736
-        },
-        {
-          "ID": 339991,
-          "N": "EDDIE ESPINOZA",
-          "P": "GRE",
-          "V": 301793,
-          "PE": 2.75,
-          "C": "#e0b30e",
-          "O": 4,
-          "EV": 199759
-        },
-        {
-          "ID": 340781,
-          "N": "RICHARD MCKIBBIN",
-          "P": "W",
-          "V": 1656,
-          "PE": 0.02,
-          "C": "#e0b30e",
-          "O": 5,
-          "EV": 1193
-        }
-      ],
-      "T": 10965115,
-      "RTEV": 8835982
+     "ID": 1146,
+     "N": "CHRISTI CRADDICK (I)",
+     "P": "REP",
+     "V": 6100218,
+     "PE": 55.63,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 4959158
     },
     {
-      "id": 1015,
-      "N": "JUSTICE, SUPREME COURT, PLACE 2",
-      "Candidates": [
-        {
-          "ID": 336611,
-          "N": "JIMMY BLACKLOCK (I)",
-          "P": "REP",
-          "V": 6372584,
-          "PE": 58.23,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 5148564
-        },
-        {
-          "ID": 1670,
-          "N": "DASEAN JONES",
-          "P": "DEM",
-          "V": 4571171,
-          "PE": 41.77,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3672145
-        }
-      ],
-      "T": 10943755,
-      "RTEV": 8820709
+     "ID": 338568,
+     "N": "KATHERINE CULBERT",
+     "P": "DEM",
+     "V": 4275904,
+     "PE": 39.0,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3476136
     },
     {
-      "id": 1017,
-      "N": "JUSTICE, SUPREME COURT, PLACE 4",
-      "Candidates": [
-        {
-          "ID": 1152,
-          "N": "JOHN DEVINE (I)",
-          "P": "REP",
-          "V": 6256496,
-          "PE": 57.33,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 5055449
-        },
-        {
-          "ID": 338573,
-          "N": "CHRISTINE VINH WEEMS",
-          "P": "DEM",
-          "V": 4656560,
-          "PE": 42.67,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3743889
-        }
-      ],
-      "T": 10913056,
-      "RTEV": 8799338
+     "ID": 339545,
+     "N": "HAWK DUNLAP",
+     "P": "LIB",
+     "V": 285544,
+     "PE": 2.6,
+     "C": "#e0b30e",
+     "O": 3,
+     "EV": 199736
     },
     {
-      "id": 1018,
-      "N": "JUSTICE, SUPREME COURT, PLACE 6",
-      "Candidates": [
-        {
-          "ID": 5152,
-          "N": "JANE BLAND (I)",
-          "P": "REP",
-          "V": 6145167,
-          "PE": 56.24,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 4992932
-        },
-        {
-          "ID": 1613,
-          "N": "BONNIE LEE GOLDSTEIN",
-          "P": "DEM",
-          "V": 4425189,
-          "PE": 40.5,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3577275
-        },
-        {
-          "ID": 339644,
-          "N": "J. DAVID ROBERSON",
-          "P": "LIB",
-          "V": 355485,
-          "PE": 3.25,
-          "C": "#e0b30e",
-          "O": 3,
-          "EV": 238658
-        }
-      ],
-      "T": 10925841,
-      "RTEV": 8808865
+     "ID": 339991,
+     "N": "EDDIE ESPINOZA",
+     "P": "GRE",
+     "V": 301793,
+     "PE": 2.75,
+     "C": "#e0b30e",
+     "O": 4,
+     "EV": 199759
     },
     {
-      "id": 1021,
-      "N": "PRESIDING JUDGE, COURT OF CRIMINAL APPEALS",
-      "Candidates": [
-        {
-          "ID": 1390,
-          "N": "DAVID J. SCHENCK",
-          "P": "REP",
-          "V": 6330389,
-          "PE": 58.13,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 5119484
-        },
-        {
-          "ID": 339115,
-          "N": "HOLLY TAYLOR",
-          "P": "DEM",
-          "V": 4558856,
-          "PE": 41.87,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3663906
-        }
-      ],
-      "T": 10889245,
-      "RTEV": 8783390
-    },
-    {
-      "id": 1028,
-      "N": "JUDGE, COURT OF CRIMINAL APPEALS, PLACE 7",
-      "Candidates": [
-        {
-          "ID": 339171,
-          "N": "NANCY MULDER",
-          "P": "DEM",
-          "V": 4526924,
-          "PE": 41.65,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3648241
-        },
-        {
-          "ID": 6889,
-          "N": "GINA PARKER",
-          "P": "REP",
-          "V": 6340949,
-          "PE": 58.35,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 5118638
-        }
-      ],
-      "T": 10867873,
-      "RTEV": 8766879
-    },
-    {
-      "id": 1025,
-      "N": "JUDGE, COURT OF CRIMINAL APPEALS, PLACE 8",
-      "Candidates": [
-        {
-          "ID": 1935,
-          "N": "CHIKA ANYIAM",
-          "P": "DEM",
-          "V": 4461229,
-          "PE": 41.13,
-          "C": "#007BBD",
-          "O": 2,
-          "EV": 3599304
-        },
-        {
-          "ID": 339841,
-          "N": "LEE FINLEY",
-          "P": "REP",
-          "V": 6385238,
-          "PE": 58.87,
-          "C": "#E30202",
-          "O": 1,
-          "EV": 5151880
-        }
-      ],
-      "T": 10846467,
-      "RTEV": 8751184
+     "ID": 340781,
+     "N": "RICHARD MCKIBBIN",
+     "P": "W",
+     "V": 1656,
+     "PE": 0.02,
+     "C": "#e0b30e",
+     "O": 5,
+     "EV": 1193
     }
-  ]
+   ],
+   "T": 10965115,
+   "RTEV": 8835982
+  },
+  {
+   "id": 1015,
+   "N": "JUSTICE, SUPREME COURT, PLACE 2",
+   "Candidates": [
+    {
+     "ID": 336611,
+     "N": "JIMMY BLACKLOCK (I)",
+     "P": "REP",
+     "V": 6372584,
+     "PE": 58.23,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 5148564
+    },
+    {
+     "ID": 1670,
+     "N": "DASEAN JONES",
+     "P": "DEM",
+     "V": 4571171,
+     "PE": 41.77,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3672145
+    }
+   ],
+   "T": 10943755,
+   "RTEV": 8820709
+  },
+  {
+   "id": 1017,
+   "N": "JUSTICE, SUPREME COURT, PLACE 4",
+   "Candidates": [
+    {
+     "ID": 1152,
+     "N": "JOHN DEVINE (I)",
+     "P": "REP",
+     "V": 6256496,
+     "PE": 57.33,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 5055449
+    },
+    {
+     "ID": 338573,
+     "N": "CHRISTINE VINH WEEMS",
+     "P": "DEM",
+     "V": 4656560,
+     "PE": 42.67,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3743889
+    }
+   ],
+   "T": 10913056,
+   "RTEV": 8799338
+  },
+  {
+   "id": 1018,
+   "N": "JUSTICE, SUPREME COURT, PLACE 6",
+   "Candidates": [
+    {
+     "ID": 5152,
+     "N": "JANE BLAND (I)",
+     "P": "REP",
+     "V": 6145167,
+     "PE": 56.24,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 4992932
+    },
+    {
+     "ID": 1613,
+     "N": "BONNIE LEE GOLDSTEIN",
+     "P": "DEM",
+     "V": 4425189,
+     "PE": 40.5,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3577275
+    },
+    {
+     "ID": 339644,
+     "N": "J. DAVID ROBERSON",
+     "P": "LIB",
+     "V": 355485,
+     "PE": 3.25,
+     "C": "#e0b30e",
+     "O": 3,
+     "EV": 238658
+    }
+   ],
+   "T": 10925841,
+   "RTEV": 8808865
+  },
+  {
+   "id": 1021,
+   "N": "PRESIDING JUDGE, COURT OF CRIMINAL APPEALS",
+   "Candidates": [
+    {
+     "ID": 1390,
+     "N": "DAVID J. SCHENCK",
+     "P": "REP",
+     "V": 6330389,
+     "PE": 58.13,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 5119484
+    },
+    {
+     "ID": 339115,
+     "N": "HOLLY TAYLOR",
+     "P": "DEM",
+     "V": 4558856,
+     "PE": 41.87,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3663906
+    }
+   ],
+   "T": 10889245,
+   "RTEV": 8783390
+  },
+  {
+   "id": 1028,
+   "N": "JUDGE, COURT OF CRIMINAL APPEALS, PLACE 7",
+   "Candidates": [
+    {
+     "ID": 339171,
+     "N": "NANCY MULDER",
+     "P": "DEM",
+     "V": 4526924,
+     "PE": 41.65,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3648241
+    },
+    {
+     "ID": 6889,
+     "N": "GINA PARKER",
+     "P": "REP",
+     "V": 6340949,
+     "PE": 58.35,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 5118638
+    }
+   ],
+   "T": 10867873,
+   "RTEV": 8766879
+  },
+  {
+   "id": 1025,
+   "N": "JUDGE, COURT OF CRIMINAL APPEALS, PLACE 8",
+   "Candidates": [
+    {
+     "ID": 1935,
+     "N": "CHIKA ANYIAM",
+     "P": "DEM",
+     "V": 4461229,
+     "PE": 41.13,
+     "C": "#007BBD",
+     "O": 2,
+     "EV": 3599304
+    },
+    {
+     "ID": 339841,
+     "N": "LEE FINLEY",
+     "P": "REP",
+     "V": 6385238,
+     "PE": 58.87,
+     "C": "#E30202",
+     "O": 1,
+     "EV": 5151880
+    }
+   ],
+   "T": 10846467,
+   "RTEV": 8751184
+  }
+ ]
 }

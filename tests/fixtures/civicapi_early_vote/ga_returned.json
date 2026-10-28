@@ -1,44 +1,44 @@
 {
-  "state": "GA",
-  "category": "returned",
-  "election_name": "Georgia Ballots Returned",
-  "snapshot_date": "2026-10-27",
-  "regions": {
-    "Appling": {
-      "Unspecified": {
-        "votes": 152,
-        "color": "#999999"
-      }
-    },
-    "Cobb": {
-      "Unspecified": {
-        "votes": 5175,
-        "color": "#999999"
-      }
-    },
-    "DeKalb": {
-      "Unspecified": {
-        "votes": 5009,
-        "color": "#999999"
-      }
-    },
-    "Fulton": {
-      "Unspecified": {
-        "votes": 7324,
-        "color": "#999999"
-      }
-    },
-    "Gwinnett": {
-      "Unspecified": {
-        "votes": 5215,
-        "color": "#999999"
-      }
-    }
+ "state": "GA",
+ "category": "returned",
+ "election_name": "Georgia Ballots Returned",
+ "snapshot_date": "2026-10-27",
+ "regions": {
+  "Appling": {
+   "Unspecified": {
+    "votes": 152,
+    "color": "#999999"
+   }
   },
-  "statewide_total": {
-    "Unspecified": {
-      "votes": 82620,
-      "color": "#999999"
-    }
+  "Cobb": {
+   "Unspecified": {
+    "votes": 5175,
+    "color": "#999999"
+   }
+  },
+  "DeKalb": {
+   "Unspecified": {
+    "votes": 5009,
+    "color": "#999999"
+   }
+  },
+  "Fulton": {
+   "Unspecified": {
+    "votes": 7324,
+    "color": "#999999"
+   }
+  },
+  "Gwinnett": {
+   "Unspecified": {
+    "votes": 5215,
+    "color": "#999999"
+   }
   }
+ },
+ "statewide_total": {
+  "Unspecified": {
+   "votes": 82620,
+   "color": "#999999"
+  }
+ }
 }

@@ -1,130 +1,130 @@
 {
-  "state": "US",
-  "category": "requested",
-  "election_name": "US Ballots Requested",
-  "snapshot_date": "2026-10-27",
-  "regions": {
-    "AZ": {
-      "Democratic": {
-        "votes": 1053134,
-        "color": "#4874a3"
-      },
-      "Other": {
-        "votes": 1071579,
-        "color": "#e0bb24"
-      },
-      "Republican": {
-        "votes": 1163694,
-        "color": "#c6606b"
-      }
-    },
-    "FL": {
-      "Democratic": {
-        "votes": 403076,
-        "color": "#4874a3"
-      },
-      "No Party Affiliation": {
-        "votes": 231005,
-        "color": "#63c660"
-      },
-      "Other": {
-        "votes": 27955,
-        "color": "#e0bb24"
-      },
-      "Republican": {
-        "votes": 324499,
-        "color": "#c6606b"
-      }
-    },
-    "GA": {
-      "Unspecified": {
-        "votes": 157598,
-        "color": "#999999"
-      }
-    },
-    "MI": {
-      "Unspecified": {
-        "votes": 2163582,
-        "color": "#999999"
-      }
-    },
-    "NC": {
-      "Democratic": {
-        "votes": 65728,
-        "color": "#4874a3"
-      },
-      "No Party Affiliation": {
-        "votes": 67416,
-        "color": "#63c660"
-      },
-      "Other": {
-        "votes": 704,
-        "color": "#e0bb24"
-      },
-      "Republican": {
-        "votes": 30749,
-        "color": "#c6606b"
-      }
-    },
-    "NV": {
-      "Democratic": {
-        "votes": 583721,
-        "color": "#4874a3"
-      },
-      "Other": {
-        "votes": 940874,
-        "color": "#e0bb24"
-      },
-      "Republican": {
-        "votes": 563682,
-        "color": "#c6606b"
-      }
-    },
-    "PA": {
-      "Democratic": {
-        "votes": 841079,
-        "color": "#4874a3"
-      },
-      "No Party Affiliation": {
-        "votes": 141281,
-        "color": "#63c660"
-      },
-      "Other": {
-        "votes": 4630,
-        "color": "#e0bb24"
-      },
-      "Republican": {
-        "votes": 321370,
-        "color": "#c6606b"
-      }
-    },
-    "WI": {
-      "Unspecified": {
-        "votes": 641771,
-        "color": "#999999"
-      }
-    }
+ "state": "US",
+ "category": "requested",
+ "election_name": "US Ballots Requested",
+ "snapshot_date": "2026-10-27",
+ "regions": {
+  "AZ": {
+   "Democratic": {
+    "votes": 1053134,
+    "color": "#4874a3"
+   },
+   "Other": {
+    "votes": 1071579,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 1163694,
+    "color": "#c6606b"
+   }
   },
-  "statewide_total": {
-    "Unspecified": {
-      "votes": 32632550,
-      "color": "#999999"
-    },
-    "Democratic": {
-      "votes": 5322334,
-      "color": "#4874a3"
-    },
-    "Other": {
-      "votes": 5226259,
-      "color": "#e0bb24"
-    },
-    "Republican": {
-      "votes": 4826444,
-      "color": "#c6606b"
-    },
-    "No Party Affiliation": {
-      "votes": 527380,
-      "color": "#63c660"
-    }
+  "FL": {
+   "Democratic": {
+    "votes": 403076,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 231005,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 27955,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 324499,
+    "color": "#c6606b"
+   }
+  },
+  "GA": {
+   "Unspecified": {
+    "votes": 157598,
+    "color": "#999999"
+   }
+  },
+  "MI": {
+   "Unspecified": {
+    "votes": 2163582,
+    "color": "#999999"
+   }
+  },
+  "NC": {
+   "Democratic": {
+    "votes": 65728,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 67416,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 704,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 30749,
+    "color": "#c6606b"
+   }
+  },
+  "NV": {
+   "Democratic": {
+    "votes": 583721,
+    "color": "#4874a3"
+   },
+   "Other": {
+    "votes": 940874,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 563682,
+    "color": "#c6606b"
+   }
+  },
+  "PA": {
+   "Democratic": {
+    "votes": 841079,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 141281,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 4630,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 321370,
+    "color": "#c6606b"
+   }
+  },
+  "WI": {
+   "Unspecified": {
+    "votes": 641771,
+    "color": "#999999"
+   }
   }
+ },
+ "statewide_total": {
+  "Unspecified": {
+   "votes": 32632550,
+   "color": "#999999"
+  },
+  "Democratic": {
+   "votes": 5322334,
+   "color": "#4874a3"
+  },
+  "Other": {
+   "votes": 5226259,
+   "color": "#e0bb24"
+  },
+  "Republican": {
+   "votes": 4826444,
+   "color": "#c6606b"
+  },
+  "No Party Affiliation": {
+   "votes": 527380,
+   "color": "#63c660"
+  }
+ }
 }

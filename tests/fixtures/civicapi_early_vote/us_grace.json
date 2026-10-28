@@ -1,20 +1,20 @@
 {
-  "state": "US",
-  "category": "grace",
-  "election_name": "US Grace Period Voting",
-  "snapshot_date": "2026-10-27",
-  "regions": {
-    "IL": {
-      "Unspecified": {
-        "votes": 2513,
-        "color": "#999999"
-      }
-    }
-  },
-  "statewide_total": {
-    "Unspecified": {
-      "votes": 2513,
-      "color": "#999999"
-    }
+ "state": "US",
+ "category": "grace",
+ "election_name": "US Grace Period Voting",
+ "snapshot_date": "2026-10-27",
+ "regions": {
+  "IL": {
+   "Unspecified": {
+    "votes": 2513,
+    "color": "#999999"
+   }
   }
+ },
+ "statewide_total": {
+  "Unspecified": {
+   "votes": 2513,
+   "color": "#999999"
+  }
+ }
 }

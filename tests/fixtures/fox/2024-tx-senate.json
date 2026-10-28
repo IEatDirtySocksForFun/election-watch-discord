@@ -1,40 +1,40 @@
 {
-  "results": [
-    {
-      "candidate": {
-        "firstName": "Ted",
-        "middleInitial": "",
-        "lastName": "Cruz",
-        "partyCode": "R",
-        "partyName": "Republican",
-        "isIncumbent": true,
-        "isWinner": true,
-        "npid": 61815
-      }
-    },
-    {
-      "candidate": {
-        "firstName": "Colin",
-        "middleInitial": "",
-        "lastName": "Allred",
-        "partyCode": "D",
-        "partyName": "Democrat",
-        "isIncumbent": false,
-        "isWinner": false,
-        "npid": 65997
-      }
-    },
-    {
-      "candidate": {
-        "firstName": "Ted",
-        "middleInitial": "",
-        "lastName": "Brown",
-        "partyCode": "LB",
-        "partyName": "Libertarian",
-        "isIncumbent": false,
-        "isWinner": false,
-        "npid": 69634
-      }
-    }
-  ]
+ "results": [
+  {
+   "candidate": {
+    "firstName": "Ted",
+    "middleInitial": "",
+    "lastName": "Cruz",
+    "partyCode": "R",
+    "partyName": "Republican",
+    "isIncumbent": true,
+    "isWinner": true,
+    "npid": 61815
+   }
+  },
+  {
+   "candidate": {
+    "firstName": "Colin",
+    "middleInitial": "",
+    "lastName": "Allred",
+    "partyCode": "D",
+    "partyName": "Democrat",
+    "isIncumbent": false,
+    "isWinner": false,
+    "npid": 65997
+   }
+  },
+  {
+   "candidate": {
+    "firstName": "Ted",
+    "middleInitial": "",
+    "lastName": "Brown",
+    "partyCode": "LB",
+    "partyName": "Libertarian",
+    "isIncumbent": false,
+    "isWinner": false,
+    "npid": 69634
+   }
+  }
+ ]
 }

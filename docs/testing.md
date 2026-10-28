@@ -37,7 +37,7 @@ On Windows without make, tests/README.md lists the equivalent commands.
 `make test` never needs MongoDB. To include the real-server cases:
 
 ```sh
-docker run -d -p 27017:27017 mongo:7      # one throwaway server
+docker run -d -p 27017:27017 mongo:8.0    # one throwaway server
 make test-mongo
 ```
 

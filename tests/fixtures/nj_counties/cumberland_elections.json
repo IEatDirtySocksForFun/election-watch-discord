@@ -1,47 +1,47 @@
 [
-  {
-    "State": "NJ",
-    "StateId": "635",
-    "County": "Cumberland",
-    "CountyId": "993",
-    "EID": "127562",
-    "ElectionName": "2026 GENERAL ELECTION",
-    "Date": "11/3/2026 12:00:00 AM"
-  },
-  {
-    "State": "NJ",
-    "StateId": "635",
-    "County": "Cumberland",
-    "CountyId": "993",
-    "EID": "126483",
-    "ElectionName": "2026 PRIMARY ELECTION",
-    "Date": "6/2/2026 12:00:00 AM"
-  },
-  {
-    "State": "NJ",
-    "StateId": "635",
-    "County": "Cumberland",
-    "CountyId": "993",
-    "EID": "125661",
-    "ElectionName": "2025 CRHS SPECIAL SCHOOL ELECTION",
-    "Date": "12/9/2025 12:00:00 AM"
-  },
-  {
-    "State": "NJ",
-    "StateId": "635",
-    "County": "Cumberland",
-    "CountyId": "993",
-    "EID": "125167",
-    "ElectionName": "2025 GENERAL ELECTION",
-    "Date": "11/4/2025 12:00:00 AM"
-  },
-  {
-    "State": "NJ",
-    "StateId": "635",
-    "County": "Cumberland",
-    "CountyId": "993",
-    "EID": "122757",
-    "ElectionName": "2024 GENERAL ELECTION",
-    "Date": "11/5/2024 12:00:00 AM"
-  }
+ {
+  "State": "NJ",
+  "StateId": "635",
+  "County": "Cumberland",
+  "CountyId": "993",
+  "EID": "127562",
+  "ElectionName": "2026 GENERAL ELECTION",
+  "Date": "11/3/2026 12:00:00 AM"
+ },
+ {
+  "State": "NJ",
+  "StateId": "635",
+  "County": "Cumberland",
+  "CountyId": "993",
+  "EID": "126483",
+  "ElectionName": "2026 PRIMARY ELECTION",
+  "Date": "6/2/2026 12:00:00 AM"
+ },
+ {
+  "State": "NJ",
+  "StateId": "635",
+  "County": "Cumberland",
+  "CountyId": "993",
+  "EID": "125661",
+  "ElectionName": "2025 CRHS SPECIAL SCHOOL ELECTION",
+  "Date": "12/9/2025 12:00:00 AM"
+ },
+ {
+  "State": "NJ",
+  "StateId": "635",
+  "County": "Cumberland",
+  "CountyId": "993",
+  "EID": "125167",
+  "ElectionName": "2025 GENERAL ELECTION",
+  "Date": "11/4/2025 12:00:00 AM"
+ },
+ {
+  "State": "NJ",
+  "StateId": "635",
+  "County": "Cumberland",
+  "CountyId": "993",
+  "EID": "122757",
+  "ElectionName": "2024 GENERAL ELECTION",
+  "Date": "11/5/2024 12:00:00 AM"
+ }
 ]

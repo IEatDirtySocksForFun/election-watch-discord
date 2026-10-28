@@ -16,7 +16,7 @@ party_emoji("Nobody We Know")  # '⚪'
 Matching is case- and punctuation-insensitive, and never touches the network. Unknown
 parties pass through uppercased with the ⚪ marker.
 
-This page is generated — edit the YAML, then run `python tools/parties_table.py`.
+The YAML is the source of truth; when you add a party there, add its row here too (a test checks that every party is listed).
 
 97 parties, 510 aliases.
 

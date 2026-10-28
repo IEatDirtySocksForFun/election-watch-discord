@@ -1,44 +1,44 @@
 {
-  "state": "GA",
-  "category": "inperson",
-  "election_name": "Georgia In-Person Early Voting",
-  "snapshot_date": "2026-10-27",
-  "regions": {
-    "Appling": {
-      "Unspecified": {
-        "votes": 2318,
-        "color": "#999999"
-      }
-    },
-    "Cobb": {
-      "Unspecified": {
-        "votes": 144902,
-        "color": "#999999"
-      }
-    },
-    "DeKalb": {
-      "Unspecified": {
-        "votes": 147051,
-        "color": "#999999"
-      }
-    },
-    "Fulton": {
-      "Unspecified": {
-        "votes": 210106,
-        "color": "#999999"
-      }
-    },
-    "Gwinnett": {
-      "Unspecified": {
-        "votes": 142597,
-        "color": "#999999"
-      }
-    }
+ "state": "GA",
+ "category": "inperson",
+ "election_name": "Georgia In-Person Early Voting",
+ "snapshot_date": "2026-10-27",
+ "regions": {
+  "Appling": {
+   "Unspecified": {
+    "votes": 2318,
+    "color": "#999999"
+   }
   },
-  "statewide_total": {
-    "Unspecified": {
-      "votes": 1697619,
-      "color": "#999999"
-    }
+  "Cobb": {
+   "Unspecified": {
+    "votes": 144902,
+    "color": "#999999"
+   }
+  },
+  "DeKalb": {
+   "Unspecified": {
+    "votes": 147051,
+    "color": "#999999"
+   }
+  },
+  "Fulton": {
+   "Unspecified": {
+    "votes": 210106,
+    "color": "#999999"
+   }
+  },
+  "Gwinnett": {
+   "Unspecified": {
+    "votes": 142597,
+    "color": "#999999"
+   }
   }
+ },
+ "statewide_total": {
+  "Unspecified": {
+   "votes": 1697619,
+   "color": "#999999"
+  }
+ }
 }

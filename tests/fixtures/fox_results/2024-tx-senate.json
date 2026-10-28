@@ -1,72 +1,72 @@
 [
-  {
-    "raceName": "General",
-    "classNumber": 1,
-    "stateCode": "TX",
-    "last_updated": "2024-11-27T21:30:35.218000Z",
-    "isFlipped": false,
-    "stateTotals": {
-      "votes": 11289029,
-      "precinctsReporting": 100,
-      "expected": 11289029,
-      "expectedPercentage": 100,
-      "isFlipped": false
+ {
+  "raceName": "General",
+  "classNumber": 1,
+  "stateCode": "TX",
+  "last_updated": "2024-11-27T21:30:35.218000Z",
+  "isFlipped": false,
+  "stateTotals": {
+   "votes": 11289029,
+   "precinctsReporting": 100,
+   "expected": 11289029,
+   "expectedPercentage": 100,
+   "isFlipped": false
+  },
+  "results": [
+   {
+    "candidate": {
+     "firstName": "Ted",
+     "lastName": "Cruz",
+     "npid": 61815
     },
-    "results": [
-      {
-        "candidate": {
-          "firstName": "Ted",
-          "lastName": "Cruz",
-          "npid": 61815
-        },
-        "partyCode": "R",
-        "partyName": "Republican",
-        "isWinner": true,
-        "isIncumbent": true,
-        "margin": null,
-        "votes": {
-          "count": 5990741,
-          "percentage": 53.07
-        },
-        "vote_types": [],
-        "delegates": 0
-      },
-      {
-        "candidate": {
-          "firstName": "Colin",
-          "lastName": "Allred",
-          "npid": 65997
-        },
-        "partyCode": "D",
-        "partyName": "Democrat",
-        "isWinner": false,
-        "isIncumbent": false,
-        "margin": null,
-        "votes": {
-          "count": 5031249,
-          "percentage": 44.57
-        },
-        "vote_types": [],
-        "delegates": 0
-      },
-      {
-        "candidate": {
-          "firstName": "Ted",
-          "lastName": "Brown",
-          "npid": 69634
-        },
-        "partyCode": "LB",
-        "partyName": "Libertarian",
-        "isWinner": false,
-        "isIncumbent": false,
-        "margin": null,
-        "votes": {
-          "count": 267039,
-          "percentage": 2.37
-        },
-        "vote_types": [],
-        "delegates": 0
-      }
-    ]
-  }
+    "partyCode": "R",
+    "partyName": "Republican",
+    "isWinner": true,
+    "isIncumbent": true,
+    "margin": null,
+    "votes": {
+     "count": 5990741,
+     "percentage": 53.07
+    },
+    "vote_types": [],
+    "delegates": 0
+   },
+   {
+    "candidate": {
+     "firstName": "Colin",
+     "lastName": "Allred",
+     "npid": 65997
+    },
+    "partyCode": "D",
+    "partyName": "Democrat",
+    "isWinner": false,
+    "isIncumbent": false,
+    "margin": null,
+    "votes": {
+     "count": 5031249,
+     "percentage": 44.57
+    },
+    "vote_types": [],
+    "delegates": 0
+   },
+   {
+    "candidate": {
+     "firstName": "Ted",
+     "lastName": "Brown",
+     "npid": 69634
+    },
+    "partyCode": "LB",
+    "partyName": "Libertarian",
+    "isWinner": false,
+    "isIncumbent": false,
+    "margin": null,
+    "votes": {
+     "count": 267039,
+     "percentage": 2.37
+    },
+    "vote_types": [],
+    "delegates": 0
+   }
+  ]
+ }
 ]

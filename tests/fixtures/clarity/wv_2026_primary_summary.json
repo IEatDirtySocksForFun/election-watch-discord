@@ -1,219 +1,368 @@
 [
-  {
-    "CATKEY": "C_1",
-    "CAT": "Republican Contests",
-    "SUBCATKEY": "C_1_1",
-    "SUBCAT": "Federal",
-    "C": "U.S. SENATOR - REP",
-    "K": "100",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 55,
-    "PR": 51,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": [
-      "SHELLEY MOORE CAPITO",
-      "TOM WILLIS",
-      "BRYAN McKINNEY",
-      "DAVID PURKEY",
-      "ALEXANDER GAASERUD",
-      "JANET McNULTY"
-    ],
-    "CHAggId": null,
-    "P": ["REP", "REP", "REP", "REP", "REP", "REP"],
-    "PCT": [
-      66.4863389334194, 18.8839533133153, 4.62151855803989, 4.1690448420478,
-      3.69092819151136, 2.14821616166629
-    ],
-    "V": [80376, 22829, 5587, 5040, 4462, 2597],
-    "T": 120891,
-    "W": [0, 0, 0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_1",
-    "CAT": "Republican Contests",
-    "SUBCATKEY": "C_1_1",
-    "SUBCAT": "Federal",
-    "C": "U.S. HOUSE OF REPRESENTATIVES, 1st Congressional District - REP",
-    "K": "200",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 28,
-    "PR": 26,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["CAROL MILLER", "LARRY JACKSON"],
-    "CHAggId": null,
-    "P": ["REP", "REP"],
-    "PCT": [72.0477554578937, 27.9522445421063],
-    "V": [40493, 15710],
-    "T": 56203,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_1",
-    "CAT": "Republican Contests",
-    "SUBCATKEY": "C_1_2",
-    "SUBCAT": "State",
-    "C": "STATE SENATOR, 1st Senatorial District - REP",
-    "K": "400",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 4,
-    "PR": 4,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["LAURA WAKIM CHAPMAN", "JOE EDDY"],
-    "CHAggId": null,
-    "P": ["REP", "REP"],
-    "PCT": [59.2430220663452, 40.7569779336548],
-    "V": [4054, 2789],
-    "T": 6843,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_3",
-    "CAT": "Non-Partisan Contests",
-    "C": "NON- PARTISAN ELECTION OF JUSTICE OF THE SUPREME COURT OF APPEALS - DIVISION 1 - UNEXPIRED 6 YEAR TERM",
-    "K": "12300",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 55,
-    "PR": 51,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": [
-      "H.L. 'KIRK' KIRKPATRICK",
-      "GERALD TITUS",
-      "LAURA V. FAIRCLOTH",
-      "TODD A. KIRBY",
-      "MARTIN P. 'RED HAT' SHEEHAN"
-    ],
-    "CHAggId": null,
-    "P": ["", "", "", "", ""],
-    "PCT": [
-      31.0405049185547, 26.3476278098502, 20.9168504394159, 12.6604207342482,
-      9.03459609793098
-    ],
-    "V": [66296, 56273, 44674, 27040, 19296],
-    "T": 213579,
-    "W": [0, 0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_3",
-    "CAT": "Non-Partisan Contests",
-    "C": "NON-PARTISAN ELECTION OF JUDGE OF THE INTERMEDIATE COURT OF APPEALS",
-    "K": "12400",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 55,
-    "PR": 51,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["JIM DOUGLAS", "DAN GREEAR"],
-    "CHAggId": null,
-    "P": ["", ""],
-    "PCT": [58.8825760540087, 41.1174239459913],
-    "V": [112862, 78811],
-    "T": 191673,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_3",
-    "CAT": "Non-Partisan Contests",
-    "C": "GREATER HUNTINGTON PARK AND RECREATION DISTRICT SUPERVISORS - DISTRICT 1",
-    "K": "15900",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 2,
-    "PR": 2,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["GORDON D. JONES"],
-    "CHAggId": null,
-    "P": [""],
-    "PCT": [100],
-    "V": [8816],
-    "T": 8816,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  }
+ {
+  "CATKEY": "C_1",
+  "CAT": "Republican Contests",
+  "SUBCATKEY": "C_1_1",
+  "SUBCAT": "Federal",
+  "C": "U.S. SENATOR - REP",
+  "K": "100",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 55,
+  "PR": 51,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "SHELLEY MOORE CAPITO",
+   "TOM WILLIS",
+   "BRYAN McKINNEY",
+   "DAVID PURKEY",
+   "ALEXANDER GAASERUD",
+   "JANET McNULTY"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "REP",
+   "REP",
+   "REP",
+   "REP",
+   "REP"
+  ],
+  "PCT": [
+   66.4863389334194,
+   18.8839533133153,
+   4.62151855803989,
+   4.1690448420478,
+   3.69092819151136,
+   2.14821616166629
+  ],
+  "V": [
+   80376,
+   22829,
+   5587,
+   5040,
+   4462,
+   2597
+  ],
+  "T": 120891,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Republican Contests",
+  "SUBCATKEY": "C_1_1",
+  "SUBCAT": "Federal",
+  "C": "U.S. HOUSE OF REPRESENTATIVES, 1st Congressional District - REP",
+  "K": "200",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 28,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "CAROL MILLER",
+   "LARRY JACKSON"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "REP"
+  ],
+  "PCT": [
+   72.0477554578937,
+   27.9522445421063
+  ],
+  "V": [
+   40493,
+   15710
+  ],
+  "T": 56203,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Republican Contests",
+  "SUBCATKEY": "C_1_2",
+  "SUBCAT": "State",
+  "C": "STATE SENATOR, 1st Senatorial District - REP",
+  "K": "400",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 4,
+  "PR": 4,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "LAURA WAKIM CHAPMAN",
+   "JOE EDDY"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "REP"
+  ],
+  "PCT": [
+   59.2430220663452,
+   40.7569779336548
+  ],
+  "V": [
+   4054,
+   2789
+  ],
+  "T": 6843,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "Non-Partisan Contests",
+  "C": "NON- PARTISAN ELECTION OF JUSTICE OF THE SUPREME COURT OF APPEALS - DIVISION 1 - UNEXPIRED 6 YEAR TERM",
+  "K": "12300",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 55,
+  "PR": 51,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "H.L. 'KIRK' KIRKPATRICK",
+   "GERALD TITUS",
+   "LAURA V. FAIRCLOTH",
+   "TODD A. KIRBY",
+   "MARTIN P. 'RED HAT' SHEEHAN"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   31.0405049185547,
+   26.3476278098502,
+   20.9168504394159,
+   12.6604207342482,
+   9.03459609793098
+  ],
+  "V": [
+   66296,
+   56273,
+   44674,
+   27040,
+   19296
+  ],
+  "T": 213579,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "Non-Partisan Contests",
+  "C": "NON-PARTISAN ELECTION OF JUDGE OF THE INTERMEDIATE COURT OF APPEALS",
+  "K": "12400",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 55,
+  "PR": 51,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "JIM DOUGLAS",
+   "DAN GREEAR"
+  ],
+  "CHAggId": null,
+  "P": [
+   "",
+   ""
+  ],
+  "PCT": [
+   58.8825760540087,
+   41.1174239459913
+  ],
+  "V": [
+   112862,
+   78811
+  ],
+  "T": 191673,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "Non-Partisan Contests",
+  "C": "GREATER HUNTINGTON PARK AND RECREATION DISTRICT SUPERVISORS - DISTRICT 1",
+  "K": "15900",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 2,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "GORDON D. JONES"
+  ],
+  "CHAggId": null,
+  "P": [
+   ""
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   8816
+  ],
+  "T": 8816,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
 ]

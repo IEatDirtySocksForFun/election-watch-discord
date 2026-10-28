@@ -1,71 +1,71 @@
 {
-  "ElectionData": {
-    "ElectionID": "7f77a178-af02-40ec-92db-c5cc50882c68",
-    "IsOfficial": true
-  },
-  "TurnoutData": {
-    "RegisteredVoters": 1802792,
-    "VotePercent": 24.25,
-    "TotalBallotsCast": 437247
-  },
-  "ContestData": [
+ "ElectionData": {
+  "ElectionID": "7f77a178-af02-40ec-92db-c5cc50882c68",
+  "IsOfficial": true
+ },
+ "TurnoutData": {
+  "RegisteredVoters": 1802792,
+  "VotePercent": 24.25,
+  "TotalBallotsCast": 437247
+ },
+ "ContestData": [
+  {
+   "ContestID": "00729c23-5fee-44dd-a935-77f7f7646380",
+   "DistrictID": null,
+   "PrecinctsReporting": 28,
+   "PrecinctsPartiallyReporting": 0,
+   "TotalPrecincts": 28,
+   "TotalVotes": 2770,
+   "RecountType": 0,
+   "HasRecount": false,
+   "HasLocationResults": true,
+   "Choices": [
     {
-      "ContestID": "00729c23-5fee-44dd-a935-77f7f7646380",
-      "DistrictID": null,
-      "PrecinctsReporting": 28,
-      "PrecinctsPartiallyReporting": 0,
-      "TotalPrecincts": 28,
-      "TotalVotes": 2770,
-      "RecountType": 0,
-      "HasRecount": false,
-      "HasLocationResults": true,
-      "Choices": [
-        {
-          "ChoiceID": "7df617b9-c38f-4db3-883d-107aaea22ecb",
-          "TotalVotes": 805,
-          "IsWinner": false,
-          "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
-          "VotePercent": 29.06
-        },
-        {
-          "ChoiceID": "f1ed78f9-7319-473e-ace5-9fd622e2b076",
-          "TotalVotes": 1965,
-          "IsWinner": false,
-          "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
-          "VotePercent": 70.94
-        }
-      ],
-      "WriteinChoices": [],
-      "Locations": {}
+     "ChoiceID": "7df617b9-c38f-4db3-883d-107aaea22ecb",
+     "TotalVotes": 805,
+     "IsWinner": false,
+     "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
+     "VotePercent": 29.06
     },
     {
-      "ContestID": "0098a039-8af3-4a9c-8e63-ac977379a352",
-      "DistrictID": null,
-      "PrecinctsReporting": 12,
-      "PrecinctsPartiallyReporting": 0,
-      "TotalPrecincts": 12,
-      "TotalVotes": 5229,
-      "RecountType": 0,
-      "HasRecount": false,
-      "HasLocationResults": true,
-      "Choices": [
-        {
-          "ChoiceID": "dc885279-5052-46eb-9207-b6541baa373d",
-          "TotalVotes": 2826,
-          "IsWinner": false,
-          "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
-          "VotePercent": 54.04
-        },
-        {
-          "ChoiceID": "7aa1b0c1-7961-409e-bb8c-df3d9f836869",
-          "TotalVotes": 2403,
-          "IsWinner": false,
-          "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
-          "VotePercent": 45.96
-        }
-      ],
-      "WriteinChoices": [],
-      "Locations": {}
+     "ChoiceID": "f1ed78f9-7319-473e-ace5-9fd622e2b076",
+     "TotalVotes": 1965,
+     "IsWinner": false,
+     "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
+     "VotePercent": 70.94
     }
-  ]
+   ],
+   "WriteinChoices": [],
+   "Locations": {}
+  },
+  {
+   "ContestID": "0098a039-8af3-4a9c-8e63-ac977379a352",
+   "DistrictID": null,
+   "PrecinctsReporting": 12,
+   "PrecinctsPartiallyReporting": 0,
+   "TotalPrecincts": 12,
+   "TotalVotes": 5229,
+   "RecountType": 0,
+   "HasRecount": false,
+   "HasLocationResults": true,
+   "Choices": [
+    {
+     "ChoiceID": "dc885279-5052-46eb-9207-b6541baa373d",
+     "TotalVotes": 2826,
+     "IsWinner": false,
+     "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
+     "VotePercent": 54.04
+    },
+    {
+     "ChoiceID": "7aa1b0c1-7961-409e-bb8c-df3d9f836869",
+     "TotalVotes": 2403,
+     "IsWinner": false,
+     "PartyID": "4c1a540e-cfe4-4ba0-8435-1dd7c3eeb1e6",
+     "VotePercent": 45.96
+    }
+   ],
+   "WriteinChoices": [],
+   "Locations": {}
+  }
+ ]
 }

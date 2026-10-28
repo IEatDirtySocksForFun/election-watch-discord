@@ -1,269 +1,468 @@
 [
-  {
-    "CATKEY": "C_2",
-    "CAT": "US Congress",
-    "C": "Representative to the 119th United States Congress - District 1",
-    "K": "110",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 3,
-    "PR": 3,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": [
-      "Valdamar Archuleta",
-      "Diana DeGette",
-      "Daniel Lutz",
-      "Critter Milton"
-    ],
-    "CHAggId": null,
-    "P": ["REP", "DEM", "APV", "UNI"],
-    "PCT": [
-      21.5826339041601, 76.5555970246413, 0.680189446214114, 1.18157962498445
-    ],
-    "V": [74598, 264606, 2351, 4084],
-    "T": 345639,
-    "W": [0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_2",
-    "CAT": "US Congress",
-    "C": "Representative to the 119th United States Congress - District 8",
-    "K": "180",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 3,
-    "PR": 2,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Yadira Caraveo", "Gabe Evans", "Chris Baum", "Susan Patricia Hall"],
-    "CHAggId": null,
-    "P": ["DEM", "REP", "APV", "UNI"],
-    "PCT": [
-      48.2214208849282, 48.9555137900956, 1.72087683485757, 1.10218849011867
-    ],
-    "V": [160871, 163320, 5741, 3677],
-    "T": 333609,
-    "W": [0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_5",
-    "CAT": "State Senate",
-    "C": "State Senator - District 2",
-    "K": "1020",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 1,
-    "PR": 0,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Jennifer Brady", "Lisa Frizell", "Caryn Ann Harlos"],
-    "CHAggId": null,
-    "P": ["DEM", "REP", "LBR"],
-    "PCT": [36.7491403653687, 60.6844420539025, 2.56641758072882],
-    "V": [38261, 63181, 2672],
-    "T": 104114,
-    "W": [0, 0, 0],
-    "CRC": [0, 0, 0],
-    "CRO": [0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_6",
-    "CAT": "State House",
-    "C": "State Representative - District 1",
-    "K": "2010",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 2,
-    "PR": 2,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Barbara DeHaan", "Javier Mabrey"],
-    "CHAggId": null,
-    "P": ["REP", "DEM"],
-    "PCT": [35.2491431584498, 64.7508568415502],
-    "V": [12033, 22104],
-    "T": 34137,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_4",
-    "CAT": "CU Regents",
-    "C": "Regent of the University of Colorado - At Large",
-    "K": "400",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 64,
-    "PR": 57,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Eric Rinard", "Elliott Hood", "Thomas Reasoner", "T.J. Cole"],
-    "CHAggId": null,
-    "P": ["REP", "DEM", "APV", "UNI"],
-    "PCT": [
-      46.5157009611106, 50.4528834684056, 0.997415019093919, 2.0340005513898
-    ],
-    "V": [1363271, 1478661, 29232, 59612],
-    "T": 2930776,
-    "W": [0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_7",
-    "CAT": "District Attorney",
-    "C": "District Attorney - 1st Judicial District",
-    "K": "3010",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 2,
-    "PR": 2,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Alexis King"],
-    "CHAggId": null,
-    "P": ["DEM"],
-    "PCT": [100],
-    "V": [231186],
-    "T": 231186,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_10",
-    "CAT": "State Ballot Questions",
-    "C": "Amendment G (CONSTITUTIONAL)",
-    "K": "4001",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 64,
-    "PR": 57,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Yes/For", "No/Against"],
-    "CHAggId": null,
-    "P": ["Y", "N"],
-    "PCT": [73.1329141126606, 26.8670858873394],
-    "V": [2212022, 812638],
-    "T": 3024660,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_10",
-    "CAT": "State Ballot Questions",
-    "C": "Proposition 127 (STATUTORY)",
-    "K": "4010",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 64,
-    "PR": 57,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["Yes/For", "No/Against"],
-    "CHAggId": null,
-    "P": ["Y", "N"],
-    "PCT": [45.2572862682636, 54.7427137317364],
-    "V": [1382048, 1671710],
-    "T": 3053758,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  }
+ {
+  "CATKEY": "C_2",
+  "CAT": "US Congress",
+  "C": "Representative to the 119th United States Congress - District 1",
+  "K": "110",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 3,
+  "PR": 3,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Valdamar Archuleta",
+   "Diana DeGette",
+   "Daniel Lutz",
+   "Critter Milton"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "APV",
+   "UNI"
+  ],
+  "PCT": [
+   21.5826339041601,
+   76.5555970246413,
+   0.680189446214114,
+   1.18157962498445
+  ],
+  "V": [
+   74598,
+   264606,
+   2351,
+   4084
+  ],
+  "T": 345639,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "US Congress",
+  "C": "Representative to the 119th United States Congress - District 8",
+  "K": "180",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 3,
+  "PR": 2,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Yadira Caraveo",
+   "Gabe Evans",
+   "Chris Baum",
+   "Susan Patricia Hall"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "APV",
+   "UNI"
+  ],
+  "PCT": [
+   48.2214208849282,
+   48.9555137900956,
+   1.72087683485757,
+   1.10218849011867
+  ],
+  "V": [
+   160871,
+   163320,
+   5741,
+   3677
+  ],
+  "T": 333609,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_5",
+  "CAT": "State Senate",
+  "C": "State Senator - District 2",
+  "K": "1020",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 1,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Jennifer Brady",
+   "Lisa Frizell",
+   "Caryn Ann Harlos"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "LBR"
+  ],
+  "PCT": [
+   36.7491403653687,
+   60.6844420539025,
+   2.56641758072882
+  ],
+  "V": [
+   38261,
+   63181,
+   2672
+  ],
+  "T": 104114,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_6",
+  "CAT": "State House",
+  "C": "State Representative - District 1",
+  "K": "2010",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 2,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Barbara DeHaan",
+   "Javier Mabrey"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   35.2491431584498,
+   64.7508568415502
+  ],
+  "V": [
+   12033,
+   22104
+  ],
+  "T": 34137,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_4",
+  "CAT": "CU Regents",
+  "C": "Regent of the University of Colorado - At Large",
+  "K": "400",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 64,
+  "PR": 57,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Eric Rinard",
+   "Elliott Hood",
+   "Thomas Reasoner",
+   "T.J. Cole"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "APV",
+   "UNI"
+  ],
+  "PCT": [
+   46.5157009611106,
+   50.4528834684056,
+   0.997415019093919,
+   2.0340005513898
+  ],
+  "V": [
+   1363271,
+   1478661,
+   29232,
+   59612
+  ],
+  "T": 2930776,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_7",
+  "CAT": "District Attorney",
+  "C": "District Attorney - 1st Judicial District",
+  "K": "3010",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 2,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Alexis King"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   231186
+  ],
+  "T": 231186,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_10",
+  "CAT": "State Ballot Questions",
+  "C": "Amendment G (CONSTITUTIONAL)",
+  "K": "4001",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 64,
+  "PR": 57,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Yes/For",
+   "No/Against"
+  ],
+  "CHAggId": null,
+  "P": [
+   "Y",
+   "N"
+  ],
+  "PCT": [
+   73.1329141126606,
+   26.8670858873394
+  ],
+  "V": [
+   2212022,
+   812638
+  ],
+  "T": 3024660,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_10",
+  "CAT": "State Ballot Questions",
+  "C": "Proposition 127 (STATUTORY)",
+  "K": "4010",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 64,
+  "PR": 57,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Yes/For",
+   "No/Against"
+  ],
+  "CHAggId": null,
+  "P": [
+   "Y",
+   "N"
+  ],
+  "PCT": [
+   45.2572862682636,
+   54.7427137317364
+  ],
+  "V": [
+   1382048,
+   1671710
+  ],
+  "T": 3053758,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
 ]

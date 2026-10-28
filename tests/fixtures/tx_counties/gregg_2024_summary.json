@@ -1,185 +1,323 @@
 [
-  {
-    "CATKEY": "C_1",
-    "CAT": "Federal",
-    "C": "PRESIDENT/VICE-PRESIDENT",
-    "K": "4",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 21,
-    "PR": 21,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": [
-      "DONALD J. TRUMP/JD VANCE",
-      "KAMALA D. HARRIS/TIM WALZ",
-      "CHASE OLIVER/MIKE TER MAAT",
-      "JILL STEIN/RULDOLF WARE",
-      "CLAUDIA DE LA CRUZ / KARINA GARCIA",
-      "CHERUNDA FOX / HARLAN MCVAY",
-      "CORNEL WEST / MELINA ABDULLAH",
-      "JESSIE CUELLAR / WESLEY LASLEY",
-      "PETER SONSKI / LAUREN ONAK",
-      "SHIVA AYYADURAI / CRYSTAL ELLIS"
-    ],
-    "CHAggId": null,
-    "P": ["REP", "DEM", "LIB", "GRN", "", "", "", "", "", ""],
-    "PCT": [
-      70.6619881038983, 28.4436646839831, 0.530617484701956, 0.280285848774017,
-      0.00427917326372545, 0, 0.0128375197911763, 0, 0.0663271855877444, 0
-    ],
-    "V": [33026, 13294, 248, 131, 2, 0, 6, 0, 31, 0],
-    "T": 46738,
-    "W": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_1",
-    "CAT": "Federal",
-    "C": "U.S. SENATOR",
-    "K": "3",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 21,
-    "PR": 21,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": [
-      "TED CRUZ",
-      "COLIN ALLRED",
-      "TED BROWN",
-      "ANALISA ROCHE",
-      "TRACY ANDRUS"
-    ],
-    "CHAggId": null,
-    "P": ["REP", "DEM", "LIB", "", ""],
-    "PCT": [
-      68.5130631114934, 29.3731856789593, 2.07934630684873, 0.0215030641866466,
-      0.012901838511988
-    ],
-    "V": [31862, 13660, 967, 10, 6],
-    "T": 46505,
-    "W": [0, 0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_1",
-    "CAT": "Federal",
-    "C": "U.S. REPRESENTATIVE DISTRICT 1",
-    "K": "10",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 21,
-    "PR": 21,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["NATHANIEL MORAN"],
-    "CHAggId": null,
-    "P": ["REP"],
-    "PCT": [100],
-    "V": [36766],
-    "T": 36766,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_2",
-    "CAT": "State",
-    "C": "JUSTICE, 6TH COURT OF APPEALS DISTRICT,  PLACE 2",
-    "K": "17",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 21,
-    "PR": 21,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["JEFF RAMBIN"],
-    "CHAggId": null,
-    "P": ["REP"],
-    "PCT": [100],
-    "V": [36271],
-    "T": 36271,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_3",
-    "CAT": "County",
-    "C": "SHERIFF",
-    "K": "2",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 21,
-    "PR": 21,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["MAXEY CERLIANO"],
-    "CHAggId": null,
-    "P": ["REP"],
-    "PCT": [100],
-    "V": [37170],
-    "T": 37170,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  }
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "PRESIDENT/VICE-PRESIDENT",
+  "K": "4",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 21,
+  "PR": 21,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "DONALD J. TRUMP/JD VANCE",
+   "KAMALA D. HARRIS/TIM WALZ",
+   "CHASE OLIVER/MIKE TER MAAT",
+   "JILL STEIN/RULDOLF WARE",
+   "CLAUDIA DE LA CRUZ / KARINA GARCIA",
+   "CHERUNDA FOX / HARLAN MCVAY",
+   "CORNEL WEST / MELINA ABDULLAH",
+   "JESSIE CUELLAR / WESLEY LASLEY",
+   "PETER SONSKI / LAUREN ONAK",
+   "SHIVA AYYADURAI / CRYSTAL ELLIS"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "GRN",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   70.6619881038983,
+   28.4436646839831,
+   0.530617484701956,
+   0.280285848774017,
+   0.00427917326372545,
+   0,
+   0.0128375197911763,
+   0,
+   0.0663271855877444,
+   0
+  ],
+  "V": [
+   33026,
+   13294,
+   248,
+   131,
+   2,
+   0,
+   6,
+   0,
+   31,
+   0
+  ],
+  "T": 46738,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "U.S. SENATOR",
+  "K": "3",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 21,
+  "PR": 21,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "TED CRUZ",
+   "COLIN ALLRED",
+   "TED BROWN",
+   "ANALISA ROCHE",
+   "TRACY ANDRUS"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "",
+   ""
+  ],
+  "PCT": [
+   68.5130631114934,
+   29.3731856789593,
+   2.07934630684873,
+   0.0215030641866466,
+   0.012901838511988
+  ],
+  "V": [
+   31862,
+   13660,
+   967,
+   10,
+   6
+  ],
+  "T": 46505,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "U.S. REPRESENTATIVE DISTRICT 1",
+  "K": "10",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 21,
+  "PR": 21,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "NATHANIEL MORAN"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   36766
+  ],
+  "T": 36766,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "JUSTICE, 6TH COURT OF APPEALS DISTRICT,  PLACE 2",
+  "K": "17",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 21,
+  "PR": 21,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "JEFF RAMBIN"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   36271
+  ],
+  "T": 36271,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "County",
+  "C": "SHERIFF",
+  "K": "2",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 21,
+  "PR": 21,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "MAXEY CERLIANO"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   37170
+  ],
+  "T": 37170,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
 ]

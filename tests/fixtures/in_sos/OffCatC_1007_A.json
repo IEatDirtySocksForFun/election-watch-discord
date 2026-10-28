@@ -1,58 +1,58 @@
 {
-  "Root": {
-    "WriteTime": "2025-04-17T18:31:53.5",
-    "StatewideSummary": {
-      "Race": {
-        "OFFICEID": "2026",
-        "OFFICE_TITLE": "Governor & Lt. Governor",
-        "SubSortOrder": "Governor & Lt. Governor",
-        "NumofSeats": "1",
-        "BALLOT_ORDER": "40",
-        "Candidates": {
-          "Candidate": [
-            {
-              "NAME_ON_BALLOT": "Mike Braun & Micah  Beckwith ",
-              "isWinner": "T",
-              "POLITICALPARTYID": "1018",
-              "PARTY": "R",
-              "DISPLAY_COLOR": "#F63D3D",
-              "TOTAL": 1566081,
-              "CandidateName": "Braun, Mike Mike",
-              "SORT_ORDER": "15"
-            },
-            {
-              "NAME_ON_BALLOT": "Jennifer G. McCormick & Terry  Goodin ",
-              "isWinner": "F",
-              "POLITICALPARTYID": "1017",
-              "PARTY": "D",
-              "DISPLAY_COLOR": "#007ECD",
-              "TOTAL": 1183741,
-              "CandidateName": "McCormick, Jennifer Jennifer",
-              "SORT_ORDER": "10"
-            },
-            {
-              "NAME_ON_BALLOT": "Donald Rainwater & Tonya  Hudson ",
-              "isWinner": "F",
-              "POLITICALPARTYID": "1012",
-              "PARTY": "L",
-              "DISPLAY_COLOR": "#008000",
-              "TOTAL": 129781,
-              "CandidateName": "Rainwater, Donald Donald",
-              "SORT_ORDER": "20"
-            },
-            {
-              "NAME_ON_BALLOT": "Christopher Ryan Stried (W/I)",
-              "isWinner": "F",
-              "POLITICALPARTYID": "1006",
-              "PARTY": "I",
-              "DISPLAY_COLOR": "#008000",
-              "TOTAL": 52,
-              "CandidateName": "Stried, Christopher Christopher",
-              "SORT_ORDER": "101"
-            }
-          ]
-        }
+ "Root": {
+  "WriteTime": "2025-04-17T18:31:53.5",
+  "StatewideSummary": {
+   "Race": {
+    "OFFICEID": "2026",
+    "OFFICE_TITLE": "Governor & Lt. Governor",
+    "SubSortOrder": "Governor & Lt. Governor",
+    "NumofSeats": "1",
+    "BALLOT_ORDER": "40",
+    "Candidates": {
+     "Candidate": [
+      {
+       "NAME_ON_BALLOT": "Mike Braun & Micah  Beckwith ",
+       "isWinner": "T",
+       "POLITICALPARTYID": "1018",
+       "PARTY": "R",
+       "DISPLAY_COLOR": "#F63D3D",
+       "TOTAL": 1566081,
+       "CandidateName": "Braun, Mike Mike",
+       "SORT_ORDER": "15"
+      },
+      {
+       "NAME_ON_BALLOT": "Jennifer G. McCormick & Terry  Goodin ",
+       "isWinner": "F",
+       "POLITICALPARTYID": "1017",
+       "PARTY": "D",
+       "DISPLAY_COLOR": "#007ECD",
+       "TOTAL": 1183741,
+       "CandidateName": "McCormick, Jennifer Jennifer",
+       "SORT_ORDER": "10"
+      },
+      {
+       "NAME_ON_BALLOT": "Donald Rainwater & Tonya  Hudson ",
+       "isWinner": "F",
+       "POLITICALPARTYID": "1012",
+       "PARTY": "L",
+       "DISPLAY_COLOR": "#008000",
+       "TOTAL": 129781,
+       "CandidateName": "Rainwater, Donald Donald",
+       "SORT_ORDER": "20"
+      },
+      {
+       "NAME_ON_BALLOT": "Christopher Ryan Stried (W/I)",
+       "isWinner": "F",
+       "POLITICALPARTYID": "1006",
+       "PARTY": "I",
+       "DISPLAY_COLOR": "#008000",
+       "TOTAL": 52,
+       "CandidateName": "Stried, Christopher Christopher",
+       "SORT_ORDER": "101"
       }
+     ]
     }
+   }
   }
+ }
 }

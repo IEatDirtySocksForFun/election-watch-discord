@@ -25,7 +25,6 @@ from electionwatch.racekeys import describe
 logger = logging.getLogger(__name__)
 _MARKET_ORDER = {"kalshi": 0, "polymarket": 1}
 _PARTY_MARKERS = {"DEM": "🔵", "REP": "🔴"}
-MAX_EMBED_TOTAL = 6000  # Discord's limit on all embed text combined
 
 
 def _utc(value: datetime) -> datetime:

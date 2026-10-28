@@ -1,82 +1,82 @@
 {
-  "lastModified": "Fri, 22 Aug 2025 13:29:37 GMT",
-  "electionSeason": "2024",
-  "mapData": {
-    "TX": {
-      "tooltip": {
-        "officeCode": "S",
-        "raceName": "Texas",
-        "geography": "states",
-        "candidates": [
-          {
-            "name": "Ted Cruz",
-            "party": "Rep",
-            "isWinner": true
-          },
-          {
-            "name": "Colin Allred",
-            "party": "Dem",
-            "isWinner": false
-          }
-        ]
-      }
-    },
-    "AZ": {
-      "tooltip": {
-        "officeCode": "S",
-        "raceName": "Arizona",
-        "geography": "states",
-        "candidates": [
-          {
-            "name": "Ruben Gallego",
-            "party": "Dem",
-            "isWinner": true
-          },
-          {
-            "name": "Kari Lake",
-            "party": "Rep",
-            "isWinner": false
-          }
-        ]
-      }
-    },
-    "4838": {
-      "tooltip": {
-        "officeCode": "H",
-        "raceName": "Texas District 38",
-        "geography": "districts",
-        "candidates": [
-          {
-            "name": "Wesley Hunt",
-            "party": "Rep",
-            "isWinner": true
-          },
-          {
-            "name": "Melissa McDonough",
-            "party": "Dem",
-            "isWinner": false
-          }
-        ]
-      }
-    },
-    "DE": {
-      "tooltip": {
-        "officeCode": "G",
-        "raceName": "Delaware",
-        "geography": "states",
-        "candidates": [
-          {
-            "name": "Matt Meyer",
-            "party": "Dem",
-            "isWinner": true
-          },
-          {
-            "name": "Mike Ramone",
-            "party": "Rep",
-            "isWinner": false
-          }
-        ]
-      }
-    }
+ "lastModified": "Fri, 22 Aug 2025 13:29:37 GMT",
+ "electionSeason": "2024",
+ "mapData": {
+  "TX": {
+   "tooltip": {
+    "officeCode": "S",
+    "raceName": "Texas",
+    "geography": "states",
+    "candidates": [
+     {
+      "name": "Ted Cruz",
+      "party": "Rep",
+      "isWinner": true
+     },
+     {
+      "name": "Colin Allred",
+      "party": "Dem",
+      "isWinner": false
+     }
+    ]
+   }
+  },
+  "AZ": {
+   "tooltip": {
+    "officeCode": "S",
+    "raceName": "Arizona",
+    "geography": "states",
+    "candidates": [
+     {
+      "name": "Ruben Gallego",
+      "party": "Dem",
+      "isWinner": true
+     },
+     {
+      "name": "Kari Lake",
+      "party": "Rep",
+      "isWinner": false
+     }
+    ]
+   }
+  },
+  "4838": {
+   "tooltip": {
+    "officeCode": "H",
+    "raceName": "Texas District 38",
+    "geography": "districts",
+    "candidates": [
+     {
+      "name": "Wesley Hunt",
+      "party": "Rep",
+      "isWinner": true
+     },
+     {
+      "name": "Melissa McDonough",
+      "party": "Dem",
+      "isWinner": false
+     }
+    ]
+   }
+  },
+  "DE": {
+   "tooltip": {
+    "officeCode": "G",
+    "raceName": "Delaware",
+    "geography": "states",
+    "candidates": [
+     {
+      "name": "Matt Meyer",
+      "party": "Dem",
+      "isWinner": true
+     },
+     {
+      "name": "Mike Ramone",
+      "party": "Rep",
+      "isWinner": false
+     }
+    ]
+   }
   }
+ }
 }

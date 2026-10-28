@@ -1,228 +1,373 @@
 [
-  {
-    "CATKEY": "C_1",
-    "CAT": "Federal",
-    "C": "US Senator",
-    "K": "0005",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 65,
-    "PR": 64,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP Ted Cruz", "DEM Colin Allred", "LIB Ted Brown", "Write-in"],
-    "CHAggId": null,
-    "P": ["REP", "DEM", "LIB", "NON"],
-    "PCT": [
-      54.4305752950627, 42.8234876104554, 2.65015757276154, 0.0957795217203238
-    ],
-    "V": [70468, 55441, 3431, 124],
-    "T": 129464,
-    "W": [0, 0, 0, 0],
-    "CRC": [0, 0, 0, 0],
-    "CRO": [0, 0, 0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_1",
-    "CAT": "Federal",
-    "C": "US Representative, Dist 11",
-    "K": "0006",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 27,
-    "PR": 26,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP August Pfluger"],
-    "CHAggId": null,
-    "P": ["REP"],
-    "PCT": [100],
-    "V": [28837],
-    "T": 28837,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_2",
-    "CAT": "State",
-    "C": "Justice, Supreme Court, Pl 2",
-    "K": "0009",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 65,
-    "PR": 64,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP Jimmy Blacklock", "DEM DaSean Jones"],
-    "CHAggId": null,
-    "P": ["REP", "DEM"],
-    "PCT": [59.4765787675043, 40.5234212324957],
-    "V": [74837, 50989],
-    "T": 125826,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_2",
-    "CAT": "State",
-    "C": "Presiding Judge, Ct of Crim App",
-    "K": "0012",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 65,
-    "PR": 64,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP David J. Schenck", "DEM Holly Taylor"],
-    "CHAggId": null,
-    "P": ["REP", "DEM"],
-    "PCT": [58.8739525419384, 41.1260474580616],
-    "V": [73490, 51336],
-    "T": 124826,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_2",
-    "CAT": "State",
-    "C": "Member, State BoE, Dist 10",
-    "K": "0015",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 65,
-    "PR": 64,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP Tom Maynard", "DEM Raquel Saenz Ortiz"],
-    "CHAggId": null,
-    "P": ["REP", "DEM"],
-    "PCT": [58.8010562391146, 41.1989437608854],
-    "V": [73262, 51331],
-    "T": 124593,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_2",
-    "CAT": "State",
-    "C": "State Representative, Dist 54",
-    "K": "0016",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 33,
-    "PR": 32,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP Brad Buckley", "DEM Dawn Richardson"],
-    "CHAggId": null,
-    "P": ["REP", "DEM"],
-    "PCT": [61.0874219289089, 38.9125780710911],
-    "V": [34526, 21993],
-    "T": 56519,
-    "W": [0, 0],
-    "CRC": [0, 0],
-    "CRO": [0, 0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  },
-  {
-    "CATKEY": "C_3",
-    "CAT": "County",
-    "C": "Sheriff",
-    "K": "0027",
-    "AggID": null,
-    "regvoters": 0,
-    "BCxContest": 0,
-    "VF": 1,
-    "TP": 65,
-    "PR": 64,
-    "TV": 0,
-    "BC": 0,
-    "RC": 0,
-    "RO": 0,
-    "CH": ["REP William (Bill) Cooke"],
-    "CHAggId": null,
-    "P": ["REP"],
-    "PCT": [100],
-    "V": [89677],
-    "T": 89677,
-    "W": [0],
-    "CRC": [0],
-    "CRO": [0],
-    "IsCumulative": null,
-    "CumulativeVotes": null,
-    "CumulativeChoices": null,
-    "CumulativePercentages": null,
-    "IsContestNoChoice": 0,
-    "IsRCV": false,
-    "RCVAwaitingResults": false
-  }
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Senator",
+  "K": "0005",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 65,
+  "PR": 64,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Ted Cruz",
+   "DEM Colin Allred",
+   "LIB Ted Brown",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "NON"
+  ],
+  "PCT": [
+   54.4305752950627,
+   42.8234876104554,
+   2.65015757276154,
+   0.0957795217203238
+  ],
+  "V": [
+   70468,
+   55441,
+   3431,
+   124
+  ],
+  "T": 129464,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Representative, Dist 11",
+  "K": "0006",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 27,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP August Pfluger"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   28837
+  ],
+  "T": 28837,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "Justice, Supreme Court, Pl 2",
+  "K": "0009",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 65,
+  "PR": 64,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Jimmy Blacklock",
+   "DEM DaSean Jones"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   59.4765787675043,
+   40.5234212324957
+  ],
+  "V": [
+   74837,
+   50989
+  ],
+  "T": 125826,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "Presiding Judge, Ct of Crim App",
+  "K": "0012",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 65,
+  "PR": 64,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP David J. Schenck",
+   "DEM Holly Taylor"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   58.8739525419384,
+   41.1260474580616
+  ],
+  "V": [
+   73490,
+   51336
+  ],
+  "T": 124826,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "Member, State BoE, Dist 10",
+  "K": "0015",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 65,
+  "PR": 64,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Tom Maynard",
+   "DEM Raquel Saenz Ortiz"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   58.8010562391146,
+   41.1989437608854
+  ],
+  "V": [
+   73262,
+   51331
+  ],
+  "T": 124593,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "State Representative, Dist 54",
+  "K": "0016",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 33,
+  "PR": 32,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Brad Buckley",
+   "DEM Dawn Richardson"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   61.0874219289089,
+   38.9125780710911
+  ],
+  "V": [
+   34526,
+   21993
+  ],
+  "T": 56519,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "County",
+  "C": "Sheriff",
+  "K": "0027",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 65,
+  "PR": 64,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP William (Bill) Cooke"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   89677
+  ],
+  "T": 89677,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
 ]
