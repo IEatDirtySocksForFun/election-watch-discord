@@ -55,7 +55,11 @@ def _market_name(market: str) -> str:
 
 
 def _outcome_text(snapshot: OddsSnapshot, moves: dict[int, float] | None = None) -> str:
-    outcome = f"[{snapshot.outcome}]({snapshot.url})" if snapshot.url else snapshot.outcome
+    label = snapshot.outcome
+    candidate = getattr(snapshot, "candidate", None)
+    if candidate and candidate not in snapshot.outcome:
+        label = f"{candidate} ({snapshot.outcome})"  # "Ken Paxton (REP)"
+    outcome = f"[{label}]({snapshot.url})" if snapshot.url else label
     text = f"{outcome} · {snapshot.prob:.1%}"
     for hours, label in ((1, "1h"), (24, "24h")):
         if moves and hours in moves:

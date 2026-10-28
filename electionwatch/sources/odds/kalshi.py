@@ -113,6 +113,7 @@ def parse_kalshi_event(payload: dict) -> list[OddsSnapshot]:
                     ts=ts,
                     market_id=market.get("ticker"),
                     url=url,
+                    candidate=_market_candidate(market),
                 )
             )
         except Exception:
@@ -167,6 +168,15 @@ def _market_outcome(market: dict) -> str | None:
         if "green party" in text:
             return "GRN"
     return None
+
+
+def _market_candidate(market: dict) -> str | None:
+    """The candidate a party market stands for: Kalshi puts the name in ``yes_sub_title``
+    ("Ken Paxton"); older markets repeat the party there instead, which isn't a name."""
+    name = " ".join(str(market.get("yes_sub_title") or "").split())
+    if not name or "party" in name.casefold() or name.casefold() in ("yes", "no", "democratic", "republican"):
+        return None
+    return name[:100]
 
 
 def _market_prob(market: dict) -> float | None:
