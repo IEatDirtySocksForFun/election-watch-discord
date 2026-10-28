@@ -42,7 +42,9 @@ def load(name: str):
 
 def route(request: httpx.Request) -> str:
     path = request.url.path.removeprefix(BASE)
-    query = "&".join(f"{k}={v}" for k, v in sorted(request.url.params.multi_items()))
+    query = "&".join(
+        f"{param_name}={param_value}" for param_name, param_value in sorted(request.url.params.multi_items())
+    )
     return f"{path}?{query}" if query else path
 
 

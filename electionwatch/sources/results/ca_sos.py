@@ -67,83 +67,83 @@ def _parse_reporting(text: str | None) -> tuple[int | None, int | None]:
     """'100% (23,863 of 23,863) precincts reporting' -> (23863, 23863)."""
     if not text:
         return None, None
-    m = re.search(r"\(\s*([\d,]+)\s+of\s+([\d,]+)\s*\)", str(text))
-    if not m:
+    match = re.search(r"\(\s*([\d,]+)\s+of\s+([\d,]+)\s*\)", str(text))
+    if not match:
         return None, None
-    return c.to_int(m.group(1)), c.to_int(m.group(2))
+    return c.to_int(match.group(1)), c.to_int(match.group(2))
 
 
 def _title_office(title: str) -> tuple[str, str | None]:
     """'Governor - Statewide Results' -> ('Governor', 'statewide');
     'United States Representative District 1 - Districtwide Results' ->
     ('United States Representative District 1', 'districtwide')."""
-    t = (title or "").strip()
-    m = re.match(r"^(.+?)\s+-\s+(Statewide|Districtwide)\s+Results\s*$", t)
-    if m:
-        return m.group(1).strip(), m.group(2).lower()
-    return t, None
+    title_text = (title or "").strip()
+    match = re.match(r"^(.+?)\s+-\s+(Statewide|Districtwide)\s+Results\s*$", title_text)
+    if match:
+        return match.group(1).strip(), match.group(2).lower()
+    return title_text, None
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
-    if n == "GOVERNOR":
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name == "GOVERNOR":
         return RaceKey("CA", Level.GOVERNOR, "GOV", None, special)
-    if n in ("LIEUTENANT GOVERNOR", "LT. GOVERNOR"):
+    if office_name in ("LIEUTENANT GOVERNOR", "LT. GOVERNOR"):
         return RaceKey("CA", Level.GOVERNOR, "LTGOV", None, special)
-    if n == "SECRETARY OF STATE":
+    if office_name == "SECRETARY OF STATE":
         return RaceKey("CA", Level.GOVERNOR, "SOS", None, special)
-    if n == "CONTROLLER":
+    if office_name == "CONTROLLER":
         return RaceKey("CA", Level.GOVERNOR, "COMP", None, special)
-    if n in ("TREASURER", "STATE TREASURER"):
+    if office_name in ("TREASURER", "STATE TREASURER"):
         return RaceKey("CA", Level.GOVERNOR, "TREAS", None, special)
-    if n == "ATTORNEY GENERAL":
+    if office_name == "ATTORNEY GENERAL":
         return RaceKey("CA", Level.GOVERNOR, "AG", None, special)
-    if n == "INSURANCE COMMISSIONER":
+    if office_name == "INSURANCE COMMISSIONER":
         return RaceKey("CA", Level.GOVERNOR, "INSCOM", None, special)
-    if n in ("SUPERINTENDENT OF PUBLIC INSTRUCTION", "SUPT"):
+    if office_name in ("SUPERINTENDENT OF PUBLIC INSTRUCTION", "SUPT"):
         return RaceKey("CA", Level.GOVERNOR, "SUPT", None, special)
-    m = re.match(r"^UNITED STATES REPRESENTATIVE DISTRICT\s+(\d+)", n)
-    if m:
-        return RaceKey("CA", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE SENATE DISTRICT\s+(\d+)", n)
-    if m:
-        return RaceKey("CA", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE ASSEMBLY MEMBER DISTRICT\s+(\d+)", n)
-    if m:
-        return RaceKey("CA", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^BOARD OF EQUALIZATION MEMBER DISTRICT\s+(\d+)", n)
-    if m:
-        return c.local_key("CA", f"board-of-equalization-district-{int(m.group(1))}")
+    match = re.match(r"^UNITED STATES REPRESENTATIVE DISTRICT\s+(\d+)", office_name)
+    if match:
+        return RaceKey("CA", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE SENATE DISTRICT\s+(\d+)", office_name)
+    if match:
+        return RaceKey("CA", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE ASSEMBLY MEMBER DISTRICT\s+(\d+)", office_name)
+    if match:
+        return RaceKey("CA", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^BOARD OF EQUALIZATION MEMBER DISTRICT\s+(\d+)", office_name)
+    if match:
+        return c.local_key("CA", f"board-of-equalization-district-{int(match.group(1))}")
     return c.local_key("CA", name)
 
 
 def _candidates(race: dict) -> list[CandidateResult]:
-    out: list[CandidateResult] = []
+    candidates: list[CandidateResult] = []
     if "ballot-measures" in race:
-        for item in race["ballot-measures"]:
-            name = (item.get("Name") or "").strip()
-            number = (item.get("Number") or "").strip()
+        for measure in race["ballot-measures"]:
+            name = (measure.get("Name") or "").strip()
+            number = (measure.get("Number") or "").strip()
             label = f"Proposition {number}" if number else name
-            yes = c.to_int(item.get("yesVotes"))
-            no = c.to_int(item.get("noVotes"))
-            out.append(CandidateResult(name=f"{label} - YES", party=None, votes=yes))
-            out.append(CandidateResult(name=f"{label} - NO", party=None, votes=no))
-        return out
-    for item in race.get("candidates") or []:
-        name = (item.get("Name") or "").strip()
+            yes = c.to_int(measure.get("yesVotes"))
+            no = c.to_int(measure.get("noVotes"))
+            candidates.append(CandidateResult(name=f"{label} - YES", party=None, votes=yes))
+            candidates.append(CandidateResult(name=f"{label} - NO", party=None, votes=no))
+        return candidates
+    for candidate in race.get("candidates") or []:
+        name = (candidate.get("Name") or "").strip()
         if not name:
             continue
-        out.append(
+        candidates.append(
             CandidateResult(
                 name=name,
-                party=c.norm_party(item.get("Party")),
-                votes=c.to_int(item.get("Votes")),
-                pct=c.to_pct(item.get("Percent")),
-                incumbent=bool(item.get("incumbent")),
+                party=c.norm_party(candidate.get("Party")),
+                votes=c.to_int(candidate.get("Votes")),
+                pct=c.to_pct(candidate.get("Percent")),
+                incumbent=bool(candidate.get("incumbent")),
             )
         )
-    return out
+    return candidates
 
 
 def parse_ca(
@@ -155,7 +155,7 @@ def parse_ca(
 
     ``payloads`` maps filename -> list of race objects (the JSON file contents).
     """
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for filename, races in payloads.items():
         for race in races:
@@ -174,7 +174,7 @@ def parse_ca(
                 continue
             seen.add(str(key))
             reporting, total = _parse_reporting(race.get("Reporting"))
-            out.append(
+            results.append(
                 c.make_result(
                     key,
                     title,
@@ -182,13 +182,13 @@ def parse_ca(
                     fetched_at,
                     source=CaSos.name,
                     url=HUMAN,
-                    total_votes=sum(x.votes for x in cands),
+                    total_votes=sum(candidate.votes for candidate in cands),
                     precincts_reporting=reporting,
                     precincts_total=total,
                     source_updated_at=c.parse_updated_at(race.get("ReportingTime")),
                 )
             )
-    return out
+    return results
 
 
 async def _media_base(client: httpx.AsyncClient, date: str) -> str:
@@ -223,7 +223,7 @@ class CaSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ca_keys = [k for k in keys if k.state == "CA"]
+        ca_keys = [key for key in keys if key.state == "CA"]
         if not ca_keys:
             return []
         base = await _media_base(client, c.election_date())
@@ -239,4 +239,7 @@ class CaSos(ResultsSource):
         payloads: dict[str, list[dict]] = {}
         for filename in FILES:
             payloads[filename] = await _fetch_file(client, base, filename)
-        return [(r.key, r.title or str(r.key)) for r in parse_ca(payloads, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ca(payloads, fetched_at=c.utcnow())
+        ]

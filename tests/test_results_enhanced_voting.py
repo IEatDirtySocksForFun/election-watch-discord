@@ -26,7 +26,7 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_parse_maps_state_aware_races():
@@ -36,7 +36,7 @@ def test_parse_maps_state_aware_races():
     assert results["GA HD-01"].key.level is Level.STATE
     assert results["GA LOCAL president-of-the-united-states"].key.level is Level.LOCAL
     amend = results["GA LOCAL proposed-constitutional-amendment-1"]
-    assert {c.name for c in amend.candidates} == {"Yes", "No"}
+    assert {candidate.name for candidate in amend.candidates} == {"Yes", "No"}
 
 
 def test_race_key_rewrites_state():
@@ -62,8 +62,8 @@ def test_feed_configuration(monkeypatch):
             ]
         ),
     )
-    assert [f["state"] for f in feeds("2024-11-05")] == ["GA"]
-    assert [f["slug"] for f in feeds("2026-11-03")] == ["custom"]
+    assert [feed["state"] for feed in feeds("2024-11-05")] == ["GA"]
+    assert [feed["slug"] for feed in feeds("2026-11-03")] == ["custom"]
 
     with pytest.raises(SourceUnavailable):
         monkeypatch.setenv("ENHANCED_VOTING_FEEDS", "{not json")
@@ -93,7 +93,7 @@ def test_fetch_is_unavailable_when_export_404(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda race_result: httpx.Response(404))) as client:
             return await EnhancedVoting().fetch([parse("AZ SEN")], client)
 
     with pytest.raises(SourceUnavailable, match="not published yet"):

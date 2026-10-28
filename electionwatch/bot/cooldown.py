@@ -85,7 +85,7 @@ class Cooldowns:
         self._last[ident] = now
         recent.append(now)
         if len(self._last) > 50_000:  # forget expired entries now and then
-            self._last = {k: t for k, t in self._last.items() if now - t < 6 * 3600}
+            self._last = {identity: last_use for identity, last_use in self._last.items() if now - last_use < 6 * 3600}
         return 0.0
 
     def refresh_hit(self, guild: int, seconds: float) -> float:

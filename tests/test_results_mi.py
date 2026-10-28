@@ -68,7 +68,7 @@ def test_real_ottawa_summary_maps_to_canonical_races():
     summary = json.loads((FIX / "ottawa_2026_general_summary.json").read_text())
     settings = json.loads((FIX / "ottawa_2026_general_settings.json").read_text())
     results = rekey(parse_clarity(summary, settings, state="MI", fetched_at=AT))
-    keys = {format_key(r.key): r for r in results}
+    keys = {format_key(race_result.key): race_result for race_result in results}
     assert set(keys) == {"MI SEN", "MI-02", "MI-03", "MI-04"}
     assert keys["MI SEN"].candidates[0].name == "Abdul El-Sayed"
     assert keys["MI SEN"].candidates[0].party == "DEM"
@@ -127,8 +127,8 @@ def test_merge_sums_counties_and_recomputes_percentages():
     assert format_key(gov.key) == "MI GOV"
     assert gov.title == "GOVERNOR AND LIEUTENANT GOVERNOR (partial: 2 counties)"
     assert gov.source == "mi_county"
-    assert {c.name: c.votes for c in gov.candidates} == {"A. Person": 1100, "B. Person": 900}
-    assert {c.name: c.pct for c in gov.candidates} == {"A. Person": 55.0, "B. Person": 45.0}
+    assert {candidate.name: candidate.votes for candidate in gov.candidates} == {"A. Person": 1100, "B. Person": 900}
+    assert {candidate.name: candidate.pct for candidate in gov.candidates} == {"A. Person": 55.0, "B. Person": 45.0}
     assert (gov.precincts_reporting, gov.precincts_total) == (10, 20)
     assert gov.expected_vote_pct == 50.0
     assert gov.url == "https://www.michigan.gov/sos/elections/election-results-and-data"
@@ -140,7 +140,7 @@ def test_merge_with_nothing_published_returns_empty():
 
 def test_feed_configuration(monkeypatch):
     monkeypatch.delenv("MI_CLARITY_FEEDS", raising=False)
-    assert [f["county"] for f in feeds("2026-11-03")] == list(COUNTIES)
+    assert [feed["county"] for feed in feeds("2026-11-03")] == list(COUNTIES)
     monkeypatch.setenv(
         "MI_CLARITY_FEEDS",
         json.dumps(
@@ -189,14 +189,14 @@ def test_fetch_merges_the_county_feeds(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await mi_county.MiCounty().fetch([parse("MI SEN"), parse("MI-07")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await mi_county.MiCounty().fetch([parse("MI SEN"), parse("MI-07")], client)
 
-    got = {format_key(r.key): r for r in asyncio.run(go())}
+    got = {format_key(race_result.key): race_result for race_result in asyncio.run(go())}
     assert set(got) == {"MI SEN"}
     sen = got["MI SEN"]
     assert sen.title == "UNITED STATES SENATOR (partial: 2 counties)"
-    assert {c.name: c.votes for c in sen.candidates} == {"A. Person": 1500, "B. Person": 750}
+    assert {client.name: client.votes for client in sen.candidates} == {"A. Person": 1500, "B. Person": 750}
     assert (sen.precincts_reporting, sen.precincts_total) == (20, 40)
     assert sen.source_updated_at == datetime(2026, 10, 26, 15, 42, 44, tzinfo=timezone.utc)
 
@@ -205,8 +205,8 @@ def test_fetch_is_unavailable_before_any_county_publishes(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as c:
-            return await mi_county.MiCounty().fetch([parse("MI SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda race_result: httpx.Response(404))) as client:
+            return await mi_county.MiCounty().fetch([parse("MI SEN")], client)
 
     with pytest.raises(SourceUnavailable, match="no county feed published"):
         asyncio.run(go())
@@ -214,7 +214,7 @@ def test_fetch_is_unavailable_before_any_county_publishes(monkeypatch):
 
 def test_other_states_are_ignored():
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as c:
-            return await mi_county.MiCounty().fetch([parse("MN SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda race_result: httpx.Response(404))) as client:
+            return await mi_county.MiCounty().fetch([parse("MN SEN")], client)
 
     assert asyncio.run(go()) == []

@@ -82,7 +82,7 @@ class Store(MemoryStore):
     """MemoryStore with the optional latest_odds lookup CommandData uses when present."""
 
     async def latest_odds(self, key):
-        return [item for item in self.odds if item.key == key]
+        return [odds_snapshot for odds_snapshot in self.odds if odds_snapshot.key == key]
 
 
 class Odds(OddsSource):
@@ -109,7 +109,7 @@ class Odds(OddsSource):
         if self.error:
             raise self.error
         if self.per_key is not None:
-            return [s for s in self.per_key if s.key in keys]
+            return [odds_snapshot for odds_snapshot in self.per_key if odds_snapshot.key in keys]
         return [
             OddsSnapshot(
                 key, market, outcome, 0.5 if len(self.outcomes) <= 2 else 1 / len(self.outcomes), NOW, url=self.url
@@ -138,7 +138,7 @@ class Polls(PollSource):
         self.calls += 1
         if self.error:
             raise self.error
-        return [p for p in self.polls if p.key in keys]
+        return [poll for poll in self.polls if poll.key in keys]
 
 
 class AllStates(ResultsSource):
@@ -212,7 +212,7 @@ async def test_odds_overview_defaults_to_races_yaml(where):
 @pytest.mark.parametrize("count", [1, 200])
 async def test_odds_overview_for_watched_races(count):
     store = Store()
-    keys = [f"TX HD-{n:03d}" for n in range(1, count + 1)] if count > 1 else ["GA GOV"]
+    keys = [f"TX HD-{index:03d}" for index in range(1, count + 1)] if count > 1 else ["GA GOV"]
     await store.save_guild(GuildSettings(1, important=keys))
     client = make_client(
         store, {"odds": [Odds(outcomes=("Candidate " + "x" * 40, "Other " + "y" * 40))]}, clock=lambda: NOW
@@ -279,7 +279,7 @@ async def test_odds_single_race_in_every_key_format(text):
     client = make_client(Store(), {"odds": [Odds()]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race=text))
     assert embed.title == f"Odds · {describe(key)}"
-    assert [f.name for f in embed.fields] == ["Kalshi", "Polymarket"]
+    assert [embed_field.name for embed_field in embed.fields] == ["Kalshi", "Polymarket"]
 
 
 @pytest.mark.parametrize(
@@ -318,7 +318,7 @@ async def test_odds_market_combinations(markets, expected):
         assert "No current prediction-market odds" in embed.description
         assert not embed.fields
     else:
-        assert [f.name for f in embed.fields] == expected
+        assert [embed_field.name for embed_field in embed.fields] == expected
         assert "50.0%" in embed.fields[0].value
         assert embed.footer.text == "Last update: 2026-10-27 12:00 UTC"
 
@@ -326,10 +326,10 @@ async def test_odds_market_combinations(markets, expected):
 @pytest.mark.parametrize(
     "outcomes,url",
     [
-        (tuple(f"Candidate {n:02d}" for n in range(50)), "https://kalshi.example/m"),
-        (tuple(f"{n:02d} " + "Long Name " * 30 for n in range(50)), "https://kalshi.example/m"),
+        (tuple(f"Candidate {index:02d}" for index in range(50)), "https://kalshi.example/m"),
+        (tuple(f"{index:02d} " + "Long Name " * 30 for index in range(50)), "https://kalshi.example/m"),
         (("DEM", "REP"), "https://polymarket.example/" + "p" * 900),
-        (tuple(f"Candidate {n:02d}" for n in range(50)), "https://polymarket.example/" + "p" * 300),
+        (tuple(f"Candidate {index:02d}" for index in range(50)), "https://polymarket.example/" + "p" * 300),
         (("x" * 2000,), None),
     ],
 )
@@ -397,7 +397,7 @@ async def test_polls_internals_filter(internals):
     polls = [poll("Public"), poll("Campaign", date(2026, 10, 25), partisan="REP", sponsor="Smith campaign")]
     client = make_client(Store(), {"polls": [Polls(polls)]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", internals=internals))
-    names = [f.name for f in embed.fields]
+    names = [embed_field.name for embed_field in embed.fields]
     assert ("Campaign INTERNAL (R)" in names) is internals
     assert "Public" in names
     assert ("included" if internals else "excluded") in embed.description
@@ -423,30 +423,38 @@ async def test_polls_invalid_key(text):
 
 
 async def test_polls_duplicates_merged_across_sources():
-    a = poll("N+ Univision", date(2026, 10, 20), source="votehub", sample_size=None, url=None)
-    b = poll("YouGov", date(2026, 10, 18), sponsor="N+ Univision", source="270towin")
+    univision_poll = poll("N+ Univision", date(2026, 10, 20), source="votehub", sample_size=None, url=None)
+    yougov_poll = poll("YouGov", date(2026, 10, 18), sponsor="N+ Univision", source="270towin")
     exact_copy = poll("Example", source="votehub")
     exact_copy2 = poll("example ", source="270towin", population=None)
-    client = make_client(Store(), {"polls": [Polls([a, exact_copy]), Polls([b, exact_copy2])]})
+    client = make_client(Store(), {"polls": [Polls([univision_poll, exact_copy]), Polls([yougov_poll, exact_copy2])]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", count=10))
     assert len(embed.fields) == 2
-    assert "Sponsor: N+ Univision" in "".join(f.value for f in embed.fields)
+    assert "Sponsor: N+ Univision" in "".join(embed_field.value for embed_field in embed.fields)
 
 
 async def test_polls_long_pollster_names_are_clipped():
-    polls = [poll("P" * 300 + str(n), date(2026, 10, n + 1), partisan="DEM") for n in range(10)]
+    polls = [poll("P" * 300 + str(index), date(2026, 10, index + 1), partisan="DEM") for index in range(10)]
     client = make_client(Store(), {"polls": [Polls(polls)]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", count=10))
-    assert all(len(f.name) <= 256 for f in embed.fields)
+    assert all(len(embed_field.name) <= 256 for embed_field in embed.fields)
 
 
 async def test_ten_polls_with_many_candidates_fit_the_6000_char_embed_total():
     def results(seed):
-        return [PollResult(f"Candidate Number {n:02d}", "DEM" if n % 2 else "REP", seed + n / 10) for n in range(60)]
+        return [
+            PollResult(f"Candidate Number {index:02d}", "DEM" if index % 2 else "REP", seed + index / 10)
+            for index in range(60)
+        ]
 
     polls = [
-        poll(f"Pollster {n}", date(2026, 10, n + 1), results=results(n), sponsor=f"Sponsor {n} " + "s" * 80)
-        for n in range(10)
+        poll(
+            f"Pollster {index}",
+            date(2026, 10, index + 1),
+            results=results(index),
+            sponsor=f"Sponsor {index} " + "s" * 80,
+        )
+        for index in range(10)
     ]
     client = make_client(Store(), {"polls": [Polls(polls)]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", count=10))
@@ -477,7 +485,7 @@ async def test_poll_source_failures_leave_the_other_sources(bad):
     good = Polls([poll("Survivor")])
     client = make_client(Store(), {"polls": [bad, good]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN"))
-    assert [f.name for f in embed.fields] == ["Survivor"]
+    assert [embed_field.name for embed_field in embed.fields] == ["Survivor"]
 
 
 async def test_failed_poll_refresh_queues_the_race_and_the_next_refresh_shows_it():
@@ -487,7 +495,7 @@ async def test_failed_poll_refresh_queues_the_race_and_the_next_refresh_shows_it
     assert "queued for the next polls refresh" in first.description
     source.error, source.polls = None, [poll("Back")]
     second = deferred_embed(await run(polls_command, client, "TX SEN"))
-    assert [f.name for f in second.fields] == ["Back"]
+    assert [embed_field.name for embed_field in second.fields] == ["Back"]
 
 
 async def test_commands_never_call_the_poll_or_odds_sources():
@@ -530,10 +538,10 @@ async def test_faq_every_state(code, case):
     from electionwatch.faq.loader import load_states
 
     content = faq_reply(await run(faq_command, make_client(Store()), state=case(code)))
-    data = yaml_body(content)
+    faq = yaml_body(content)
     assert load_states()[code]["official_results_url"] in content
     assert "truncated" not in content  # every shipped state fits whole
-    assert set(data) >= {code}
+    assert set(faq) >= {code}
 
 
 @pytest.mark.parametrize("code", sorted(TERRITORIES))
@@ -594,32 +602,32 @@ def results_client(store=None, **source_kwargs):
 async def test_autocomplete_filters_case_insensitively(current, expected):
     races = {"TX": [(parse("TX GOV"), "Texas Governor"), (parse("TX-07"), "Texas District 7")]}
     choices = await autocomplete(results_client(per_state=races), current)
-    assert {c.value for c in choices} == expected
+    assert {choice.value for choice in choices} == expected
 
 
 async def test_autocomplete_offers_watched_territory():
     store = Store()
     await store.save_guild(GuildSettings(1, important=["PR-AL", "GU-AL"]))
     choices = await autocomplete(results_client(store), "puerto")
-    assert [c.value for c in choices] == ["PR-AL"]
+    assert [choice.value for choice in choices] == ["PR-AL"]
     assert "Resident Commissioner" in choices[0].name
 
 
 async def test_autocomplete_in_dm_offers_default_races():
     choices = await autocomplete(results_client(), "", guild_id=None)
-    assert "TX SEN" in {c.value for c in choices}
+    assert "TX SEN" in {choice.value for choice in choices}
 
 
 async def test_autocomplete_guild_without_watch_list_uses_defaults():
     store = Store()
     await store.save_guild(GuildSettings(1))
     choices = await autocomplete(results_client(store), "")
-    assert {c.value for c in choices} == {"TX SEN"}
+    assert {choice.value for choice in choices} == {"TX SEN"}
 
 
 async def test_autocomplete_truncates_to_25():
     store = Store()
-    await store.save_guild(GuildSettings(1, important=[f"TX HD-{n:03d}" for n in range(1, 201)]))
+    await store.save_guild(GuildSettings(1, important=[f"TX HD-{index:03d}" for index in range(1, 201)]))
     choices = await autocomplete(results_client(store), "hd")
     assert len(choices) == 25
 
@@ -648,7 +656,7 @@ async def test_autocomplete_answers_in_time_when_the_database_is_slow(monkeypatc
     started = time.monotonic()
     choices = await autocomplete(make_client(store, {"results": [AllStates()]}, refreshed=False), "")
     assert time.monotonic() - started < 1
-    assert {c.value for c in choices} == {"TX SEN", "PA SEN"}  # the watched races still come
+    assert {choice.value for choice in choices} == {"TX SEN", "PA SEN"}  # the watched races still come
 
 
 async def test_autocomplete_offers_stored_races_of_a_typed_state_and_queues_it():
@@ -661,19 +669,19 @@ async def test_autocomplete_offers_stored_races_of_a_typed_state_and_queues_it()
     client = make_client(Store(), {"results": [source]}, refreshed=False)
     demand = Demand()
     client.race_lists = RaceLists(client.store, client.sources, client.http_client, demand=demand)
-    assert {c.value for c in await autocomplete(client, "pa")} == set()  # PA not listed yet
+    assert {choice.value for choice in await autocomplete(client, "pa")} == set()  # PA not listed yet
     assert demand.items(KIND) == ["PA"] and source.calls == 0
     await client.race_lists.refresh()  # demanded state first
     assert source.calls == STATES_PER_TICK
     for typed in ("pa", "PA-0", "pennsylvania"):
-        values = {c.value for c in await autocomplete(client, typed)}
+        values = {choice.value for choice in await autocomplete(client, typed)}
         assert "PA-07" in values, typed
     assert source.calls == STATES_PER_TICK
 
 
 async def test_autocomplete_never_offers_a_value_over_100_chars():
     choices = await autocomplete(results_client(long_slug=True), "")
-    assert {c.value for c in choices} == {"TX SEN"}
+    assert {choice.value for choice in choices} == {"TX SEN"}
 
 
 async def test_race_autocomplete_answers_with_default_races_when_the_database_is_slow():

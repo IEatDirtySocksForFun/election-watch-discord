@@ -38,9 +38,9 @@ class Request:
         self.url = httpx.URL(f"https://{host}/x")
 
 
-async def spend(book: RateBook, name: str, kind: str, host: str, n: int) -> None:
+async def spend(book: RateBook, name: str, kind: str, host: str, count: int) -> None:
     with book.track(name, kind):
-        for _ in range(n):
+        for _ in range(count):
             await book.on_request(Request(host))
 
 
@@ -78,7 +78,7 @@ async def test_sources_sharing_a_host_are_slowed_evenly_instead_of_bursting_then
                 await spend(book, name, "results", "cdn.example", cost)
         assert book.used("cdn.example") <= 1800
     for name, minutes in runs.items():
-        gaps = [b - a for a, b in zip(minutes, minutes[1:])][1:]  # after every cost is known
+        gaps = [later - earlier for earlier, later in zip(minutes, minutes[1:])][1:]  # after every cost is known
         assert gaps and max(gaps) - min(gaps) <= 1, (name, gaps)  # an even cadence, no 40-min stall
     assert book.interval("tx:results", "results") == book.interval("al:results", "results")
 
@@ -293,21 +293,21 @@ async def test_a_source_that_is_not_due_answers_with_its_last_results_not_the_fa
 
 async def test_odds_and_polls_refresh_on_their_own_schedule_and_include_demanded_races():
     clock = Clock()
-    odds, polls = CountingOdds(), CountingPolls()
-    store, poller = await make_poller(clock, odds=[odds], polls=[polls])
+    odds_source, polls_source = CountingOdds(), CountingPolls()
+    store, poller = await make_poller(clock, odds=[odds_source], polls=[polls_source])
     poller.demand.add("polls", "GA SEN")
     await poller.tick()
     hit = await store.get_cached(POLLS_CACHE, polls_ident("votehub", TX))
-    assert [p.pollster for p in load_polls(hit[1])] == ["Pollster"]
+    assert [poll.pollster for poll in load_polls(hit[1])] == ["Pollster"]
     assert load_polls((await store.get_cached(POLLS_CACHE, polls_ident("votehub", parse("GA SEN"))))[1]) == []
     for _ in range(10):
         clock.t += 60
         await poller.tick()
-    assert odds.calls == 11  # every minute
-    assert polls.calls == 1  # every 30 min
+    assert odds_source.calls == 11  # every minute
+    assert polls_source.calls == 1  # every 30 min
     clock.t += FLOORS["polls"]
     await poller.tick()
-    assert polls.calls == 2
+    assert polls_source.calls == 2
 
 
 # --------------------------------------------------------------------------- early vote
@@ -368,11 +368,11 @@ async def test_a_short_outage_keeps_the_official_numbers_instead_of_flipping_to_
 
 def test_limits_text_fits_one_message_with_every_adapter_and_leads_with_command_limits():
     book = RateBook()
-    for n in range(70):
-        book.due(f"source{n}:results", "results")
-        with book.track(f"source{n}:results", "results"):
+    for index in range(70):
+        book.due(f"source{index}:results", "results")
+        with book.track(f"source{index}:results", "results"):
             for _ in range(40):
-                book.record(f"host{n % 5}.example")
+                book.record(f"host{index % 5}.example")
     text = limits_text(GuildSettings(1), book, Cooldowns())
     assert len(text) <= 1950
     assert text.startswith("Command limits in this server:")

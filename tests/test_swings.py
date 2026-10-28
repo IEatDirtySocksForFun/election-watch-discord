@@ -53,9 +53,9 @@ def test_largest_swing_chosen():
 
 def test_exact_threshold_returns():
     hist = [_snap(0.50, 0), _snap(0.55, 30)]
-    result = detect_swing(hist, pts=5, window=timedelta(hours=2))
-    assert result is not None
-    assert result[0] == 5.0
+    swing = detect_swing(hist, pts=5, window=timedelta(hours=2))
+    assert swing is not None
+    assert swing[0] == 5.0
 
 
 def test_negative_swing_detected():

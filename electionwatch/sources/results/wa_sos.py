@@ -105,38 +105,38 @@ def _folder(date: str) -> str:
     pinned = ELECTIONS.get(date)
     if pinned:
         return pinned
-    y, m, d = (int(x) for x in date.split("-"))
-    return f"{y:04d}{m:02d}{d:02d}"
+    year, month, day = (int(part) for part in date.split("-"))
+    return f"{year:04d}{month:02d}{day:02d}"
 
 
 def race_key(name: str) -> RaceKey:
     """Map a WA export RaceName to a RaceKey."""
-    n = _norm(name)
-    if n in ("U.S. SENATOR", "UNITED STATES SENATOR"):
+    office_name = _norm(name)
+    if office_name in ("U.S. SENATOR", "UNITED STATES SENATOR"):
         return RaceKey("WA", Level.SENATE, "SEN")
-    if n in ("PRESIDENT/VICE PRESIDENT", "PRESIDENT AND VICE PRESIDENT"):
-        return c.local_key("WA", n)
-    if n in _STATEWIDE:
-        return RaceKey("WA", Level.GOVERNOR, _STATEWIDE[n])
-    m = _CONGRESS.match(n)
-    if m:
-        return RaceKey("WA", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    m = _LEG_SEN.match(n)
-    if m:
-        return RaceKey("WA", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _LEG_REP.match(n)
-    if m:
-        district = f"{int(m.group(1)):02d}"
-        pos = int(m.group(2) or 1)
+    if office_name in ("PRESIDENT/VICE PRESIDENT", "PRESIDENT AND VICE PRESIDENT"):
+        return c.local_key("WA", office_name)
+    if office_name in _STATEWIDE:
+        return RaceKey("WA", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = _CONGRESS.match(office_name)
+    if match:
+        return RaceKey("WA", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    match = _LEG_SEN.match(office_name)
+    if match:
+        return RaceKey("WA", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _LEG_REP.match(office_name)
+    if match:
+        district = f"{int(match.group(1)):02d}"
+        pos = int(match.group(2) or 1)
         # Position 1 is the plain district; position 2 needs its own stable key.
         return RaceKey("WA", Level.STATE, "HD", district if pos == 1 else f"{district}P{pos}")
-    return c.local_key("WA", n)
+    return c.local_key("WA", office_name)
 
 
 def _rows(root: ET.Element) -> list[dict]:
-    out = []
+    rows = []
     for row in root.iter("Result"):
-        out.append(
+        rows.append(
             {
                 "race": (row.findtext("RaceName") or "").strip(),
                 "candidate": (row.findtext("Candidate") or "").strip(),
@@ -145,7 +145,7 @@ def _rows(root: ET.Element) -> list[dict]:
                 "pct": row.findtext("PercentageOfTotalVote"),
             }
         )
-    return out
+    return rows
 
 
 def parse_wa(xml_text: str, *, fetched_at: datetime) -> list[RaceResult]:
@@ -178,13 +178,13 @@ def parse_wa(xml_text: str, *, fetched_at: datetime) -> list[RaceResult]:
             )
         )
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for name, bucket in grouped.items():
         if not bucket["cands"] or str(bucket["key"]) in seen:
             continue
         seen.add(str(bucket["key"]))
-        out.append(
+        results.append(
             c.make_result(
                 bucket["key"],
                 name,
@@ -192,10 +192,10 @@ def parse_wa(xml_text: str, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=WaSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in bucket["cands"]),
+                total_votes=sum(candidate.votes for candidate in bucket["cands"]),
             )
         )
-    return out
+    return results
 
 
 @register
@@ -205,7 +205,7 @@ class WaSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "WA" for k in keys):
+        if not any(key.state == "WA" for key in keys):
             return []
         folder = _folder(c.election_date())
         url = f"{BASE}/{folder}/export/{folder}_AllState.xml"
@@ -217,7 +217,7 @@ class WaSos(ResultsSource):
                 f"export under the election date folder on election night"
             ) from exc
         parsed = parse_wa(text, fetched_at=c.utcnow())
-        return c.select(parsed, [k for k in keys if k.state == "WA"])
+        return c.select(parsed, [key for key in keys if key.state == "WA"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "WA":
@@ -228,4 +228,7 @@ class WaSos(ResultsSource):
             text = await c.get_text(client, url)
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in parse_wa(text, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_wa(text, fetched_at=c.utcnow())
+        ]

@@ -25,24 +25,24 @@ def media():
 
 
 def by_key():
-    return {format_key(r.key): r for r in parse_sd(texts(), media(), fetched_at=AT)}
+    return {format_key(race_result.key): race_result for race_result in parse_sd(texts(), media(), fetched_at=AT)}
 
 
 def test_media_page_header():
-    info = media_info(media())
-    assert info["date"] == "2026-11-03"
-    assert info["election_type"] == "General"
-    assert info["ballots_cast"] == 6441
-    assert info["registered_voters"] == 622188
+    media_details = media_info(media())
+    assert media_details["date"] == "2026-11-03"
+    assert media_details["election_type"] == "General"
+    assert media_details["ballots_cast"] == 6441
+    assert media_details["registered_voters"] == 622188
     # "10/27/2026 10:53 AM CT" -> 15:53 UTC
-    assert info["updated_at"] == datetime(2026, 10, 27, 15, 53, tzinfo=timezone.utc)
+    assert media_details["updated_at"] == datetime(2026, 10, 27, 15, 53, tzinfo=timezone.utc)
 
 
 def test_senate_and_at_large_house():
     got = by_key()
     senate = got["SD SEN"]
     assert senate.key.level is Level.SENATE
-    assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
+    assert [(candidate.name, candidate.party, candidate.votes) for candidate in senate.candidates] == [
         ("Mike Rounds", "REP", 2132),
         ("Brian L Bengs", "IND", 2099),
     ]
@@ -56,17 +56,17 @@ def test_senate_and_at_large_house():
     house = got["SD-AL"]
     assert house.key.level is Level.HOUSE
     assert house.key.district == "AL"
-    assert [c.name for c in house.candidates] == ["Marty Jackley", "Nicole 'Nikki' Gronli"]
+    assert [candidate.name for candidate in house.candidates] == ["Marty Jackley", "Nicole 'Nikki' Gronli"]
 
 
 def test_statewide_executive_offices():
     got = by_key()
     assert got["SD GOV"].title == "Governor and Lieutenant Governor"
-    assert [c.name for c in got["SD GOV"].candidates] == [
+    assert [candidate.name for candidate in got["SD GOV"].candidates] == [
         "Larry Rhoden and Tony Venhuizen",
         "Dan Ahlers and Steven McCleerey",
     ]
-    assert [c.party for c in got["SD SOS"].candidates] == ["DEM", "LIB", "REP"]
+    assert [candidate.party for candidate in got["SD SOS"].candidates] == ["DEM", "LIB", "REP"]
     assert got["SD AG"].candidates[0].pct == 100.0
     assert got["SD AUD"].key.level is Level.GOVERNOR
     assert got["SD TREAS"].candidates[0].name == "Melissa Hull"
@@ -87,14 +87,14 @@ def test_legislative_races_and_two_seat_house_districts():
 
     hd = got["SD HD-01"]
     assert hd.key.office == "HD"
-    assert [c.name for c in hd.candidates] == ["Daniel Kjos", "Nick Fosness", "Courtney Gale Enfield"]
+    assert [candidate.name for candidate in hd.candidates] == ["Daniel Kjos", "Nick Fosness", "Courtney Gale Enfield"]
     assert hd.title == "State Representative (District 01)"
 
 
 def test_ballot_measures_get_compact_slugs():
     got = by_key()
     i = got["SD LOCAL constitutional-amendment-i"]
-    assert [c.name for c in i.candidates] == ["No", "Yes"]
+    assert [candidate.name for candidate in i.candidates] == ["No", "Yes"]
     assert i.candidates[0].votes == 1669
     assert i.candidates[0].party is None
     assert got["SD LOCAL constitutional-amendment-l"].candidates[0].votes == 1706
@@ -130,5 +130,5 @@ def test_race_key_mapping():
 def test_partial_feed_does_not_crash():
     # Only one group fetched: the parser reports what it has.
     got = parse_sd((FIX / "2026_general_swr.csv").read_text(encoding="utf-8"), fetched_at=AT)
-    assert {format_key(r.key) for r in got} >= {"SD SEN", "SD-AL", "SD GOV"}
+    assert {format_key(race_result.key) for race_result in got} >= {"SD SEN", "SD-AL", "SD GOV"}
     assert got[0].source_updated_at is None  # no media page -> no timestamp

@@ -81,10 +81,10 @@ def dump_list(races: Iterable[tuple[RaceKey, str]]) -> str:
 
 def load_list(text: str) -> list[tuple[RaceKey, str]]:
     races = []
-    for item in json.loads(text):
+    for row in json.loads(text):
         # One unreadable entry (written by another version) shouldn't hide the rest.
         try:
-            state, level, office, district, special, label = item
+            state, level, office, district, special, label = row
             races.append((RaceKey(state, Level(level), office, district, bool(special)), label))
         except (TypeError, ValueError):
             continue
@@ -99,7 +99,7 @@ def typed_state(text: str) -> str | None:
     first = cleaned.split(" ", 1)[0].upper()
     if len(first) == 2 and first in ALL_JURISDICTIONS:
         return first
-    for code, name in sorted(ALL_JURISDICTIONS.items(), key=lambda item: -len(item[1])):
+    for code, name in sorted(ALL_JURISDICTIONS.items(), key=lambda jurisdiction: -len(jurisdiction[1])):
         name = name.casefold()
         if cleaned == name or cleaned.startswith(name + " "):
             return code

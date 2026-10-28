@@ -22,8 +22,8 @@ def load(name):
 
 def parsed():
     return {
-        format_key(r.key): r
-        for r in al_counties.parse_al_county(
+        format_key(race_result.key): race_result
+        for race_result in al_counties.parse_al_county(
             load("madison_2022_summary.json"),
             load("madison_2022_electionsettings.json"),
             county="Madison",
@@ -38,14 +38,14 @@ def test_keys_for_federal_statewide_and_legislative_contests():
     assert "AL LOCAL madison-madison-county-sheriff" in got
     assert "AL LOCAL madison-statewide-amendment-1" in got
     # Straight-party voting is not a race.
-    assert not any("straight" in k.lower() for k in got)
+    assert not any("straight" in race_key.lower() for race_key in got)
 
 
 def test_truncated_house_name_and_totals():
     got = parsed()
     sen = got["AL SEN"]
     assert sen.total_votes == 120500 - 345  # the aggregated WRITE-IN row is dropped
-    assert {c.name.upper() for c in sen.candidates} >= {"KATIE BRITT", "WILL BOYD"}
+    assert {candidate.name.upper() for candidate in sen.candidates} >= {"KATIE BRITT", "WILL BOYD"}
     assert (sen.precincts_reporting, sen.precincts_total) == (76, 76)
     assert sen.source_updated_at is not None
     assert got["AL-05"].total_votes == 120275 - 246  # minus its WRITE-IN tally
@@ -53,8 +53,8 @@ def test_truncated_house_name_and_totals():
 
 def test_write_in_rows_are_dropped():
     ltgov = parsed()["AL LTGOV"]
-    assert all(c.name.upper() != "WRITE-IN" for c in ltgov.candidates)
-    assert ltgov.total_votes == sum(c.votes for c in ltgov.candidates)
+    assert all(candidate.name.upper() != "WRITE-IN" for candidate in ltgov.candidates)
+    assert ltgov.total_votes == sum(candidate.votes for candidate in ltgov.candidates)
 
 
 def test_elections_listing_has_no_2026_general_yet():
@@ -76,10 +76,10 @@ def test_fetch_with_pinned_id_titles_one_county(monkeypatch):
         return httpx.Response(200, json=load("madison_2022_electionsettings.json"))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await al_counties.AlCounties().fetch([parse("AL SEN"), parse("AL-05")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await al_counties.AlCounties().fetch([parse("AL SEN"), parse("AL-05")], client)
 
-    got = {format_key(r.key): r for r in asyncio.run(go())}
+    got = {format_key(race_result.key): race_result for race_result in asyncio.run(go())}
     assert set(got) == {"AL SEN", "AL-05"}
     assert got["AL SEN"].title == "UNITED STATES SENATOR (partial: 1 county)"
 
@@ -93,8 +93,8 @@ def test_unlisted_2026_general_is_unavailable(monkeypatch):
         return httpx.Response(200, json=load("madison_elections.json"))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            await al_counties.AlCounties().fetch([parse("AL SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            await al_counties.AlCounties().fetch([parse("AL SEN")], client)
 
     with pytest.raises(SourceUnavailable):
         asyncio.run(go())

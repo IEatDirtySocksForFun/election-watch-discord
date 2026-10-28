@@ -102,59 +102,59 @@ def _party(value: str | None) -> str | None:
 
 
 def _district(text: str) -> str | None:
-    m = _DISTRICT.search(text or "")
-    return f"{int(m.group(1)):02d}" if m else None
+    match = _DISTRICT.search(text or "")
+    return f"{int(match.group(1)):02d}" if match else None
 
 
 def race_key(title: str) -> RaceKey:
     """Map a Montana contest heading to a RaceKey."""
-    n = _norm(title)
-    special = c.is_special(n)
-    if n.startswith("PRESIDENT"):
+    office_name = _norm(title)
+    special = c.is_special(office_name)
+    if office_name.startswith("PRESIDENT"):
         return RaceKey("MT", Level.LOCAL, "LOCAL", "us-president")
-    if n in ("UNITED STATES SENATOR", "US SENATOR", "UNITED STATES SENATE"):
+    if office_name in ("UNITED STATES SENATOR", "US SENATOR", "UNITED STATES SENATE"):
         return RaceKey("MT", Level.SENATE, "SEN", None, special)
-    m = _CONGRESS.search(n)
-    if m:
-        return RaceKey("MT", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    if n.startswith("GOVERNOR"):
+    match = _CONGRESS.search(office_name)
+    if match:
+        return RaceKey("MT", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    if office_name.startswith("GOVERNOR"):
         return RaceKey("MT", Level.GOVERNOR, "GOV", None, special)
     for prefix, code in _STATEWIDE.items():
-        if prefix != "GOVERNOR" and n.startswith(prefix):
+        if prefix != "GOVERNOR" and office_name.startswith(prefix):
             return RaceKey("MT", Level.GOVERNOR, code, None, special)
-    if n.startswith(("STATE SENATOR", "STATE SENATE")):
-        return RaceKey("MT", Level.STATE, "SD", _district(n) or "00", special)
-    if n.startswith(("STATE REPRESENTATIVE", "STATE HOUSE", "STATE REP")):
-        return RaceKey("MT", Level.STATE, "HD", _district(n) or "00", special)
-    m = _MEASURE.match(n)
-    if m:
-        return RaceKey("MT", Level.LOCAL, "LOCAL", c.slug(m.group(1)))
-    m = _RETENTION.match(n)
-    if m:
-        return RaceKey("MT", Level.LOCAL, "LOCAL", c.slug(f"retain-judge {m.group(1)}"))
-    return c.local_key("MT", n)
+    if office_name.startswith(("STATE SENATOR", "STATE SENATE")):
+        return RaceKey("MT", Level.STATE, "SD", _district(office_name) or "00", special)
+    if office_name.startswith(("STATE REPRESENTATIVE", "STATE HOUSE", "STATE REP")):
+        return RaceKey("MT", Level.STATE, "HD", _district(office_name) or "00", special)
+    match = _MEASURE.match(office_name)
+    if match:
+        return RaceKey("MT", Level.LOCAL, "LOCAL", c.slug(match.group(1)))
+    match = _RETENTION.match(office_name)
+    if match:
+        return RaceKey("MT", Level.LOCAL, "LOCAL", c.slug(f"retain-judge {match.group(1)}"))
+    return c.local_key("MT", office_name)
 
 
 def page_info(html: str) -> dict:
     """Election date, statewide turnout and the last-updated stamp of one results page."""
-    doc = HTMLParser(html or "")
-    head = doc.css_first("div.header-box1")
+    page = HTMLParser(html or "")
+    head = page.css_first("div.header-box1")
     date = None
     if head is not None:
-        m = _DOB.search(_name(head.text(separator=" ")))
-        if m:
+        match = _DOB.search(_name(head.text(separator=" ")))
+        if match:
             try:
-                date = datetime.strptime(m.group(1), "%B %d, %Y").date().isoformat()
+                date = datetime.strptime(match.group(1), "%B %d, %Y").date().isoformat()
             except ValueError:
                 date = None
-    turnout_node = doc.css_first("div.header-box2")
+    turnout_node = page.css_first("div.header-box2")
     registered = ballots = None
     if turnout_node is not None:
-        m = _TURNOUT.search(_name(turnout_node.text(separator=" ")))
-        if m:
-            ballots, registered = c.to_int(m.group(1)), c.to_int(m.group(2))
+        match = _TURNOUT.search(_name(turnout_node.text(separator=" ")))
+        if match:
+            ballots, registered = c.to_int(match.group(1)), c.to_int(match.group(2))
     updated = None
-    stamp = doc.css_first("div.last-updated")
+    stamp = page.css_first("div.last-updated")
     if stamp is not None:
         raw = re.sub(r"^.*?last updated:?\s*", "", _name(stamp.text()), flags=re.I)
         raw = re.sub(r"\s+(?:M[DS]?T|UTC)$", "", raw, flags=re.I)
@@ -169,16 +169,16 @@ def page_info(html: str) -> dict:
 
 def parse_mt(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one resultsSW.aspx contest page."""
-    info = page_info(html)
-    doc = HTMLParser(html or "")
-    out: list[RaceResult] = []
+    overview = page_info(html)
+    page = HTMLParser(html or "")
+    results: list[RaceResult] = []
     seen: set[str] = set()
     turnout = (
-        round(100.0 * info["ballots_cast"] / info["registered_voters"], 2)
-        if info.get("ballots_cast") and info.get("registered_voters")
+        round(100.0 * overview["ballots_cast"] / overview["registered_voters"], 2)
+        if overview.get("ballots_cast") and overview.get("registered_voters")
         else None
     )
-    for contest in doc.css("div.wrapper-inside.wrapper-border"):
+    for contest in page.css("div.wrapper-inside.wrapper-border"):
         heading = contest.css_first("div.display-results-box-a h1")
         if heading is None:
             heading = contest.css_first("h1")
@@ -190,9 +190,9 @@ def parse_mt(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             continue
         text = _name(contest.text(separator=" "))
         reporting = total = None
-        m = _PRECINCTS.search(text)
-        if m:
-            reporting, total = c.to_int(m.group(1)), c.to_int(m.group(2))
+        match = _PRECINCTS.search(text)
+        if match:
+            reporting, total = c.to_int(match.group(1)), c.to_int(match.group(2))
             partial = _PARTIAL.search(text)
             if partial:
                 reporting += c.to_int(partial.group(1))
@@ -216,7 +216,7 @@ def parse_mt(html: str, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -224,23 +224,23 @@ def parse_mt(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=MtSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=reporting,
                 precincts_total=total,
-                registered_voters=info.get("registered_voters"),
+                registered_voters=overview.get("registered_voters"),
                 turnout_pct=turnout,
-                source_updated_at=info.get("updated_at"),
+                source_updated_at=overview.get("updated_at"),
             )
         )
-    return out
+    return results
 
 
 def discover_eid(html: str, date: str) -> str | None:
     """Election id for an ISO date out of the candidate-filing election dropdown."""
     target = c.us_date(date)
     for value, text in _OPTION.findall(html or ""):
-        m = _OPTION_DATE.search(text)
-        if m and m.group(1) == target:
+        match = _OPTION_DATE.search(text)
+        if match and match.group(1) == target:
             return value
     return None
 
@@ -274,7 +274,7 @@ class MtSos(ResultsSource):
         return eid, False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "MT" for k in keys):
+        if not any(key.state == "MT" for key in keys):
             return []
         date = c.election_date()
         eid, pinned = await self._resolve(client, date)
@@ -295,7 +295,7 @@ class MtSos(ResultsSource):
             results.extend(parsed)
         if not pages:
             raise SourceUnavailable(f"MT: eid {eid} publishes no contests yet ({URL.format('FED', eid)})")
-        return c.select(results, [k for k in keys if k.state == "MT"])
+        return c.select(results, [key for key in keys if key.state == "MT"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "MT":
@@ -307,6 +307,6 @@ class MtSos(ResultsSource):
                 html = await c.get_text(client, URL.format(page, eid))
             except SourceUnavailable:
                 continue
-            for r in parse_mt(html, fetched_at=c.utcnow()):
-                seen.setdefault(str(r.key), (r.key, r.title or str(r.key)))
+            for race_result in parse_mt(html, fetched_at=c.utcnow()):
+                seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))
         return list(seen.values())

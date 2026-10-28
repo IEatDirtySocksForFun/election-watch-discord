@@ -64,24 +64,24 @@ NO_PARTY = {
 
 def candidates(lines: list[str]):
     for line in lines:
-        m = LINE.match(line)
-        if m and m.group("dot") in {"🔴", "🔵", "⚪"} | {line[:1]} and "expected vote" not in line:
-            yield m
+        match = LINE.match(line)
+        if match and match.group("dot") in {"🔴", "🔵", "⚪"} | {line[:1]} and "expected vote" not in line:
+            yield match
 
 
 def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> dict:
-    out: dict = {"sends": len(records)}
-    ok = [r for r in records if r.get("ok")]
-    out["failed_sends"] = Counter(r["error"].split(":")[0] for r in records if not r.get("ok"))
-    lat = [r["secs"] for r in ok if "secs" in r]
-    if lat:
-        out["send_latency_s"] = {
-            "median": statistics.median(lat),
-            "p95": sorted(lat)[int(len(lat) * 0.95) - 1],
-            "max": max(lat),
+    report: dict = {"sends": len(records)}
+    successful = [record for record in records if record.get("ok")]
+    report["failed_sends"] = Counter(record["error"].split(":")[0] for record in records if not record.get("ok"))
+    latencies = [record["secs"] for record in successful if "secs" in record]
+    if latencies:
+        report["send_latency_s"] = {
+            "median": statistics.median(latencies),
+            "p95": sorted(latencies)[int(len(latencies) * 0.95) - 1],
+            "max": max(latencies),
         }
-    out["rate_limited"] = sum("rate limit" in line.lower() for line in log_lines)
-    out["app_errors"] = Counter(
+    report["rate_limited"] = sum("rate limit" in line.lower() for line in log_lines)
+    report["app_errors"] = Counter(
         re.sub(r"\d+", "N", line.split(": ", 1)[-1])[:120]
         for line in log_lines
         if " ERROR " in line or "Traceback" in line
@@ -91,34 +91,34 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
     final_leader: dict[str, str] = {}
     calls: dict[str, str] = {}
     posted = Counter()
-    for r in ok:
-        race = r["race"]
-        if r["kind"] == "call":
-            m = re.search(r"Projected winner: (.+?)(?: \(|$)", r["lines"][0] if r["lines"] else "")
-            if m:
-                calls[race] = m.group(1).strip()
+    for record in successful:
+        race = record["race"]
+        if record["kind"] == "call":
+            match = re.search(r"Projected winner: (.+?)(?: \(|$)", record["lines"][0] if record["lines"] else "")
+            if match:
+                calls[race] = match.group(1).strip()
             continue
-        if r["kind"] != "results":
+        if record["kind"] != "results":
             continue
         posted[race] += 1
-        shown = list(candidates(r["lines"]))
-        pct = sum(float(m.group("pct") or 0) for m in shown)
+        shown = list(candidates(record["lines"]))
+        pct = sum(float(match.group("pct") or 0) for match in shown)
         if pct > 100.5:
-            issues["pct_sum"].append((race, r["sim"], round(pct, 1)))
-        for i, m in enumerate(shown):
-            name, party = m.group("name"), (m.group("party") or "").strip()
-            votes = int(m.group("votes").replace(",", ""))
-            if i == 0:
+            issues["pct_sum"].append((race, record["sim"], round(pct, 1)))
+        for index, match in enumerate(shown):
+            name, party = match.group("name"), (match.group("party") or "").strip()
+            votes = int(match.group("votes").replace(",", ""))
+            if index == 0:
                 final_leader[race] = name
             if NON_CANDIDATE.search(name) and not re.search(r"write[- ]?ins?", name, re.I):
                 issues["non_candidate"].append((race, name))
             if (name.isupper() and len(name) > 4) or BAD_CASE.search(name):
                 issues["name_case"].append((race, name))
-            if m.group("dot") == "⚪" and party and party.upper() not in NO_PARTY:
+            if match.group("dot") == "⚪" and party and party.upper() not in NO_PARTY:
                 issues["white_party"].append((race, party))
-            prev = last_votes.get((race, name))
-            if prev is not None and votes < prev:
-                issues["votes_down"].append((race, name, r["sim"], prev, votes))
+            previous = last_votes.get((race, name))
+            if previous is not None and votes < previous:
+                issues["votes_down"].append((race, name, record["sim"], previous, votes))
             last_votes[(race, name)] = votes
     for race, winner in calls.items():
         if race in final_leader and final_leader[race] != winner:
@@ -126,17 +126,22 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
     for race in expected:
         if not posted[race]:
             issues["no_posts"].append(race)
-    out["posts_per_race"] = {
+    report["posts_per_race"] = {
         "races": len(posted),
         "min": min(posted.values(), default=0),
         "max": max(posted.values(), default=0),
     }
     # de-duplicate repeated findings, keep counts
-    out["issues"] = {
-        k: {"count": len(v), "examples": sorted(set(map(tuple, (x if isinstance(x, tuple) else (x,) for x in v))))[:15]}
-        for k, v in issues.items()
+    report["issues"] = {
+        issue_kind: {
+            "count": len(findings),
+            "examples": sorted(
+                set(map(tuple, (finding if isinstance(finding, tuple) else (finding,) for finding in findings)))
+            )[:15],
+        }
+        for issue_kind, findings in issues.items()
     }
-    return out
+    return report
 
 
 def main() -> int:
@@ -145,15 +150,18 @@ def main() -> int:
     ap.add_argument("--log", required=True)
     ap.add_argument("--expected", default="", help="comma-separated races that should have posted")
     ap.add_argument("--json")
-    a = ap.parse_args()
-    records = [json.loads(line) for line in open(a.record, encoding="utf-8") if line.strip()]
-    log_lines = open(a.log, encoding="utf-8", errors="replace").read().splitlines()
-    res = analyse(records, log_lines, [r for r in a.expected.split(",") if r])
+    args = ap.parse_args()
+    records = [json.loads(line) for line in open(args.record, encoding="utf-8") if line.strip()]
+    log_lines = open(args.log, encoding="utf-8", errors="replace").read().splitlines()
+    report = analyse(records, log_lines, [race for race in args.expected.split(",") if race])
     text = json.dumps(
-        res, indent=1, default=lambda o: dict(o) if isinstance(o, Counter) else str(o), ensure_ascii=False
+        report,
+        indent=1,
+        default=lambda value: dict(value) if isinstance(value, Counter) else str(value),
+        ensure_ascii=False,
     )
-    if a.json:
-        open(a.json, "w", encoding="utf-8").write(text)
+    if args.json:
+        open(args.json, "w", encoding="utf-8").write(text)
     print(text)
     return 0
 

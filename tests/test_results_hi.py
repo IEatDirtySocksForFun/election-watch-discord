@@ -10,12 +10,12 @@ AT = datetime(2026, 10, 27, 15, 0, tzinfo=timezone.utc)
 
 
 def load():
-    with FIX.open(encoding="utf-8") as f:
-        return f.read()
+    with FIX.open(encoding="utf-8") as fh:
+        return fh.read()
 
 
 def by_key(text):
-    return {format_key(r.key): r for r in parse_hi(_rows(text), fetched_at=AT)}
+    return {format_key(race_result.key): race_result for race_result in parse_hi(_rows(text), fetched_at=AT)}
 
 
 def test_race_keys():
@@ -44,7 +44,7 @@ def test_federal_results():
     assert pres.candidates[0].name == "Kamala D. Harris"
     assert pres.candidates[0].party == "DEM"
     assert pres.candidates[0].votes == 313044
-    assert pres.total_votes == sum(c.votes for c in pres.candidates)
+    assert pres.total_votes == sum(candidate.votes for candidate in pres.candidates)
 
 
 def test_state_legislature_results():
@@ -64,10 +64,10 @@ def test_ballot_measures_and_local():
 
 
 def test_precincts_and_registration():
-    r = by_key(load())["HI LOCAL us-president"]
-    assert r.precincts_reporting == 497
-    assert r.precincts_total == 497
-    assert r.registered_voters == 860868
+    race_result = by_key(load())["HI LOCAL us-president"]
+    assert race_result.precincts_reporting == 497
+    assert race_result.precincts_total == 497
+    assert race_result.registered_voters == 860868
 
 
 def test_governor_and_lieutenant_governor_are_statewide_keys():

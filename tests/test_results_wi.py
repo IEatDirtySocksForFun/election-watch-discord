@@ -20,7 +20,7 @@ def load() -> str:
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_partial_title_names_the_counties():
@@ -38,8 +38,11 @@ def test_statewide_and_district_keys_from_the_real_page():
 
 def test_candidates_parties_and_precincts():
     gov = by_key(parse_dane(load(), fetched_at=AT))["WI GOV"]
-    assert [c.name for c in gov.candidates] == ["Tom Tiffany /David Varnam", "David Crowley /Sarah Godlewski"]
-    assert [c.party for c in gov.candidates] == ["REP", "DEM"]
+    assert [candidate.name for candidate in gov.candidates] == [
+        "Tom Tiffany /David Varnam",
+        "David Crowley /Sarah Godlewski",
+    ]
+    assert [candidate.party for candidate in gov.candidates] == ["REP", "DEM"]
     assert (gov.precincts_reporting, gov.precincts_total) == (0, 282)
     assert gov.expected_vote_pct is None  # 0 of 282 reported
     assert gov.url == "https://elections.wi.gov/elections-voting/results"
@@ -48,14 +51,22 @@ def test_candidates_parties_and_precincts():
 
 def test_party_prefixed_names_are_cleaned():
     senate = by_key(parse_dane(load(), fetched_at=AT))["WI SD-15"]
-    assert [c.name for c in senate.candidates] == ["Scott Fleming", "Mark Spreitzer", "Christopher Dean"]
+    assert [candidate.name for candidate in senate.candidates] == [
+        "Scott Fleming",
+        "Mark Spreitzer",
+        "Christopher Dean",
+    ]
     assert senate.candidates[2].party == "PNP"
 
 
 def test_write_in_rows_and_ballots_cast_are_dropped():
-    names = {c.name for r in parse_dane(load(), fetched_at=AT) for c in r.candidates}
-    assert not any(n.lower().startswith("write-in") for n in names)
-    assert not any("BALLOTS CAST" in (r.title or "").upper() for r in parse_dane(load(), fetched_at=AT))
+    names = {
+        candidate.name for race_result in parse_dane(load(), fetched_at=AT) for candidate in race_result.candidates
+    }
+    assert not any(name.lower().startswith("write-in") for name in names)
+    assert not any(
+        "BALLOTS CAST" in (race_result.title or "").upper() for race_result in parse_dane(load(), fetched_at=AT)
+    )
 
 
 def test_votes_and_percent_are_read_from_the_markup():
@@ -123,8 +134,8 @@ def test_fetch_uses_the_results_page(monkeypatch):
         return httpx.Response(200, text=load())
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await wi_dane.WiDane().fetch([parse("WI GOV"), parse("WI-02")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await wi_dane.WiDane().fetch([parse("WI GOV"), parse("WI-02")], client)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"WI GOV", "WI-02"}
@@ -132,8 +143,8 @@ def test_fetch_uses_the_results_page(monkeypatch):
 
 def test_fetch_surfaces_a_blocked_page():
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(403))) as c:
-            return await wi_dane.WiDane().fetch([parse("WI GOV")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda race_result: httpx.Response(403))) as client:
+            return await wi_dane.WiDane().fetch([parse("WI GOV")], client)
 
     with pytest.raises(SourceUnavailable, match="HTTP 403"):
         asyncio.run(go())
@@ -144,11 +155,11 @@ def test_list_races_and_other_states():
         return httpx.Response(200, text=load())
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            both = await wi_dane.WiDane().list_races("WI", c)
-            other = await wi_dane.WiDane().list_races("MN", c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            both = await wi_dane.WiDane().list_races("WI", client)
+            other = await wi_dane.WiDane().list_races("MN", client)
             return both, other
 
     races, other = asyncio.run(go())
     assert other == []
-    assert [format_key(k) for k, _ in races] == ["WI GOV", "WI-02", "WI SD-15"]
+    assert [format_key(race_key) for race_key, _ in races] == ["WI GOV", "WI-02", "WI SD-15"]

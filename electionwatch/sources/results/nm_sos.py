@@ -73,36 +73,36 @@ def _norm(text: str) -> str:
 
 
 def _district(text: str) -> str | None:
-    m = _DISTRICT.search(text or "")
-    return f"{int(m.group(1)):02d}" if m else None
+    match = _DISTRICT.search(text or "")
+    return f"{int(match.group(1)):02d}" if match else None
 
 
 def race_key(title: str) -> RaceKey:
     """Map a New Mexico contest heading to a RaceKey."""
-    n = _norm(title)
-    special = c.is_special(n)
-    if n.startswith("UNITED STATES SENATOR") or n.startswith("U.S. SENATOR"):
+    office_name = _norm(title)
+    special = c.is_special(office_name)
+    if office_name.startswith("UNITED STATES SENATOR") or office_name.startswith("U.S. SENATOR"):
         return RaceKey("NM", Level.SENATE, "SEN", None, special)
-    if "UNITED STATES REPRESENTATIVE" in n or "REPRESENTATIVE IN CONGRESS" in n:
-        return RaceKey("NM", Level.HOUSE, "HOUSE", _district(n) or "00", special)
-    if n.startswith("PRESIDENT"):
+    if "UNITED STATES REPRESENTATIVE" in office_name or "REPRESENTATIVE IN CONGRESS" in office_name:
+        return RaceKey("NM", Level.HOUSE, "HOUSE", _district(office_name) or "00", special)
+    if office_name.startswith("PRESIDENT"):
         return RaceKey("NM", Level.LOCAL, "LOCAL", "us-president")
     for prefix, code in _STATEWIDE:
-        if n.startswith(prefix):
+        if office_name.startswith(prefix):
             return RaceKey("NM", Level.GOVERNOR, code, None, special)
-    if n.startswith("STATE SENATOR") or n.startswith("STATE SENATE"):
-        return RaceKey("NM", Level.STATE, "SD", _district(n) or "00", special)
-    if n.startswith(("STATE REPRESENTATIVE", "STATE REPRESENTATIVES")):
-        return RaceKey("NM", Level.STATE, "HD", _district(n) or "00", special)
-    return c.local_key("NM", n)
+    if office_name.startswith("STATE SENATOR") or office_name.startswith("STATE SENATE"):
+        return RaceKey("NM", Level.STATE, "SD", _district(office_name) or "00", special)
+    if office_name.startswith(("STATE REPRESENTATIVE", "STATE REPRESENTATIVES")):
+        return RaceKey("NM", Level.STATE, "HD", _district(office_name) or "00", special)
+    return c.local_key("NM", office_name)
 
 
 def parse_nm(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one resultsSW.aspx contest page."""
-    doc = HTMLParser(html or "")
-    out: list[RaceResult] = []
+    page = HTMLParser(html or "")
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for contest in doc.css("div.wrapper-inside.wrapper-border"):
+    for contest in page.css("div.wrapper-inside.wrapper-border"):
         heading = contest.css_first("div.display-results-box-a h1")
         if heading is None:
             heading = contest.css_first("h1")
@@ -113,9 +113,9 @@ def parse_nm(html: str, *, fetched_at: datetime) -> list[RaceResult]:
         if str(key) in seen:
             continue
         reporting = total = None
-        m = _PRECINCTS.search(contest.text(separator=" ", strip=True))
-        if m:
-            reporting, total = c.to_int(m.group(1)), c.to_int(m.group(2))
+        match = _PRECINCTS.search(contest.text(separator=" ", strip=True))
+        if match:
+            reporting, total = c.to_int(match.group(1)), c.to_int(match.group(2))
         cands: list[CandidateResult] = []
         for row in contest.css("div.section.group"):
             name_node = row.css_first("div.display-results-box-d h1")
@@ -136,7 +136,7 @@ def parse_nm(html: str, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -148,7 +148,7 @@ def parse_nm(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 precincts_total=total,
             )
         )
-    return out
+    return results
 
 
 @register
@@ -159,7 +159,7 @@ class NmSos(ResultsSource):
     enabled_by_default = True  # the state's own official results site
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "NM" for k in keys):
+        if not any(key.state == "NM" for key in keys):
             return []
         results: list[RaceResult] = []
         pages = 0
@@ -172,7 +172,7 @@ class NmSos(ResultsSource):
             results.extend(parse_nm(html, fetched_at=c.utcnow()))
         if not pages:
             raise SourceUnavailable(f"NM: no results page fetched ({URL.format('FED')})")
-        return c.select(results, [k for k in keys if k.state == "NM"])
+        return c.select(results, [key for key in keys if key.state == "NM"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "NM":
@@ -183,6 +183,6 @@ class NmSos(ResultsSource):
                 html = await c.get_text(client, URL.format(page))
             except SourceUnavailable:
                 continue
-            for r in parse_nm(html, fetched_at=c.utcnow()):
-                seen.setdefault(str(r.key), (r.key, r.title or str(r.key)))
+            for race_result in parse_nm(html, fetched_at=c.utcnow()):
+                seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))
         return list(seen.values())

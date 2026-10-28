@@ -93,7 +93,9 @@ def _pct(part: int, whole: int) -> str:
 
 
 def _party_lines(parties: dict[str, int], whole: int) -> list[str]:
-    ordered = sorted(parties.items(), key=lambda item: (_PARTY_ORDER.get(item[0], 2), -item[1], item[0]))
+    ordered = sorted(
+        parties.items(), key=lambda party_votes: (_PARTY_ORDER.get(party_votes[0], 2), -party_votes[1], party_votes[0])
+    )
     return [f"{party}: {_n(votes)} ({_pct(votes, whole)})" for party, votes in ordered]
 
 
@@ -103,17 +105,17 @@ def _footer(updated: date | None) -> str:
 
 def _fit(lines: list[str], limit: int, more: str = "… and {n} more") -> str:
     """Join whole lines up to ``limit`` characters, ending with a count of what was left out."""
-    out: list[str] = []
+    kept_lines: list[str] = []
     used = 0
     for index, line in enumerate(lines):
         tail = len(more.format(n=len(lines) - index)) + 1
-        cost = len(line) + (1 if out else 0)
+        cost = len(line) + (1 if kept_lines else 0)
         if used + cost + (tail if index < len(lines) - 1 else 0) > limit:
-            out.append(more.format(n=len(lines) - index))
+            kept_lines.append(more.format(n=len(lines) - index))
             break
-        out.append(line)
+        kept_lines.append(line)
         used += cost
-    return clip("\n".join(out), limit)
+    return clip("\n".join(kept_lines), limit)
 
 
 def _embed(title: str, url: str, updated: date | None) -> discord.Embed:
@@ -132,7 +134,9 @@ def _summary_lines(ev: EarlyVote) -> list[str]:
     method = ev.by_method
     lines = [f"**{_n(ev.total_ballots)}** early ballots cast (mail returned + in person)"]
     cast = [
-        f"{label}: {_n(method[c])}" for c, label in (("returned", "Mail"), ("inperson", "In person")) if c in method
+        f"{label}: {_n(method[category])}"
+        for category, label in (("returned", "Mail"), ("inperson", "In person"))
+        if category in method
     ]
     if cast:
         lines.append(" · ".join(cast))
@@ -144,17 +148,19 @@ def _summary_lines(ev: EarlyVote) -> list[str]:
     parties = ev.by_party
     if parties:
         shares = " · ".join(
-            f"{p} {_pct(v, ev.total_ballots)}"
-            for p, v in sorted(parties.items(), key=lambda i: (_PARTY_ORDER.get(i[0], 2), -i[1]))
+            f"{party} {_pct(votes, ev.total_ballots)}"
+            for party, votes in sorted(
+                parties.items(), key=lambda party_votes: (_PARTY_ORDER.get(party_votes[0], 2), -party_votes[1])
+            )
         )
         lines.append(f"By party registration: {shares}")
     if ev.comparison:
-        c = ev.comparison
-        change = f" (now {(ev.total_ballots - c.total) / c.total:+.1%})" if c.total else ""
-        lines.append(f"Same point in {c.year} ({c.on.isoformat()}): {_n(c.total)}{change}")
-        if c.labels:
+        comparison = ev.comparison
+        change = f" (now {(ev.total_ballots - comparison.total) / comparison.total:+.1%})" if comparison.total else ""
+        lines.append(f"Same point in {comparison.year} ({comparison.on.isoformat()}): {_n(comparison.total)}{change}")
+        if comparison.labels:
             # Past years can count differently (NC 2022 "returned" includes one-stop voting).
-            lines.append(clip(f"{c.year} counts: " + "; ".join(c.labels), 300))
+            lines.append(clip(f"{comparison.year} counts: " + "; ".join(comparison.labels), 300))
     return lines
 
 
@@ -171,7 +177,7 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
             tally = ev.tallies.get(category)
             if tally and tally.by_party:
                 _add_field(embed, CATEGORY_LABELS[category], _party_lines(tally.by_party, tally.total))
-        if ev.by_party and len([c for c in ("returned", "inperson") if c in ev.tallies]) > 1:
+        if ev.by_party and sum(category in ev.tallies for category in ("returned", "inperson")) > 1:
             _add_field(embed, "All ballots cast", _party_lines(ev.by_party, ev.total_ballots))
         if ev.comparison and ev.comparison.by_party:
             _add_field(
@@ -188,18 +194,21 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
     elif breakdown == "age":
         if ev.age:
             whole = sum(ev.age.values())
-            covered = " + ".join(CATEGORY_LABELS[c].lower() for c in ev.age_categories)
-            lines = [f"{label.removeprefix('Age ').strip()}: {_n(v)} ({_pct(v, whole)})" for label, v in ev.age.items()]
+            covered = " + ".join(CATEGORY_LABELS[category].lower() for category in ev.age_categories)
+            lines = [
+                f"{label.removeprefix('Age ').strip()}: {_n(ballots)} ({_pct(ballots, whole)})"
+                for label, ballots in ev.age.items()
+            ]
             _add_field(embed, f"By age ({covered})", lines)
         else:
             _add_field(embed, "By age", [f"civicAPI has no age breakdown of ballots cast in {ev.name}."])
     elif breakdown == "county":
         if ev.counties:
-            reporting = sum(1 for v in ev.counties.values() if v)
+            reporting = sum(1 for count in ev.counties.values() if count)
             top = list(ev.counties.items())[:MAX_COUNTIES]
             lines = [
-                f"{index}. {clip(county, 60)}: {_n(v)} ({_pct(v, ev.total_ballots)})"
-                for index, (county, v) in enumerate(top, 1)
+                f"{index}. {clip(county, 60)}: {_n(ballots)} ({_pct(ballots, ev.total_ballots)})"
+                for index, (county, ballots) in enumerate(top, 1)
             ]
             _add_field(embed, f"Top counties ({reporting} of {len(ev.counties)} reporting)", lines)
         else:
@@ -209,13 +218,13 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
 
 def format_overview(national: National, states: list[str] | None = None, title: str | None = None) -> discord.Embed:
     """One line per state, most ballots first. ``states`` limits it (the daily post)."""
-    codes = [s for s in (states if states is not None else national.states) if s in national.states]
-    codes.sort(key=lambda s: (-national.total(s), s))
+    codes = [code for code in (states if states is not None else national.states) if code in national.states]
+    codes.sort(key=lambda code: (-national.total(code), code))
     embed = _embed(title or "Early vote · United States", page_url(), national.updated_at)
     if not codes:
         embed.description = "civicAPI has no early-vote data for these states yet."
         return embed
-    grand = sum(national.total(s) for s in codes)
+    grand = sum(national.total(code) for code in codes)
     header = f"**{_n(grand)}** early ballots cast in {len(codes)} state{'s' if len(codes) != 1 else ''} with data"
     lines = []
     for code in codes:
@@ -228,7 +237,7 @@ def format_overview(national: National, states: list[str] | None = None, title: 
             parts.append(f"{_n(tallies['requested'].total)} mail ballots requested")
         if "grace" in tallies:
             parts.append(f"grace period {_n(tallies['grace'].total)}")
-        detail = " · ".join(p for p in parts if p)
+        detail = " · ".join(piece for piece in parts if piece)
         lines.append(f"**{code}** {_n(national.total(code))}" + (f" ({detail})" if detail else ""))
     body = _fit(lines, MAX_DESCRIPTION - len(header) - 2)
     embed.description = clip(f"{header}\n\n{body}", MAX_DESCRIPTION)
@@ -243,7 +252,7 @@ def _guard_total(embed: discord.Embed) -> discord.Embed:
             len(embed.title or "")
             + len(embed.description or "")
             + len(embed.footer.text or "")
-            + sum(len(f.name) + len(f.value) for f in embed.fields)
+            + sum(len(field.name) + len(field.value) for field in embed.fields)
         )
 
     while total() > MAX_EMBED_TOTAL and embed.fields:
@@ -310,7 +319,7 @@ def watched_states(gs: GuildSettings) -> list[str]:
             states.add(parse(text).state)
         except ValueError:
             continue
-    return sorted(s for s in states if s in STATES)
+    return sorted(state for state in states if state in STATES)
 
 
 async def post_daily_summaries(bot) -> int:
@@ -324,19 +333,19 @@ async def post_daily_summaries(bot) -> int:
     national = await early_vote_client(bot).national()
     if not national.states or national.updated_at is None:
         return 0
-    ref = national.updated_at.isoformat()
+    snapshot_day = national.updated_at.isoformat()
     sent = 0
     for gs in guilds:
-        states = [s for s in watched_states(gs) if s in national.states]
-        if not states or await bot.store.last_posted(gs.guild_id, POST_KIND, ref):
+        states = [state for state in watched_states(gs) if state in national.states]
+        if not states or await bot.store.last_posted(gs.guild_id, POST_KIND, snapshot_day):
             continue
-        embed = format_overview(national, states, title=f"Early vote · {ref}")
+        embed = format_overview(national, states, title=f"Early vote · {snapshot_day}")
         try:
             channel = bot.get_channel(gs.channel_id) or await bot.fetch_channel(gs.channel_id)
             await channel.send(embed=embed)
         except discord.DiscordException:
             logger.exception("Could not post the early-vote summary to guild %s", gs.guild_id)
             continue
-        await bot.store.mark_posted(gs.guild_id, POST_KIND, ref, datetime.now(timezone.utc))
+        await bot.store.mark_posted(gs.guild_id, POST_KIND, snapshot_day, datetime.now(timezone.utc))
         sent += 1
     return sent

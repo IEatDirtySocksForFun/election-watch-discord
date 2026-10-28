@@ -114,7 +114,10 @@ def parse_polymarket_event(event: dict) -> list[OddsSnapshot]:
     # Two candidates of one party (top-two primaries, D-vs-D seats) must not share the party
     # label: the swing detector would read their two prices as one series.
     labels = [snap.outcome for snap in snapshots]
-    titles = {str(m.get("id")): (m.get("groupItemTitle") or "").strip() for m in event.get("markets") or []}
+    titles = {
+        str(market_row.get("id")): (market_row.get("groupItemTitle") or "").strip()
+        for market_row in event.get("markets") or []
+    }
     return [
         replace(snap, outcome=titles.get(snap.market_id) or snap.outcome) if labels.count(snap.outcome) > 1 else snap
         for snap in snapshots
@@ -131,21 +134,21 @@ def _event_title_to_key(title: str) -> RaceKey | None:
             return RaceKey(code, Level.SENATE, "SEN")
         if re.fullmatch(r"governor election winner", tail):
             return RaceKey(code, Level.GOVERNOR, "GOV")
-        m = re.fullmatch(r"house election winner district (\d{1,2})", tail)
-        if m:
-            return RaceKey(code, Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-        m = re.fullmatch(r"(\d{1,2})(?:st|nd|rd|th)? congressional district election winner", tail)
-        if m:
-            return RaceKey(code, Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
+        match = re.fullmatch(r"house election winner district (\d{1,2})", tail)
+        if match:
+            return RaceKey(code, Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+        match = re.fullmatch(r"(\d{1,2})(?:st|nd|rd|th)? congressional district election winner", tail)
+        if match:
+            return RaceKey(code, Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
     return None
 
 
 def _market_outcome(market: dict) -> str | None:
     title = market.get("groupItemTitle", "") or ""
     # Extract a party letter in parentheses, e.g. "James Talarico (D)".
-    m = re.search(r"\(([a-zA-Z])\)\s*$", title)
-    if m:
-        party = m.group(1).upper()
+    match = re.search(r"\(([a-zA-Z])\)\s*$", title)
+    if match:
+        party = match.group(1).upper()
         mapping = {
             "D": "DEM",
             "R": "REP",
@@ -161,9 +164,9 @@ def _market_outcome(market: dict) -> str | None:
         return name
     # Fallback to the market question.
     question = market.get("question", "")
-    m = re.search(r"the (democrats|republicans)", question, re.I)
-    if m:
-        return "DEM" if m.group(1).lower() == "democrats" else "REP"
+    match = re.search(r"the (democrats|republicans)", question, re.I)
+    if match:
+        return "DEM" if match.group(1).lower() == "democrats" else "REP"
     return None
 
 

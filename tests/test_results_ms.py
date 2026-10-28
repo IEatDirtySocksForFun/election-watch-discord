@@ -15,17 +15,17 @@ def parse():
 
 
 def by_key():
-    return {format_key(r.key): r for r in parse()}
+    return {format_key(race_result.key): race_result for race_result in parse()}
 
 
 def test_senate_uses_state_total_not_county_sum():
-    r = by_key()["MS SEN"]
-    assert r.key.level is Level.SENATE
-    assert r.candidates[0].name == "Roger F. Wicker"
-    assert r.candidates[0].party == "REP"
-    assert r.candidates[0].votes == 761934  # State Total column
-    assert r.candidates[1].votes == 450749
-    assert r.total_votes == 1212683
+    race_result = by_key()["MS SEN"]
+    assert race_result.key.level is Level.SENATE
+    assert race_result.candidates[0].name == "Roger F. Wicker"
+    assert race_result.candidates[0].party == "REP"
+    assert race_result.candidates[0].votes == 761934  # State Total column
+    assert race_result.candidates[1].votes == 450749
+    assert race_result.total_votes == 1212683
 
 
 def test_house_district_and_president_ticket_names():
@@ -33,16 +33,16 @@ def test_house_district_and_president_ticket_names():
     assert keys["MS-01"].candidates[0].name == "Trent Kelly"
     president = keys["MS LOCAL us-president"]
     assert president.key.level is Level.LOCAL
-    names = [c.name for c in president.candidates]
+    names = [candidate.name for candidate in president.candidates]
     assert "Donald J. Trump / JD Vance" in names  # elector prose reduced to the ticket
     assert president.candidates[0].pct == 60.91
 
 
 def test_court_race_becomes_local():
-    r = by_key()["MS LOCAL southern-district-supreme-court-district-2-southern-position-2"]
-    assert r.key.level is Level.LOCAL
-    assert r.candidates[0].name == "Dawn H. Beam"
-    assert r.candidates[0].party is None
+    race_result = by_key()["MS LOCAL southern-district-supreme-court-district-2-southern-position-2"]
+    assert race_result.key.level is Level.LOCAL
+    assert race_result.candidates[0].name == "Dawn H. Beam"
+    assert race_result.candidates[0].party is None
 
 
 def test_race_key_mapping():

@@ -27,7 +27,7 @@ PLACEHOLDER, CHOICES, CHOICE_TEXT = 150, 25, 100
 
 def embed_total(embed: discord.Embed) -> int:
     total = len(embed.title or "") + len(embed.description or "")
-    total += sum(len(f.name or "") + len(f.value or "") for f in embed.fields)
+    total += sum(len(embed_field.name or "") + len(embed_field.value or "") for embed_field in embed.fields)
     total += len(embed.footer.text or "") if embed.footer else 0
     total += len(embed.author.name or "") if embed.author else 0
     return total
@@ -38,9 +38,9 @@ def check_embed(embed: discord.Embed) -> None:
     assert len(embed.title or "") <= TITLE, len(embed.title)
     assert len(embed.description or "") <= DESCRIPTION, len(embed.description)
     assert len(embed.fields) <= FIELDS, len(embed.fields)
-    for f in embed.fields:
-        assert f.name and len(f.name) <= FIELD_NAME, (len(f.name or ""), f.name)
-        assert f.value and len(f.value) <= FIELD_VALUE, len(f.value or "")
+    for embed_field in embed.fields:
+        assert embed_field.name and len(embed_field.name) <= FIELD_NAME, (len(embed_field.name or ""), embed_field.name)
+        assert embed_field.value and len(embed_field.value) <= FIELD_VALUE, len(embed_field.value or "")
     if embed.footer and embed.footer.text:
         assert len(embed.footer.text) <= FOOTER
     if embed.author and embed.author.name:
@@ -63,27 +63,27 @@ def check_view(view: discord.ui.View) -> None:
         assert row["type"] == 1
         components = row["components"]
         assert 1 <= len(components) <= PER_ROW, len(components)
-        if any(c["type"] == 3 for c in components):
+        if any(component["type"] == 3 for component in components):
             assert len(components) == 1, "a select menu must be alone in its row"
-        for c in components:
-            cid = c.get("custom_id")
+        for component in components:
+            cid = component.get("custom_id")
             if cid is not None:
                 assert len(cid) <= CUSTOM_ID
                 assert cid not in custom_ids, "duplicate custom_id"
                 custom_ids.add(cid)
-            if c["type"] == 2:
-                assert len(c.get("label") or "") <= BUTTON_LABEL
-            if c["type"] == 3:
-                options = c["options"]
+            if component["type"] == 2:
+                assert len(component.get("label") or "") <= BUTTON_LABEL
+            if component["type"] == 3:
+                options = component["options"]
                 assert 1 <= len(options) <= SELECT_OPTIONS, len(options)
-                assert len(c.get("placeholder") or "") <= PLACEHOLDER
-                values = [o["value"] for o in options]
+                assert len(component.get("placeholder") or "") <= PLACEHOLDER
+                values = [option["value"] for option in options]
                 assert len(values) == len(set(values)), "duplicate select values"
-                assert sum(bool(o.get("default")) for o in options) <= c.get("max_values", 1)
-                for o in options:
-                    assert 1 <= len(o["label"]) <= OPTION_TEXT, o["label"]
-                    assert 1 <= len(o["value"]) <= OPTION_TEXT, o["value"]
-                    assert len(o.get("description") or "") <= OPTION_TEXT
+                assert sum(bool(option.get("default")) for option in options) <= component.get("max_values", 1)
+                for option in options:
+                    assert 1 <= len(option["label"]) <= OPTION_TEXT, option["label"]
+                    assert 1 <= len(option["value"]) <= OPTION_TEXT, option["value"]
+                    assert len(option.get("description") or "") <= OPTION_TEXT
 
 
 def check_choices(choices: list) -> None:
@@ -192,15 +192,17 @@ class FakeInteraction:
     # --- assertions -------------------------------------------------------------------
     @property
     def kinds(self) -> list[str]:
-        return [e.kind for e in self.events]
+        return [event.kind for event in self.events]
 
     def replies(self) -> list[Event]:
         """Messages the user sees (everything except a bare defer)."""
-        return [e for e in self.events if e.kind != "defer"]
+        return [event for event in self.events if event.kind != "defer"]
 
     def assert_ephemeral_flow(self) -> Event:
         """Exactly one acknowledgement; new messages ephemeral; returns the visible reply."""
-        acks = [e for e in self.events if e.kind in {"defer", "send_message", "edit_message", "autocomplete"}]
+        acks = [
+            event for event in self.events if event.kind in {"defer", "send_message", "edit_message", "autocomplete"}
+        ]
         assert len(acks) == 1, self.kinds
         if self.kind == "command" or self.events[0].kind == "send_message":
             for event in self.events:
@@ -229,7 +231,8 @@ class RefreshedCommandData(CommandData):
 
         for source in self._available("odds"):
             try:
-                fetched = [s for s in await source.fetch_odds([key], self.http_client) if s.key == key]
+                odds = await source.fetch_odds([key], self.http_client)
+                fetched = [odds_snapshot for odds_snapshot in odds if odds_snapshot.key == key]
             except Exception:
                 continue
             for snapshot in fetched:
@@ -277,7 +280,7 @@ def make_client(store, sources: dict | None = None, *, clock=None, poller=None, 
     without it the client reads whatever the test stored."""
     sources = sources or {}
     client = SimpleNamespace(store=store, sources=sources, http_client=object(), poller=poller)
-    data = RefreshedCommandData if refreshed else CommandData
-    client.command_data = data(store, sources, client.http_client, clock)
+    command_data_class = RefreshedCommandData if refreshed else CommandData
+    client.command_data = command_data_class(store, sources, client.http_client, clock)
     client.race_lists = (RefreshedRaceLists if refreshed else RaceLists)(store, sources, client.http_client, clock)
     return client

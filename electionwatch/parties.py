@@ -97,14 +97,14 @@ def _text(value: object, where: str) -> str:
 def _read_rows() -> list[dict]:
     try:
         with DATA_FILE.open(encoding="utf-8") as fh:
-            data = yaml.safe_load(fh)
+            config = yaml.safe_load(fh)
     except OSError as exc:
         raise PartyDataError(f"cannot read {DATA_FILE}: {exc}") from exc
     except yaml.YAMLError as exc:
         raise PartyDataError(f"invalid YAML in {DATA_FILE}: {exc}") from exc
-    if not isinstance(data, dict) or not isinstance(data.get("parties"), list):
+    if not isinstance(config, dict) or not isinstance(config.get("parties"), list):
         raise PartyDataError(f"{DATA_FILE}: expected a mapping with a 'parties' list")
-    return data["parties"]
+    return config["parties"]
 
 
 @lru_cache(maxsize=1)
@@ -115,7 +115,7 @@ def load_parties() -> dict[str, Party]:
         where = f"parties.yaml[{i}]"
         if not isinstance(row, dict):
             raise PartyDataError(f"{where}: expected a mapping")
-        missing = [k for k in REQUIRED_KEYS if k not in row]
+        missing = [field for field in REQUIRED_KEYS if field not in row]
         if missing:
             raise PartyDataError(f"{where}: missing keys: {', '.join(missing)}")
         unknown = sorted(set(row) - set(REQUIRED_KEYS))

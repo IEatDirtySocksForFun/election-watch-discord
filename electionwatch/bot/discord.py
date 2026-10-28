@@ -669,7 +669,7 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
             gs = await asyncio.wait_for(bot.store.get_guild(interaction.guild_id), 1.0)
         except Exception:
             logger.warning("Autocomplete could not read guild %s settings in time", interaction.guild_id)
-    watched = gs.important if gs and gs.important else [str(r.key) for r in load_races()]
+    watched = gs.important if gs and gs.important else [str(race.key) for race in load_races()]
     for text in watched:
         try:
             key = parse(text)

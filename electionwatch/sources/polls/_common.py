@@ -74,24 +74,24 @@ def split_party_marker(text: str | None) -> tuple[str, str | None]:
     Only recognised party words count, so 'Don Brown (author, born 1960)' is left alone.
     """
     cleaned = norm_space(strip_refs(text))
-    m = _PARTY_TAG.search(cleaned)
-    if not m:
+    match = _PARTY_TAG.search(cleaned)
+    if not match:
         return cleaned, None
-    return cleaned[: m.start()].strip(" ,"), normalize_party(m.group(1))
+    return cleaned[: match.start()].strip(" ,"), normalize_party(match.group(1))
 
 
 def parse_percent(text: str | None) -> float | None:
     """'38%', "'''38%'''", '45' -> 38.0 / 45.0; '–', '<1%' -> None (no honest number)."""
-    t = norm_space(strip_refs(text)).replace("'''", "").replace("**", "")
-    t = t.strip("* \u00a0")
-    if not t or t in {"-", "N/A", "n/a"}:
+    percent_text = norm_space(strip_refs(text)).replace("'''", "").replace("**", "")
+    percent_text = percent_text.strip("* \u00a0")
+    if not percent_text or percent_text in {"-", "N/A", "n/a"}:
         return None
-    if t.startswith("<"):
+    if percent_text.startswith("<"):
         return None
-    m = re.search(r"(\d+(?:\.\d+)?)", t)
-    if not m:
+    match = re.search(r"(\d+(?:\.\d+)?)", percent_text)
+    if not match:
         return None
-    value = float(m.group(1))
+    value = float(match.group(1))
     if value < 0 or value > 100:
         return None
     return value
@@ -106,16 +106,16 @@ def parse_sample(text: str | None) -> tuple[int | None, str | None]:
     '600 (V)' (Wikipedia's "voters, unclear") keeps the sample and drops the
     population, because LV/RV/A is the only vocabulary the model has.
     """
-    t = norm_space(strip_refs(text))
+    sample_text = norm_space(strip_refs(text))
     population = None
-    m = re.search(r"\((LV|RV|A|V)\)|\b(LV|RV)\b", t or "", re.I)
-    if m:
-        population = _POPULATION[(m.group(1) or m.group(2)).lower()]
+    match = re.search(r"\((LV|RV|A|V)\)|\b(LV|RV)\b", sample_text or "", re.I)
+    if match:
+        population = _POPULATION[(match.group(1) or match.group(2)).lower()]
     sample = None
-    m = re.search(r"(\d[\d,]*)", t)
-    if m:
-        n = int(m.group(1).replace(",", ""))
-        sample = n or None
+    match = re.search(r"(\d[\d,]*)", sample_text)
+    if match:
+        sample_size = int(match.group(1).replace(",", ""))
+        sample = sample_size or None
     return sample, population
 
 
@@ -148,41 +148,41 @@ def parse_date_range(text: str | None) -> tuple[date | None, date | None]:
     'February 22–23, 2026', 'April 22 – May 6, 2026', 'October 6, 2026',
     'December 28, 2025 – January 3, 2026', '10/27/2026' and '2026-10-27'.
     """
-    t = norm_space(strip_refs(text))
-    if not t:
+    date_text = norm_space(strip_refs(text))
+    if not date_text:
         return None, None
-    t = re.sub(r"^(?:through|thru|to)\s+", "", t, flags=re.I)
+    date_text = re.sub(r"^(?:through|thru|to)\s+", "", date_text, flags=re.I)
     for dash, plain in _DASHES.items():
-        t = t.replace(dash, plain)
+        date_text = date_text.replace(dash, plain)
 
-    m = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", t)
-    if m:
-        d = _mk(int(m.group(1)), int(m.group(2)), int(m.group(3)))
-        return d, d
+    match = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", date_text)
+    if match:
+        parsed_date = _mk(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+        return parsed_date, parsed_date
 
-    m = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", t)
-    if m:
-        d = _mk(int(m.group(3)), int(m.group(1)), int(m.group(2)))
-        return d, d
+    match = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", date_text)
+    if match:
+        parsed_date = _mk(int(match.group(3)), int(match.group(1)), int(match.group(2)))
+        return parsed_date, parsed_date
 
-    m = _RANGE_TWO_YEARS.match(t)
-    if m:
-        start = _mk(int(m.group("y1")), _month(m.group("m1")) or 0, int(m.group("d1")))
-        end = _mk(int(m.group("y2")), _month(m.group("m2") or m.group("m1")) or 0, int(m.group("d2")))
+    match = _RANGE_TWO_YEARS.match(date_text)
+    if match:
+        start = _mk(int(match.group("y1")), _month(match.group("m1")) or 0, int(match.group("d1")))
+        end = _mk(int(match.group("y2")), _month(match.group("m2") or match.group("m1")) or 0, int(match.group("d2")))
         return start, end
 
-    m = _RANGE_SAME_YEAR.match(t)
-    if m:
-        year = int(m.group("y"))
-        month1 = _month(m.group("m1"))
-        month2 = _month(m.group("m2")) if m.group("m2") else month1
+    match = _RANGE_SAME_YEAR.match(date_text)
+    if match:
+        year = int(match.group("y"))
+        month1 = _month(match.group("m1"))
+        month2 = _month(match.group("m2")) if match.group("m2") else month1
         if month1 is None or month2 is None:
             return None, None
-        start = _mk(year, month1, int(m.group("d1")))
-        end = _mk(year, month2, int(m.group("d2") or m.group("d1")))
+        start = _mk(year, month1, int(match.group("d1")))
+        end = _mk(year, month2, int(match.group("d2") or match.group("d1")))
         if start and end and end < start:
             # 'December 28 – January 3, 2026' style window that crosses a year boundary.
-            start = _mk(year - 1, month1, int(m.group("d1"))) or start
+            start = _mk(year - 1, month1, int(match.group("d1"))) or start
         return start, end
 
     return None, None
@@ -190,7 +190,7 @@ def parse_date_range(text: str | None) -> tuple[date | None, date | None]:
 
 def clean_name(text: str | None) -> str:
     """Candidate name as displayed: drop footnote markers, incumbent stars, wrapping quotes."""
-    t = norm_space(strip_refs(text))
-    t = t.strip("*\u2020\u00a0 ")
-    t = re.sub(r"\s*\*\s*$", "", t)
-    return t.strip()
+    cleaned = norm_space(strip_refs(text))
+    cleaned = cleaned.strip("*\u2020\u00a0 ")
+    cleaned = re.sub(r"\s*\*\s*$", "", cleaned)
+    return cleaned.strip()

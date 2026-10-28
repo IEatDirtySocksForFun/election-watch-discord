@@ -71,7 +71,7 @@ def test_at_least_ninety_parties(table):
 
 
 def test_codes_are_unique_uppercase_short_codes(table):
-    assert list(table) == [p.code for p in table.values()]
+    assert list(table) == [party_entry.code for party_entry in table.values()]
     for code in table:
         assert code == code.upper()
         assert 2 <= len(code) <= 8
@@ -116,7 +116,7 @@ def test_alias_maps_to_exactly_one_code(table):
 
 def test_aliases_are_distinct_after_folding(table):
     for party in table.values():
-        keys = [normalize_key(a) for a in party.aliases]
+        keys = [normalize_key(alias) for alias in party.aliases]
         assert len(keys) == len(set(keys)), party.code
 
 
@@ -144,22 +144,22 @@ def test_owner_fixed_codes():
 
 
 def test_socialist_emoji_sequence_in_size_order(table):
-    socialists = [p for p in table.values() if p.bucket == "socialist"]
-    assert [p.emoji for p in socialists][: len(SOCIALIST_SEQUENCE)] == SOCIALIST_SEQUENCE
-    assert len({p.emoji for p in socialists}) == len(socialists)
+    socialists = [party_entry for party_entry in table.values() if party_entry.bucket == "socialist"]
+    assert [party_entry.emoji for party_entry in socialists][: len(SOCIALIST_SEQUENCE)] == SOCIALIST_SEQUENCE
+    assert len({party_entry.emoji for party_entry in socialists}) == len(socialists)
 
 
 def test_far_right_is_narrow_and_distinct(table):
-    far = [p for p in table.values() if p.bucket == "far_right"]
-    assert {p.name for p in far} == {
+    far = [party_entry for party_entry in table.values() if party_entry.bucket == "far_right"]
+    assert {party_entry.name for party_entry in far} == {
         "American Nazi Party",
         "National Socialist Movement",
         "American Freedom Party",
         "Traditionalist Worker Party",
         "National Renaissance Party",
     }
-    assert len({p.emoji for p in far}) == len(far)
-    assert {p.emoji for p in far} <= FAR_RIGHT_EMOJI
+    assert len({party_entry.emoji for party_entry in far}) == len(far)
+    assert {party_entry.emoji for party_entry in far} <= FAR_RIGHT_EMOJI
     for party in far:
         assert party.source.startswith("https://en.wikipedia.org/wiki/")
 
@@ -169,9 +169,9 @@ def test_far_right_is_narrow_and_distinct(table):
     ["Conservative Party of New York State", "New Jersey Conservative Party", "Tea Party of Nevada"],
 )
 def test_mainstream_conservatives_are_not_far_right(name):
-    info = party_info(name)
-    assert info is not None
-    assert info.bucket != "far_right"
+    party_record = party_info(name)
+    assert party_record is not None
+    assert party_record.bucket != "far_right"
 
 
 def test_emojis_are_distinct_outside_the_shared_buckets(table):
@@ -210,10 +210,10 @@ def test_empty_party(raw):
 
 
 def test_party_info_returns_frozen_record(table):
-    info = party_info("gop")
-    assert info is table["REP"]
+    party_record = party_info("gop")
+    assert party_record is table["REP"]
     with pytest.raises(Exception):
-        info.code = "X"  # frozen dataclass
+        party_record.code = "X"  # frozen dataclass
 
 
 def test_shared_contract_with_models_alias_table():

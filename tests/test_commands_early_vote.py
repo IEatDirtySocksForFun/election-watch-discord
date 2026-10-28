@@ -72,7 +72,7 @@ def _embed(interaction: FakeInteraction) -> discord.Embed:
 def _text(embed: discord.Embed) -> str:
     return "\n".join(
         [embed.title or "", embed.description or "", embed.footer.text or ""]
-        + [f"{f.name}\n{f.value}" for f in embed.fields]
+        + [f"{field.name}\n{field.value}" for field in embed.fields]
     )
 
 
@@ -107,7 +107,7 @@ async def test_state_in_any_spelling_and_every_breakdown(client, state, breakdow
         "age": ["By age"],
         "county": ["Top counties (6 of 6 reporting)"],
     }[breakdown]
-    assert [f.name for f in embed.fields] == expected
+    assert [field.name for field in embed.fields] == expected
 
 
 async def test_missing_breakdowns_say_so(client):
@@ -144,7 +144,7 @@ async def test_state_without_data(client):
 
 
 async def test_civicapi_down_is_reported_not_raised():
-    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(502))) as http:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(502))) as http:
         bot = make_client(MemoryStore())
         bot.early_vote = EarlyVoteClient(http, min_interval=0)
         for state in (None, "NC"):
@@ -179,7 +179,10 @@ def test_resolve_state():
 # --------------------------------------------------------------------------- limits
 def _huge_state(parties: int = 60, counties: int = 300) -> EarlyVote:
     party = {f"Party {'X' * 150} {i}": 10**12 + i for i in range(parties)}
-    tallies = {c: Tally(c, 10**15, dict(party), "L" * 300) for c in ("returned", "inperson", "requested", "grace")}
+    tallies = {
+        category: Tally(category, 10**15, dict(party), "L" * 300)
+        for category in ("returned", "inperson", "requested", "grace")
+    }
     return EarlyVote(
         "NC",
         tallies,
@@ -200,7 +203,7 @@ def test_state_embed_fits_discord_limits(breakdown):
 
 
 def test_overview_fits_with_every_state_and_huge_numbers():
-    tallies = {c: Tally(c, 10**15) for c in ("returned", "inperson", "requested", "grace")}
+    tallies = {category: Tally(category, 10**15) for category in ("returned", "inperson", "requested", "grace")}
     national = National({code: dict(tallies) for code in STATES}, date(2026, 10, 27))
     embed = format_overview(national)
     check_embed(embed)
@@ -222,7 +225,7 @@ def test_overview_fits_with_every_state_and_huge_numbers():
 async def test_autocomplete_offers_states_with_data(client, current, expected):
     choices = await early_vote_state_autocomplete(FakeInteraction(client), current)
     check_choices(choices)
-    values = [c.value for c in choices]
+    values = [choice.value for choice in choices]
     assert "NY" not in values and "AL" not in values  # no civicAPI data
     if expected:
         assert expected in values
@@ -282,7 +285,7 @@ class PostBot:
 async def test_daily_post_is_off_by_default_and_makes_no_requests():
     assert GuildSettings(1).post_early_vote is False
     calls = []
-    transport = httpx.MockTransport(lambda r: calls.append(r) or httpx.Response(500))
+    transport = httpx.MockTransport(lambda request: calls.append(request) or httpx.Response(500))
     async with httpx.AsyncClient(transport=transport) as http:
         store = MemoryStore()
         await store.save_guild(GuildSettings(1, channel_id=10, important=["NC SEN"]))

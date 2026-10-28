@@ -48,7 +48,7 @@ class NBCSource(CallSource):
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
-        offices = {_OFFICE_SLUGS[k.level] for k in keys if k.level in _OFFICE_SLUGS}
+        offices = {_OFFICE_SLUGS[key.level] for key in keys if key.level in _OFFICE_SLUGS}
         if not offices:
             return []
 
@@ -73,7 +73,7 @@ class NBCSource(CallSource):
                 continue
 
         requested = set(keys)
-        return [c for c in calls if c.key in requested]
+        return [call for call in calls if call.key in requested]
 
 
 def parse_nbc_results(payload: dict) -> list[RaceCall]:
@@ -84,13 +84,17 @@ def parse_nbc_results(payload: dict) -> list[RaceCall]:
     for geo, entry in (payload.get("mapData") or {}).items():
         try:
             tooltip = entry.get("tooltip") or {}
-            winner = next((c for c in tooltip.get("candidates") or [] if c.get("isWinner")), None)
+            winner = next(
+                (candidate for candidate in tooltip.get("candidates") or [] if candidate.get("isWinner")), None
+            )
             if winner is None:
                 continue
             key = _tooltip_key(geo, tooltip)
             if key is None:
                 continue
-            name = winner.get("name") or " ".join(p for p in (winner.get("firstName"), winner.get("lastName")) if p)
+            name = winner.get("name") or " ".join(
+                part for part in (winner.get("firstName"), winner.get("lastName")) if part
+            )
             calls.append(
                 RaceCall(
                     key=key,
@@ -112,11 +116,11 @@ def _tooltip_key(geo: str, tooltip: dict) -> RaceKey | None:
     if level is None:
         return None
     if level is Level.HOUSE:
-        m = re.fullmatch(r"(.+?)\s+District\s+(\d{1,2})(?:\s+RCV)?", tooltip.get("raceName") or "")
-        if not m:
+        match = re.fullmatch(r"(.+?)\s+District\s+(\d{1,2})(?:\s+RCV)?", tooltip.get("raceName") or "")
+        if not match:
             return None
-        state = state_from_name(m.group(1))
-        district = district_key(m.group(2))
+        state = state_from_name(match.group(1))
+        district = district_key(match.group(2))
         if state is None or district is None:
             return None
         return RaceKey(state, Level.HOUSE, "HOUSE", district)

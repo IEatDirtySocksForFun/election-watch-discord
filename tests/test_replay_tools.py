@@ -75,27 +75,27 @@ def test_classify(st, office, district, dv, want):
 
 
 def test_aggregate_medsl_real_sample():
-    with (FIX / "medsl_de24_sample.csv").open(newline="") as f:
-        rows = fh.aggregate_medsl(f, "DE").rows()
+    with (FIX / "medsl_de24_sample.csv").open(newline="") as file_handle:
+        rows = fh.aggregate_medsl(file_handle, "DE").rows()
     assert set(rows) == {"senate", "house", "governor", "state", "local"}
-    sen = {(r["candidate"], r["county"]): r["votes"] for r in rows["senate"]}
+    sen = {(row["candidate"], row["county"]): row["votes"] for row in rows["senate"]}
     assert sen[("Lisa Blunt Rochester", "Sussex")] == 206 + 151
-    assert {r["race_key"] for r in rows["house"]} == {"DE-AL"}
-    assert {r["race_key"] for r in rows["state"]} == {"DE HD-39", "DE SD-17"}
+    assert {row["race_key"] for row in rows["house"]} == {"DE-AL"}
+    assert {row["race_key"] for row in rows["state"]} == {"DE HD-39", "DE SD-17"}
 
 
 def test_medsl_total_mode_not_double_counted():
     agg = fh.Agg()
-    k = ("X SEN", "A", "DEM", "C")
-    agg.add("senate", k, 100, "TOTAL")
-    agg.add("senate", k, 60, "ELECTION DAY")
-    agg.add("senate", k, 40, "ABSENTEE")
+    group_key = ("X SEN", "A", "DEM", "C")
+    agg.add("senate", group_key, 100, "TOTAL")
+    agg.add("senate", group_key, 60, "ELECTION DAY")
+    agg.add("senate", group_key, 40, "ABSENTEE")
     assert agg.rows()["senate"][0]["votes"] == 100
 
 
 def test_aggregate_openelections_sums_mode_columns():
-    with (FIX / "openelections_ga_2020_sample.csv").open(newline="") as f:
-        rows = fh.aggregate_openelections(f, "GA").rows()
+    with (FIX / "openelections_ga_2020_sample.csv").open(newline="") as file_handle:
+        rows = fh.aggregate_openelections(file_handle, "GA").rows()
     assert set(rows) == {"senate", "house", "state"}  # President skipped
     (sp,) = rows["senate"]
     assert sp["race_key"] == "GA SEN S" and sp["party"] == "REP" and sp["votes"] == 5 + 10 + 1 + 5 + 4 + 3
@@ -112,10 +112,10 @@ def test_candidate_names_are_not_title_cased_blindly():
         "AZ,SENATE,,Maricopa,JD VANCE,REP,TOTAL,5,GEN\n"
         "AZ,SENATE,,Maricopa,KENNEDY III,DEM,TOTAL,3,GEN\n"
     )
-    names = {r["candidate"] for r in fh.aggregate_medsl(io.StringIO(medsl), "AZ").rows()["senate"]}
+    names = {row["candidate"] for row in fh.aggregate_medsl(io.StringIO(medsl), "AZ").rows()["senate"]}
     assert names == {"Martha McSally", "JD Vance", "Kennedy III"}
     oe = "county,office,district,party,candidate,votes\nMaricopa,SENATE,,GRN,de la Cruz,4\n"
-    assert [r["candidate"] for r in fh.aggregate_openelections(io.StringIO(oe), "AZ").rows()["senate"]] == [
+    assert [row["candidate"] for row in fh.aggregate_openelections(io.StringIO(oe), "AZ").rows()["senate"]] == [
         "de la Cruz"
     ]
 
@@ -226,12 +226,12 @@ def test_openelections_keeps_the_partition_with_most_races(monkeypatch, tmp_path
             dest.write_text(content[url])
             return dest
 
-    monkeypatch.setattr(fh, "repo_files", lambda net, repo, sub, deep=False: {n: n for n in content})
+    monkeypatch.setattr(fh, "repo_files", lambda net, repo, sub, deep=False: {name: name for name in content})
     rows, urls, note = fh.openelections(FakeNet(), "2020", "PA")
     assert note == ""
     got = rows.rows()
     assert set(got) == {"state"}  # the 2-race precinct partition won
-    assert {r["race_key"] for r in got["state"]} == {"PA HD-01", "PA HD-02"}
+    assert {row["race_key"] for row in got["state"]} == {"PA HD-01", "PA HD-02"}
     assert "precinct" in urls["state"] and "county.csv" not in urls["state"]
 
 
@@ -273,19 +273,19 @@ def test_medsl_listing_needs_no_api(monkeypatch):
 
 
 def test_nyt_2024_timeline():
-    doc = json.loads((FIX / "nyt_2024_pa_us_senate_trimmed.json").read_text())
-    lines = fh.nyt_timeline_2024(doc, "PA")["PA SEN"]
-    assert [x["total_votes"] for x in lines] == [5871429, 6963137]  # 0-vote point dropped
-    last = {c["name"]: c for c in lines[-1]["candidates"]}
+    payload = json.loads((FIX / "nyt_2024_pa_us_senate_trimmed.json").read_text())
+    lines = fh.nyt_timeline_2024(payload, "PA")["PA SEN"]
+    assert [point["total_votes"] for point in lines] == [5871429, 6963137]  # 0-vote point dropped
+    last = {candidate["name"]: candidate for candidate in lines[-1]["candidates"]}
     assert last["Dave McCormick"]["votes"] == 3399295 and last["Dave McCormick"]["party"] == "REP"
     assert lines[0]["synthetic"] is False
 
 
 def test_nyt_2020_timeline():
-    doc = json.loads((FIX / "nyt_2020_ga_senate_trimmed.json").read_text())
-    lines = fh.nyt_timeline_2020(doc, "GA")["GA SEN"]
-    assert [x["ts"] for x in lines] == sorted(x["ts"] for x in lines)
-    first = {c["party"]: c["votes"] for c in lines[0]["candidates"]}
+    payload = json.loads((FIX / "nyt_2020_ga_senate_trimmed.json").read_text())
+    lines = fh.nyt_timeline_2020(payload, "GA")["GA SEN"]
+    assert [point["ts"] for point in lines] == sorted(point["ts"] for point in lines)
+    first = {candidate["party"]: candidate["votes"] for candidate in lines[0]["candidates"]}
     assert first["REP"] == round(0.648 * 418)
 
 
@@ -296,16 +296,16 @@ def test_build_timelines_synthetic(tmp_path):
     shutil.copytree(FIX / "2024" / "DE", tmp_path / "2024" / "DE")
     assert bt.run(tmp_path, ["2024"], None, ["senate"]) == 0
     path = tmp_path / "timelines" / "2024" / "DE_SEN.jsonl"
-    lines = [json.loads(x) for x in path.read_text().splitlines()]
-    assert len(lines) >= 3 and all(x["synthetic"] for x in lines)
-    assert [x["ts"] for x in lines] == sorted(x["ts"] for x in lines)
-    tots = [x["total_votes"] for x in lines]
+    lines = [json.loads(point) for point in path.read_text().splitlines()]
+    assert len(lines) >= 3 and all(point["synthetic"] for point in lines)
+    assert [point["ts"] for point in lines] == sorted(point["ts"] for point in lines)
+    tots = [point["total_votes"] for point in lines]
     assert tots == sorted(tots) and tots[-1] == 837 and lines[-1]["expected_vote_pct"] == 100.0
-    final = {c["name"]: c["votes"] for c in lines[-1]["candidates"]}
-    with (FIX / "2024" / "DE" / "senate.csv").open() as f:
+    final = {candidate["name"]: candidate["votes"] for candidate in lines[-1]["candidates"]}
+    with (FIX / "2024" / "DE" / "senate.csv").open() as file_handle:
         want = {}
-        for r in csv.DictReader(f):
-            want[r["candidate"]] = want.get(r["candidate"], 0) + int(r["votes"])
+        for row in csv.DictReader(file_handle):
+            want[row["candidate"]] = want.get(row["candidate"], 0) + int(row["votes"])
     assert final == want
     # deterministic, and real series are never overwritten
     again = path.read_text()
@@ -317,15 +317,15 @@ def test_build_timelines_synthetic(tmp_path):
 
 
 def test_count_order_from_faq(tmp_path):
-    y = tmp_path / "states.yaml"
-    y.write_text("AZ:\n  count_order: Mail ballots first, then election-day votes, early in-person last\n")
-    assert bt.count_order("AZ", y) == ["mail", "eday", "early"]
-    assert bt.count_order("ZZ", y) == bt.DEFAULT_ORDER
+    year = tmp_path / "states.yaml"
+    year.write_text("AZ:\n  count_order: Mail ballots first, then election-day votes, early in-person last\n")
+    assert bt.count_order("AZ", year) == ["mail", "eday", "early"]
+    assert bt.count_order("ZZ", year) == bt.DEFAULT_ORDER
 
 
 def test_history_text_falls_back_to_cp1252(tmp_path):
     from tools.fetch_history import _iter_text
 
-    f = tmp_path / "in.csv"
-    f.write_bytes("district,candidate\n7,André Carson\n".encode("cp1252"))
-    assert "André Carson" in "".join(_iter_text(f))
+    file_handle = tmp_path / "in.csv"
+    file_handle.write_bytes("district,candidate\n7,André Carson\n".encode("cp1252"))
+    assert "André Carson" in "".join(_iter_text(file_handle))

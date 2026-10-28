@@ -37,9 +37,9 @@ def _norm(text: str) -> str:
 def _parse_name(raw: str) -> tuple[str, str]:
     """'(D) HARRIS, Kamala D. For PRESIDENT ...' -> ('HARRIS, Kamala D.', 'DEM')."""
     text = _norm(raw)
-    m = re.match(r"^\(([A-Z])\)\s*(.+)$", text)
-    prefix = m.group(1) if m else ""
-    body = m.group(2) if m else text
+    match = re.match(r"^\(([A-Z])\)\s*(.+)$", text)
+    prefix = match.group(1) if match else ""
+    body = match.group(2) if match else text
     # President rows include running mate on subsequent lines; keep the first line.
     first = body.split("\n")[0].strip()
     first = re.sub(r"\s+For\s+.*$", "", first, flags=re.I)
@@ -62,23 +62,23 @@ def race_key(office_raw: str) -> RaceKey:
         return c.local_key("HI", "us-president")
     if office in ("U.S. SENATOR", "U.S.\nSENATOR", "UNITED STATES SENATOR"):
         return RaceKey("HI", Level.SENATE, "SEN", None, special)
-    m = re.match(r"^U\.S\.\s*REPRESENTATIVE,\s*DIST\s*(I+|\d+)", office)
-    if m:
-        dist = _ROMAN.get(m.group(1)) or f"{int(m.group(1)):02d}"
+    match = re.match(r"^U\.S\.\s*REPRESENTATIVE,\s*DIST\s*(I+|\d+)", office)
+    if match:
+        dist = _ROMAN.get(match.group(1)) or f"{int(match.group(1)):02d}"
         return RaceKey("HI", Level.HOUSE, "HOUSE", dist, special)
     if office == "GOVERNOR":
         return RaceKey("HI", Level.GOVERNOR, "GOV", None, special)
     if office == "LIEUTENANT GOVERNOR":
         return RaceKey("HI", Level.GOVERNOR, "LTGOV", None, special)
-    m = re.match(r"^STATE\s+SENATOR,\s*DIST\s*(\d+)", office)
-    if m:
-        return RaceKey("HI", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE\s+REPRESENTATIVE,\s*DIST\s*(\d+)", office)
-    if m:
-        return RaceKey("HI", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^QUESTION\s*#?\s*(\d+)", office)
-    if m:
-        return c.local_key("HI", f"question-{int(m.group(1))}")
+    match = re.match(r"^STATE\s+SENATOR,\s*DIST\s*(\d+)", office)
+    if match:
+        return RaceKey("HI", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE\s+REPRESENTATIVE,\s*DIST\s*(\d+)", office)
+    if match:
+        return RaceKey("HI", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^QUESTION\s*#?\s*(\d+)", office)
+    if match:
+        return c.local_key("HI", f"question-{int(match.group(1))}")
     return c.local_key("HI", office)
 
 
@@ -126,7 +126,7 @@ def parse_hi(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
             continue
         by_contest.setdefault(cid, []).append(row)
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for rows in by_contest.values():
         first = rows[0]
@@ -145,7 +145,7 @@ def parse_hi(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 _norm(office),
@@ -153,13 +153,13 @@ def parse_hi(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=HiSoe.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(first.get("precincts_reporting")),
                 precincts_total=c.to_int(first.get("precincts_total")),
                 registered_voters=c.to_int(first.get("registered_voters")) or None,
             )
         )
-    return out
+    return results
 
 
 async def _summary(client: httpx.AsyncClient, date: str) -> str:
@@ -178,7 +178,7 @@ class HiSoe(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        hi_keys = [k for k in keys if k.state == "HI"]
+        hi_keys = [key for key in keys if key.state == "HI"]
         if not hi_keys:
             return []
         text = await _summary(client, c.election_date())
@@ -189,4 +189,7 @@ class HiSoe(ResultsSource):
         if state != "HI":
             return []
         text = await _summary(client, c.election_date())
-        return [(r.key, r.title or str(r.key)) for r in parse_hi(_rows(text), fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_hi(_rows(text), fetched_at=c.utcnow())
+        ]

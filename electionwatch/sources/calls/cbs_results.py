@@ -62,25 +62,25 @@ class CBSResultsSource(ResultsSource):
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         pairs = {
-            (_LEVEL_OFFICES[k.level], k.state)
-            for k in keys
-            if k.level in _LEVEL_OFFICES
-            and k.state in self.states
-            and (k.level is not Level.GOVERNOR or k.office == "GOV")
+            (_LEVEL_OFFICES[key.level], key.state)
+            for key in keys
+            if key.level in _LEVEL_OFFICES
+            and key.state in self.states
+            and (key.level is not Level.GOVERNOR or key.office == "GOV")
         }
         now = datetime.now(timezone.utc)
         results: list[RaceResult] = []
         for office, state in sorted(pairs):
             results.extend(parse_cbs_results(await self._get(client, office, state), fetched_at=now))
         requested = set(keys)
-        return [r for r in results if r.key in requested]
+        return [race_result for race_result in results if race_result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
         races: list[tuple[RaceKey, str]] = []
         for office in ("S", "G", "H"):
-            for r in parse_cbs_results(await self._get(client, office, state), fetched_at=now):
-                races.append((r.key, r.title or str(r.key)))
+            for race_result in parse_cbs_results(await self._get(client, office, state), fetched_at=now):
+                races.append((race_result.key, race_result.title or str(race_result.key)))
         return races
 
 
@@ -89,7 +89,7 @@ def parse_cbs_results(payload, fetched_at: datetime | None = None) -> list[RaceR
     if not isinstance(payload, list):
         return []
     fetched_at = fetched_at or datetime.now(timezone.utc)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     for race in payload:
         try:
             key = _race_key(race)
@@ -97,13 +97,14 @@ def parse_cbs_results(payload, fetched_at: datetime | None = None) -> list[RaceR
                 continue
             candidates = [
                 CandidateResult(
-                    name=c.get("fullName") or f"{c.get('firstName', '')} {c.get('lastName', '')}".strip(),
-                    party=normalize_party(c.get("party")),
-                    votes=int(c.get("vote") or 0),
-                    pct=c.get("votePct"),
-                    incumbent=bool(c.get("isIncumbent")),
+                    name=candidate.get("fullName")
+                    or f"{candidate.get('firstName', '')} {candidate.get('lastName', '')}".strip(),
+                    party=normalize_party(candidate.get("party")),
+                    votes=int(candidate.get("vote") or 0),
+                    pct=candidate.get("votePct"),
+                    incumbent=bool(candidate.get("isIncumbent")),
                 )
-                for c in race.get("candidates") or []
+                for candidate in race.get("candidates") or []
             ]
             if not candidates:
                 continue
@@ -111,7 +112,7 @@ def parse_cbs_results(payload, fetched_at: datetime | None = None) -> list[RaceR
             title = _OFFICE_TITLES.get(office)
             if office == "H" and key.district:
                 title = f"U.S. House District {key.district}"
-            out.append(
+            results.append(
                 RaceResult(
                     key=key,
                     candidates=candidates,
@@ -127,4 +128,4 @@ def parse_cbs_results(payload, fetched_at: datetime | None = None) -> list[RaceR
         except Exception:
             # Never raise on one bad race.
             continue
-    return out
+    return results

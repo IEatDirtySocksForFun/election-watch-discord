@@ -24,10 +24,10 @@ def district_key(value) -> str | None:
     text = str(value).strip().upper()
     if text in ("", "0", "00", "AL", "AT-LARGE", "AT LARGE"):
         return "AL"
-    m = re.fullmatch(r"(\d{1,3})", text)
-    if not m:
+    match = re.fullmatch(r"(\d{1,3})", text)
+    if not match:
         return None
-    return f"{int(m.group(1)):02d}"
+    return f"{int(match.group(1)):02d}"
 
 
 def epoch_ms_to_dt(value) -> datetime | None:
@@ -60,10 +60,10 @@ def cnn_code_to_key(code: str) -> RaceKey | None:
     that, so the parser must accept it too — otherwise an at-large response parses to
     None and is dropped.
     """
-    m = re.fullmatch(r"\d{4}-([A-Z]+)-([A-Z]{2})(?:-(AL|\d{2}))?", code)
-    if not m:
+    match = re.fullmatch(r"\d{4}-([A-Z]+)-([A-Z]{2})(?:-(AL|\d{2}))?", code)
+    if not match:
         return None
-    office, state, district = m.groups()
+    office, state, district = match.groups()
     if office == "SG":
         return RaceKey(state, Level.SENATE, "SEN")
     if office == "GO":

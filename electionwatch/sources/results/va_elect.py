@@ -82,19 +82,21 @@ def _norm(name: str) -> str:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in ("MEMBER, UNITED STATES SENATE", "MEMBER, U.S. SENATE", "U.S. SENATE") or _SENATE.match(n):
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name in ("MEMBER, UNITED STATES SENATE", "MEMBER, U.S. SENATE", "U.S. SENATE") or _SENATE.match(
+        office_name
+    ):
         return RaceKey("VA", Level.SENATE, "SEN", None, special)
-    if n in _STATEWIDE:
-        return RaceKey("VA", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    if _HOUSE.match(n):
-        m = _HOUSE_DIST.search(n)
-        return RaceKey("VA", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}" if m else "AL", special)
-    if _DELEGATES.match(n):
-        m = _HOUSE_DIST.search(n)
-        return RaceKey("VA", Level.STATE, "HD", f"{int(m.group(1)):02d}" if m else "00", special)
-    return c.local_key("VA", n)
+    if office_name in _STATEWIDE:
+        return RaceKey("VA", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    if _HOUSE.match(office_name):
+        match = _HOUSE_DIST.search(office_name)
+        return RaceKey("VA", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}" if match else "AL", special)
+    if _DELEGATES.match(office_name):
+        match = _HOUSE_DIST.search(office_name)
+        return RaceKey("VA", Level.STATE, "HD", f"{int(match.group(1)):02d}" if match else "00", special)
+    return c.local_key("VA", office_name)
 
 
 def _iso(value) -> datetime | None:
@@ -102,10 +104,10 @@ def _iso(value) -> datetime | None:
     raw = str(value or "").strip()
     if not raw:
         return None
-    m = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$", raw)
-    if not m:
+    match = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$", raw)
+    if not match:
         return c.parse_updated_at(raw)
-    stamp = m.group(1) + ("+00:00" if (m.group(2) or "Z") == "Z" else m.group(2))
+    stamp = match.group(1) + ("+00:00" if (match.group(2) or "Z") == "Z" else match.group(2))
     try:
         return datetime.fromisoformat(stamp)
     except ValueError:
@@ -116,18 +118,18 @@ def parse_va(payload, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one ENR `.../data` document."""
     if not isinstance(payload, dict):
         return []
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for item in payload.get("ballotItems") or []:
-        if not isinstance(item, dict):
+    for ballot_item in payload.get("ballotItems") or []:
+        if not isinstance(ballot_item, dict):
             continue
-        title = _text(item.get("name"))
+        title = _text(ballot_item.get("name"))
         if not title:
             continue
         key = race_key(title)
         if str(key) in seen:
             continue
-        options = ((item.get("summaryResults") or {}).get("ballotOptions")) or []
+        options = ((ballot_item.get("summaryResults") or {}).get("ballotOptions")) or []
         cands: list[CandidateResult] = []
         for option in options:
             if not isinstance(option, dict):
@@ -150,8 +152,8 @@ def parse_va(payload, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        status = item.get("reportingStatus") or {}
-        out.append(
+        status = ballot_item.get("reportingStatus") or {}
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -159,13 +161,13 @@ def parse_va(payload, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=VaElect.name,
                 url=HUMAN,
-                total_votes=c.to_int(item.get("voteTotal")) or sum(x.votes for x in cands),
+                total_votes=c.to_int(ballot_item.get("voteTotal")) or sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(status.get("reportingUnits")) or None,
                 precincts_total=c.to_int(status.get("totalUnits")) or None,
                 source_updated_at=_iso(status.get("asOf")),
             )
         )
-    return out
+    return results
 
 
 def _data_url(election_id: str) -> str:
@@ -200,7 +202,7 @@ class VaElect(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "VA" for k in keys):
+        if not any(key.state == "VA" for key in keys):
             return []
         payload = await _payload(client, c.election_date())
         return c.select(parse_va(payload, fetched_at=c.utcnow()), keys)
@@ -209,4 +211,7 @@ class VaElect(ResultsSource):
         if state != "VA":
             return []
         payload = await _payload(client, c.election_date())
-        return [(r.key, r.title or str(r.key)) for r in parse_va(payload, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_va(payload, fetched_at=c.utcnow())
+        ]

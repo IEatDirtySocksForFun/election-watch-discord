@@ -31,10 +31,10 @@ NOW = datetime(2026, 11, 3, 20, 0, tzinfo=timezone.utc)
     ],
 )
 def test_parse_roundtrip(text, canon, name):
-    k = parse(text)
-    assert str(k) == canon
-    assert parse(canon) == k
-    assert describe(k) == name
+    race_key = parse(text)
+    assert str(race_key) == canon
+    assert parse(canon) == race_key
+    assert describe(race_key) == name
 
 
 @pytest.mark.parametrize("bad", ["", "ZZ SEN", "TX", "TX FOO", "TX LOCAL", "TX SEN X"])
@@ -59,21 +59,23 @@ def test_post_due_rule():
 
 
 async def test_memory_store_change_detection():
-    s = MemoryStore()
+    store = MemoryStore()
     key = parse("TX SEN")
-    r = RaceResult(key, [CandidateResult("A", "REP", 10), CandidateResult("B", "DEM", 30)], "test", NOW).finalize()
-    assert r.candidates[0].name == "B" and r.candidates[0].pct == 75.0
-    assert await s.upsert_result(r) is True
-    assert await s.upsert_result(r) is False
-    r.candidates[1].votes += 1
-    assert await s.upsert_result(r) is True
-    assert len(s.history) == 2
+    race_result = RaceResult(
+        key, [CandidateResult("A", "REP", 10), CandidateResult("B", "DEM", 30)], "test", NOW
+    ).finalize()
+    assert race_result.candidates[0].name == "B" and race_result.candidates[0].pct == 75.0
+    assert await store.upsert_result(race_result) is True
+    assert await store.upsert_result(race_result) is False
+    race_result.candidates[1].votes += 1
+    assert await store.upsert_result(race_result) is True
+    assert len(store.history) == 2
 
 
 def test_normalize_party():
     from electionwatch.models import normalize_party
 
-    assert [normalize_party(p) for p in ("GOP", "r", "Democratic", "DFL", "lib", None, "CST")] == [
+    assert [normalize_party(raw) for raw in ("GOP", "r", "Democratic", "DFL", "lib", None, "CST")] == [
         "REP",
         "REP",
         "DEM",
@@ -95,8 +97,8 @@ def test_normalize_party():
     ],
 )
 def test_territory_keys(text, canon, name):
-    k = parse(text)
-    assert str(k) == canon and describe(k) == name and parse(canon) == k
+    race_key = parse(text)
+    assert str(race_key) == canon and describe(race_key) == name and parse(canon) == race_key
 
 
 def test_adapter_coverage_list_is_states_and_dc_only():
@@ -150,9 +152,18 @@ def test_finalize_drops_ballot_statistics_and_keeps_real_options():
         CandidateResult("None Of These Candidates", None, 5),
         CandidateResult("Write-ins", None, 3),
     ]
-    r = RaceResult(parse("NV SEN"), rows, "t", NOW).finalize()
-    assert [c.name for c in r.candidates] == ["A", "B", "None Of These Candidates", "Write-ins"]
-    assert r.registered_voters == 400 and r.total_votes == 108 and r.candidates[0].pct == 55.56
+    race_result = RaceResult(parse("NV SEN"), rows, "t", NOW).finalize()
+    assert [candidate.name for candidate in race_result.candidates] == [
+        "A",
+        "B",
+        "None Of These Candidates",
+        "Write-ins",
+    ]
+    assert (
+        race_result.registered_voters == 400
+        and race_result.total_votes == 108
+        and race_result.candidates[0].pct == 55.56
+    )
 
 
 @pytest.mark.parametrize(
@@ -178,13 +189,13 @@ def test_unqualified_rows_are_not_candidates(label):
 
     from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 
-    result = RaceResult(
+    race_result = RaceResult(
         RaceKey("AZ", Level.SENATE, "SEN"),
         [CandidateResult("Mark Kelly", "DEM", 100), CandidateResult(label, None, 7)],
         "test",
         datetime(2022, 11, 9, tzinfo=timezone.utc),
     ).finalize()
-    assert [c.name for c in result.candidates] == ["Mark Kelly"]
+    assert [candidate.name for candidate in race_result.candidates] == ["Mark Kelly"]
 
 
 @pytest.mark.parametrize(
@@ -234,13 +245,13 @@ def test_write_in_totals_and_choices_stay(label):
 
     from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 
-    result = RaceResult(
+    race_result = RaceResult(
         RaceKey("AZ", Level.SENATE, "SEN"),
         [CandidateResult(label, None, 7)],
         "test",
         datetime(2022, 11, 9, tzinfo=timezone.utc),
     ).finalize()
-    assert len(result.candidates) == 1
+    assert len(race_result.candidates) == 1
 
 
 @pytest.mark.parametrize(

@@ -57,7 +57,7 @@ def test_required_keys_and_types():
             assert isinstance(rec[key], str) and rec[key].strip(), f"{code}.{key}"
             assert len(rec[key]) <= loader.MAX_FIELD_CHARS, f"{code}.{key}"
         assert isinstance(rec["timezones"], list) and rec["timezones"]
-        assert all(isinstance(z, str) and "/" in z for z in rec["timezones"]), code
+        assert all(isinstance(timezone_name, str) and "/" in timezone_name for timezone_name in rec["timezones"]), code
         assert isinstance(rec["sources"], list) and rec["sources"]
         assert isinstance(rec.get("unverified", []), list)
         if rec["results_vendor"] is not None:
@@ -109,44 +109,44 @@ def test_loaders_are_cached():
 
 
 def test_validation_rejects_missing_state():
-    data = {code: _valid_state() for code in STATES}
-    del data["WY"]
+    states = {code: _valid_state() for code in STATES}
+    del states["WY"]
     with pytest.raises(loader.FAQDataError, match="missing state codes"):
-        loader._validate_states(data)
+        loader._validate_states(states)
 
 
 def test_validation_rejects_unknown_state():
-    data = {code: _valid_state() for code in STATES}
-    data["ZZ"] = _valid_state()
+    states = {code: _valid_state() for code in STATES}
+    states["ZZ"] = _valid_state()
     with pytest.raises(loader.FAQDataError, match="unknown state codes"):
-        loader._validate_states(data)
+        loader._validate_states(states)
 
 
 def test_validation_rejects_http_url():
-    data = {code: _valid_state() for code in STATES}
-    data["TX"] = _valid_state(sos_url="http://example.gov/elections")
+    states = {code: _valid_state() for code in STATES}
+    states["TX"] = _valid_state(sos_url="http://example.gov/elections")
     with pytest.raises(loader.FAQDataError, match="https"):
-        loader._validate_states(data)
+        loader._validate_states(states)
 
 
 def test_validation_rejects_long_text():
-    data = {code: _valid_state() for code in STATES}
-    data["CA"] = _valid_state(notes="x" * (loader.MAX_FIELD_CHARS + 1))
+    states = {code: _valid_state() for code in STATES}
+    states["CA"] = _valid_state(notes="x" * (loader.MAX_FIELD_CHARS + 1))
     with pytest.raises(loader.FAQDataError, match="exceeds"):
-        loader._validate_states(data)
+        loader._validate_states(states)
 
 
 def test_validation_rejects_unknown_key():
-    data = copy.deepcopy({code: _valid_state() for code in STATES})
-    data["FL"]["results_url"] = "https://example.gov"
+    states = copy.deepcopy({code: _valid_state() for code in STATES})
+    states["FL"]["results_url"] = "https://example.gov"
     with pytest.raises(loader.FAQDataError, match="unknown keys"):
-        loader._validate_states(data)
+        loader._validate_states(states)
 
 
 def test_validation_rejects_missing_outlet():
-    data = {
+    outlets = {
         key: {"name": key, "results_url": "https://example.gov", "exit_poll_url": None, "notes": "x"}
         for key in loader.REQUIRED_OUTLETS - {"AP"}
     }
     with pytest.raises(loader.FAQDataError, match="missing outlets"):
-        loader._validate_outlets(data)
+        loader._validate_outlets(outlets)

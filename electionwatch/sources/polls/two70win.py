@@ -89,17 +89,17 @@ def _parse_row(row, level: Level) -> Poll | None:
     if location is None:
         return None
     href = location.attributes.get("href") or ""
-    m = _LOCATION.search(href)
-    if not m:
+    match = _LOCATION.search(href)
+    if not match:
         return None
-    if _OFFICE_OF[m.group("office")] is not level:
+    if _OFFICE_OF[match.group("office")] is not level:
         return None  # a row for a different office than the list we asked for
-    state = state_code(m.group("state").replace("-", " ")) or state_code(node_text(location))
+    state = state_code(match.group("state").replace("-", " ")) or state_code(node_text(location))
     if state is None:
         return None
     district: str | None = None
     if level is Level.HOUSE:
-        raw = m.group("district")
+        raw = match.group("district")
         if raw:
             district = f"{int(raw):02d}"
         elif state in _AT_LARGE:
@@ -158,10 +158,10 @@ def _pollster_name(source_cell, link) -> str:
 
 def parse_270towin_polls(html: str, level: Level, keys: list[RaceKey]) -> list[Poll]:
     """Parse one office's poll-list fragment and keep the races in ``keys``."""
-    wanted = {k for k in keys if k.level is level}
+    wanted = {race_key for race_key in keys if race_key.level is level}
     if not wanted:
         return []
-    index = {(k.state, k.district): k for k in wanted}
+    index = {(race_key.state, race_key.district): race_key for race_key in wanted}
     tree = HTMLParser(html or "")
     polls: list[Poll] = []
     for row in tree.css("table#polls-list tbody tr[data-poll-id]"):
@@ -173,7 +173,7 @@ def parse_270towin_polls(html: str, level: Level, keys: list[RaceKey]) -> list[P
             continue
         poll.key = key
         polls.append(poll)
-    polls.sort(key=lambda p: (p.end_date, p.pollster), reverse=True)
+    polls.sort(key=lambda poll: (poll.end_date, poll.pollster), reverse=True)
     return polls
 
 
@@ -192,7 +192,7 @@ class Two70toWinPollSource(PollSource):
         errors = 0
         attempted = 0
         for level, code in _OFFICES.items():
-            if not any(k.level is level for k in keys):
+            if not any(key.level is level for key in keys):
                 continue
             attempted += 1
             params = {
@@ -214,6 +214,6 @@ class Two70toWinPollSource(PollSource):
             polls.extend(parse_270towin_polls(resp.text, level, keys))
         if attempted and errors == attempted:
             raise SourceUnavailable("270towin: every poll list request failed")
-        polls.sort(key=lambda p: (p.end_date, p.pollster), reverse=True)
+        polls.sort(key=lambda poll: (poll.end_date, poll.pollster), reverse=True)
         log.info("270towin: %d polls for %d keys", len(polls), len(keys))
         return polls

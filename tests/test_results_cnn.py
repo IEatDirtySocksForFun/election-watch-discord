@@ -22,25 +22,25 @@ def _load(name: str):
 
 
 def test_parse_senate_result():
-    result = parse_cnn_results(_load("2024-SG-TX.json"), fetched_at=NOW)
-    assert result is not None
-    assert result.key == TX_SEN
-    assert result.source == "cnn_results"
-    assert result.total_votes == 11291854
-    assert result.expected_vote_pct == 99
-    assert result.title == "U.S. Senate"
-    cruz = result.candidates[0]
+    race_result = parse_cnn_results(_load("2024-SG-TX.json"), fetched_at=NOW)
+    assert race_result is not None
+    assert race_result.key == TX_SEN
+    assert race_result.source == "cnn_results"
+    assert race_result.total_votes == 11291854
+    assert race_result.expected_vote_pct == 99
+    assert race_result.title == "U.S. Senate"
+    cruz = race_result.candidates[0]
     assert (cruz.name, cruz.party, cruz.votes, cruz.pct) == ("Ted Cruz", "REP", 5990741, 53)
     assert cruz.incumbent is True
     assert cruz.winner is False
 
 
 def test_parse_house_result():
-    result = parse_cnn_results(_load("2024-HG-CA-12.json"), fetched_at=NOW)
-    assert result is not None
-    assert result.key == CA_12
-    assert result.title == "U.S. House District 12"
-    assert result.candidates[0].party == "DEM"
+    race_result = parse_cnn_results(_load("2024-HG-CA-12.json"), fetched_at=NOW)
+    assert race_result is not None
+    assert race_result.key == CA_12
+    assert race_result.title == "U.S. House District 12"
+    assert race_result.candidates[0].party == "DEM"
 
 
 def test_parse_bad_payloads():
@@ -64,7 +64,7 @@ async def test_fetch_filters_to_requested_keys():
     )
     async with httpx.AsyncClient() as client:
         results = await CNNResultsSource().fetch([TX_SEN], client)
-    assert [r.key for r in results] == [TX_SEN]
+    assert [race_result.key for race_result in results] == [TX_SEN]
     assert route.called
 
 
@@ -99,11 +99,11 @@ def test_parse_at_large_house_code():
             {"fullName": "Mary Peltola", "majorParty": "DEM", "voteNum": 152828},
         ],
     }
-    result = parse_cnn_results(payload, fetched_at=NOW)
-    assert result is not None
-    assert result.key == AT_LARGE_AK
-    assert result.title == "U.S. House At-Large"
-    assert result.total_votes == 328805
+    race_result = parse_cnn_results(payload, fetched_at=NOW)
+    assert race_result is not None
+    assert race_result.key == AT_LARGE_AK
+    assert race_result.title == "U.S. House At-Large"
+    assert race_result.total_votes == 328805
 
 
 @respx.mock
@@ -124,7 +124,7 @@ async def test_fetch_requests_the_at_large_code_and_keeps_it():
     async with httpx.AsyncClient() as client:
         results = await CNNResultsSource().fetch([AT_LARGE_AK], client)
     assert route.called
-    assert [r.key for r in results] == [AT_LARGE_AK]
+    assert [race_result.key for race_result in results] == [AT_LARGE_AK]
 
 
 @respx.mock

@@ -67,23 +67,23 @@ def feeds(date: str) -> list[dict]:
             raise SourceUnavailable("MI_CLARITY_FEEDS is not valid JSON") from exc
         if not isinstance(entries, list):
             raise SourceUnavailable("MI_CLARITY_FEEDS must be a JSON list")
-        out = []
+        configured = []
         for entry in entries:
             if not isinstance(entry, dict) or not entry.get("county"):
                 raise SourceUnavailable("MI_CLARITY_FEEDS entries need a county")
             if entry.get("date") and entry["date"] != date:
                 continue
-            out.append(entry)
-        return out
+            configured.append(entry)
+        return configured
     return [{"county": county} for county in COUNTIES]
 
 
 def iso_date(value: str) -> str | None:
     """'11/3/2026 12:00:00 AM' -> '2026-11-03'."""
-    m = re.match(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})", value or "")
-    if not m:
+    match = re.match(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})", value or "")
+    if not match:
         return None
-    return f"{int(m.group(3)):04d}-{int(m.group(1)):02d}-{int(m.group(2)):02d}"
+    return f"{int(match.group(3)):04d}-{int(match.group(1)):02d}-{int(match.group(2)):02d}"
 
 
 def pick_election(rows, date: str) -> str | None:
@@ -98,23 +98,23 @@ def pick_election(rows, date: str) -> str | None:
 
 def race_key(name: str) -> RaceKey:
     """Clarity names re-keyed to Michigan ones."""
-    n = re.sub(r"\s+", " ", (name or "").strip()).upper()
-    special = c.is_special(n)
-    if n in _GOV:
+    contest_name = re.sub(r"\s+", " ", (name or "").strip()).upper()
+    special = c.is_special(contest_name)
+    if contest_name in _GOV:
         return RaceKey("MI", Level.GOVERNOR, "GOV", None, special)
-    if n in ("UNITED STATES SENATOR", "U.S. SENATOR", "US SENATOR"):
+    if contest_name in ("UNITED STATES SENATOR", "U.S. SENATOR", "US SENATOR"):
         return RaceKey("MI", Level.SENATE, "SEN", None, special)
-    if n == "SECRETARY OF STATE":
+    if contest_name == "SECRETARY OF STATE":
         return RaceKey("MI", Level.GOVERNOR, "SOS", None, special)
-    m = _CONGRESS.match(n)
-    if m:
-        return RaceKey("MI", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("MI", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey("MI", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
+    match = _CONGRESS.match(contest_name)
+    if match:
+        return RaceKey("MI", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = _STATE_SENATE.match(contest_name)
+    if match:
+        return RaceKey("MI", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = _STATE_HOUSE.match(contest_name)
+    if match:
+        return RaceKey("MI", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
     from .clarity import race_key as clarity_race_key
 
     return clarity_race_key("MI", name)
@@ -132,38 +132,40 @@ def merge_counties(
     source: str,
 ) -> list[RaceResult]:
     """Sum the per-county results into one partial statewide picture."""
-    total_counties = len([n for n, rs in by_county.items() if rs])
+    total_counties = len([county for county, county_results in by_county.items() if county_results])
     if not total_counties:
         return []
     merged: dict[str, dict] = {}
-    for results in by_county.values():
-        for r in results:
+    for county_results in by_county.values():
+        for race_result in county_results:
             entry = merged.setdefault(
-                str(r.key),
+                str(race_result.key),
                 {
-                    "key": r.key,
-                    "title": r.title or str(r.key),
+                    "key": race_result.key,
+                    "title": race_result.title or str(race_result.key),
                     "cands": {},
                     "prt": 0,
                     "ptl": 0,
                     "updated": None,
                 },
             )
-            for cand in r.candidates:
+            for cand in race_result.candidates:
                 slot = entry["cands"].setdefault(
                     (cand.name, cand.party), {"votes": 0, "incumbent": cand.incumbent, "winner": cand.winner}
                 )
                 slot["votes"] += cand.votes
                 slot["winner"] = slot["winner"] or cand.winner
                 slot["incumbent"] = slot["incumbent"] or cand.incumbent
-            if r.precincts_reporting:
-                entry["prt"] += r.precincts_reporting
-            if r.precincts_total:
-                entry["ptl"] += r.precincts_total
-            if r.source_updated_at and (entry["updated"] is None or r.source_updated_at > entry["updated"]):
-                entry["updated"] = r.source_updated_at
+            if race_result.precincts_reporting:
+                entry["prt"] += race_result.precincts_reporting
+            if race_result.precincts_total:
+                entry["ptl"] += race_result.precincts_total
+            if race_result.source_updated_at and (
+                entry["updated"] is None or race_result.source_updated_at > entry["updated"]
+            ):
+                entry["updated"] = race_result.source_updated_at
 
-    out: list[RaceResult] = []
+    combined: list[RaceResult] = []
     for entry in merged.values():
         cands = [
             CandidateResult(
@@ -171,7 +173,7 @@ def merge_counties(
             )
             for (name, party), slot in entry["cands"].items()
         ]
-        out.append(
+        combined.append(
             c.make_result(
                 entry["key"],
                 partial_title(entry["title"], total_counties),
@@ -184,32 +186,32 @@ def merge_counties(
                 source_updated_at=entry["updated"],
             )
         )
-    return out
+    return combined
 
 
 def rekey(results: list[RaceResult]) -> list[RaceResult]:
     """Re-key parsed Clarity results with Michigan contest names."""
-    out: list[RaceResult] = []
-    for r in results:
-        key = race_key(r.title or "")
-        out.append(
+    rekeyed: list[RaceResult] = []
+    for race_result in results:
+        key = race_key(race_result.title or "")
+        rekeyed.append(
             RaceResult(
                 key=key,
-                candidates=r.candidates,
-                source=r.source,
-                fetched_at=r.fetched_at,
-                source_updated_at=r.source_updated_at,
-                precincts_reporting=r.precincts_reporting,
-                precincts_total=r.precincts_total,
-                expected_vote_pct=r.expected_vote_pct,
-                total_votes=r.total_votes,
-                registered_voters=r.registered_voters,
-                turnout_pct=r.turnout_pct,
-                url=r.url,
-                title=r.title,
+                candidates=race_result.candidates,
+                source=race_result.source,
+                fetched_at=race_result.fetched_at,
+                source_updated_at=race_result.source_updated_at,
+                precincts_reporting=race_result.precincts_reporting,
+                precincts_total=race_result.precincts_total,
+                expected_vote_pct=race_result.expected_vote_pct,
+                total_votes=race_result.total_votes,
+                registered_voters=race_result.registered_voters,
+                turnout_pct=race_result.turnout_pct,
+                url=race_result.url,
+                title=race_result.title,
             )
         )
-    return out
+    return rekeyed
 
 
 async def _election_id(client: httpx.AsyncClient, county: str, date: str) -> str | None:
@@ -261,11 +263,11 @@ class MiCounty(ResultsSource):
         return merge_counties(by_county, fetched_at=c.utcnow(), source=MiCounty.name)
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "MI" for k in keys):
+        if not any(key.state == "MI" for key in keys):
             return []
-        return c.select(await self._all(client), [k for k in keys if k.state == "MI"])
+        return c.select(await self._all(client), [key for key in keys if key.state == "MI"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "MI":
             return []
-        return [(r.key, r.title or str(r.key)) for r in await self._all(client)]
+        return [(race_result.key, race_result.title or str(race_result.key)) for race_result in await self._all(client)]

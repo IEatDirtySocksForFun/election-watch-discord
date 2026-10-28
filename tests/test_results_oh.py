@@ -33,19 +33,19 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def parsed():
-    return parse_oh(load("contest_list.json"), [load(n) for n in DETAILS], fetched_at=AT)
+    return parse_oh(load("contest_list.json"), [load(county_name) for county_name in DETAILS], fetched_at=AT)
 
 
 def test_statewide_offices():
     got = by_key(parsed())
     assert got["OH GOV"].candidates[0].party == "DEM"
-    assert "Amy Acton" in {c.name for c in got["OH GOV"].candidates}
+    assert "Amy Acton" in {candidate.name for candidate in got["OH GOV"].candidates}
     assert got["OH AG"].key.level is Level.GOVERNOR
-    assert {c.name for c in got["OH AG"].candidates} == {"Keith Faber", "John J. Kulewicz"}
+    assert {candidate.name for candidate in got["OH AG"].candidates} == {"Keith Faber", "John J. Kulewicz"}
 
 
 def test_senate_unexpired_term_is_special():
@@ -59,7 +59,7 @@ def test_senate_unexpired_term_is_special():
 def test_county_rows_are_summed_into_one_race():
     cd1 = by_key(parsed())["OH-01"]
     # Three county rows (Clinton, Hamilton, Warren), three candidates each: not nine.
-    assert {c.name for c in cd1.candidates} == {"Eric Conroy", "Greg Landsman", "Nathan Weise"}
+    assert {candidate.name for candidate in cd1.candidates} == {"Eric Conroy", "Greg Landsman", "Nathan Weise"}
     assert cd1.precincts_total == 36 + 563 + 185
     assert cd1.total_votes == 0
     assert cd1.title == "Representative to Congress - District 01"
@@ -72,7 +72,7 @@ def test_votes_sum_across_county_rows():
         for cand in row["candidatesRunning"]:
             cand["voteCount"] = str(per_row[row["name"]])
     got = by_key(parse_oh(load("contest_list.json"), [detail], fetched_at=AT))["OH-01"]
-    assert {c.name: c.votes for c in got.candidates} == {
+    assert {candidate.name: candidate.votes for candidate in got.candidates} == {
         "Eric Conroy": 1110,
         "Greg Landsman": 1110,
         "Nathan Weise": 1110,
@@ -92,13 +92,13 @@ def test_issue_and_judicial_are_local():
     got = by_key(parsed())
     issue = got["OH LOCAL state-issue-3-to-require-voters-to-present-photo-identification-in-order-to-vote"]
     assert issue.title.startswith("State Issue 3")
-    assert [c.name for c in issue.candidates] == ["Yes", "No"]
+    assert [candidate.name for candidate in issue.candidates] == ["Yes", "No"]
     assert issue.candidates[0].party is None
     assert "OH LOCAL justice-of-the-supreme-court-term-commencing-01-01-2027" in got
 
 
 def test_party_codes_are_normalised():
-    parties = {c.party for r in parsed() for c in r.candidates}
+    parties = {candidate.party for race_result in parsed() for candidate in race_result.candidates}
     # "OP" is Ohio's own "other party" code; unknown codes pass through unchanged.
     assert parties <= {"DEM", "REP", "WRI", "LIB", "GRN", "CON", "IND", "OP", None}
 

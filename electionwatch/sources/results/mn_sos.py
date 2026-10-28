@@ -92,32 +92,32 @@ def _norm(name: str) -> str:
 
 def race_key(name: str, district: str | None = None, county: str | None = None) -> RaceKey:
     """Map an MN contest name (+ optional county) to a canonical key."""
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in _US_SENATE:
+    contest_name = _norm(name)
+    special = c.is_special(contest_name)
+    if contest_name in _US_SENATE:
         return RaceKey("MN", Level.SENATE, "SEN", None, special)
-    if n in _STATEWIDE:
-        return RaceKey("MN", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = _US_HOUSE.match(n)
-    if m:
-        return RaceKey("MN", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("MN", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey("MN", Level.STATE, "HD", m.group(1), special)
+    if contest_name in _STATEWIDE:
+        return RaceKey("MN", Level.GOVERNOR, _STATEWIDE[contest_name], None, special)
+    match = _US_HOUSE.match(contest_name)
+    if match:
+        return RaceKey("MN", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = _STATE_SENATE.match(contest_name)
+    if match:
+        return RaceKey("MN", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = _STATE_HOUSE.match(contest_name)
+    if match:
+        return RaceKey("MN", Level.STATE, "HD", match.group(1), special)
     return c.local_key("MN", f"{county} {name}" if county else name)
 
 
 def parse_counties(text: str) -> dict[str, str]:
     """Cntytbl.txt -> {"01": "Aitkin", ...}."""
-    out: dict[str, str] = {}
+    county_codes: dict[str, str] = {}
     for line in (text or "").splitlines():
-        parts = [p.strip() for p in line.split(";")]
+        parts = [piece.strip() for piece in line.split(";")]
         if len(parts) >= 2 and parts[0] and parts[1]:
-            out[parts[0]] = parts[1]
-    return out
+            county_codes[parts[0]] = parts[1]
+    return county_codes
 
 
 def race_title(name: str, county: str | None = None) -> str:
@@ -134,14 +134,14 @@ def parse_mn(
 ) -> list[RaceResult]:
     """Pure parse of the MnDVS text exports (file name -> file body)."""
     counties = counties or {}
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for body in files.values():
         # Rows of one contest always sit together: group in encounter order.
         order: list[tuple[str, str, str]] = []  # (name, district, county code)
         rows: dict[tuple[str, str, str], list[list[str]]] = {}
         for line in (body or "").splitlines():
-            fields = [f.strip() for f in line.rstrip("\r").split(";")]
+            fields = [raw_field.strip() for raw_field in line.rstrip("\r").split(";")]
             if len(fields) < 16 or fields[0] != "MN":
                 continue
             name, district, county_code = fields[4], fields[5], fields[1]
@@ -176,7 +176,7 @@ def parse_mn(
                 continue
             seen.add(str(key))
             first = rows[group][0]
-            out.append(
+            results.append(
                 c.make_result(
                     key,
                     race_title(name, county),
@@ -189,7 +189,7 @@ def parse_mn(
                     precincts_total=c.to_int(first[12]) or None,
                 )
             )
-    return out
+    return results
 
 
 def folder(date: str) -> str:
@@ -238,16 +238,19 @@ class MnSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "MN" for k in keys):
+        if not any(key.state == "MN" for key in keys):
             return []
         payload = await _load(client, c.election_date())
         counties = payload.pop("__counties__", {})
         parsed = parse_mn(payload, fetched_at=c.utcnow(), counties=counties)
-        return c.select(parsed, [k for k in keys if k.state == "MN"])
+        return c.select(parsed, [key for key in keys if key.state == "MN"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "MN":
             return []
         payload = await _load(client, c.election_date())
         counties = payload.pop("__counties__", {})
-        return [(r.key, r.title or str(r.key)) for r in parse_mn(payload, fetched_at=c.utcnow(), counties=counties)]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_mn(payload, fetched_at=c.utcnow(), counties=counties)
+        ]

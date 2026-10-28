@@ -11,7 +11,10 @@ AT = datetime(2026, 10, 27, 16, 30, tzinfo=timezone.utc)
 
 
 def parse(name):
-    return {format_key(r.key): r for r in parse_or(json.loads((FIX / name).read_text(encoding="utf-8")), fetched_at=AT)}
+    return {
+        format_key(race_result.key): race_result
+        for race_result in parse_or(json.loads((FIX / name).read_text(encoding="utf-8")), fetched_at=AT)
+    }
 
 
 def test_governor_fusion_parties():
@@ -19,7 +22,7 @@ def test_governor_fusion_parties():
     assert set(got) == {"OR GOV"}
     gov = got["OR GOV"]
     assert gov.title == "Governor"
-    assert [(c.name, c.party) for c in gov.candidates] == [
+    assert [(candidate.name, candidate.party) for candidate in gov.candidates] == [
         ("Brett Smith", "GRN"),  # Pacific Green
         ("Tina Kotek", "DEM"),  # "Democrat, Working Families"
         ("Christine Drazan", "REP"),  # "Republican, Libertarian"
@@ -29,7 +32,7 @@ def test_governor_fusion_parties():
     assert gov.precincts_total == 1318
     assert gov.precincts_reporting == 0
     assert gov.expected_vote_pct is None  # nothing has reported yet
-    assert all(c.pct is None for c in gov.candidates)
+    assert all(candidate.pct is None for candidate in gov.candidates)
 
 
 def test_us_senate_and_house():
@@ -39,19 +42,19 @@ def test_us_senate_and_house():
     assert {"OR-01", "OR-06"} <= set(got)
     assert got["OR-01"].key.level is Level.HOUSE
     assert got["OR-01"].title == "US Representative, 1st District"
-    assert "Jeff Merkley" in [c.name for c in got["OR SEN"].candidates]
+    assert "Jeff Merkley" in [candidate.name for candidate in got["OR SEN"].candidates]
     assert got["OR SEN"].candidates[0].party in {"DEM", "REP", "LIB", "GRN", "NPA", None}
 
 
 def test_state_legislative_districts():
     house = parse("2026_general_house.json")
     assert len(house) == 2
-    assert all(k.startswith("OR HD-") for k in house)
+    assert all(race_key.startswith("OR HD-") for race_key in house)
     assert "OR HD-01" in house
     assert house["OR HD-01"].key.level is Level.STATE
 
     senate = parse("2026_general_senate.json")
-    assert all(k.startswith("OR SD-") for k in senate)
+    assert all(race_key.startswith("OR SD-") for race_key in senate)
     assert senate["OR SD-03"].title == "State Senator, 3rd District"
 
 
@@ -106,12 +109,12 @@ def test_counts_and_winner_flag_from_constructed_rows():
         ]
     }
     (gov,) = parse_or(payload, fetched_at=AT)
-    assert [c.name for c in gov.candidates] == ["Tina Kotek", "Christine Drazan", "Write-in"]
-    assert [c.pct for c in gov.candidates] == [59.6, 39.74, 0.66]
+    assert [candidate.name for candidate in gov.candidates] == ["Tina Kotek", "Christine Drazan", "Write-in"]
+    assert [candidate.pct for candidate in gov.candidates] == [59.6, 39.74, 0.66]
     assert gov.total_votes == 1510
     assert gov.precincts_reporting == 65  # fully + partially reporting
     assert gov.expected_vote_pct == 65.0
-    assert [c.winner for c in gov.candidates] == [False, True, False]
+    assert [candidate.winner for candidate in gov.candidates] == [False, True, False]
 
 
 def test_race_key_mapping():

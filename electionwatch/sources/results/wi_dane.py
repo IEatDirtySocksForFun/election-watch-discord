@@ -68,28 +68,32 @@ def _norm(name: str) -> str:
 
 def race_key(name: str) -> RaceKey:
     """Map a Dane County contest title to a canonical key."""
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in _US_SENATE:
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name in _US_SENATE:
         return RaceKey("WI", Level.SENATE, "SEN", None, special)
-    if n in _STATEWIDE:
-        return RaceKey("WI", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = _US_HOUSE.match(n)
-    if m:
-        return RaceKey("WI", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("WI", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = _STATE_ASSEMBLY.match(n)
-    if m:
-        return RaceKey("WI", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
+    if office_name in _STATEWIDE:
+        return RaceKey("WI", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    match = _US_HOUSE.match(office_name)
+    if match:
+        return RaceKey("WI", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = _STATE_SENATE.match(office_name)
+    if match:
+        return RaceKey("WI", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = _STATE_ASSEMBLY.match(office_name)
+    if match:
+        return RaceKey("WI", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
     return c.local_key("WI", name)
 
 
 def partial_title(title: str) -> str:
     """'Governor / Lieutenant Governor (partial: 1 county)'."""
-    n = len(COUNTIES)
-    return f"{title} (partial: {n} county)" if n == 1 else f"{title} (partial: {n} counties)"
+    county_count = len(COUNTIES)
+    return (
+        f"{title} (partial: {county_count} county)"
+        if county_count == 1
+        else f"{title} (partial: {county_count} counties)"
+    )
 
 
 def _clean_candidate(cell) -> tuple[str, str | None]:
@@ -108,14 +112,14 @@ def _clean_candidate(cell) -> tuple[str, str | None]:
 
 
 def _vote_cell_pct(cell) -> float | None:
-    m = _PCT.search(cell.text())
-    return c.to_pct(m.group(1)) if m else None
+    match = _PCT.search(cell.text())
+    return c.to_pct(match.group(1)) if match else None
 
 
 def parse_dane(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of the Dane County results page."""
     tree = HTMLParser(html or "")
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for block in tree.css("div.row[id]"):
         if not (block.attributes.get("id") or "").startswith("race"):
@@ -151,7 +155,7 @@ def parse_dane(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             continue
         seen.add(str(key))
         precincts = _PRECINCTS.search(block.text())
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 partial_title(title),
@@ -163,7 +167,7 @@ def parse_dane(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 precincts_total=int(precincts.group(2)) if precincts else None,
             )
         )
-    return out
+    return results
 
 
 @register
@@ -174,7 +178,7 @@ class WiDane(ResultsSource):
     enabled_by_default = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "WI" for k in keys):
+        if not any(key.state == "WI" for key in keys):
             return []
         try:
             resp = await client.get(URL, headers={"Accept": "text/html"})
@@ -183,15 +187,18 @@ class WiDane(ResultsSource):
         if resp.status_code >= 400:
             raise SourceUnavailable(f"GET {URL} -> HTTP {resp.status_code}")
         parsed = parse_dane(resp.text, fetched_at=c.utcnow())
-        return c.select(parsed, [k for k in keys if k.state == "WI"])
+        return c.select(parsed, [key for key in keys if key.state == "WI"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "WI":
             return []
         try:
-            resp = await client.get(URL, headers={"Accept": "text/html"})
+            response = await client.get(URL, headers={"Accept": "text/html"})
         except httpx.HTTPError as exc:
             raise SourceUnavailable(f"GET {URL} failed: {exc}") from exc
-        if resp.status_code >= 400:
-            raise SourceUnavailable(f"GET {URL} -> HTTP {resp.status_code}")
-        return [(r.key, r.title or str(r.key)) for r in parse_dane(resp.text, fetched_at=c.utcnow())]
+        if response.status_code >= 400:
+            raise SourceUnavailable(f"GET {URL} -> HTTP {response.status_code}")
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_dane(response.text, fetched_at=c.utcnow())
+        ]

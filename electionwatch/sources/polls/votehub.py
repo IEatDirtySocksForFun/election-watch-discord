@@ -62,16 +62,16 @@ _DISTRICT = re.compile(r"^(?P<state>[A-Z]{2})-(?P<district>\d{1,2}|AL)$", re.I)
 
 def parse_subject(subject: str | None) -> tuple[str, str | None] | None:
     """'2026 Michigan' -> ('MI', None); '2026 IL-04' -> ('IL', '04')."""
-    m = _SUBJECT.match(norm_space(subject))
-    if not m:
+    match = _SUBJECT.match(norm_space(subject))
+    if not match:
         return None
-    body = m.group("body").strip()
-    dm = _DISTRICT.match(body)
-    if dm:
-        state = dm.group("state").upper()
+    body = match.group("body").strip()
+    district_match = _DISTRICT.match(body)
+    if district_match:
+        state = district_match.group("state").upper()
         if state not in STATES:
             return None
-        district = dm.group("district").upper()
+        district = district_match.group("district").upper()
         if district != "AL":
             district = f"{int(district):02d}"
             if state in AT_LARGE and district == "01":
@@ -133,7 +133,7 @@ def parse_votehub_polls(payload: list[dict], keys: list[RaceKey]) -> list[Poll]:
             results.append(_result(str(answer["choice"]), pct))
         if not results:
             continue
-        sponsors = [s for s in (record.get("sponsors") or []) if s]
+        sponsors = [sponsor for sponsor in (record.get("sponsors") or []) if sponsor]
         polls.append(
             Poll(
                 key=key,
@@ -149,7 +149,7 @@ def parse_votehub_polls(payload: list[dict], keys: list[RaceKey]) -> list[Poll]:
                 url=record.get("url") or None,
             )
         )
-    polls.sort(key=lambda p: (p.end_date, p.pollster), reverse=True)
+    polls.sort(key=lambda poll: (poll.end_date, poll.pollster), reverse=True)
     return polls
 
 
@@ -176,12 +176,12 @@ class VoteHubPollSource(PollSource):
             if resp.status_code >= 400:
                 raise SourceUnavailable(f"votehub: HTTP {resp.status_code}")
             try:
-                data = resp.json()
+                decoded = resp.json()
             except ValueError as exc:  # an HTML error/challenge page instead of JSON
                 raise SourceUnavailable("votehub: response is not JSON") from exc
-            if not isinstance(data, list):
+            if not isinstance(decoded, list):
                 raise SourceUnavailable("votehub: unexpected payload")
-            self._cache, self._cached_at = data, time.monotonic()
+            self._cache, self._cached_at = decoded, time.monotonic()
         return self._cache
 
     async def fetch_polls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[Poll]:

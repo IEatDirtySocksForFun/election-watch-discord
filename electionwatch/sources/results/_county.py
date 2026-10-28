@@ -53,9 +53,9 @@ def split_party_prefix(name: str, party: str | None) -> str:
         return name
     text = name or ""
     for pattern in (_PARTY_PREFIX, _PAREN_PARTY_PREFIX):
-        m = pattern.match(text)
-        if m and c.norm_party(m.group(1)) == party:
-            return m.group(2).strip()
+        match = pattern.match(text)
+        if match and c.norm_party(match.group(1)) == party:
+            return match.group(2).strip()
     return name
 
 
@@ -65,32 +65,32 @@ _NOT_GENERAL = re.compile(r"PRIMARY|RUNOFF|SPECIAL|SCHOOL|MUNICIPAL|CITY|TOWN|RE
 
 def _iso_date(raw: str) -> str:
     """'11/3/2026 12:00:00 AM' -> '2026-11-03' (Clarity writes US dates)."""
-    m = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", raw or "")
-    if m:
-        return f"{int(m.group(3)):04d}-{int(m.group(1)):02d}-{int(m.group(2)):02d}"
-    m = re.search(r"(\d{4})-(\d{2})-(\d{2})", raw or "")
-    return m.group(0) if m else ""
+    match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", raw or "")
+    if match:
+        return f"{int(match.group(3)):04d}-{int(match.group(1)):02d}-{int(match.group(2)):02d}"
+    match = re.search(r"(\d{4})-(\d{2})-(\d{2})", raw or "")
+    return match.group(0) if match else ""
 
 
 def parse_elections(payload) -> list[dict]:
     """Pure parse of a jurisdiction's elections.json -> [{"eid", "name", "date"}]."""
     if isinstance(payload, dict):
         payload = payload.get("Elections") or payload.get("elections") or []
-    out: list[dict] = []
+    elections: list[dict] = []
     for row in payload or []:
         if not isinstance(row, dict):
             continue
         eid = str(row.get("EID") or row.get("Eid") or row.get("eid") or "").strip()
         if not eid:
             continue
-        out.append(
+        elections.append(
             {
                 "eid": eid,
                 "name": str(row.get("ElectionName") or row.get("name") or "").strip(),
                 "date": _iso_date(str(row.get("Date") or row.get("date") or "")),
             }
         )
-    return out
+    return elections
 
 
 def _eid_order(entry: dict) -> int:
@@ -107,17 +107,17 @@ def find_election(entries: list[dict], date: str) -> str | None:
     Counting sometimes files the general election under its certification date, so as a
     fallback accept a same-year entry named "general" that is not a primary/runoff/special.
     """
-    exact = sorted((e for e in entries if e["date"] == date), key=_eid_order)
+    exact = sorted((entry for entry in entries if entry["date"] == date), key=_eid_order)
     if exact:
         return exact[-1]["eid"]
     year = date[:4]
     loose = sorted(
         (
-            e
-            for e in entries
-            if e["date"].startswith(year)
-            and "GENERAL" in e["name"].upper()
-            and not _NOT_GENERAL.search(e["name"].upper().replace("GENERAL", ""))
+            entry
+            for entry in entries
+            if entry["date"].startswith(year)
+            and "GENERAL" in entry["name"].upper()
+            and not _NOT_GENERAL.search(entry["name"].upper().replace("GENERAL", ""))
         ),
         key=_eid_order,
     )
@@ -135,12 +135,12 @@ def county_feeds_from_env(var: str) -> list[dict] | None:
         raise SourceUnavailable(f"{var} is not valid JSON") from exc
     if not isinstance(entries, list):
         raise SourceUnavailable(f"{var} must be a JSON list")
-    out = []
+    feeds = []
     for entry in entries:
         if not isinstance(entry, dict) or not entry.get("county") or not entry.get("election_id"):
             raise SourceUnavailable(f"{var} entries need county and election_id")
-        out.append(entry)
-    return out
+        feeds.append(entry)
+    return feeds
 
 
 def parse_contests(
@@ -158,7 +158,7 @@ def parse_contests(
         if isinstance(summary, list)
         else ((summary or {}).get("Contests") or (summary or {}).get("contests") or [])
     )
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for con in contests:
         if not isinstance(con, dict):
@@ -195,7 +195,7 @@ def parse_contests(
         total = con.get("T")
         if isinstance(total, list):
             total = total[0] if total else None
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 name,
@@ -203,13 +203,13 @@ def parse_contests(
                 fetched_at,
                 source=source,
                 url=url,
-                total_votes=c.to_int(total) or sum(x.votes for x in cands),
+                total_votes=c.to_int(total) or sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(con.get("PR")) or None,
                 precincts_total=c.to_int(con.get("TP")) or None,
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 def _cand_id(name: str) -> str:
@@ -220,18 +220,22 @@ def _cand_id(name: str) -> str:
 def _token_prefix(short: str, long: str) -> bool:
     """'Donald J. Trump' is a token prefix of 'Donald J. Trump/JD Vance' and of
     'Donald J. Trump JD Vance'."""
-    a = _cand_id(short).split()
-    b = _cand_id(long).split()
-    return len(a) >= 2 and len(b) > len(a) and b[: len(a)] == a
+    short_tokens = _cand_id(short).split()
+    long_tokens = _cand_id(long).split()
+    return (
+        len(short_tokens) >= 2
+        and len(long_tokens) > len(short_tokens)
+        and long_tokens[: len(short_tokens)] == short_tokens
+    )
 
 
 def _fold_ticket_running_mates(cands: list[CandidateResult], key) -> list[CandidateResult]:
     """Counties write a presidential ticket three ways: 'Donald J. Trump/JD Vance',
     'Donald J. Trump JD Vance' (Comal drops the slash) and 'Donald J. Trump' (Travis).
     Keep the presidential name alone so the per-county tallies add up."""
-    if not (str(key.district or "").startswith("president") or any("/" in c.name for c in cands)):
+    if not (str(key.district or "").startswith("president") or any("/" in candidate.name for candidate in cands)):
         return cands
-    ordered = sorted(cands, key=lambda c: len(_cand_id(c.name).split()))
+    ordered = sorted(cands, key=lambda candidate: len(_cand_id(candidate.name).split()))
     folded: list[CandidateResult] = []
     for cand in ordered:
         for kept in folded:
@@ -256,10 +260,10 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
     Titles get the " (partial: N counties)" suffix the bot uses to flag partial coverage.
     """
     groups: dict[str, list[RaceResult]] = {}
-    for r in results:
-        groups.setdefault(str(r.key), []).append(r)
+    for race_result in results:
+        groups.setdefault(str(race_result.key), []).append(race_result)
 
-    out: list[RaceResult] = []
+    combined: list[RaceResult] = []
     for parts in groups.values():
         tally: dict[str, CandidateResult] = {}
         for part in parts:
@@ -286,13 +290,13 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
             continue
         if len(parts) > 1:
             cands = _fold_ticket_running_mates(cands, parts[0].key)
-        n = len(parts)
-        base = next((p.title for p in parts if p.title), str(parts[0].key))
-        title = f"{base} (partial: {n} counties)"
-        stamps = [p.source_updated_at for p in parts if p.source_updated_at]
-        pr = sum(p.precincts_reporting or 0 for p in parts) or None
-        pt = sum(p.precincts_total or 0 for p in parts) or None
-        out.append(
+        county_count = len(parts)
+        base = next((county_part.title for county_part in parts if county_part.title), str(parts[0].key))
+        title = f"{base} (partial: {county_count} counties)"
+        stamps = [county_part.source_updated_at for county_part in parts if county_part.source_updated_at]
+        precincts_reporting = sum(county_part.precincts_reporting or 0 for county_part in parts) or None
+        precincts_total = sum(county_part.precincts_total or 0 for county_part in parts) or None
+        combined.append(
             c.make_result(
                 parts[0].key,
                 title,
@@ -300,13 +304,13 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
                 parts[0].fetched_at,
                 source=source,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
-                precincts_reporting=pr,
-                precincts_total=pt,
+                total_votes=sum(candidate.votes for candidate in cands),
+                precincts_reporting=precincts_reporting,
+                precincts_total=precincts_total,
                 source_updated_at=max(stamps) if stamps else None,
             )
         )
-    return out
+    return combined
 
 
 async def election_id(

@@ -45,14 +45,14 @@ def parse_all():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_governor_ticket_votes_and_precincts():
     gov = by_key(parse_all())["MN GOV"]
     assert gov.key.level is Level.GOVERNOR
     assert gov.title == "Governor & Lt Governor"
-    assert [c.name for c in gov.candidates] == [
+    assert [candidate.name for candidate in gov.candidates] == [
         "Lisa Demuth and Ryan Wilson",
         "Amy Klobuchar and Ben Schierer",
         "Steven Young and Jane Kirby",
@@ -68,8 +68,8 @@ def test_governor_ticket_votes_and_precincts():
 
 def test_write_in_rows_are_dropped():
     sen = by_key(parse_all())["MN SEN"]
-    assert "WRITE-IN" not in [c.name for c in sen.candidates]
-    assert [c.party for c in sen.candidates] == ["REP", "DEM", "LIB", "IND"]
+    assert "WRITE-IN" not in [candidate.name for candidate in sen.candidates]
+    assert [candidate.party for candidate in sen.candidates] == ["REP", "DEM", "LIB", "IND"]
     assert sen.candidates[0].votes == 27309
     assert sen.candidates[0].pct == 29.56
 
@@ -90,7 +90,7 @@ def test_judicial_and_county_races_become_local():
     county = keys["MN LOCAL aitkin-county-commissioner-district-1"]
     assert county.title == "Aitkin County Commissioner District 1"
     assert county.key.level is Level.LOCAL
-    assert [c.name for c in county.candidates] == ["Timothy Catlin", "J. Mark Wedel"]
+    assert [candidate.name for candidate in county.candidates] == ["Timothy Catlin", "J. Mark Wedel"]
 
 
 def test_percent_is_taken_from_the_feed_when_present():
@@ -141,8 +141,8 @@ def test_fetch_reads_the_office_files(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await mn_sos.MnSos().fetch([parse("MN GOV"), parse("MN-01")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await mn_sos.MnSos().fetch([parse("MN GOV"), parse("MN-01")], client)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"MN GOV", "MN-01"}
@@ -158,8 +158,8 @@ def test_fetch_without_published_files_is_unavailable(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await mn_sos.MnSos().fetch([parse("MN GOV")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await mn_sos.MnSos().fetch([parse("MN GOV")], client)
 
     with pytest.raises(SourceUnavailable, match="none of the"):
         asyncio.run(go())
@@ -176,15 +176,15 @@ def test_list_races_covers_loaded_files(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await mn_sos.MnSos().list_races("MN", c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await mn_sos.MnSos().list_races("MN", client)
 
     races = asyncio.run(go())
-    keys = {format_key(k) for k, _ in races}
+    keys = {format_key(race_key) for race_key, _ in races}
     assert {"MN GOV", "MN SEN", "MN-01", "MN SD-01", "MN HD-1A"} <= keys
     assert asyncio.run(_other_state()) == []
 
 
 async def _other_state():
-    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as c:
-        return await mn_sos.MnSos().list_races("WI", c)
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda race_result: httpx.Response(404))) as client:
+        return await mn_sos.MnSos().list_races("WI", client)

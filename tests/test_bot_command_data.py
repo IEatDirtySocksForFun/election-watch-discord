@@ -35,23 +35,26 @@ class FakeStore:
         self.odds = list(odds)
 
     async def latest_odds(self, key):
-        return [item for item in self.odds if item.key == key]
+        return [odds_snapshot for odds_snapshot in self.odds if odds_snapshot.key == key]
 
-    async def add_odds(self, item):
-        self.odds.append(item)
+    async def add_odds(self, odds_snapshot):
+        self.odds.append(odds_snapshot)
 
     async def odds_since(self, key, market, outcome, since):
         return [
-            item
-            for item in self.odds
-            if item.key == key and item.market == market and item.outcome == outcome and item.ts >= since
+            odds_snapshot
+            for odds_snapshot in self.odds
+            if odds_snapshot.key == key
+            and odds_snapshot.market == market
+            and odds_snapshot.outcome == outcome
+            and odds_snapshot.ts >= since
         ]
 
     async def get_cached(self, kind, ident):
         return getattr(self, "cache", {}).get((kind, ident))
 
-    async def put_cached(self, kind, ident, data, at):
-        self.__dict__.setdefault("cache", {})[(kind, ident)] = (at, data)
+    async def put_cached(self, kind, ident, payload, at):
+        self.__dict__.setdefault("cache", {})[(kind, ident)] = (at, payload)
 
 
 class FakeOdds(OddsSource):
@@ -130,15 +133,15 @@ async def test_odds_come_from_the_store_only_and_unknown_races_are_queued():
 
     source = FakeOdds([snapshot(prob=0.6)])
     store = FakeStore([snapshot(prob=0.55)])
-    data = CommandData(store, {"odds": [source]}, object(), lambda: NOW, demand=Demand())
+    command_data = CommandData(store, {"odds": [source]}, object(), lambda: NOW, demand=Demand())
 
     for _ in range(3):
-        assert (await data.get_odds(KEY))[0].prob == 0.55
+        assert (await command_data.get_odds(KEY))[0].prob == 0.55
     assert source.calls == 0
     other = parse("GA SEN")
-    embed = await data.odds_embed(other)
+    embed = await command_data.odds_embed(other)
     assert "queued for the next odds refresh (about every 1 min)" in embed.description
-    assert data.demand.items("odds") == ["GA SEN"] and source.calls == 0
+    assert command_data.demand.items("odds") == ["GA SEN"] and source.calls == 0
 
 
 @pytest.mark.asyncio
@@ -147,8 +150,8 @@ async def test_a_race_the_refresh_found_no_market_for_says_so():
 
     store = FakeStore()
     await store.put_cached(ODDS_CHECKED, "TX SEN", "", NOW)
-    data = CommandData(store, {"odds": [FakeOdds([])]}, object(), lambda: NOW)
-    assert "No current prediction-market odds" in (await data.odds_embed(KEY)).description
+    command_data = CommandData(store, {"odds": [FakeOdds([])]}, object(), lambda: NOW)
+    assert "No current prediction-market odds" in (await command_data.odds_embed(KEY)).description
 
 
 @pytest.mark.asyncio
@@ -160,9 +163,9 @@ async def test_odds_history_supplies_one_and_24_hour_moves():
             snapshot(prob=0.55),
         ]
     )
-    data = CommandData(store, {}, object(), lambda: NOW)
+    command_data = CommandData(store, {}, object(), lambda: NOW)
 
-    embed = await data.odds_embed(KEY)
+    embed = await command_data.odds_embed(KEY)
 
     assert "1h +3.0 pts" in embed.fields[0].value
     assert "24h +5.0 pts" in embed.fields[0].value
@@ -176,19 +179,19 @@ async def test_stored_poll_answers_are_merged_and_deduped_without_calling_the_so
     second = FakePolls([poll(sponsor="Newsroom")])
     second.name = "fake_polls_2"
     store = FakeStore()
-    data = CommandData(store, {"polls": [first, second]}, object(), lambda: NOW)
-    assert await data.get_polls(KEY) is None  # nothing stored yet
+    command_data = CommandData(store, {"polls": [first, second]}, object(), lambda: NOW)
+    assert await command_data.get_polls(KEY) is None  # nothing stored yet
     for source in (first, second):
         await store.put_cached(POLLS_CACHE, polls_ident(source.name, KEY), dump_polls(source.values), NOW)
-    values = await data.get_polls(KEY)
+    values = await command_data.get_polls(KEY)
     assert len(values) == 1 and values[0].sponsor == "Newsroom"
     assert first.calls == second.calls == 0
 
 
 @pytest.mark.asyncio
 async def test_missing_poll_source_is_explained():
-    data = CommandData(FakeStore(), {}, object(), lambda: NOW)
-    embed = await data.polls_embed(KEY)
+    command_data = CommandData(FakeStore(), {}, object(), lambda: NOW)
+    embed = await command_data.polls_embed(KEY)
     assert "No poll source is installed or available" in embed.description
 
 
@@ -202,13 +205,13 @@ def test_merge_polls_joins_sponsor_and_fieldwork_copies():
     def res():
         return [PollResult("Talarico", "DEM", 50.0), PollResult("Paxton", "REP", 45.0)]
 
-    a = Poll(parse("TX SEN"), "N+ Univision", res(), date(2026, 10, 27), source="wikipedia")
-    b = Poll(
+    univision_poll = Poll(parse("TX SEN"), "N+ Univision", res(), date(2026, 10, 27), source="wikipedia")
+    yougov_poll = Poll(
         parse("TX SEN"), "YouGov", res(), date(2026, 10, 21), sponsor="N+ Univision", sample_size=1000, source="votehub"
     )
-    c = Poll(parse("TX SEN"), "Emerson College", res(), date(2026, 10, 22))  # other firm: kept
-    merged = merge_polls([a, b, c])
-    assert [p.pollster for p in merged] == ["Emerson College", "YouGov"]
+    emerson_poll = Poll(parse("TX SEN"), "Emerson College", res(), date(2026, 10, 22))  # other firm: kept
+    merged = merge_polls([univision_poll, yougov_poll, emerson_poll])
+    assert [poll.pollster for poll in merged] == ["Emerson College", "YouGov"]
 
 
 def test_format_polls_stays_under_discords_6000_character_embed_limit():
@@ -222,13 +225,13 @@ def test_format_polls_stays_under_discords_6000_character_embed_limit():
     polls = [
         Poll(
             KEY,
-            f"{name} Research {p}",
-            [PollResult(f"{name} {c}", "DEM", 10.0) for c in range(12)],
-            date(2026, 10, 30 - p),
-            sponsor=f"{name} Committee {p}",
+            f"{name} Research {poll_index}",
+            [PollResult(f"{name} {suffix}", "DEM", 10.0) for suffix in range(12)],
+            date(2026, 10, 30 - poll_index),
+            sponsor=f"{name} Committee {poll_index}",
             url="https://example.org/p",
         )
-        for p in range(12)
+        for poll_index in range(12)
     ]
     embed = format_polls(KEY, polls, count=10)
     assert len(embed) <= 6000

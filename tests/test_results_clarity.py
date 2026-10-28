@@ -25,7 +25,7 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_wv_primary_party_contests_are_skipped_and_nonpartisan_kept():
@@ -33,7 +33,7 @@ def test_wv_primary_party_contests_are_skipped_and_nonpartisan_kept():
         load("wv_2026_primary_summary.json"), load("wv_2026_primary_settings.json"), state="WV", fetched_at=AT
     )
     keys = by_key(results)
-    assert not any(r.key.level in (Level.SENATE, Level.HOUSE, Level.STATE) for r in results)
+    assert not any(race_result.key.level in (Level.SENATE, Level.HOUSE, Level.STATE) for race_result in results)
     assert "WV LOCAL non-partisan-election-of-judge-of-the-intermediate-court-of-appeals" in keys
     park = keys["WV LOCAL greater-huntington-park-and-recreation-district-supervisors-district-1"]
     assert park.candidates[0].name == "Gordon D. Jones"
@@ -89,10 +89,10 @@ def test_dict_wrapped_summary_and_winner_flag():
             }
         ]
     }
-    r = parse_clarity(summary, state="NC", fetched_at=AT)[0]
-    assert r.key.level is Level.SENATE
-    assert [c.winner for c in r.candidates] == [True, False]
-    assert (r.precincts_reporting, r.precincts_total) == (5, 10)
+    race_result = parse_clarity(summary, state="NC", fetched_at=AT)[0]
+    assert race_result.key.level is Level.SENATE
+    assert [candidate.winner for candidate in race_result.candidates] == [True, False]
+    assert (race_result.precincts_reporting, race_result.precincts_total) == (5, 10)
 
 
 def test_primary_contests_are_not_merged():
@@ -143,7 +143,7 @@ def test_feed_configuration(monkeypatch):
             ]
         ),
     )
-    assert [f["state"] for f in feeds("2026-11-03")] == ["WV"]
+    assert [feed["state"] for feed in feeds("2026-11-03")] == ["WV"]
     with pytest.raises(SourceUnavailable):
         monkeypatch.setenv("CLARITY_FEEDS", "{not json")
         feeds("2026-11-03")
@@ -157,9 +157,9 @@ def test_county_feed_does_not_stand_in_for_statewide_results():
 
     at = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
     parsed = parse_clarity(load("il_mclean_2026_general_summary.json"), state="IL", fetched_at=at)
-    assert any(r.key.level is not Level.LOCAL for r in parsed)  # IL SEN, IL GOV, IL-16 ...
+    assert any(race_result.key.level is not Level.LOCAL for race_result in parsed)  # IL SEN, IL GOV, IL-16 ...
     kept = scope({"state": "IL", "jurisdiction": "McLean", "election_id": "127349"}, parsed)
-    assert kept and all(r.key.level is Level.LOCAL for r in kept)
+    assert kept and all(race_result.key.level is Level.LOCAL for race_result in kept)
     assert scope({"state": "WV", "election_id": "1"}, parsed) == parsed
 
 
@@ -167,7 +167,7 @@ def test_states_lists_only_configured_feeds(monkeypatch):
     from electionwatch.sources.results.clarity import Clarity
 
     monkeypatch.delenv("CLARITY_FEEDS", raising=False)
-    builtin = {str(e["state"]).upper() for entries in ELECTIONS.values() for e in entries}
+    builtin = {str(entry["state"]).upper() for entries in ELECTIONS.values() for entry in entries}
     assert Clarity.states == frozenset(builtin) == frozenset({"WV", "IL"})
     # The old hard-coded list advertised states this adapter has no feed for.
     for unconfigured in ("CA", "GA", "IA", "ME", "NH", "NV"):

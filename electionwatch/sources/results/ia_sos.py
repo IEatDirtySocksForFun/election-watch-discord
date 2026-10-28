@@ -69,21 +69,21 @@ def _norm(name: str) -> str:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
+    office_name = _norm(name)
+    special = c.is_special(office_name)
     # "State Senator District 30" -> office/district only, term wording dropped.
-    base = re.sub(r"\s*(?:-|,)?\s*DISTRICT\s*\d+$", "", n).strip()
+    base = re.sub(r"\s*(?:-|,)?\s*DISTRICT\s*\d+$", "", office_name).strip()
     if _SENATE.match(base):
         return RaceKey(STATE, Level.SENATE, "SEN", None, special)
     if base in _STATEWIDE:
         return RaceKey(STATE, Level.GOVERNOR, _STATEWIDE[base], None, special)
-    if _HOUSE.match(n):
-        return RaceKey(STATE, Level.HOUSE, "HOUSE", c.district_from(n) or "AL", special)
-    if _STATE_SENATE.match(n):
-        return RaceKey(STATE, Level.STATE, "SD", c.district_from(n) or "00", special)
-    if _STATE_HOUSE.match(n):
-        return RaceKey(STATE, Level.STATE, "HD", c.district_from(n) or "00", special)
-    return c.local_key(STATE, n)
+    if _HOUSE.match(office_name):
+        return RaceKey(STATE, Level.HOUSE, "HOUSE", c.district_from(office_name) or "AL", special)
+    if _STATE_SENATE.match(office_name):
+        return RaceKey(STATE, Level.STATE, "SD", c.district_from(office_name) or "00", special)
+    if _STATE_HOUSE.match(office_name):
+        return RaceKey(STATE, Level.STATE, "HD", c.district_from(office_name) or "00", special)
+    return c.local_key(STATE, office_name)
 
 
 def parse_ia(summary, settings=None, *, fetched_at: datetime) -> list[RaceResult]:
@@ -94,7 +94,7 @@ def parse_ia(summary, settings=None, *, fetched_at: datetime) -> list[RaceResult
         else ((summary or {}).get("Contests") or (summary or {}).get("contests") or [])
     )
     updated = parse_settings(settings)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for con in contests:
         if not isinstance(con, dict):
@@ -131,7 +131,7 @@ def parse_ia(summary, settings=None, *, fetched_at: datetime) -> list[RaceResult
         total = con.get("T")
         if isinstance(total, list):
             total = total[0] if total else None
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 name,
@@ -139,13 +139,13 @@ def parse_ia(summary, settings=None, *, fetched_at: datetime) -> list[RaceResult
                 fetched_at,
                 source=IaSos.name,
                 url=HUMAN,
-                total_votes=c.to_int(total) or sum(x.votes for x in cands),
+                total_votes=c.to_int(total) or sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(con.get("PR")) or None,
                 precincts_total=c.to_int(con.get("TP")) or None,
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 async def _election_id(client: httpx.AsyncClient, date: str) -> str:
@@ -177,8 +177,8 @@ async def _feed(client: httpx.AsyncClient) -> list[RaceResult]:
     except SourceUnavailable:
         settings = None
     results = parse_ia(summary, settings, fetched_at=c.utcnow())
-    for result in results:
-        result.url = f"{HUMAN}{election_id}/"
+    for race_result in results:
+        race_result.url = f"{HUMAN}{election_id}/"
     return results
 
 
@@ -189,7 +189,7 @@ class IaSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        wanted = [k for k in keys if k.state == STATE]
+        wanted = [key for key in keys if key.state == STATE]
         if not wanted:
             return []
         return c.select(await _feed(client), wanted)
@@ -197,4 +197,4 @@ class IaSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != STATE:
             return []
-        return [(r.key, r.title or str(r.key)) for r in await _feed(client)]
+        return [(race_result.key, race_result.title or str(race_result.key)) for race_result in await _feed(client)]

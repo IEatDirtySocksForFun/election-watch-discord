@@ -98,34 +98,38 @@ def _party(value: str | None) -> str | None:
 
 def race_key(office: str, district_code: str | None = None) -> RaceKey:
     """Map a Vermont office (+ named district code) to a RaceKey."""
-    n = _norm(office)
-    if n in ("US PRESIDENT AND VICE PRESIDENT", "PRESIDENT AND VICE PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
+    office_name = _norm(office)
+    if office_name in (
+        "US PRESIDENT AND VICE PRESIDENT",
+        "PRESIDENT AND VICE PRESIDENT",
+        "PRESIDENT OF THE UNITED STATES",
+    ):
         return c.local_key("VT", "us-president")
-    if n in ("US SENATOR", "UNITED STATES SENATOR"):
+    if office_name in ("US SENATOR", "UNITED STATES SENATOR"):
         return RaceKey("VT", Level.SENATE, "SEN")
-    if n in ("REPRESENTATIVE TO CONGRESS", "US REPRESENTATIVE", "US HOUSE"):
+    if office_name in ("REPRESENTATIVE TO CONGRESS", "US REPRESENTATIVE", "US HOUSE"):
         # Vermont has one at-large seat.
         return RaceKey("VT", Level.HOUSE, "HOUSE", "AL")
-    if n in _STATEWIDE:
-        return RaceKey("VT", Level.GOVERNOR, _STATEWIDE[n])
-    if n == "STATE SENATOR" and district_code:
+    if office_name in _STATEWIDE:
+        return RaceKey("VT", Level.GOVERNOR, _STATEWIDE[office_name])
+    if office_name == "STATE SENATOR" and district_code:
         return RaceKey("VT", Level.STATE, "SD", c.slug(district_code))
-    if n == "STATE REPRESENTATIVE" and district_code:
+    if office_name == "STATE REPRESENTATIVE" and district_code:
         return RaceKey("VT", Level.STATE, "HD", c.slug(district_code))
-    return c.local_key("VT", n + (f" {district_code}" if district_code else ""))
+    return c.local_key("VT", office_name + (f" {district_code}" if district_code else ""))
 
 
-def _contests(doc) -> list[dict]:
-    if not isinstance(doc, dict):
+def _contests(payload) -> list[dict]:
+    if not isinstance(payload, dict):
         return []
-    rows = doc.get("d")
+    rows = payload.get("d")
     if not isinstance(rows, list):
         return []
-    out = []
+    contests = []
     for row in rows:
         if isinstance(row, dict):
-            out.extend(row.get("o") or [])
-    return out
+            contests.extend(row.get("o") or [])
+    return contests
 
 
 def parse_vt(docs, *, fetched_at: datetime, source_updated_at: datetime | None = None) -> list[RaceResult]:
@@ -135,10 +139,10 @@ def parse_vt(docs, *, fetched_at: datetime, source_updated_at: datetime | None =
     if not isinstance(docs, (list, tuple)):
         return []
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for doc in docs:
-        for contest in _contests(doc):
+    for document in docs:
+        for contest in _contests(document):
             office = _norm(contest.get("on"))
             if not office:
                 continue
@@ -191,7 +195,7 @@ def parse_vt(docs, *, fetched_at: datetime, source_updated_at: datetime | None =
                 title = f"{office} - {name or district}"
 
             seen.add(str(key))
-            out.append(
+            results.append(
                 c.make_result(
                     key,
                     title,
@@ -199,11 +203,11 @@ def parse_vt(docs, *, fetched_at: datetime, source_updated_at: datetime | None =
                     fetched_at,
                     source=VtSos.name,
                     url=HUMAN,
-                    total_votes=sum(x.votes for x in cands),
+                    total_votes=sum(candidate.votes for candidate in cands),
                     source_updated_at=source_updated_at,
                 )
             )
-    return out
+    return results
 
 
 def _entry_by_date(index, date: str) -> dict | None:
@@ -269,7 +273,7 @@ class VtSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        vt_keys = [k for k in keys if k.state == "VT"]
+        vt_keys = [key for key in keys if key.state == "VT"]
         if not vt_keys:
             return []
         guid = await resolve_guid(client, c.election_date())
@@ -286,5 +290,6 @@ class VtSos(ResultsSource):
         except SourceUnavailable:
             return []
         return [
-            (r.key, r.title or str(r.key)) for r in parse_vt(docs, fetched_at=c.utcnow(), source_updated_at=updated)
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_vt(docs, fetched_at=c.utcnow(), source_updated_at=updated)
         ]

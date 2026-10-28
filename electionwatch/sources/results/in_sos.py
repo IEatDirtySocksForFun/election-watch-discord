@@ -95,31 +95,31 @@ def _upper(text: str) -> str:
 
 def race_key(title: str) -> RaceKey:
     """Map an Indiana OFFICE_TITLE to a RaceKey."""
-    n = _upper(title)
-    special = c.is_special(n)
-    if n.startswith("UNITED STATES SENATOR") or n.startswith("US SENATOR"):
+    office_name = _upper(title)
+    special = c.is_special(office_name)
+    if office_name.startswith("UNITED STATES SENATOR") or office_name.startswith("US SENATOR"):
         return RaceKey("IN", Level.SENATE, "SEN", None, special)
-    if n.startswith("PRESIDENTIAL ELECTORS") or n.startswith("PRESIDENT"):
+    if office_name.startswith("PRESIDENTIAL ELECTORS") or office_name.startswith("PRESIDENT"):
         return c.local_key("IN", "us-president")
-    if n.startswith("UNITED STATES REPRESENTATIVE") or n.startswith("US REPRESENTATIVE"):
-        return RaceKey("IN", Level.HOUSE, "HOUSE", _house_district(n) or "AL", special)
-    if n in _STATEWIDE:
-        return RaceKey("IN", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = re.match(r"^STATE SENATOR,\s*DISTRICT\s*0*(\d{1,2})$", n)
-    if m:
-        return RaceKey("IN", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE REPRESENTATIVE,\s*DISTRICT\s*0*(\d{1,3})$", n)
-    if m:
-        return RaceKey("IN", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
-    return c.local_key("IN", n)
+    if office_name.startswith("UNITED STATES REPRESENTATIVE") or office_name.startswith("US REPRESENTATIVE"):
+        return RaceKey("IN", Level.HOUSE, "HOUSE", _house_district(office_name) or "AL", special)
+    if office_name in _STATEWIDE:
+        return RaceKey("IN", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    match = re.match(r"^STATE SENATOR,\s*DISTRICT\s*0*(\d{1,2})$", office_name)
+    if match:
+        return RaceKey("IN", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE REPRESENTATIVE,\s*DISTRICT\s*0*(\d{1,3})$", office_name)
+    if match:
+        return RaceKey("IN", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
+    return c.local_key("IN", office_name)
 
 
-def _house_district(n: str) -> str | None:
-    m = re.search(r"DISTRICT\s*0*(\d{1,2})", n)
-    if m:
-        return f"{int(m.group(1)):02d}"
+def _house_district(office_name: str) -> str | None:
+    match = re.search(r"DISTRICT\s*0*(\d{1,2})", office_name)
+    if match:
+        return f"{int(match.group(1)):02d}"
     for word, num in _ORDINALS.items():
-        if re.search(rf"\b{word}\b", n):
+        if re.search(rf"\b{word}\b", office_name):
             return f"{num:02d}"
     return None
 
@@ -136,7 +136,7 @@ def parse_category(payload: dict, *, fetched_at: datetime, url: str | None = Non
     root = (payload or {}).get("Root") or {}
     races = _as_list(((root.get("StatewideSummary") or {}).get("Race")))
     updated = c.parse_updated_at(re.sub(r"\.\d+$", "", str(root.get("WriteTime") or "")) or None)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for race in races:
         if not isinstance(race, dict):
@@ -165,7 +165,7 @@ def parse_category(payload: dict, *, fetched_at: datetime, url: str | None = Non
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -173,11 +173,11 @@ def parse_category(payload: dict, *, fetched_at: datetime, url: str | None = Non
                 fetched_at,
                 source=InSos.name,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 def categories(payload: dict) -> list[tuple[str, str]]:
@@ -186,20 +186,20 @@ def categories(payload: dict) -> list[tuple[str, str]]:
     heads = root.get("List") or []
     if isinstance(heads, dict):
         heads = [heads]
-    out: list[tuple[str, str]] = []
+    found: list[tuple[str, str]] = []
     for heading in heads:
         if not isinstance(heading, dict):
             continue
         items = heading.get("Items")
         items = items.get("Item") if isinstance(items, dict) else items
-        for item in _as_list(items):
-            if not isinstance(item, dict):
+        for entry in _as_list(items):
+            if not isinstance(entry, dict):
                 continue
-            cid = str(item.get("OFFICECATEGORYID") or "").strip()
-            name = (item.get("OFFICE_CATEGORY_NAME") or "").strip()
-            if cid and any(name.upper().startswith(w) for w in _WANTED):
-                out.append((cid, name))
-    return out
+            cid = str(entry.get("OFFICECATEGORYID") or "").strip()
+            name = (entry.get("OFFICE_CATEGORY_NAME") or "").strip()
+            if cid and any(name.upper().startswith(prefix) for prefix in _WANTED):
+                found.append((cid, name))
+    return found
 
 
 async def _load(client: httpx.AsyncClient, date: str) -> tuple[str, dict, dict]:
@@ -236,11 +236,11 @@ async def _all_races(client: httpx.AsyncClient, date: str, fetched_at: datetime)
     for cid, _name in categories(index):
         url = f"{data_base}/OffCatC_{cid}_{version}.json"
         payload = await c.get_json(client, url)
-        for r in parse_category(payload, fetched_at=fetched_at, url=url):
-            if str(r.key) in seen:
+        for race_result in parse_category(payload, fetched_at=fetched_at, url=url):
+            if str(race_result.key) in seen:
                 continue
-            seen.add(str(r.key))
-            results.append(r)
+            seen.add(str(race_result.key))
+            results.append(race_result)
     return results
 
 
@@ -251,7 +251,7 @@ class InSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        in_keys = [k for k in keys if k.state == "IN"]
+        in_keys = [key for key in keys if key.state == "IN"]
         if not in_keys:
             return []
         return c.select(await _all_races(client, c.election_date(), c.utcnow()), in_keys)
@@ -259,4 +259,7 @@ class InSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "IN":
             return []
-        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in await _all_races(client, c.election_date(), c.utcnow())
+        ]

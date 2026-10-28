@@ -69,11 +69,11 @@ class CNNResultsSource(ResultsSource):
             except Exception as exc:
                 raise SourceUnavailable(f"cnn_results bad JSON: {exc}") from exc
             try:
-                result = parse_cnn_results(payload, fetched_at=now)
+                race_result = parse_cnn_results(payload, fetched_at=now)
             except Exception:
                 continue
-            if result and result.key == key:
-                results.append(result)
+            if race_result and race_result.key == key:
+                results.append(race_result)
         return results
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -95,9 +95,9 @@ class CNNResultsSource(ResultsSource):
                 payload = resp.json()
             except Exception:
                 continue
-            result = parse_cnn_results(payload, fetched_at=now)
-            if result:
-                races.append((result.key, result.title or str(result.key)))
+            race_result = parse_cnn_results(payload, fetched_at=now)
+            if race_result:
+                races.append((race_result.key, race_result.title or str(race_result.key)))
         return races
 
 
@@ -110,14 +110,17 @@ def parse_cnn_results(payload: dict, fetched_at: datetime | None = None) -> Race
         return None
     candidates = [
         CandidateResult(
-            name=c.get("fullName") or f"{c.get('firstName', '')} {c.get('lastName', '')}".strip(),
-            party=normalize_party(c.get("majorParty") or c.get("partyName") or c.get("candidatePartyCode")),
-            votes=int(c.get("voteNum") or 0),
-            pct=c.get("votePercentNum"),
-            incumbent=bool(c.get("isIncumbent")),
+            name=candidate.get("fullName")
+            or f"{candidate.get('firstName', '')} {candidate.get('lastName', '')}".strip(),
+            party=normalize_party(
+                candidate.get("majorParty") or candidate.get("partyName") or candidate.get("candidatePartyCode")
+            ),
+            votes=int(candidate.get("voteNum") or 0),
+            pct=candidate.get("votePercentNum"),
+            incumbent=bool(candidate.get("isIncumbent")),
             winner=False,  # CNN flag is a projection, not official.
         )
-        for c in payload.get("candidates", [])
+        for candidate in payload.get("candidates", [])
     ]
     if not candidates:
         return None

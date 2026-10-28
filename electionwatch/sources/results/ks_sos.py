@@ -91,45 +91,45 @@ def _norm(text: str) -> str:
 
 
 def _trailing_number(text: str) -> str | None:
-    m = re.search(r"(\d{1,3})\s*$", text or "")
-    return f"{int(m.group(1)):02d}" if m else None
+    match = re.search(r"(\d{1,3})\s*$", text or "")
+    return f"{int(match.group(1)):02d}" if match else None
 
 
 def race_key(name: str) -> RaceKey:
     """Map a Kansas contest heading to a RaceKey."""
-    n = _norm(name)
-    special = c.is_special(n)
-    if n.startswith("UNITED STATES SENATE"):
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name.startswith("UNITED STATES SENATE"):
         return RaceKey("KS", Level.SENATE, "SEN", None, special)
-    if "UNITED STATES HOUSE OF REPRESENTATIVES" in n:
-        return RaceKey("KS", Level.HOUSE, "HOUSE", _trailing_number(n) or "00", special)
+    if "UNITED STATES HOUSE OF REPRESENTATIVES" in office_name:
+        return RaceKey("KS", Level.HOUSE, "HOUSE", _trailing_number(office_name) or "00", special)
     for title, office in _STATEWIDE:
-        if n.startswith(title):
+        if office_name.startswith(title):
             return RaceKey("KS", Level.GOVERNOR, office, None, special)
-    if n.startswith("KANSAS SENATE") or n.startswith("STATE SENATE"):
-        return RaceKey("KS", Level.STATE, "SD", _trailing_number(n) or "00", special)
-    if n.startswith("KANSAS HOUSE OF REPRESENTATIVES"):
-        return RaceKey("KS", Level.STATE, "HD", _trailing_number(n) or "00", special)
-    return c.local_key("KS", n)
+    if office_name.startswith("KANSAS SENATE") or office_name.startswith("STATE SENATE"):
+        return RaceKey("KS", Level.STATE, "SD", _trailing_number(office_name) or "00", special)
+    if office_name.startswith("KANSAS HOUSE OF REPRESENTATIVES"):
+        return RaceKey("KS", Level.STATE, "HD", _trailing_number(office_name) or "00", special)
+    return c.local_key("KS", office_name)
 
 
 def nav_pages(html: str) -> list[str]:
     """Race-category pages linked from the site's navigation."""
-    pages = [p for p in dict.fromkeys(_PAGE_LINK.findall(html or "")) if p not in _SKIP_PAGES]
+    pages = [page for page in dict.fromkeys(_PAGE_LINK.findall(html or "")) if page not in _SKIP_PAGES]
     return pages or list(FALLBACK_PAGES)
 
 
-def _last_update(doc: HTMLParser) -> datetime | None:
-    node = doc.css_first("#time-stamp")
+def _last_update(page: HTMLParser) -> datetime | None:
+    node = page.css_first("#time-stamp")
     if node is None:
         return None
     return c.parse_updated_at(node.text(strip=True), tz="America/Chicago")
 
 
-def _candidate_rows(doc: HTMLParser) -> tuple[list[CandidateResult], int | None]:
+def _candidate_rows(page: HTMLParser) -> tuple[list[CandidateResult], int | None]:
     cands: list[CandidateResult] = []
     total: int | None = None
-    for row in doc.css("div.race-candidate-list > div.row"):
+    for row in page.css("div.race-candidate-list > div.row"):
         label = row.css_first("div.col-6 p")
         votes = row.css_first("div.col-2 p")
         if label is None or votes is None:
@@ -154,20 +154,20 @@ def _candidate_rows(doc: HTMLParser) -> tuple[list[CandidateResult], int | None]
 
 def parse_ks(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one Kansas category page."""
-    doc = HTMLParser(html or "")
-    updated = _last_update(doc)
-    out: list[RaceResult] = []
+    page = HTMLParser(html or "")
+    updated = _last_update(page)
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for race in doc.css("div.race"):
+    for race in page.css("div.race"):
         heading = race.css_first("h3")
         name = (heading.text() if heading is not None else "").strip()
         name = re.sub(r"\s+", " ", name)
         if not name or _PRIMARY_SUFFIX.search(name):
             continue  # party primary half of an office
         precincts = reporting = None
-        m = _PRECINCTS.search(race.text(separator=" ", strip=True))
-        if m:
-            reporting, precincts = c.to_int(m.group(1)), c.to_int(m.group(2))
+        match = _PRECINCTS.search(race.text(separator=" ", strip=True))
+        if match:
+            reporting, precincts = c.to_int(match.group(1)), c.to_int(match.group(2))
         cands, total = _candidate_rows(race)
         if not cands:
             continue
@@ -179,7 +179,7 @@ def parse_ks(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             if str(key) in seen:
                 continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 name,
@@ -187,13 +187,13 @@ def parse_ks(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=KsSos.name,
                 url=HUMAN,
-                total_votes=total if total is not None else sum(x.votes for x in cands),
+                total_votes=total if total is not None else sum(candidate.votes for candidate in cands),
                 precincts_reporting=reporting,
                 precincts_total=precincts,
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 @register
@@ -208,7 +208,7 @@ class KsSos(ResultsSource):
         return nav_pages(html)
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "KS" for k in keys):
+        if not any(key.state == "KS" for key in keys):
             return []
         results: list[RaceResult] = []
         failures = 0
@@ -222,7 +222,7 @@ class KsSos(ResultsSource):
             results.extend(parse_ks(html, fetched_at=c.utcnow()))
         if pages and failures == len(pages):
             raise SourceUnavailable(f"KS: none of {len(pages)} category pages could be fetched")
-        return c.select(results, [k for k in keys if k.state == "KS"])
+        return c.select(results, [key for key in keys if key.state == "KS"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "KS":
@@ -233,6 +233,6 @@ class KsSos(ResultsSource):
                 html = await c.get_text(client, BASE + page)
             except SourceUnavailable:
                 continue
-            for r in parse_ks(html, fetched_at=c.utcnow()):
-                seen.setdefault(str(r.key), (r.key, r.title or str(r.key)))
+            for race_result in parse_ks(html, fetched_at=c.utcnow()):
+                seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))
         return list(seen.values())

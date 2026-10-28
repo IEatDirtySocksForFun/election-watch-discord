@@ -24,7 +24,7 @@ def test_parse_senate_call():
 
 def test_parse_house_calls():
     calls = parse_fox_state(_load("2024-tx-house.json"), "TX", Level.HOUSE, 2024)
-    by_district = {c.key.district: c for c in calls}
+    by_district = {call.key.district: call for call in calls}
     assert by_district["38"].winner == "Wesley Hunt"
     assert by_district["38"].party == "REP"
     assert by_district["07"].winner == "Lizzie Fletcher"
