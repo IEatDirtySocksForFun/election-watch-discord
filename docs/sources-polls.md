@@ -1,24 +1,24 @@
 Poll sources: what is verified, how it is fetched, what it costs
 ==============================================================
 
-Package: `electionwatch/sources/polls/` (contract: `PollSource` in
+Code: `electionwatch/sources/polls/` (contract: `PollSource` in
 `electionwatch/sources/base.py`, model: `Poll` / `PollResult` in
 `electionwatch/models.py`).
 
 Every adapter is pure parsing + fetch:
 
-  parse_<source>_polls(payload, ...) -> list[Poll]   (offline, tested against fixtures)
-  <Source>().fetch_polls(keys, client)               (httpx.AsyncClient is passed in)
+parse_<source>_polls(payload, ...) -> list[Poll] (offline, tested against fixtures)
+<Source>().fetch_polls(keys, client) (httpx.AsyncClient is passed in)
 
 All three are tested against trimmed **real** responses in
 `tests/fixtures/<adapter>/` (URL and fetch date in each `README.txt`). Tests
 never touch the network. No LLM / model API is involved anywhere: "partisan",
 "sponsor" and party codes are parsed, never inferred by a model.
 
-Sources in this package
------------------------
+Available sources
+-----------------
 
-1. votehub  -- `electionwatch/sources/polls/votehub.py`
+1. votehub -- `electionwatch/sources/polls/votehub.py`
    Method: JSON API, `GET https://api.votehub.com/polls`. The endpoint returns
    the whole database as one array (~2.9 MB, no auth, no pagination). Query
    parameters (`poll_type`, `state`, ...) are accepted but ignored, so the
@@ -35,7 +35,7 @@ Sources in this package
    are normalised with `normalize_party`. `internal` is always `false` upstream
    (it exports partisanship through `partisan` instead).
 
-2. 270towin  -- `electionwatch/sources/polls/two70win.py`
+2. 270towin -- `electionwatch/sources/polls/two70win.py`
    Method: the poll list on "Latest 2026 <office> Election Polls" is injected by
    jQuery from `https://www.270towin.com/polls/php/get-polls-list-v2.php`
    (`election_year=2026`, `election_types[]=S|G|H`,
@@ -55,10 +55,10 @@ Sources in this package
    ("Collins *" for the incumbent). 270toWin shows no sponsor / partisan marker
    in this fragment. The single date column is used as `end_date` with
    `start_date = None`; note that Wikipedia's editors document 270toWin dates as
-   *publication* dates, so cross-source de-duplication should be tolerant of a
+   _publication_ dates, so cross-source de-duplication should be tolerant of a
    few days of drift.
 
-3. wikipedia  -- `electionwatch/sources/polls/wikipedia.py`
+3. wikipedia -- `electionwatch/sources/polls/wikipedia.py`
    Method: MediaWiki API, `action=parse` with `prop=text|wikitext&redirects=1`,
    one call per race article. HTML supplies the tables (selectolax); the
    wikitext supplies a candidate -> party map built from each party's primary
@@ -94,7 +94,7 @@ Considered and not used (checked 2026-10-27)
 - Decision Desk HQ polls (`polls.decisiondeskhq.com`): HTTP 429 from this
   network, and no documented public API. Not scraped.
 - FiftyPlusOne (`fiftyplusone.news/polls/senate/general/<state>`): pages load,
-  but the data is rendered client-side; not parsed in this package yet.
+  but the data is rendered client-side; no adapter parses it yet.
 - FiveThirtyEight: the project is frozen (no 2026 polling data).
 
 Housekeeping
@@ -104,9 +104,10 @@ Housekeeping
   bot can de-duplicate across sources; de-duplication itself is out of scope
   here. `source` is always the adapter name.
 - Nothing reads an API key; `env` is empty for all three adapters.
-- HTML sources identify themselves with
-  `election-watch-discord/0.1 (polling bot; +https://github.com/election-watch-discord)`
-  and are polled through the shared poller, which runs at most once a minute.
+- HTML sources send a descriptive User-Agent with a project URL, as Wikimedia requires.
+- The poller refreshes polls for watched races, and races users asked about, every 30 minutes
+  (longer if a host's request budget needs it) and stores them in MongoDB; `/polls` reads only
+  the stored polls.
 - The `YEAR = 2026` constants in `two70win.py` and `wikipedia.py` pin the
   adapters to the Nov 3 2026 midterms; change them together with the template's
   election year.

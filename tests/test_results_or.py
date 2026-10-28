@@ -11,8 +11,7 @@ AT = datetime(2026, 10, 27, 16, 30, tzinfo=timezone.utc)
 
 
 def parse(name):
-    return {format_key(r.key): r for r in
-            parse_or(json.loads((FIX / name).read_text(encoding="utf-8")), fetched_at=AT)}
+    return {format_key(r.key): r for r in parse_or(json.loads((FIX / name).read_text(encoding="utf-8")), fetched_at=AT)}
 
 
 def test_governor_fusion_parties():
@@ -21,10 +20,10 @@ def test_governor_fusion_parties():
     gov = got["OR GOV"]
     assert gov.title == "Governor"
     assert [(c.name, c.party) for c in gov.candidates] == [
-        ("Brett Smith", "GRN"),        # Pacific Green
-        ("Tina Kotek", "DEM"),         # "Democrat, Working Families"
-        ("Christine Drazan", "REP"),   # "Republican, Libertarian"
-        ("Write-in", None),            # write-ins carry no party
+        ("Brett Smith", "GRN"),  # Pacific Green
+        ("Tina Kotek", "DEM"),  # "Democrat, Working Families"
+        ("Christine Drazan", "REP"),  # "Republican, Libertarian"
+        ("Write-in", None),  # write-ins carry no party
     ]
     assert gov.total_votes == 0
     assert gov.precincts_total == 1318
@@ -63,34 +62,61 @@ def test_empty_measure_payload_is_not_an_error():
 def test_counts_and_winner_flag_from_constructed_rows():
     # The captured election has no votes counted yet, so the vote/percentage/winner branch
     # is exercised with rows in the documented shape (same fields the service sends).
-    payload = {"d": [
-        {"RaceID": 1, "RaceName": "Governor", "AreaNum": "Statewide Partisan",
-         "PartyCode": "NON", "PartyName": "Democrat", "calcCandidate": "Tina Kotek",
-         "calcCandidateVotes": 900, "TotalPrecincts": 100, "PrecinctsReporting": 60,
-         "PrecinctsPartial": 5, "Winner": False},
-        {"RaceID": 1, "RaceName": "Governor", "AreaNum": "Statewide Partisan",
-         "PartyCode": "NON", "PartyName": "Republican, Libertarian",
-         "calcCandidate": "Christine Drazan", "calcCandidateVotes": 600,
-         "TotalPrecincts": 100, "PrecinctsReporting": 60, "PrecinctsPartial": 5,
-         "Winner": True},
-        {"RaceID": 1, "RaceName": "Governor", "AreaNum": "Statewide Partisan",
-         "PartyCode": "", "PartyName": "", "calcCandidate": "Write-in",
-         "calcCandidateVotes": 10, "TotalPrecincts": 100, "PrecinctsReporting": 60,
-         "PrecinctsPartial": 5, "Winner": False},
-    ]}
+    payload = {
+        "d": [
+            {
+                "RaceID": 1,
+                "RaceName": "Governor",
+                "AreaNum": "Statewide Partisan",
+                "PartyCode": "NON",
+                "PartyName": "Democrat",
+                "calcCandidate": "Tina Kotek",
+                "calcCandidateVotes": 900,
+                "TotalPrecincts": 100,
+                "PrecinctsReporting": 60,
+                "PrecinctsPartial": 5,
+                "Winner": False,
+            },
+            {
+                "RaceID": 1,
+                "RaceName": "Governor",
+                "AreaNum": "Statewide Partisan",
+                "PartyCode": "NON",
+                "PartyName": "Republican, Libertarian",
+                "calcCandidate": "Christine Drazan",
+                "calcCandidateVotes": 600,
+                "TotalPrecincts": 100,
+                "PrecinctsReporting": 60,
+                "PrecinctsPartial": 5,
+                "Winner": True,
+            },
+            {
+                "RaceID": 1,
+                "RaceName": "Governor",
+                "AreaNum": "Statewide Partisan",
+                "PartyCode": "",
+                "PartyName": "",
+                "calcCandidate": "Write-in",
+                "calcCandidateVotes": 10,
+                "TotalPrecincts": 100,
+                "PrecinctsReporting": 60,
+                "PrecinctsPartial": 5,
+                "Winner": False,
+            },
+        ]
+    }
     (gov,) = parse_or(payload, fetched_at=AT)
     assert [c.name for c in gov.candidates] == ["Tina Kotek", "Christine Drazan", "Write-in"]
     assert [c.pct for c in gov.candidates] == [59.6, 39.74, 0.66]
     assert gov.total_votes == 1510
-    assert gov.precincts_reporting == 65            # fully + partially reporting
+    assert gov.precincts_reporting == 65  # fully + partially reporting
     assert gov.expected_vote_pct == 65.0
     assert [c.winner for c in gov.candidates] == [False, True, False]
 
 
 def test_race_key_mapping():
     assert format_key(race_key("US Senator")) == "OR SEN"
-    assert format_key(race_key("US Representative, 5th District",
-                               "US Representative 5th District")) == "OR-05"
+    assert format_key(race_key("US Representative, 5th District", "US Representative 5th District")) == "OR-05"
     assert format_key(race_key("Governor")) == "OR GOV"
     assert format_key(race_key("Secretary of State")) == "OR SOS"
     assert format_key(race_key("Attorney General")) == "OR AG"

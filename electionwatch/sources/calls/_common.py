@@ -1,4 +1,5 @@
 """Shared helpers for call-source adapters."""
+
 from __future__ import annotations
 
 import re
@@ -53,8 +54,13 @@ def parse_http_date(value) -> datetime | None:
 
 
 def cnn_code_to_key(code: str) -> RaceKey | None:
-    """Convert a CNN race code like '2026-SG-TX' or '2026-HG-CA-12' to a RaceKey."""
-    m = re.fullmatch(r"\d{4}-([A-Z]+)-([A-Z]{2})(?:-(\d{2}))?", code)
+    """Convert a CNN race code like '2026-SG-TX', '2026-HG-CA-12' or '2026-HG-AK-AL'.
+
+    A single-seat state's district is "AL" (see RaceKey), and key_to_cnn_code emits
+    that, so the parser must accept it too — otherwise an at-large response parses to
+    None and is dropped.
+    """
+    m = re.fullmatch(r"\d{4}-([A-Z]+)-([A-Z]{2})(?:-(AL|\d{2}))?", code)
     if not m:
         return None
     office, state, district = m.groups()
@@ -83,13 +89,31 @@ def normalize_party(party: str | None) -> str | None:
         return None
     low = party.strip().lower().rstrip(".")
     mapping = {
-        "dem": "DEM", "democrat": "DEM", "democratic": "DEM", "democrats": "DEM", "d": "DEM",
-        "gop": "REP", "rep": "REP", "republican": "REP", "republicans": "REP", "r": "REP",
-        "ind": "IND", "independent": "IND", "i": "IND",
-        "lib": "LIB", "libertarian": "LIB", "lb": "LIB", "l": "LIB",
-        "grn": "GRN", "green": "GRN", "g": "GRN",
-        "wri": "WRI", "write-in": "WRI", "write-ins": "WRI",
-        "other": "OTH", "others": "OTH",
+        "dem": "DEM",
+        "democrat": "DEM",
+        "democratic": "DEM",
+        "democrats": "DEM",
+        "d": "DEM",
+        "gop": "REP",
+        "rep": "REP",
+        "republican": "REP",
+        "republicans": "REP",
+        "r": "REP",
+        "ind": "IND",
+        "independent": "IND",
+        "i": "IND",
+        "lib": "LIB",
+        "libertarian": "LIB",
+        "lb": "LIB",
+        "l": "LIB",
+        "grn": "GRN",
+        "green": "GRN",
+        "g": "GRN",
+        "wri": "WRI",
+        "write-in": "WRI",
+        "write-ins": "WRI",
+        "other": "OTH",
+        "others": "OTH",
     }
     if low in mapping:
         return mapping[low]
@@ -105,3 +129,10 @@ def parse_iso_ts(raw: str | None) -> datetime:
         except Exception:
             pass
     return datetime.now(timezone.utc)
+
+
+def house_title(district: str | None) -> str:
+    """'U.S. House District 7', or 'U.S. House At-Large' for single-seat states (district 'AL')."""
+    if not district or not district.isdigit():
+        return "U.S. House At-Large"
+    return f"U.S. House District {int(district)}"

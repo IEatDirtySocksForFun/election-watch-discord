@@ -4,6 +4,7 @@ CNN's results pages are backed by a public JSON feed at politics.api.cnn.io.
 This adapter is marked as a scraper because it consumes the site's own JSON
 rather than a documented public API, and it is disabled by default.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -11,9 +12,9 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
 from ._common import (
     cnn_code_to_key,
@@ -35,9 +36,7 @@ class CNNSource(CallSource):
     BASE = "https://politics.api.cnn.io/results/race"
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         calls: list[RaceCall] = []
         for key in keys:
             code = key_to_cnn_code(key, self.YEAR)
@@ -74,9 +73,7 @@ def parse_cnn_race(payload: dict) -> RaceCall | None:
     winner = next((c for c in payload.get("candidates", []) if c.get("winner")), None)
     if winner is None:
         return None
-    party = normalize_party(
-        winner.get("majorParty") or winner.get("partyName") or payload.get("winnerBopPartyId")
-    )
+    party = normalize_party(winner.get("majorParty") or winner.get("partyName") or payload.get("winnerBopPartyId"))
     embargo = payload.get("raceEmbargo") or {}
     return RaceCall(
         key=key,

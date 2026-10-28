@@ -4,7 +4,10 @@ from pathlib import Path
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key
 from electionwatch.sources.results.il_sbe import (
-    categories, election_label, parse_il, race_key,
+    categories,
+    election_label,
+    parse_il,
+    race_key,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "il_sbe"
@@ -23,10 +26,10 @@ def test_statewide_offices():
     keys = by_key()
     senate = keys["IL SEN"]
     assert senate.key.level is Level.SENATE
-    assert senate.candidates[0].name == "JULIANA STRATTON"
+    assert senate.candidates[0].name == "Juliana Stratton"
     assert senate.candidates[0].party == "DEM"
     assert senate.total_votes == sum(x.votes for x in senate.candidates)
-    assert keys["IL GOV"].candidates[0].name == "JB PRITZKER"
+    assert keys["IL GOV"].candidates[0].name == "JB Pritzker"
     assert keys["IL AG"].key.level is Level.GOVERNOR
     assert keys["IL SOS"].key.office == "SOS"
     assert keys["IL COMP"].key.office == "COMP"
@@ -51,16 +54,15 @@ def test_state_legislature_pages():
 
 def test_percent_is_recomputed_not_the_primary_party_share():
     senate = by_key()["IL SEN"]
-    assert senate.candidates[0].pct == round(
-        100.0 * senate.candidates[0].votes / senate.total_votes, 2)
-    assert sum(x.pct for x in senate.candidates) < 100.5   # only one party's field here
+    assert senate.candidates[0].pct == round(100.0 * senate.candidates[0].votes / senate.total_votes, 2)
+    assert sum(x.pct for x in senate.candidates) < 100.5  # only one party's field here
 
 
 def test_election_label_and_category_links():
     html = load("federal_statewide.html")
     assert election_label(html) == "2026 GENERAL PRIMARY"
     urls = categories(html)
-    assert len(urls) == 2                      # Senate (state Senate) + District All (state House)
+    assert len(urls) == 2  # Senate (state Senate) + District All (state House)
     assert all("OfficeType=" in u for u in urls)
 
 
@@ -69,8 +71,7 @@ def test_race_key_mapping():
     assert format_key(race_key("17TH CONGRESS")) == "IL-17"
     assert format_key(race_key("59TH SENATE")) == "IL SD-59"
     assert format_key(race_key("118TH REPRESENTATIVE")) == "IL HD-118"
-    assert format_key(race_key("SUPREME COURT - 1ST DISTRICT")) == \
-        "IL LOCAL supreme-court-1st-district"
+    assert format_key(race_key("SUPREME COURT - 1ST DISTRICT")) == "IL LOCAL supreme-court-1st-district"
 
 
 def test_empty_payload_is_not_an_error():

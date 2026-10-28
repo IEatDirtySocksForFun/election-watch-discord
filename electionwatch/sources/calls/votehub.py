@@ -5,6 +5,7 @@ results/race-call endpoint: ``/results`` returns 404 and the site is behind a
 Cloudflare challenge. This adapter therefore remains a fixture-only skeleton,
 disabled by default.
 """
+
 from __future__ import annotations
 
 from electionwatch.sources.base import register

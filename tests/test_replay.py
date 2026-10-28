@@ -1,4 +1,5 @@
 """Replay sandbox: timeline loading, ReplaySource, scripted calls/odds, the run harness."""
+
 import json
 import shutil
 import sys
@@ -16,8 +17,7 @@ from electionwatch.settings import GuildSettings, PostMode, post_due  # noqa: E4
 from electionwatch.sources.base import REGISTRY  # noqa: E402
 from replay import run as replay_run  # noqa: E402
 from replay.clock import FakeClock  # noqa: E402
-from replay.scripted import (ScriptedCallSource, ScriptedOddsSource, default_calls,  # noqa: E402
-                             default_swings)
+from replay.scripted import ScriptedCallSource, ScriptedOddsSource, default_calls, default_swings  # noqa: E402
 from replay.source import ReplaySource  # noqa: E402
 from replay.timeline import load_year, snapshot_from_line, snapshot_to_line  # noqa: E402
 
@@ -59,9 +59,9 @@ async def test_replay_source_serves_current_snapshot(timelines):
     src = ReplaySource(timelines, clock)
     key = parse("PA SEN")
     assert "replay" in REGISTRY["results"]
-    assert await src.fetch([key]) == []                      # before the first snapshot
+    assert await src.fetch([key]) == []  # before the first snapshot
     clock.set(T0 + timedelta(minutes=6))
-    (r,) = await src.fetch([key, parse("TX SEN")])           # unknown race skipped
+    (r,) = await src.fetch([key, parse("TX SEN")])  # unknown race skipped
     assert r.total_votes == 2000 and r.fetched_at == clock()
     clock.set(T0 + timedelta(minutes=19, seconds=59))
     assert (await src.fetch([key]))[0].total_votes == 2300
@@ -85,7 +85,7 @@ async def test_scripted_call_and_odds(timelines):
     clock.set(T0 + timedelta(minutes=6))
     before = {o.outcome: o.prob for o in await odds.fetch_odds([key])}
     assert before["DEM"] > 0.5 and abs(before["DEM"] + before["REP"] - 1) < 1e-6
-    clock.set(T0 + timedelta(minutes=5 + 10 + 10))          # end of the forced swing
+    clock.set(T0 + timedelta(minutes=5 + 10 + 10))  # end of the forced swing
     after = {o.outcome: o.prob for o in await odds.fetch_odds([key])}
     assert after["REP"] == pytest.approx(0.8)
 
@@ -110,14 +110,20 @@ class StubPoller:
                 updated = changed is not None and (last is None or changed > last)
                 if post_due(gs, last, now, updated):
                     r = await self.store.latest_result(k)
-                    await self.poster.post(gs.guild_id, gs.channel_id, Post(
-                        "results", str(k), str(k), [f"{c.name} {c.votes}" for c in r.candidates]))
+                    await self.poster.post(
+                        gs.guild_id,
+                        gs.channel_id,
+                        Post("results", str(k), str(k), [f"{c.name} {c.votes}" for c in r.candidates]),
+                    )
                     await self.store.mark_posted(gs.guild_id, "results", str(k), now)
             for src in self.sources["calls"]:
                 for c in await src.fetch_calls(keys, None):
                     if await self.store.record_call(c):
-                        await self.poster.post(gs.guild_id, gs.channel_id,
-                                               Post("call", str(c.key), str(c.key), [f"{c.outlet}: {c.winner}"]))
+                        await self.poster.post(
+                            gs.guild_id,
+                            gs.channel_id,
+                            Post("call", str(c.key), str(c.key), [f"{c.outlet}: {c.winner}"]),
+                        )
 
 
 async def test_harness_with_stub_poller(timelines):
@@ -144,8 +150,7 @@ def test_replay_end_to_end_with_real_poller(timelines, tmp_path):
     pytest.importorskip("electionwatch.poller")
     shutil.copytree(FIX / "timelines", tmp_path / "timelines")
     out = tmp_path / "out.md"
-    code = replay_run.main(["--year", "2024", "--races", "PA SEN", "--data", str(tmp_path),
-                            "--out", str(out)])
+    code = replay_run.main(["--year", "2024", "--races", "PA SEN", "--data", str(tmp_path), "--out", str(out)])
     text = out.read_text()
     assert "## Summary" in text and "PA SEN" in text
     assert code == 0, text

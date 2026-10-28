@@ -3,6 +3,7 @@
 Environment files are deliberately parsed here instead of adding a dotenv dependency.
 Only missing variables are populated: the process environment always has precedence.
 """
+
 from __future__ import annotations
 
 import os

@@ -1,4 +1,5 @@
 """fox_results parses Fox News' state-level results feeds."""
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,7 +39,9 @@ def test_parse_senate_result():
 
 
 def test_parse_house_result():
-    results = {r.key: r for r in parse_fox_results(_load("2024-tx-house.json"), "TX", Level.HOUSE, 2024, fetched_at=NOW)}
+    results = {
+        r.key: r for r in parse_fox_results(_load("2024-tx-house.json"), "TX", Level.HOUSE, 2024, fetched_at=NOW)
+    }
     house = results[TX_38]
     assert house.title == "U.S. House District 38"
     assert house.candidates[0].votes == 215030

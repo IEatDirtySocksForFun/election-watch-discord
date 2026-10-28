@@ -42,9 +42,16 @@ class FakeStore:
 
     async def odds_since(self, key, market, outcome, since):
         return [
-            item for item in self.odds
+            item
+            for item in self.odds
             if item.key == key and item.market == market and item.outcome == outcome and item.ts >= since
         ]
+
+    async def get_cached(self, kind, ident):
+        return getattr(self, "cache", {}).get((kind, ident))
+
+    async def put_cached(self, kind, ident, data, at):
+        self.__dict__.setdefault("cache", {})[(kind, ident)] = (at, data)
 
 
 class FakeOdds(OddsSource):
@@ -118,33 +125,41 @@ def test_poll_format_has_sample_sponsor_markers_internal_tag_and_link():
 
 
 @pytest.mark.asyncio
-async def test_fresh_stored_odds_avoid_fetch_and_live_odds_are_cached_for_60_seconds():
+async def test_odds_come_from_the_store_only_and_unknown_races_are_queued():
+    from electionwatch.demand import Demand
+
     source = FakeOdds([snapshot(prob=0.6)])
     store = FakeStore([snapshot(prob=0.55)])
-    clock = [NOW]
-    data = CommandData(store, {"odds": [source]}, object(), lambda: clock[0])
+    data = CommandData(store, {"odds": [source]}, object(), lambda: NOW, demand=Demand())
 
-    assert (await data.get_odds(KEY))[0].prob == 0.55
+    for _ in range(3):
+        assert (await data.get_odds(KEY))[0].prob == 0.55
     assert source.calls == 0
+    other = parse("GA SEN")
+    embed = await data.odds_embed(other)
+    assert "queued for the next odds refresh (about every 1 min)" in embed.description
+    assert data.demand.items("odds") == ["GA SEN"] and source.calls == 0
 
-    clock[0] += timedelta(seconds=121)
-    assert (await data.get_odds(KEY))[0].prob == 0.6
-    assert source.calls == 1
-    clock[0] += timedelta(seconds=59)
-    await data.get_odds(KEY)
-    assert source.calls == 1
-    clock[0] += timedelta(seconds=1)
-    await data.get_odds(KEY)
-    assert source.calls == 2
+
+@pytest.mark.asyncio
+async def test_a_race_the_refresh_found_no_market_for_says_so():
+    from electionwatch.poller import ODDS_CHECKED
+
+    store = FakeStore()
+    await store.put_cached(ODDS_CHECKED, "TX SEN", "", NOW)
+    data = CommandData(store, {"odds": [FakeOdds([])]}, object(), lambda: NOW)
+    assert "No current prediction-market odds" in (await data.odds_embed(KEY)).description
 
 
 @pytest.mark.asyncio
 async def test_odds_history_supplies_one_and_24_hour_moves():
-    store = FakeStore([
-        snapshot(prob=0.50, ts=NOW - timedelta(hours=23)),
-        snapshot(prob=0.52, ts=NOW - timedelta(minutes=30)),
-        snapshot(prob=0.55),
-    ])
+    store = FakeStore(
+        [
+            snapshot(prob=0.50, ts=NOW - timedelta(hours=23)),
+            snapshot(prob=0.52, ts=NOW - timedelta(minutes=30)),
+            snapshot(prob=0.55),
+        ]
+    )
     data = CommandData(store, {}, object(), lambda: NOW)
 
     embed = await data.odds_embed(KEY)
@@ -154,21 +169,20 @@ async def test_odds_history_supplies_one_and_24_hour_moves():
 
 
 @pytest.mark.asyncio
-async def test_poll_sources_are_merged_deduped_and_cached_for_15_minutes():
+async def test_stored_poll_answers_are_merged_and_deduped_without_calling_the_sources():
+    from electionwatch.poller import POLLS_CACHE, dump_polls, polls_ident
+
     first = FakePolls([poll(sponsor=None)])
     second = FakePolls([poll(sponsor="Newsroom")])
-    clock = [NOW]
-    data = CommandData(FakeStore(), {"polls": [first, second]}, object(), lambda: clock[0])
-
+    second.name = "fake_polls_2"
+    store = FakeStore()
+    data = CommandData(store, {"polls": [first, second]}, object(), lambda: NOW)
+    assert await data.get_polls(KEY) is None  # nothing stored yet
+    for source in (first, second):
+        await store.put_cached(POLLS_CACHE, polls_ident(source.name, KEY), dump_polls(source.values), NOW)
     values = await data.get_polls(KEY)
     assert len(values) == 1 and values[0].sponsor == "Newsroom"
-    assert first.calls == second.calls == 1
-    clock[0] += timedelta(minutes=14)
-    await data.get_polls(KEY)
-    assert first.calls == second.calls == 1
-    clock[0] += timedelta(minutes=1)
-    await data.get_polls(KEY)
-    assert first.calls == second.calls == 2
+    assert first.calls == second.calls == 0
 
 
 @pytest.mark.asyncio
@@ -180,13 +194,43 @@ async def test_missing_poll_source_is_explained():
 
 def test_merge_polls_joins_sponsor_and_fieldwork_copies():
     from datetime import date
+
     from electionwatch.bot.command_data import merge_polls
     from electionwatch.models import Poll, PollResult
     from electionwatch.racekeys import parse
-    res = lambda: [PollResult("Talarico", "DEM", 50.0), PollResult("Paxton", "REP", 45.0)]
+
+    def res():
+        return [PollResult("Talarico", "DEM", 50.0), PollResult("Paxton", "REP", 45.0)]
+
     a = Poll(parse("TX SEN"), "N+ Univision", res(), date(2026, 10, 27), source="wikipedia")
-    b = Poll(parse("TX SEN"), "YouGov", res(), date(2026, 10, 21), sponsor="N+ Univision",
-             sample_size=1000, source="votehub")
+    b = Poll(
+        parse("TX SEN"), "YouGov", res(), date(2026, 10, 21), sponsor="N+ Univision", sample_size=1000, source="votehub"
+    )
     c = Poll(parse("TX SEN"), "Emerson College", res(), date(2026, 10, 22))  # other firm: kept
     merged = merge_polls([a, b, c])
     assert [p.pollster for p in merged] == ["Emerson College", "YouGov"]
+
+
+def test_format_polls_stays_under_discords_6000_character_embed_limit():
+    # Found by tools/live_command_check.py: Discord answered 400 "Embed size exceeds maximum
+    # size of 6000" for ten polls with many long candidate names.
+    from datetime import date
+
+    from electionwatch.models import Poll, PollResult
+
+    name = "Bartholomew-Maximilian Featherstonehaugh-Wolfeschlegelsteinhausen Jr."
+    polls = [
+        Poll(
+            KEY,
+            f"{name} Research {p}",
+            [PollResult(f"{name} {c}", "DEM", 10.0) for c in range(12)],
+            date(2026, 10, 30 - p),
+            sponsor=f"{name} Committee {p}",
+            url="https://example.org/p",
+        )
+        for p in range(12)
+    ]
+    embed = format_polls(KEY, polls, count=10)
+    assert len(embed) <= 6000
+    assert 1 <= len(embed.fields) < 10
+    assert embed.description.startswith(f"Showing {len(embed.fields)} most recent poll")

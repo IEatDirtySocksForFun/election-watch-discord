@@ -5,6 +5,7 @@ carries per-candidate ``vote`` / ``votes``, ``percentVote`` and race-level
 ``totalVote`` / ``percentIn`` for every Senate, Governor and House race. It is
 the site's own JSON (no documented API): ``scrape=True``, disabled by default.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,12 +13,12 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
-from ._common import normalize_party, parse_http_date
+from ._common import house_title, normalize_party, parse_http_date
 from .nbc import _results_url, _tooltip_key
 
 _LEVEL_OFFICES = {Level.SENATE: "senate", Level.GOVERNOR: "governor", Level.HOUSE: "house"}
@@ -30,6 +31,7 @@ class NBCResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
+    fallback = True  # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = "https://www.nbcnews.com/firecracker/api/v2/national-results"
@@ -54,7 +56,8 @@ class NBCResultsSource(ResultsSource):
         offices = {
             _LEVEL_OFFICES[k.level]
             for k in keys
-            if k.level in _LEVEL_OFFICES and k.state in self.states
+            if k.level in _LEVEL_OFFICES
+            and k.state in self.states
             and (k.level is not Level.GOVERNOR or k.office == "GOV")
         }
         if not offices:
@@ -92,9 +95,7 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
                 continue
             candidates = [
                 CandidateResult(
-                    name=c.get("name") or " ".join(
-                        p for p in (c.get("firstName"), c.get("lastName")) if p
-                    ),
+                    name=c.get("name") or " ".join(p for p in (c.get("firstName"), c.get("lastName")) if p),
                     party=normalize_party(c.get("party")),
                     votes=int(c.get("votes") or c.get("vote") or 0),
                     pct=c.get("percentVote"),
@@ -107,7 +108,7 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
                 continue
             title = _OFFICE_TITLES.get(_LEVEL_OFFICES.get(key.level, ""))
             if key.level is Level.HOUSE and key.district:
-                title = f"U.S. House District {int(key.district)}"
+                title = house_title(key.district)
             out.append(
                 RaceResult(
                     key=key,

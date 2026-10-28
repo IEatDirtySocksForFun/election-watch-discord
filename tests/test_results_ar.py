@@ -8,7 +8,10 @@ from electionwatch.models import Level
 from electionwatch.racekeys import format_key
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results.ar_sos import (
-    election_links, find_election, parse_ar, race_key,
+    election_links,
+    find_election,
+    parse_ar,
+    race_key,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "ar_sos"
@@ -31,7 +34,7 @@ def test_statewide_and_house_races():
     assert tops["Donald J. Trump/JD Vance"].votes == 760581
     assert tops["Donald J. Trump/JD Vance"].party == "REP"
     assert tops["Kamala D. Harris/Tim Walz"].party == "DEM"
-    assert tops["Jill Stein/Rudolph Ware"].party == "GRN"     # "Nevada Green Party"
+    assert tops["Jill Stein/Rudolph Ware"].party == "GRN"  # "Nevada Green Party"
     assert pres.total_votes == 1184575
     assert pres.turnout_pct == 65.1
     assert pres.registered_voters == 1828129
@@ -70,10 +73,10 @@ def test_discovery_from_the_sos_page():
     assert any(label.startswith("2024 General Election") for label in links)
     assert find_election(page, "2024-11-05") == "1846"
     with pytest.raises(SourceUnavailable) as exc:
-        find_election(page, "2026-11-03")      # not on the page yet
+        find_election(page, "2026-11-03")  # not on the page yet
     assert "does not list" in str(exc.value)
     with pytest.raises(SourceUnavailable):
-        find_election(page, "2027-11-02")      # no label configured
+        find_election(page, "2027-11-02")  # no label configured
 
 
 def test_race_key_mapping():
@@ -85,5 +88,7 @@ def test_race_key_mapping():
     assert format_key(race_key("U.S. Congress District 2")) == "AR-02"
     assert format_key(race_key("State Senate District 8")) == "AR SD-08"
     assert format_key(race_key("State Representative District 100")) == "AR HD-100"
-    assert format_key(race_key("Court of Appeals Associate Judge District 06, Position 01")) \
+    assert (
+        format_key(race_key("Court of Appeals Associate Judge District 06, Position 01"))
         == "AR LOCAL court-of-appeals-associate-judge-district-06-position-01"
+    )

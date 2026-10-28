@@ -1,16 +1,15 @@
 """ReplaySource: a ResultsSource that serves the snapshot current at the fake clock time."""
+
 from __future__ import annotations
 
 import bisect
 import copy
-from typing import Callable
-
 from datetime import datetime
+from typing import Callable
 
 from electionwatch.models import RaceKey, RaceResult
 from electionwatch.racekeys import STATES, describe
 from electionwatch.sources.base import ResultsSource, register
-
 from replay.timeline import Snapshot
 
 
@@ -18,7 +17,7 @@ from replay.timeline import Snapshot
 class ReplaySource(ResultsSource):
     name = "replay"
     states = frozenset(STATES)
-    enabled_by_default = False     # only the sandbox constructs it (it needs timelines + clock)
+    enabled_by_default = False  # only the sandbox constructs it (it needs timelines + clock)
 
     def __init__(self, timelines: dict[str, list[Snapshot]], clock: Callable[[], datetime]) -> None:
         self.timelines = {k: sorted(v, key=lambda s: s.ts) for k, v in timelines.items()}
@@ -44,8 +43,16 @@ class ReplaySource(ResultsSource):
         return out
 
     async def list_races(self, state, client=None):
-        return [(s[0].result.key, describe(s[0].result.key)) for k, s in self.timelines.items()
-                if s[0].result.key.state == state]
+        return [
+            (s[0].result.key, describe(s[0].result.key))
+            for k, s in self.timelines.items()
+            if s[0].result.key.state == state
+        ]
+
+    def next_change(self, after: datetime) -> datetime | None:
+        """Earliest snapshot time strictly after `after` across all races, or None."""
+        nxt = [ts[i] for ts in self._ts.values() if (i := bisect.bisect_right(ts, after)) < len(ts)]
+        return min(nxt, default=None)
 
     def span(self) -> tuple[datetime, datetime]:
         firsts = [v[0].ts for v in self.timelines.values()]

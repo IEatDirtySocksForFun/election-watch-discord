@@ -33,6 +33,7 @@ type "State"; localResults (county-level items) is not parsed.
 The export carries no winner flags and its precinct counts are null, so those
 fields stay False/None.
 """
+
 from __future__ import annotations
 
 import re
@@ -50,7 +51,7 @@ HUMAN = "https://electionresults.utah.gov/"
 
 #: date -> export slug.  None = derive as general<MMDDYYYY>.
 ELECTIONS: dict[str, str | None] = {
-    "2024-11-05": "general11052024",   # verified fixture
+    "2024-11-05": "general11052024",  # verified fixture
     # TODO(2026-10-27): the public 2026 general page
     # (electionresults.utah.gov/results/public/Utah/elections/general11032026) is
     # live but the CDN export is still 404; Enhanced Voting posts it on election
@@ -127,24 +128,31 @@ def parse_ut(payload, *, fetched_at: datetime) -> list[RaceResult]:
             cand_name, incumbent = c.strip_incumbent(str(option.get("name") or "").strip())
             if not cand_name:
                 continue
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=_party(option.get("politicalParty")),
-                votes=c.to_int(option.get("voteCount")),
-                incumbent=incumbent,
-                winner=False,  # the export publishes no winner flag
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=_party(option.get("politicalParty")),
+                    votes=c.to_int(option.get("voteCount")),
+                    incumbent=incumbent,
+                    winner=False,  # the export publishes no winner flag
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=UtLgov.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
-            precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=UtLgov.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
+                precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
+            )
+        )
     return out
 
 
@@ -176,7 +184,8 @@ class UtLgov(ResultsSource):
         except SourceUnavailable as exc:
             raise SourceUnavailable(
                 f"ut_lgov: {url} is not published yet or moved ({exc}); Utah's "
-                f"Enhanced Voting export appears on election night") from exc
+                f"Enhanced Voting export appears on election night"
+            ) from exc
         return c.select(parse_ut(payload, fetched_at=c.utcnow()), ut_keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -186,5 +195,4 @@ class UtLgov(ResultsSource):
             payload = await c.get_json(client, export_url(c.election_date()))
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in parse_ut(payload, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_ut(payload, fetched_at=c.utcnow())]

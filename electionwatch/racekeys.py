@@ -3,12 +3,14 @@
     NC-01  NC-1  AK-AL           US House district (AL = at-large)
     TX SEN  TX-SEN               US Senate;  "OH SEN S" / "OH SEN SPECIAL" = special election
     TX GOV  TX AG  TX LTGOV ...  statewide executive office (see STATEWIDE)
-    TX SD-05  TX HD-121          state senate / state house district
+    TX SD-05  TX HD-121          state senate / state house district (numbered)
+    AK SD-A   VT HD-CHT-6-7      ... or named/lettered (Alaska A-T, Vermont CHT-6-7)
     TX LOCAL harris-county-judge local race, free-form slug (sources map it)
 
 Long forms are accepted too: "Texas Senate", "North Carolina Congressional District 1",
 "Georgia Governor". "<State> Senate" means the US Senate race (TX SEN), as in the README.
 """
+
 from __future__ import annotations
 
 import re
@@ -16,34 +18,84 @@ import re
 from electionwatch.models import Level, RaceKey
 
 STATES = {
-    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California",
-    "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "DC": "District of Columbia",
-    "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois",
-    "IN": "Indiana", "IA": "Iowa", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana",
-    "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota",
-    "MS": "Mississippi", "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
-    "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York",
-    "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon",
-    "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota",
-    "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia",
-    "WA": "Washington", "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
+    "AL": "Alabama",
+    "AK": "Alaska",
+    "AZ": "Arizona",
+    "AR": "Arkansas",
+    "CA": "California",
+    "CO": "Colorado",
+    "CT": "Connecticut",
+    "DE": "Delaware",
+    "DC": "District of Columbia",
+    "FL": "Florida",
+    "GA": "Georgia",
+    "HI": "Hawaii",
+    "ID": "Idaho",
+    "IL": "Illinois",
+    "IN": "Indiana",
+    "IA": "Iowa",
+    "KS": "Kansas",
+    "KY": "Kentucky",
+    "LA": "Louisiana",
+    "ME": "Maine",
+    "MD": "Maryland",
+    "MA": "Massachusetts",
+    "MI": "Michigan",
+    "MN": "Minnesota",
+    "MS": "Mississippi",
+    "MO": "Missouri",
+    "MT": "Montana",
+    "NE": "Nebraska",
+    "NV": "Nevada",
+    "NH": "New Hampshire",
+    "NJ": "New Jersey",
+    "NM": "New Mexico",
+    "NY": "New York",
+    "NC": "North Carolina",
+    "ND": "North Dakota",
+    "OH": "Ohio",
+    "OK": "Oklahoma",
+    "OR": "Oregon",
+    "PA": "Pennsylvania",
+    "RI": "Rhode Island",
+    "SC": "South Carolina",
+    "SD": "South Dakota",
+    "TN": "Tennessee",
+    "TX": "Texas",
+    "UT": "Utah",
+    "VT": "Vermont",
+    "VA": "Virginia",
+    "WA": "Washington",
+    "WV": "West Virginia",
+    "WI": "Wisconsin",
+    "WY": "Wyoming",
 }
 # US territories elect a non-voting House member (key XX-AL, e.g. PR-AL) plus their own
 # governor and legislature. Kept apart from STATES because adapters derive their
 # coverage from STATES and no territory has a results adapter yet.
 TERRITORIES = {
-    "PR": "Puerto Rico", "GU": "Guam", "VI": "U.S. Virgin Islands",
-    "AS": "American Samoa", "MP": "Northern Mariana Islands",
+    "PR": "Puerto Rico",
+    "GU": "Guam",
+    "VI": "U.S. Virgin Islands",
+    "AS": "American Samoa",
+    "MP": "Northern Mariana Islands",
 }
 ALL_JURISDICTIONS = {**STATES, **TERRITORIES}
 _BY_NAME = {v.lower(): k for k, v in ALL_JURISDICTIONS.items()}
 
 STATEWIDE = {
-    "GOV": "Governor", "LTGOV": "Lieutenant Governor", "AG": "Attorney General",
-    "SOS": "Secretary of State", "TREAS": "Treasurer", "AUD": "Auditor",
-    "COMP": "Comptroller", "SUPT": "Superintendent of Public Instruction",
-    "AGCOM": "Agriculture Commissioner", "INSCOM": "Insurance Commissioner",
-    "LANDCOM": "Land Commissioner", "RRC": "Railroad Commissioner",
+    "GOV": "Governor",
+    "LTGOV": "Lieutenant Governor",
+    "AG": "Attorney General",
+    "SOS": "Secretary of State",
+    "TREAS": "Treasurer",
+    "AUD": "Auditor",
+    "COMP": "Comptroller",
+    "SUPT": "Superintendent of Public Instruction",
+    "AGCOM": "Agriculture Commissioner",
+    "INSCOM": "Insurance Commissioner",
+    "LANDCOM": "Land Commissioner",
+    "RRC": "Railroad Commissioner",
 }
 
 
@@ -77,8 +129,9 @@ def parse(text: str) -> RaceKey:
     m = re.fullmatch(r"([A-Za-z]{2})-(\d{1,2}|AL|al)(?:\s+(S|SPECIAL))?", raw, re.I)
     if m:
         dist = m.group(2).upper()
-        return RaceKey(_state(m.group(1)), Level.HOUSE, "HOUSE",
-                       "AL" if dist == "AL" else f"{int(dist):02d}", bool(m.group(3)))
+        return RaceKey(
+            _state(m.group(1)), Level.HOUSE, "HOUSE", "AL" if dist == "AL" else f"{int(dist):02d}", bool(m.group(3))
+        )
 
     toks = re.split(r"[\s-]+", raw, maxsplit=1)
     st = _state(toks[0])
@@ -91,7 +144,7 @@ def parse(text: str) -> RaceKey:
         return RaceKey(st, Level.SENATE, "SEN", None, _special(rest[1:]))
     if office in STATEWIDE:
         return RaceKey(st, Level.GOVERNOR, office, None, _special(rest[1:]))
-    m = re.fullmatch(r"(SD|HD)-?(\d{1,3}[A-Z]?)", office)
+    m = re.fullmatch(r"(SD|HD)-?([A-Z]{1,4}(?:-(?:[A-Z]{1,4}|\d{1,3}[A-Z]?))*|\d{1,3}[A-Z]?)", office)
     if m:
         d = m.group(2)
         d = f"{int(d):02d}" if d.isdigit() else d
@@ -111,7 +164,7 @@ def _parse_long(raw: str) -> RaceKey | None:
     for name, st in sorted(_BY_NAME.items(), key=lambda kv: -len(kv[0])):
         if not low.startswith(name + " "):
             continue
-        tail = low[len(name) + 1:].strip()
+        tail = low[len(name) + 1 :].strip()
         m = re.fullmatch(r"(?:congressional|house)\s+district\s+(\d{1,2})", tail)
         if m:
             return RaceKey(st, Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")

@@ -1,4 +1,5 @@
 """In-memory Store for tests and the replay sandbox."""
+
 from __future__ import annotations
 
 import bisect
@@ -24,6 +25,7 @@ class MemoryStore:
         # every snapshot of the night on every tick (replays of 200+ races slowed to ~20 s/tick).
         self._odds_by: dict[tuple, list[OddsSnapshot]] = defaultdict(list)
         self.posts: dict[tuple[int, str, str], datetime] = {}
+        self.cache: dict[tuple[str, str], tuple[datetime, str]] = {}
 
     async def get_guild(self, guild_id):
         return copy.deepcopy(self.guilds.get(guild_id))
@@ -68,7 +70,7 @@ class MemoryStore:
         return [copy.deepcopy(c) for (k, _), c in self.calls.items() if k == str(key)]
 
     async def add_odds(self, s: OddsSnapshot):
-        s = copy.copy(s)          # OddsSnapshot has no mutable fields; a shallow copy suffices
+        s = copy.copy(s)  # OddsSnapshot has no mutable fields; a shallow copy suffices
         self.odds.append(s)
         series = self._odds_by[(s.key, s.market, s.outcome)]
         if series and series[-1].ts > s.ts:
@@ -80,6 +82,18 @@ class MemoryStore:
         series = self._odds_by.get((key, market, outcome), [])
         i = bisect.bisect_left(series, since, key=lambda x: x.ts)
         return [copy.copy(s) for s in series[i:]]
+
+    async def latest_odds(self, key):
+        return [copy.copy(series[-1]) for (k, _, _), series in self._odds_by.items() if k == key and series]
+
+    async def put_cached(self, kind, ident, data, at):
+        self.cache[(kind, ident)] = (at, data)
+
+    async def get_cached(self, kind, ident):
+        return self.cache.get((kind, ident))
+
+    async def cached_idents(self, kind):
+        return {ident: at for (k, ident), (at, _) in self.cache.items() if k == kind}
 
     async def last_posted(self, guild_id, kind, ref):
         return self.posts.get((guild_id, kind, ref))

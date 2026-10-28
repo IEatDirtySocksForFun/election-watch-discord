@@ -9,6 +9,7 @@ Each race carries ``stateCode``, ``office``, ``jurisdictionCode`` (the House
 district number) and a ``candidates`` list whose ``isWinner`` flag is CBS'
 projection.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -16,9 +17,9 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
 from ._common import district_key, normalize_party, parse_iso_ts
 
@@ -37,12 +38,8 @@ class CBSSource(CallSource):
     BASE = "https://api-election.cbsnews.com/archive/api/public/races2"
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
-        pairs = {
-            (_LEVEL_OFFICES[k.level], k.state) for k in keys if k.level in _LEVEL_OFFICES
-        }
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
+        pairs = {(_LEVEL_OFFICES[k.level], k.state) for k in keys if k.level in _LEVEL_OFFICES}
         calls: list[RaceCall] = []
         for office, state in sorted(pairs):
             try:
@@ -55,9 +52,7 @@ class CBSSource(CallSource):
             if resp.status_code in (403, 404):
                 continue
             if resp.status_code >= 400:
-                raise SourceUnavailable(
-                    f"cbs returned {resp.status_code} for {office}/{state}"
-                )
+                raise SourceUnavailable(f"cbs returned {resp.status_code} for {office}/{state}")
             try:
                 payload = resp.json()
             except Exception as exc:
@@ -81,9 +76,7 @@ def parse_cbs_races(payload) -> list[RaceCall]:
             key = _race_key(race)
             if key is None:
                 continue
-            winner = next(
-                (c for c in race.get("candidates") or [] if c.get("isWinner")), None
-            )
+            winner = next((c for c in race.get("candidates") or [] if c.get("isWinner")), None)
             if winner is None:
                 continue
             calls.append(

@@ -1,4 +1,5 @@
 """Shared poll-parsing helpers (dates, samples, percentages, party markers)."""
+
 from datetime import date
 
 from selectolax.parser import HTMLParser
@@ -21,12 +22,8 @@ def test_parse_date_range_month_day_range():
 
 def test_parse_date_range_across_months_and_years():
     assert parse_date_range("April 22 \u2013 May 6, 2026") == (date(2026, 4, 22), date(2026, 5, 6))
-    assert parse_date_range("September 19 - October 1, 2025") == (
-        date(2025, 9, 19), date(2025, 10, 1)
-    )
-    assert parse_date_range("December 28 \u2013 January 3, 2026") == (
-        date(2025, 12, 28), date(2026, 1, 3)
-    )
+    assert parse_date_range("September 19 - October 1, 2025") == (date(2025, 9, 19), date(2025, 10, 1))
+    assert parse_date_range("December 28 \u2013 January 3, 2026") == (date(2025, 12, 28), date(2026, 1, 3))
     assert parse_date_range("Sept 28 \u2013 Oct 2, 2026") == (date(2026, 9, 28), date(2026, 10, 2))
 
 
@@ -67,7 +64,8 @@ def test_split_party_marker():
     assert split_party_marker("Change Research (D)[3]") == ("Change Research", "DEM")
     assert split_party_marker("Ken Paxton (R)") == ("Ken Paxton", "REP")
     assert split_party_marker("Don Brown (author, born 1960)") == (
-        "Don Brown (author, born 1960)", None,
+        "Don Brown (author, born 1960)",
+        None,
     )
     assert split_party_marker("SurveyUSA") == ("SurveyUSA", None)
 

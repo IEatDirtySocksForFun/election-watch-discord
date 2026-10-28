@@ -32,6 +32,7 @@ Trimming note: Maryland has no state legislative election in 2024 (four-year ter
 legislative partition path is exercised from the same file's columns and covered by unit
 tests rather than a 2024 fixture row.
 """
+
 from __future__ import annotations
 
 import csv
@@ -65,8 +66,7 @@ _STATEWIDE = (
 )
 
 #: Maryland's own party labels that _common.norm_party leaves alone.
-_PARTIES = {"OTC": "OTH", "JUD": None, "NON": "NPA", "UNA": "NPA",
-            "WORKINGCLASSPARTY": "WCP"}
+_PARTIES = {"OTC": "OTH", "JUD": None, "NON": "NPA", "UNA": "NPA", "WORKINGCLASSPARTY": "WCP"}
 
 
 def _norm(text: str) -> str:
@@ -113,14 +113,12 @@ def _partition(row: dict[str, str], key: RaceKey) -> int:
     """Votes of one row, read through the partition it belongs to."""
     if key.level is Level.HOUSE and key.district:
         wanted = f"CONGRESSIONAL DISTRICT {int(key.district)}"
-        total = sum(c.to_int(v) for col, v in row.items()
-                    if col and _PARTITION.match(col) and col.upper() == wanted)
+        total = sum(c.to_int(v) for col, v in row.items() if col and _PARTITION.match(col) and col.upper() == wanted)
         if total:
             return total
     if key.level is Level.STATE and key.office == "SD":
         wanted = f"LEGISLATIVE DISTRICT {int(key.district)}"
-        total = sum(c.to_int(v) for col, v in row.items()
-                    if col and col.upper() == wanted)
+        total = sum(c.to_int(v) for col, v in row.items() if col and col.upper() == wanted)
         if total:
             return total
     if key.level is Level.STATE and key.office == "HD" and key.district:
@@ -156,8 +154,7 @@ def parse_md(
             name = str(row.get("Candidate Name") or "").strip()
             if not name or name.lower().startswith("other write-in"):
                 continue
-            slot = tallies.setdefault(str(key), {
-                "key": key, "office": office, "district": district, "cands": {}})
+            slot = tallies.setdefault(str(key), {"key": key, "office": office, "district": district, "cands": {}})
             tally = slot["cands"]
             raw_party = re.sub(r"[^A-Za-z]", "", str(row.get("Party") or "")).upper()
             party = _PARTIES[raw_party] if raw_party in _PARTIES else c.norm_party(row.get("Party"))
@@ -180,12 +177,17 @@ def parse_md(
             CandidateResult(name=name, party=party, votes=int(e["votes"]), winner=e["winner"])
             for (name, party), e in slot["cands"].items()
         ]
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=MdSbe.name,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=MdSbe.name,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+            )
+        )
     return out
 
 
@@ -196,8 +198,7 @@ BASE = "https://elections.maryland.gov/elections"
 ENR_INDEX = BASE + "/{year}/general_results/index.html"
 ENR_PAGE = BASE + "/{year}/general_results/{}"
 
-_ENR_ANCHOR = re.compile(
-    r'(?is)<a[^>]+href="(gen_(?:q)?results_\d{4}_\d+(?:_\d+)?\.html)"[^>]*>(.*?)</a>')
+_ENR_ANCHOR = re.compile(r'(?is)<a[^>]+href="(gen_(?:q)?results_\d{4}_\d+(?:_\d+)?\.html)"[^>]*>(.*?)</a>')
 _ENR_SUBPAGE = re.compile(r"^gen_(?:q)?results_\d{4}_\d+_\d+\.html$")
 _ENR_REFRESHED = re.compile(r"Last refreshed:\s*([0-9/]+\s+[0-9:]+\s*[AP]M)", re.I)
 _ENR_PRECINCTS = re.compile(r"\(([\d,]+) of ([\d,]+) election day precincts reported\)", re.I)
@@ -227,8 +228,7 @@ def index_entries(html: str) -> list[dict]:
             office = name
             raw.append({"office": name, "district": None, "href": href, "sub": False})
     split = {e["office"] for e in raw if e["sub"]}
-    return [{k: v for k, v in e.items() if k != "sub"} for e in raw
-            if e["sub"] or e["office"] not in split]
+    return [{k: v for k, v in e.items() if k != "sub"} for e in raw if e["sub"] or e["office"] not in split]
 
 
 def enr_page_info(html: str) -> dict:
@@ -241,15 +241,15 @@ def enr_page_info(html: str) -> dict:
     return {
         "title": _enr_text(m.group(1)) if m else None,
         "general": "general election" in text.lower(),
-        "updated_at": c.parse_updated_at(refreshed.group(1) if refreshed else None,
-                                        tz="America/New_York"),
+        "updated_at": c.parse_updated_at(refreshed.group(1) if refreshed else None, tz="America/New_York"),
         "precincts_reporting": c.to_int(prec.group(1)) if prec else None,
         "precincts_total": c.to_int(prec.group(2)) if prec else None,
     }
 
 
-def parse_md_enr(html: str, *, fetched_at: datetime, office: str,
-                 district: str | None = None, url: str | None = None) -> RaceResult | None:
+def parse_md_enr(
+    html: str, *, fetched_at: datetime, office: str, district: str | None = None, url: str | None = None
+) -> RaceResult | None:
     """Pure parse of one unofficial election-night results page."""
     info = enr_page_info(html)
     doc = HTMLParser(html or "")
@@ -267,7 +267,7 @@ def parse_md_enr(html: str, *, fetched_at: datetime, office: str,
         if not cells:
             continue  # column header row (the labels live in <th>)
         if len(heads) == 1:
-            name, party, party_raw = heads[0], None, ""   # ballot question: <th> is the option
+            name, party, party_raw = heads[0], None, ""  # ballot question: <th> is the option
         elif cells[0].upper() == "NAME":
             continue
         else:
@@ -282,17 +282,22 @@ def parse_md_enr(html: str, *, fetched_at: datetime, office: str,
         seen.add((name.lower(), party))
         votes_cell = cells[-2] if len(cells) >= 2 else ""
         pct_cell = cells[-1]
-        cands.append(CandidateResult(
-            name=name,
-            party=party,
-            votes=c.to_int(votes_cell),          # "NR" (not reported) counts as 0
-            pct=c.to_pct(pct_cell) if single_table and "%" in pct_cell else None,
-            winner=bool(row.css_first('img[alt*="Winner"]')),
-        ))
+        cands.append(
+            CandidateResult(
+                name=name,
+                party=party,
+                votes=c.to_int(votes_cell),  # "NR" (not reported) counts as 0
+                pct=c.to_pct(pct_cell) if single_table and "%" in pct_cell else None,
+                winner=bool(row.css_first('img[alt*="Winner"]')),
+            )
+        )
     if not cands:
         return None
     return c.make_result(
-        race_key(office, district), title, cands, fetched_at,
+        race_key(office, district),
+        title,
+        cands,
+        fetched_at,
         source=MdSbe.name,
         url=url,
         total_votes=sum(x.votes for x in cands),
@@ -351,8 +356,9 @@ class MdSbe(ResultsSource):
             info = enr_page_info(html)
             if not info["general"]:
                 raise SourceUnavailable(f"MD: {entry['href']} is not a general-election page")
-            result = parse_md_enr(html, fetched_at=c.utcnow(), office=entry["office"],
-                                  district=entry["district"], url=url)
+            result = parse_md_enr(
+                html, fetched_at=c.utcnow(), office=entry["office"], district=entry["district"], url=url
+            )
             if result is not None:
                 results.append(result)
         return c.select(results, wanted)
@@ -361,8 +367,7 @@ class MdSbe(ResultsSource):
         url, legislative_url = await _files(client, c.election_date())
         text = await c.get_text(client, url)
         legislative = await c.get_text(client, legislative_url) if legislative_url else None
-        parsed = parse_md(text, legislative, fetched_at=c.utcnow(),
-                          url=ARCHIVE.format(year=c.election_date()[:4]))
+        parsed = parse_md(text, legislative, fetched_at=c.utcnow(), url=ARCHIVE.format(year=c.election_date()[:4]))
         return c.select(parsed, wanted)
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
@@ -385,8 +390,7 @@ class MdSbe(ResultsSource):
             url, legislative_url = await _files(client, c.election_date())
             text = await c.get_text(client, url)
             legislative = await c.get_text(client, legislative_url) if legislative_url else None
-            return [(r.key, r.title or str(r.key))
-                    for r in parse_md(text, legislative, fetched_at=c.utcnow())]
+            return [(r.key, r.title or str(r.key)) for r in parse_md(text, legislative, fetched_at=c.utcnow())]
         seen: dict[str, tuple[RaceKey, str]] = {}
         for entry in entries:
             key = race_key(entry["office"], entry["district"])

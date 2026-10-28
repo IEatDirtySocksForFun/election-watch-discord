@@ -3,6 +3,7 @@
 Parsing functions in the adapters are pure: they take an already-fetched payload and
 return `RaceResult` objects. Everything that touches the network lives in `fetch()`.
 """
+
 from __future__ import annotations
 
 import gzip
@@ -20,17 +21,40 @@ from electionwatch.sources.base import SourceUnavailable
 DEFAULT_ELECTION_DATE = "2026-11-03"
 
 _PARTY_MAP = {
-    "DEM": "DEM", "D": "DEM", "DFL": "DEM",
-    "DEMOCRAT": "DEM", "DEMOCRATIC": "DEM",
+    "DEM": "DEM",
+    "D": "DEM",
+    "DFL": "DEM",
+    "DEMOCRAT": "DEM",
+    "DEMOCRATIC": "DEM",
     "DEMOCRATICFARMERLABOR": "DEM",
-    "REP": "REP", "R": "REP", "GOP": "REP", "REPUBLICAN": "REP",
-    "LIB": "LIB", "L": "LIB", "LIBERTARIAN": "LIB",
-    "GRE": "GRN", "GRN": "GRN", "GREEN": "GRN",
-    "CST": "CON", "CON": "CON", "CONSTITUTION": "CON",
-    "IND": "IND", "I": "IND", "INDEPENDENT": "IND",
-    "W": "WRI", "WI": "WRI", "WRITE-IN": "WRI", "WRITEIN": "WRI",
-    "NON": "NPA", "NP": "NPA", "NPA": "NPA", "UNA": "NPA", "UNK": "NPA",
-    "ASP": "ASP", "FWD": "FWD", "PF": "PF",
+    "REP": "REP",
+    "R": "REP",
+    "GOP": "REP",
+    "REPUBLICAN": "REP",
+    "LIB": "LIB",
+    "L": "LIB",
+    "LIBERTARIAN": "LIB",
+    "GRE": "GRN",
+    "GRN": "GRN",
+    "GREEN": "GRN",
+    "CST": "CON",
+    "CON": "CON",
+    "CONSTITUTION": "CON",
+    "IND": "IND",
+    "I": "IND",
+    "INDEPENDENT": "IND",
+    "W": "WRI",
+    "WI": "WRI",
+    "WRITE-IN": "WRI",
+    "WRITEIN": "WRI",
+    "NON": "NPA",
+    "NP": "NPA",
+    "NPA": "NPA",
+    "UNA": "NPA",
+    "UNK": "NPA",
+    "ASP": "ASP",
+    "FWD": "FWD",
+    "PF": "PF",
 }
 
 _WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -181,9 +205,19 @@ async def get_text(client: httpx.AsyncClient, url: str) -> str:
         raise SourceUnavailable(f"GET {url} failed: {exc}") from exc
     if resp.status_code >= 400:
         raise SourceUnavailable(f"GET {url} -> HTTP {resp.status_code}")
-    if resp.content[:2] == b"\x1f\x8b":
-        return gzip.decompress(resp.content).decode("utf-8", "replace")
+    body = resp.content
+    if body[:2] == b"\x1f\x8b":
+        return decode_text(gzip.decompress(body))
+    if body[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return decode_text(body)
     return resp.text
+
+
+def decode_text(body: bytes) -> str:
+    """Bytes -> text honouring a byte-order mark: Hawaii's 2024 summary.txt is UTF-16 LE."""
+    if body[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return body.decode("utf-16", "replace")
+    return body.decode("utf-8-sig", "replace")
 
 
 def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | None:
@@ -194,9 +228,14 @@ def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | N
     raw = re.sub(r"^(?:" + "|".join(_WEEKDAYS) + r")\,?\s+", "", raw, flags=re.I)
     raw = re.sub(r"\s+([ap])\.?m\.?\s*$", lambda m: f" {m.group(1).upper()}M", raw, flags=re.I)
     formats = (
-        "%m/%d/%Y %I:%M:%S %p", "%m/%d/%Y %H:%M:%S", "%m/%d/%Y %I:%M %p",
-        "%b %d, %Y %H:%M:%S", "%B %d, %Y %I:%M:%S %p", "%B %d, %Y %I:%M %p",
-        "%B %d, %Y, %I:%M:%S %p", "%B %d, %Y, %I:%M %p",
+        "%m/%d/%Y %I:%M:%S %p",
+        "%m/%d/%Y %H:%M:%S",
+        "%m/%d/%Y %I:%M %p",
+        "%b %d, %Y %H:%M:%S",
+        "%B %d, %Y %I:%M:%S %p",
+        "%B %d, %Y %I:%M %p",
+        "%B %d, %Y, %I:%M:%S %p",
+        "%B %d, %Y, %I:%M %p",
         "%Y-%m-%dT%H:%M:%S",
     )
     for fmt in formats:
@@ -207,6 +246,7 @@ def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | N
         if tz:
             try:
                 from zoneinfo import ZoneInfo
+
                 return naive.replace(tzinfo=ZoneInfo(tz)).astimezone(timezone.utc)
             except Exception:  # no tzdata in a slim container
                 return naive.replace(tzinfo=timezone.utc)

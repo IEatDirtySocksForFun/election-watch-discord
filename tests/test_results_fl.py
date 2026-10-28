@@ -2,12 +2,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
-import pytest
 
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key, parse
-from electionwatch.sources.base import SourceUnavailable
-from electionwatch.sources.results import fl_sos
 from electionwatch.sources.results.fl_sos import FlSos, parse_fl, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "fl_sos"
@@ -27,17 +24,20 @@ def test_race_key_mapping():
     assert format_key(race_key("USR", "United States Representative", "003")) == "FL-03"
     assert format_key(race_key("STS", "State Senator", "012")) == "FL SD-12"
     assert format_key(race_key("STR", "State Representative", "010")) == "FL HD-10"
-    assert format_key(race_key("PRE", "President of the United States", "")) == \
-        "FL LOCAL president-of-the-united-states"
-    assert format_key(race_key("A01", "Partisan Election of Members of District School Boards", "")) == \
-        "FL LOCAL partisan-election-of-members-of-district-school-boards"
+    assert (
+        format_key(race_key("PRE", "President of the United States", "")) == "FL LOCAL president-of-the-united-states"
+    )
+    assert (
+        format_key(race_key("A01", "Partisan Election of Members of District School Boards", ""))
+        == "FL LOCAL partisan-election-of-members-of-district-school-boards"
+    )
 
 
 def test_parse_aggregates_counties():
     results = by_key(parse_fl(load(), fetched_at=AT))
     sen = results["FL SEN"]
     assert sen.key.level is Level.SENATE
-    assert sen.candidates[0].name == "RICK SCOTT"
+    assert sen.candidates[0].name == "Rick Scott"
     assert sen.candidates[0].party == "REP"
     # Votes are summed across the five kept counties.
     assert sen.total_votes == sum(c.votes for c in sen.candidates)
@@ -55,7 +55,7 @@ def test_parse_amendment_is_local():
     results = by_key(parse_fl(load(), fetched_at=AT))
     amend = results["FL LOCAL partisan-election-of-members-of-district-school-boards"]
     assert amend.key.level is Level.LOCAL
-    assert {c.name for c in amend.candidates} == {"YES FOR APPROVAL", "NO FOR REJECTION"}
+    assert {c.name for c in amend.candidates} == {"Yes For Approval", "No For Rejection"}
 
 
 def test_fetch_posts_extract_form(monkeypatch):
@@ -83,9 +83,6 @@ def test_precincts_are_counted_once_per_county_not_once_per_candidate():
     import csv as _csv
 
     rows = list(_csv.DictReader(load().splitlines(), delimiter="\t"))
-    expected = sum({
-        r["CountyCode"]: int(r["Precincts"]) for r in rows
-        if r["RaceCode"] == "USS"
-    }.values())
+    expected = sum({r["CountyCode"]: int(r["Precincts"]) for r in rows if r["RaceCode"] == "USS"}.values())
     sen = by_key(parse_fl(load(), fetched_at=AT))["FL SEN"]
     assert sen.precincts_total == expected

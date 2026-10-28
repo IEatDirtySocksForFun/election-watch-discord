@@ -43,7 +43,7 @@ def test_house_and_state_legislature():
     keys = parse()
     assert keys["GA-01"].key.level is Level.HOUSE
     assert keys["GA SD-01"].key.level is Level.STATE
-    assert keys["GA SD-05"].key.district == "05"      # bilingual "State Senate Dist 5/..."
+    assert keys["GA SD-05"].key.district == "05"  # bilingual "State Senate Dist 5/..."
     assert keys["GA HD-01"].key.level is Level.STATE
 
 
@@ -51,7 +51,7 @@ def test_ballot_measure_and_psc_become_local_races():
     keys = parse()
     amendment = keys["GA LOCAL constitutional-amendment-1"]
     assert amendment.key.level is Level.LOCAL
-    assert {c.name for c in amendment.candidates} == {"YES", "NO"}
+    assert {c.name for c in amendment.candidates} == {"Yes", "No"}
     assert {c.party for c in amendment.candidates} == {"NPA"}
     assert "GA LOCAL public-service-commission-district-4" in keys
     assert "GA LOCAL president-of-the-united-states" in keys

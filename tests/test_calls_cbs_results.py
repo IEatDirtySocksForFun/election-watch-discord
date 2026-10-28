@@ -1,5 +1,6 @@
 """cbs_results parses the same real CBS races2 capture as the cbs call adapter
 (tests/fixtures/cbs/races2-2024-tx.json; URL + date in that README.txt)."""
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -72,8 +73,6 @@ async def test_fetch_filters_to_requested_keys():
 
 @respx.mock
 async def test_fetch_404_is_empty():
-    respx.get(f"{CBSResultsSource.BASE}/{CBSResultsSource.YEAR}/G").mock(
-        return_value=httpx.Response(404)
-    )
+    respx.get(f"{CBSResultsSource.BASE}/{CBSResultsSource.YEAR}/G").mock(return_value=httpx.Response(404))
     async with httpx.AsyncClient() as client:
         assert await CBSResultsSource().fetch([TX_SEN], client) == []

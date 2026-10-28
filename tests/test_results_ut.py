@@ -7,7 +7,8 @@ import httpx
 import pytest
 
 from electionwatch.models import Level
-from electionwatch.racekeys import format_key, parse as parse_key
+from electionwatch.racekeys import format_key
+from electionwatch.racekeys import parse as parse_key
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import ut_lgov
 from electionwatch.sources.results.ut_lgov import export_url, parse_ut, race_key
@@ -52,12 +53,12 @@ def test_party_names_normalised():
 def test_votes_and_titles():
     sen = by_key(parse())["UT SEN"]
     assert sen.title == "U.S. Senate"
-    curtis = next(c for c in sen.candidates if c.name == "JOHN CURTIS")
+    curtis = next(c for c in sen.candidates if c.name == "John Curtis")
     assert curtis.votes == 914700
     assert curtis.party == "REP"
     assert sen.total_votes == sum(c.votes for c in sen.candidates)
     gov = by_key(parse())["UT GOV"]
-    assert gov.candidates[0].name.startswith("SPENCER J. COX")
+    assert gov.candidates[0].name.startswith("Spencer J. Cox")
 
 
 def test_district_markers_are_dropped():
@@ -65,8 +66,7 @@ def test_district_markers_are_dropped():
     assert format_key(race_key("State House 59  (Multi-County)")) == "UT HD-59"
     assert format_key(race_key("U.S. House 3")) == "UT-03"
     assert format_key(race_key("U.S. President")) == "UT LOCAL us-president"
-    assert format_key(race_key("State School Board 3 (Multi-County)")) == \
-        "UT LOCAL state-school-board-3"
+    assert format_key(race_key("State School Board 3 (Multi-County)")) == "UT LOCAL state-school-board-3"
 
 
 def test_export_slug_and_url():

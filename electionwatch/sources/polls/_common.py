@@ -3,6 +3,7 @@
 Everything here is a pure function so it can be tested against trimmed real
 responses in ``tests/fixtures/<adapter>/`` without touching the network.
 """
+
 from __future__ import annotations
 
 import re
@@ -12,8 +13,17 @@ from electionwatch.models import normalize_party
 from electionwatch.racekeys import STATES
 
 _MONTHS = {
-    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
-    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11,
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
     "december": 12,
 }
 _MONTHS.update({k[:3]: v for k, v in list(_MONTHS.items())})
@@ -158,8 +168,7 @@ def parse_date_range(text: str | None) -> tuple[date | None, date | None]:
     m = _RANGE_TWO_YEARS.match(t)
     if m:
         start = _mk(int(m.group("y1")), _month(m.group("m1")) or 0, int(m.group("d1")))
-        end = _mk(int(m.group("y2")), _month(m.group("m2") or m.group("m1")) or 0,
-                  int(m.group("d2")))
+        end = _mk(int(m.group("y2")), _month(m.group("m2") or m.group("m1")) or 0, int(m.group("d2")))
         return start, end
 
     m = _RANGE_SAME_YEAR.match(t)

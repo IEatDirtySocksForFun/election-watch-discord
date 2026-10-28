@@ -1,4 +1,5 @@
 """cnn_results parses CNN's public per-race results JSON."""
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -81,3 +82,59 @@ import pytest  # noqa: E402
 def _year_2024(monkeypatch):
     """Fixtures are 2024 captures; adapters take the year from ELECTION_DATE (2026 default)."""
     monkeypatch.setattr(CNNResultsSource, "YEAR", 2024)
+
+
+AT_LARGE_AK = RaceKey("AK", Level.HOUSE, "HOUSE", "AL")
+
+
+def test_parse_at_large_house_code():
+    # At-large seats are keyed XX-AL, and key_to_cnn_code emits "-AL"; the parser has to
+    # accept that suffix or the response is dropped as an unknown code.
+    payload = {
+        "ecKey": "2024-HG-AK-AL",
+        "totalVote": 328805,
+        "percentReporting": 100,
+        "candidates": [
+            {"fullName": "Nick Begich", "majorParty": "REP", "voteNum": 159550},
+            {"fullName": "Mary Peltola", "majorParty": "DEM", "voteNum": 152828},
+        ],
+    }
+    result = parse_cnn_results(payload, fetched_at=NOW)
+    assert result is not None
+    assert result.key == AT_LARGE_AK
+    assert result.title == "U.S. House At-Large"
+    assert result.total_votes == 328805
+
+
+@respx.mock
+async def test_fetch_requests_the_at_large_code_and_keeps_it():
+    # CNN's at-large code could not be confirmed externally (2024-HG-AK-AL 404s), so the
+    # documented <year>-HG-<state>-AL mapping is what the adapter asks for.
+    route = respx.get(f"{CNNResultsSource.BASE}/2024-HG-AK-AL.json").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "ecKey": "2024-HG-AK-AL",
+                "totalVote": 328805,
+                "percentReporting": 100,
+                "candidates": [{"fullName": "Nick Begich", "majorParty": "REP", "voteNum": 159550}],
+            },
+        )
+    )
+    async with httpx.AsyncClient() as client:
+        results = await CNNResultsSource().fetch([AT_LARGE_AK], client)
+    assert route.called
+    assert [r.key for r in results] == [AT_LARGE_AK]
+
+
+@respx.mock
+async def test_rate_limited_answer_is_one_source_unavailable_no_retry():
+    import pytest as _pytest
+
+    from electionwatch.sources.base import SourceUnavailable
+
+    route = respx.get(f"{CNNResultsSource.BASE}/2024-HG-AK-AL.json").mock(return_value=httpx.Response(406))
+    async with httpx.AsyncClient() as client:
+        with _pytest.raises(SourceUnavailable):
+            await CNNResultsSource().fetch([AT_LARGE_AK], client)
+    assert route.call_count == 1

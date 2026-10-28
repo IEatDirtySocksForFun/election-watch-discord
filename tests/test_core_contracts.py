@@ -10,21 +10,26 @@ from electionwatch.store.memory import MemoryStore
 NOW = datetime(2026, 11, 3, 20, 0, tzinfo=timezone.utc)
 
 
-@pytest.mark.parametrize("text,canon,name", [
-    ("NC-01", "NC-01", "North Carolina Congressional District 1"),
-    ("nc-1", "NC-01", "North Carolina Congressional District 1"),
-    ("AK-AL", "AK-AL", "Alaska At-Large Congressional District"),
-    ("TX SEN", "TX SEN", "Texas Senate"),
-    ("TX-SEN", "TX SEN", "Texas Senate"),
-    ("OH SEN S", "OH SEN S", "Ohio Senate (Special)"),
-    ("GA GOV", "GA GOV", "Georgia Governor"),
-    ("TX SD-5", "TX SD-05", "Texas State Senate District 5"),
-    ("TX HD 121", "TX HD-121", "Texas State House District 121"),
-    ("TX LOCAL Harris County Judge", "TX LOCAL harris-county-judge", "Texas local: harris county judge"),
-    ("Texas Senate", "TX SEN", "Texas Senate"),
-    ("North Carolina Congressional District 1", "NC-01", "North Carolina Congressional District 1"),
-    ("New York Governor", "NY GOV", "New York Governor"),
-])
+@pytest.mark.parametrize(
+    "text,canon,name",
+    [
+        ("NC-01", "NC-01", "North Carolina Congressional District 1"),
+        ("nc-1", "NC-01", "North Carolina Congressional District 1"),
+        ("AK-AL", "AK-AL", "Alaska At-Large Congressional District"),
+        ("TX SEN", "TX SEN", "Texas Senate"),
+        ("TX-SEN", "TX SEN", "Texas Senate"),
+        ("OH SEN S", "OH SEN S", "Ohio Senate (Special)"),
+        ("GA GOV", "GA GOV", "Georgia Governor"),
+        ("TX SD-5", "TX SD-05", "Texas State Senate District 5"),
+        ("TX HD 121", "TX HD-121", "Texas State House District 121"),
+        ("AK SD-A", "AK SD-A", "Alaska State Senate District A"),
+        ("VT HD-CHT-6-7", "VT HD-CHT-6-7", "Vermont State House District CHT-6-7"),
+        ("TX LOCAL Harris County Judge", "TX LOCAL harris-county-judge", "Texas local: harris county judge"),
+        ("Texas Senate", "TX SEN", "Texas Senate"),
+        ("North Carolina Congressional District 1", "NC-01", "North Carolina Congressional District 1"),
+        ("New York Governor", "NY GOV", "New York Governor"),
+    ],
+)
 def test_parse_roundtrip(text, canon, name):
     k = parse(text)
     assert str(k) == canon
@@ -56,8 +61,7 @@ def test_post_due_rule():
 async def test_memory_store_change_detection():
     s = MemoryStore()
     key = parse("TX SEN")
-    r = RaceResult(key, [CandidateResult("A", "REP", 10), CandidateResult("B", "DEM", 30)],
-                   "test", NOW).finalize()
+    r = RaceResult(key, [CandidateResult("A", "REP", 10), CandidateResult("B", "DEM", 30)], "test", NOW).finalize()
     assert r.candidates[0].name == "B" and r.candidates[0].pct == 75.0
     assert await s.upsert_result(r) is True
     assert await s.upsert_result(r) is False
@@ -68,17 +72,28 @@ async def test_memory_store_change_detection():
 
 def test_normalize_party():
     from electionwatch.models import normalize_party
-    assert [normalize_party(p) for p in ("GOP", "r", "Democratic", "DFL", "lib", None, "CST")] == \
-        ["REP", "REP", "DEM", "DEM", "LIB", None, "CST"]
+
+    assert [normalize_party(p) for p in ("GOP", "r", "Democratic", "DFL", "lib", None, "CST")] == [
+        "REP",
+        "REP",
+        "DEM",
+        "DEM",
+        "LIB",
+        None,
+        "CST",
+    ]
 
 
-@pytest.mark.parametrize("text,canon,name", [
-    ("PR-AL", "PR-AL", "Puerto Rico Resident Commissioner"),
-    ("GU-AL", "GU-AL", "Guam Delegate to Congress"),
-    ("PR GOV", "PR GOV", "Puerto Rico Governor"),
-    ("Guam Governor", "GU GOV", "Guam Governor"),
-    ("VI LOCAL st-thomas-senator", "VI LOCAL st-thomas-senator", "U.S. Virgin Islands local: st thomas senator"),
-])
+@pytest.mark.parametrize(
+    "text,canon,name",
+    [
+        ("PR-AL", "PR-AL", "Puerto Rico Resident Commissioner"),
+        ("GU-AL", "GU-AL", "Guam Delegate to Congress"),
+        ("PR GOV", "PR GOV", "Puerto Rico Governor"),
+        ("Guam Governor", "GU GOV", "Guam Governor"),
+        ("VI LOCAL st-thomas-senator", "VI LOCAL st-thomas-senator", "U.S. Virgin Islands local: st thomas senator"),
+    ],
+)
 def test_territory_keys(text, canon, name):
     k = parse(text)
     assert str(k) == canon and describe(k) == name and parse(canon) == k
@@ -86,4 +101,157 @@ def test_territory_keys(text, canon, name):
 
 def test_adapter_coverage_list_is_states_and_dc_only():
     from electionwatch.racekeys import STATES, TERRITORIES
+
     assert len(STATES) == 51 and not set(TERRITORIES) & set(STATES)
+
+
+def test_single_seat_states_key_as_at_large(monkeypatch):
+    assert str(RaceKey("AK", Level.HOUSE, "HOUSE", "01")) == "AK-AL"
+    assert str(RaceKey("WY", Level.HOUSE, "HOUSE", "1")) == "WY-AL"
+    assert str(parse("DE-01")) == "DE-AL"
+    assert str(RaceKey("MT", Level.HOUSE, "HOUSE", "01")) == "MT-01"  # two seats since 2022
+    monkeypatch.setenv("ELECTION_DATE", "2018-11-06")
+    assert str(RaceKey("MT", Level.HOUSE, "HOUSE", "01")) == "MT-AL"
+    assert str(RaceKey("TX", Level.HOUSE, "HOUSE", "01")) == "TX-01"
+
+
+@pytest.mark.parametrize(
+    "raw,shown",
+    [
+        ("Martha Mcsally", "Martha McSally"),
+        ("DAVE MCCORMICK", "Dave McCormick"),
+        ("Thomas J Kennedy Iii", "Thomas J Kennedy III"),
+        ("JD VANCE", "JD Vance"),
+        ("Angus S King Jr", "Angus S King Jr."),
+        ("Mack Mackey", "Mack Mackey"),
+        ("Begich, Nick", "Nick Begich"),
+        ("Andr\ufffd Carson", "Andr Carson"),
+        ("King, Jr.", "King, Jr."),
+        ("BEGICH, NICK", "Nick Begich"),
+        ("HARRIS, Kamala D.", "Kamala D. Harris"),
+        ('Donald J. Trump, "JD" Vance', 'Donald J. Trump, "JD" Vance'),
+        ("Yes, In Favor", "Yes, In Favor"),
+        ("Ng Lee", "Ng Lee"),
+    ],
+)
+def test_pretty_name(raw, shown):
+    from electionwatch.models import pretty_name
+
+    assert pretty_name(raw) == shown
+
+
+def test_finalize_drops_ballot_statistics_and_keeps_real_options():
+    rows = [
+        CandidateResult("A", "REP", 60, pct=50.0),
+        CandidateResult("B", "DEM", 40, pct=33.3),
+        CandidateResult("Blank Ballots", None, 15),
+        CandidateResult("Times Over Voted", None, 2),
+        CandidateResult("Registered Voters", None, 400),
+        CandidateResult("None Of These Candidates", None, 5),
+        CandidateResult("Write-ins", None, 3),
+    ]
+    r = RaceResult(parse("NV SEN"), rows, "t", NOW).finalize()
+    assert [c.name for c in r.candidates] == ["A", "B", "None Of These Candidates", "Write-ins"]
+    assert r.registered_voters == 400 and r.total_votes == 108 and r.candidates[0].pct == 55.56
+
+
+@pytest.mark.parametrize(
+    "raw,shown",
+    [
+        ("Jd Vance", "JD Vance"),
+        ("JD VANCE", "JD Vance"),
+        ("Tj Cox", "TJ Cox"),
+        ("Ng", "Ng"),
+        ("Ed Case", "Ed Case"),
+        ("Al Green", "Al Green"),
+    ],
+)
+def test_two_letter_initials_are_upper_case(raw, shown):
+    from electionwatch.models import pretty_name
+
+    assert pretty_name(raw) == shown
+
+
+@pytest.mark.parametrize("label", ["Not Qualified", "NOT QUALIFIED", "Not Qualified 3", "Unqualified Write ins"])
+def test_unqualified_rows_are_not_candidates(label):
+    from datetime import datetime, timezone
+
+    from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
+
+    result = RaceResult(
+        RaceKey("AZ", Level.SENATE, "SEN"),
+        [CandidateResult("Mark Kelly", "DEM", 100), CandidateResult(label, None, 7)],
+        "test",
+        datetime(2022, 11, 9, tzinfo=timezone.utc),
+    ).finalize()
+    assert [c.name for c in result.candidates] == ["Mark Kelly"]
+
+
+@pytest.mark.parametrize(
+    "label",
+    [
+        "Cast Votes",
+        "Blanks",
+        "Voids",
+        "BVS Subtotal",
+        "Totals",
+        "Overvotes:",
+        "Early Voting Ballots Cast",
+        "Federal Ballots",
+        "Invalid Votes",
+        "Rejected Write-Ins",
+        "Scattered Votes",
+        "Special Votes",
+        "Contest Totals",
+        "Scatterings",
+        "Blank Write-In",
+        "Federal Votes",
+        "State Ballots",
+        "Undervotes-Voids",
+        "Write-In: Scattered",
+    ],
+)
+def test_more_ballot_statistics_are_not_candidates(label):
+    test_unqualified_rows_are_not_candidates(label)
+
+
+@pytest.mark.parametrize(
+    "label",
+    [
+        "Write-ins",
+        "Total Write-ins",
+        "All Others",
+        "Others",
+        "Write-In**",
+        "None Of These Candidates",
+        "Yes",
+        "No",
+        "Ted Totals",
+    ],
+)
+def test_write_in_totals_and_choices_stay(label):
+    from datetime import datetime, timezone
+
+    from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
+
+    result = RaceResult(
+        RaceKey("AZ", Level.SENATE, "SEN"),
+        [CandidateResult(label, None, 7)],
+        "test",
+        datetime(2022, 11, 9, tzinfo=timezone.utc),
+    ).finalize()
+    assert len(result.candidates) == 1
+
+
+@pytest.mark.parametrize(
+    "raw,shown",
+    [
+        ("Chrysta CastaÃ±eda", "Chrysta Castañeda"),
+        ("Chrysta Casta√±eda", "Chrysta Castañeda"),
+        ("Chrysta Castañeda", "Chrysta Castañeda"),
+    ],
+)
+def test_mojibake_is_repaired(raw, shown):
+    from electionwatch.models import pretty_name
+
+    assert pretty_name(raw) == shown

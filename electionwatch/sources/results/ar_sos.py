@@ -27,6 +27,7 @@ No anti-bot measures, no key: the JSON is a plain S3 object. Discovery is a sing
 HTML page fetch; polling is the cost of one ~15 MB download per update, so the
 poller's interval (not this adapter) decides the load.
 """
+
 from __future__ import annotations
 
 import html as htmllib
@@ -129,12 +130,12 @@ def find_election(html: str, date: str) -> str:
     if not prefix:
         raise SourceUnavailable(
             f"AR: no SOS label configured for {date}; add it to ELECTIONS "
-            f"(the page at {DISCOVERY} lists every election)")
+            f"(the page at {DISCOVERY} lists every election)"
+        )
     for label, eid in election_links(html):
         if label.lower().startswith(prefix.lower()):
             return eid
-    raise SourceUnavailable(
-        f"AR: the SOS page does not list {prefix!r} yet - the results are not published")
+    raise SourceUnavailable(f"AR: the SOS page does not list {prefix!r} yet - the results are not published")
 
 
 def parse_ar(data: dict, *, fetched_at: datetime, url: str | None = None) -> list[RaceResult]:
@@ -144,7 +145,8 @@ def parse_ar(data: dict, *, fetched_at: datetime, url: str | None = None) -> lis
         raise SourceUnavailable(
             "AR: this election's FullDataFile.json has no contest names (the 2026+ "
             "UUID format resolves them through an authenticated API) - Arkansas "
-            "cannot be mapped for this election")
+            "cannot be mapped for this election"
+        )
     turnout = data.get("Turnout") or {}
     registered = c.to_int(turnout.get("RegisteredVoters"))
     turnout_pct = c.to_pct(turnout.get("VotePercent"))
@@ -159,24 +161,31 @@ def parse_ar(data: dict, *, fetched_at: datetime, url: str | None = None) -> lis
             cname = (cand.get("Name") or "").strip()
             if not cname or cname.lower() in _SKIP:
                 continue
-            cands.append(CandidateResult(
-                name=cname,
-                party=_party(cand.get("PartyName")),
-                votes=c.to_int(cand.get("TotalVotes")),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cname,
+                    party=_party(cand.get("PartyName")),
+                    votes=c.to_int(cand.get("TotalVotes")),
+                )
+            )
         if not cands:
             continue
         votes = c.to_int(contest.get("TotalVotes")) or sum(x.votes for x in cands)
-        out.append(c.make_result(
-            race_key(name), name, cands, fetched_at,
-            source=ArSos.name,
-            url=url,
-            total_votes=votes,
-            precincts_reporting=c.to_int(contest.get("PrecinctsReporting")),
-            precincts_total=c.to_int(contest.get("TotalPrecincts")),
-            registered_voters=registered or None,
-            turnout_pct=turnout_pct,
-        ))
+        out.append(
+            c.make_result(
+                race_key(name),
+                name,
+                cands,
+                fetched_at,
+                source=ArSos.name,
+                url=url,
+                total_votes=votes,
+                precincts_reporting=c.to_int(contest.get("PrecinctsReporting")),
+                precincts_total=c.to_int(contest.get("TotalPrecincts")),
+                registered_voters=registered or None,
+                turnout_pct=turnout_pct,
+            )
+        )
     return out
 
 
@@ -211,5 +220,4 @@ class ArSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "AR":
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]

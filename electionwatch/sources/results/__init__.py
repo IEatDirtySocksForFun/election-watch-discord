@@ -34,10 +34,12 @@ One module per feed family; each registers a `ResultsSource` in
     mi_county         Michigan Clarity county feeds, merged (partial state)
     wi_dane           Dane County, Wisconsin unofficial results page (scraper, opt-in)
 
-Alternates for states whose statewide site is blocked (docs/results/alt-b.md):
+Alternates for states whose statewide site is blocked (docs/results/counties.md):
 
-    tx_counties       Texas county Clarity ENR feeds, merged (partial: N counties)
+    tx_counties       Texas county Clarity ENR feeds + Harris County JSON (_harris), merged
+    al_counties       Madison County, Alabama Clarity ENR feed (partial)
     nj_counties       New Jersey county Clarity ENR feeds, merged
+    tn_counties       Shelby County, Tennessee (Enhanced Voting county export)
     ny_nycboe         New York City Board of Elections recap CSVs
     mo_stlouis        St. Louis County per-precinct CSV export
 

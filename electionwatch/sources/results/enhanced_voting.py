@@ -15,6 +15,7 @@ includes Arizona, which announced it will use Enhanced Voting for the 2026
 general election; the slug follows the ``<YYYY>NovGen`` pattern and will be
 verified once the state publishes the URL.
 """
+
 from __future__ import annotations
 
 import json
@@ -26,7 +27,8 @@ from electionwatch.models import RaceKey, RaceResult
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 
 from . import _common as c
-from .ga_sos import parse_ga, race_key as ga_race_key
+from .ga_sos import parse_ga
+from .ga_sos import race_key as ga_race_key
 
 BASE = "https://app.enhancedvoting.com/cdn/results"
 HUMAN = "https://app.enhancedvoting.com/results/public"
@@ -51,7 +53,7 @@ def export_url(state: str, slug: str) -> str:
 def race_key(state: str, name: str) -> RaceKey:
     """Map an Enhanced Voting contest name to a RaceKey for the given state."""
     n = (name or "").upper()
-    special = c.is_special(n)
+    c.is_special(n)
     # Georgia parser already handles President/US House/State House/etc.
     # but its race_key hardcodes "GA"; rebuild with the requested state.
     key = ga_race_key(name)
@@ -76,8 +78,7 @@ def feeds(date: str, state: str | None = None) -> list[dict]:
         out = []
         for entry in entries:
             if not isinstance(entry, dict) or not entry.get("state") or not entry.get("slug"):
-                raise SourceUnavailable(
-                    "ENHANCED_VOTING_FEEDS entries need state and slug")
+                raise SourceUnavailable("ENHANCED_VOTING_FEEDS entries need state and slug")
             if entry.get("date") and entry["date"] != date:
                 continue
             out.append(entry)
@@ -147,7 +148,6 @@ class EnhancedVoting(ResultsSource):
             st = entry["state"].upper()
             payload = await _fetch_export(client, st, entry.get("slug"), date)
             return [
-                (race_key(st, r.title or ""), r.title or str(r.key))
-                for r in parse_ga(payload, fetched_at=c.utcnow())
+                (race_key(st, r.title or ""), r.title or str(r.key)) for r in parse_ga(payload, fetched_at=c.utcnow())
             ]
         return []

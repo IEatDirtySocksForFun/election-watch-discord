@@ -21,6 +21,7 @@ results are titled ``"<contest> (partial: 1 county)"`` and link to the WEC resul
 The 2026 general blocks are already online but still at zero votes; the page is otherwise
 the same markup the county serves on election night.
 """
+
 from __future__ import annotations
 
 import re
@@ -98,10 +99,10 @@ def _clean_candidate(cell) -> tuple[str, str | None]:
     if small is not None:
         party = c.norm_party(small.text(strip=True).strip("() "))
     strong = cell.css_first("strong")
-    name = (strong.text(strip=True) if strong is not None else cell.text(strip=True))
+    name = strong.text(strip=True) if strong is not None else cell.text(strip=True)
     name = _PARTY_SUFFIX.sub("", name or "").strip()
     if party and _norm(name).startswith(f"{party} "):
-        name = name[len(party):].strip()          # the county prints the party twice
+        name = name[len(party) :].strip()  # the county prints the party twice
     name = _PRIMARY_PREFIX.sub("", name).strip()
     return c.strip_incumbent(name)[0], party
 
@@ -124,7 +125,7 @@ def parse_dane(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             continue
         title = re.sub(r"\s+", " ", heading.text(strip=True))
         if not title or _norm(title).startswith("BALLOTS CAST"):
-            continue                                     # turnout line, not a contest
+            continue  # turnout line, not a contest
         key = race_key(title)
         if str(key) in seen:
             continue
@@ -136,25 +137,32 @@ def parse_dane(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             name, party = _clean_candidate(cells[0])
             if not name or _norm(name).startswith("WRITE-IN"):
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=party,
-                votes=c.to_int(cells[-1].text(strip=True)),
-                pct=_vote_cell_pct(cells[1]),
-                incumbent=False,
-                winner=False,   # the county marks no winner before the canvass
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=party,
+                    votes=c.to_int(cells[-1].text(strip=True)),
+                    pct=_vote_cell_pct(cells[1]),
+                    incumbent=False,
+                    winner=False,  # the county marks no winner before the canvass
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         precincts = _PRECINCTS.search(block.text())
-        out.append(c.make_result(
-            key, partial_title(title), cands, fetched_at,
-            source=WiDane.name,
-            url=HUMAN,
-            precincts_reporting=int(precincts.group(1)) if precincts else None,
-            precincts_total=int(precincts.group(2)) if precincts else None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                partial_title(title),
+                cands,
+                fetched_at,
+                source=WiDane.name,
+                url=HUMAN,
+                precincts_reporting=int(precincts.group(1)) if precincts else None,
+                precincts_total=int(precincts.group(2)) if precincts else None,
+            )
+        )
     return out
 
 
@@ -186,5 +194,4 @@ class WiDane(ResultsSource):
             raise SourceUnavailable(f"GET {URL} failed: {exc}") from exc
         if resp.status_code >= 400:
             raise SourceUnavailable(f"GET {URL} -> HTTP {resp.status_code}")
-        return [(r.key, r.title or str(r.key))
-                for r in parse_dane(resp.text, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_dane(resp.text, fetched_at=c.utcnow())]

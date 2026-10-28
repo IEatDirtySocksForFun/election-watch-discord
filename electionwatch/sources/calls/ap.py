@@ -4,13 +4,13 @@ Requires an AP Elections API key (AP_API_KEY). The adapter requests live general
 election data by state and office, then parses races where a candidate has been
 marked the winner.
 """
+
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timezone
 from typing import ClassVar
-
-import os
 
 import httpx
 
@@ -30,9 +30,7 @@ class APSource(CallSource):
     YEAR = 2026
     ELECTION_DATE = "2026-11-03"
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         api_key = os.environ.get(self.env[0])
         if not api_key:
             raise SourceUnavailable("AP_API_KEY not set")
@@ -47,8 +45,14 @@ class APSource(CallSource):
                 "electionDate": self.ELECTION_DATE,
                 "apikey": api_key,
             }
-            if key.level is Level.HOUSE and key.district is not None and key.district.isdigit():
-                params["SeatNum"] = str(int(key.district))
+            if key.level is Level.HOUSE and key.district is not None:
+                if key.district.isdigit():
+                    params["SeatNum"] = str(int(key.district))
+                elif key.district == "AL":
+                    # AP numbers House seats, at-large included: the single statewide
+                    # seat is SeatNum 1 (AP has no "AL"; the race comes back as
+                    # seatName "1", which RaceKey normalises to XX-AL).
+                    params["SeatNum"] = "1"
 
             try:
                 resp = await client.get(self.BASE, params=params)
@@ -120,9 +124,7 @@ def parse_ap_response(payload: dict) -> list[RaceCall]:
         key = _race_to_key(race)
         if key is None:
             continue
-        winner = next(
-            (c for c in race.get("candidates", []) if c.get("winner") == "X"), None
-        )
+        winner = next((c for c in race.get("candidates", []) if c.get("winner") == "X"), None)
         if winner is None:
             continue
         calls.append(
@@ -131,8 +133,7 @@ def parse_ap_response(payload: dict) -> list[RaceCall]:
                 outlet="AP",
                 winner=f"{winner.get('first', '')} {winner.get('last', '')}".strip(),
                 party=normalize_party(winner.get("party")),
-                called_at=parse_iso_ts(_race_ts(race))
-                or datetime.now(timezone.utc),
+                called_at=parse_iso_ts(_race_ts(race)) or datetime.now(timezone.utc),
                 url=None,
             )
         )

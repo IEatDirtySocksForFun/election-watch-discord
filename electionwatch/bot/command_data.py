@@ -1,13 +1,24 @@
-"""Data access, caching, and deterministic embeds for the public odds/polls commands."""
+"""Deterministic embeds for the public /odds and /polls commands, read from the database.
+
+The poller's background refresh stores odds snapshots and each poll source's polls; nothing
+here calls a source (see CommandData)."""
+
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 import discord
 
-from electionwatch.bot.poster import MAX_DESCRIPTION, MAX_FIELD_NAME, MAX_FIELD_VALUE, MAX_FOOTER, MAX_TITLE, clip
+from electionwatch.bot.poster import (
+    MAX_DESCRIPTION,
+    MAX_EMBED_TOTAL,
+    MAX_FIELD_NAME,
+    MAX_FIELD_VALUE,
+    MAX_FOOTER,
+    MAX_TITLE,
+    clip,
+)
 from electionwatch.models import OddsSnapshot, Poll, RaceKey, normalize_party
 from electionwatch.racekeys import describe
 
@@ -32,7 +43,9 @@ def latest_odds(snapshots: list[OddsSnapshot]) -> list[OddsSnapshot]:
     return sorted(
         latest.values(),
         key=lambda item: (
-            _MARKET_ORDER.get(item.market.casefold(), 99), item.market, item.outcome,
+            _MARKET_ORDER.get(item.market.casefold(), 99),
+            item.market,
+            item.outcome,
         ),
     )
 
@@ -96,9 +109,7 @@ def format_odds_overview(items: list[tuple[RaceKey, list[OddsSnapshot]]]) -> dis
                 markets.append(snapshot.market)
         parts = []
         for market in markets:
-            outcomes = " / ".join(
-                _outcome_text(item) for item in snapshots if item.market == market
-            )
+            outcomes = " / ".join(_outcome_text(item) for item in snapshots if item.market == market)
             parts.append(f"{_market_name(market)}: {outcomes}")
         lines.append(f"**{key}** · " + " · ".join(parts))
         updates.extend(_utc(item.ts) for item in snapshots)
@@ -115,8 +126,14 @@ def format_odds_overview(items: list[tuple[RaceKey, list[OddsSnapshot]]]) -> dis
 def poll_completeness(poll: Poll) -> int:
     """Number of populated fields, used to choose between duplicate source records."""
     fields = (
-        poll.start_date, poll.sample_size, poll.population, poll.sponsor,
-        poll.partisan, poll.source, poll.url, poll.results,
+        poll.start_date,
+        poll.sample_size,
+        poll.population,
+        poll.sponsor,
+        poll.partisan,
+        poll.source,
+        poll.url,
+        poll.results,
     )
     return sum(value is not None and value != "" and value != [] for value in fields) + sum(
         result.party is not None for result in poll.results
@@ -149,8 +166,12 @@ def _numbers(poll: Poll) -> tuple[float, ...]:
 
 
 def _same_poll(a: Poll, b: Poll) -> bool:
-    return (str(a.key) == str(b.key) and bool(_names(a) & _names(b))
-            and _numbers(a) == _numbers(b) and abs((a.end_date - b.end_date).days) <= 7)
+    return (
+        str(a.key) == str(b.key)
+        and bool(_names(a) & _names(b))
+        and _numbers(a) == _numbers(b)
+        and abs((a.end_date - b.end_date).days) <= 7
+    )
 
 
 def _poll_dates(poll: Poll) -> str:
@@ -189,9 +210,7 @@ def format_polls(
             " with the selected internals filter." if not internals else "."
         )
         return embed
-    embed.description = f"Showing {len(visible)} most recent poll" + ("s" if len(visible) != 1 else "") + (
-        "; partisan internals included." if internals else "; partisan internals excluded."
-    )
+    fields: list[tuple[str, str]] = []
     for poll in visible:
         details = [_poll_dates(poll)]
         if poll.sample_size is not None:
@@ -200,38 +219,61 @@ def format_polls(
             details.append(poll.population)
         if poll.sponsor:
             details.append(f"Sponsor: {poll.sponsor}")
-        results = " · ".join(
-            f"{_PARTY_MARKERS.get(normalize_party(result.party) or '', '⚪')} "
-            f"{result.name} {result.pct:.1f}%"
-            for result in poll.results
-        ) or "No candidate results supplied"
+        results = (
+            " · ".join(
+                f"{_PARTY_MARKERS.get(normalize_party(result.party) or '', '⚪')} {result.name} {result.pct:.1f}%"
+                for result in poll.results
+            )
+            or "No candidate results supplied"
+        )
         lines = [" · ".join(details), results]
         if poll.url:
             lines.append(f"[Poll link]({poll.url})")
-        embed.add_field(
-            name=clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME),
-            value=clip("\n".join(lines), MAX_FIELD_VALUE),
-            inline=False,
+        fields.append(
+            (clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME), clip("\n".join(lines), MAX_FIELD_VALUE))
         )
+    # Discord rejects the whole message (400) when an embed's text exceeds 6000 characters in
+    # total: ten polls with many candidates can. Keep the newest polls that fit.
+    budget = MAX_EMBED_TOTAL - len(embed.title) - 100  # room for the description below
+    shown = 0
+    for name, value in fields:
+        if len(name) + len(value) > budget:
+            break
+        budget -= len(name) + len(value)
+        shown += 1
+        embed.add_field(name=name, value=value, inline=False)
+    embed.description = (
+        f"Showing {shown} most recent poll"
+        + ("s" if shown != 1 else "")
+        + ("; partisan internals included." if internals else "; partisan internals excluded.")
+    )
     return embed
 
 
-@dataclass
-class _CacheEntry:
-    at: datetime
-    value: list
+QUEUED = (
+    "Nothing is stored for this race yet: it is queued for the next {kind} refresh "
+    "(about every {every}). Try again then."
+)
+
+
+def _every(seconds: float) -> str:
+    minutes = round(seconds / 60)
+    return f"{minutes} min" if minutes < 120 else f"{minutes // 60} h"
 
 
 class CommandData:
-    """Per-race command cache. Source failures are isolated just like in the poller."""
+    """What /odds and /polls show. They read only the database: the poller's background refresh
+    (electionwatch/ratelimit.py budgets) is the only thing that calls the odds and poll sources,
+    so users repeating a command never reach those APIs. A race nobody watches is queued
+    (electionwatch/demand.py) and fetched by the next refresh."""
 
-    def __init__(self, store, sources: dict[str, list], http_client, clock=None) -> None:
+    def __init__(self, store, sources: dict[str, list], http_client, clock=None, *, rates=None, demand=None) -> None:
         self.store = store
         self.sources = sources
         self.http_client = http_client
         self.clock = clock or (lambda: datetime.now(timezone.utc))
-        self._odds_cache: dict[str, _CacheEntry] = {}
-        self._polls_cache: dict[str, _CacheEntry] = {}
+        self.rates = rates
+        self.demand = demand
 
     def _now(self) -> datetime:
         return _utc(self.clock())
@@ -246,44 +288,26 @@ class CommandData:
                 logger.warning("Could not check availability of %s source %s", kind, getattr(source, "name", "?"))
         return enabled
 
+    def _queue(self, kind: str, key: RaceKey) -> None:
+        if self.demand is not None:
+            self.demand.add(kind, str(key))
+
+    def refresh_every(self, kind: str) -> float:
+        if self.rates is not None:
+            return self.rates.kind_interval(kind)
+        from electionwatch.ratelimit import FLOORS
+
+        return FLOORS.get(kind, 60)
+
     async def get_odds(self, key: RaceKey) -> list[OddsSnapshot]:
-        cache_key = str(key)
-        now = self._now()
-        cached = self._odds_cache.get(cache_key)
-        if cached and now - cached.at < timedelta(seconds=60):
-            return cached.value
-
-        stored: list[OddsSnapshot] = []
-        # Stores with native latest-per-outcome lookups avoid a needless source request.
-        # Older Store implementations simply take the live-fetch path.
-        getter = getattr(self.store, "latest_odds", None)
-        if getter is not None:
-            try:
-                stored = latest_odds(await getter(key))
-            except Exception:
-                logger.exception("Could not read stored odds for %s", key)
-        if stored and max(_utc(item.ts) for item in stored) >= now - timedelta(minutes=2):
-            self._odds_cache[cache_key] = _CacheEntry(now, stored)
-            return stored
-
-        fetched: list[OddsSnapshot] = []
-        for source in self._available("odds"):
-            try:
-                values = await source.fetch_odds([key], self.http_client)
-            except Exception:
-                logger.exception("Odds source %s failed", getattr(source, "name", "?"))
-                continue
-            for snapshot in values:
-                if snapshot.key != key:
-                    continue
-                fetched.append(snapshot)
-                try:
-                    await self.store.add_odds(snapshot)
-                except Exception:
-                    logger.exception("Could not store odds for %s", key)
-        result = latest_odds(fetched or stored)
-        self._odds_cache[cache_key] = _CacheEntry(now, result)
-        return result
+        try:
+            stored = latest_odds(await self.store.latest_odds(key))
+        except Exception:
+            logger.exception("Could not read stored odds for %s", key)
+            return []
+        if not stored:
+            self._queue("odds", key)
+        return stored
 
     async def _moves(self, snapshots: list[OddsSnapshot], now: datetime) -> dict[tuple[str, str], dict[int, float]]:
         moves: dict[tuple[str, str], dict[int, float]] = {}
@@ -304,32 +328,49 @@ class CommandData:
                     ) * 100
         return moves
 
+    async def _odds_checked(self, key: RaceKey) -> bool:
+        from electionwatch.poller import ODDS_CHECKED
+
+        try:
+            return await self.store.get_cached(ODDS_CHECKED, str(key)) is not None
+        except Exception:
+            logger.exception("Could not read the odds check for %s", key)
+            return False
+
     async def odds_embed(self, key: RaceKey) -> discord.Embed:
         snapshots = await self.get_odds(key)
-        return format_odds(key, snapshots, await self._moves(snapshots, self._now()))
+        embed = format_odds(key, snapshots, await self._moves(snapshots, self._now()))
+        if not snapshots and self._available("odds") and not await self._odds_checked(key):
+            embed.description = QUEUED.format(kind="odds", every=_every(self.refresh_every("odds")))
+        return embed
 
     async def odds_overview(self, keys: list[RaceKey]) -> discord.Embed:
         return format_odds_overview([(key, await self.get_odds(key)) for key in keys])
 
-    async def get_polls(self, key: RaceKey) -> list[Poll]:
-        cache_key = str(key)
-        now = self._now()
-        cached = self._polls_cache.get(cache_key)
-        if cached and now - cached.at < timedelta(minutes=15):
-            return cached.value
+    async def get_polls(self, key: RaceKey) -> list[Poll] | None:
+        """Stored polls from every poll source; None when no source has stored this race yet."""
+        from electionwatch.poller import POLLS_CACHE, load_polls, polls_ident
+
         polls: list[Poll] = []
+        stored = False
         for source in self._available("polls"):
             try:
-                values = await source.fetch_polls([key], self.http_client)
+                hit = await self.store.get_cached(POLLS_CACHE, polls_ident(source.name, key))
             except Exception:
-                logger.exception("Poll source %s failed", getattr(source, "name", "?"))
+                logger.exception("Could not read stored polls for %s", key)
                 continue
-            polls.extend(poll for poll in values if poll.key == key)
-        result = merge_polls(polls)
-        self._polls_cache[cache_key] = _CacheEntry(now, result)
-        return result
+            if hit is not None:
+                stored = True
+                polls.extend(load_polls(hit[1]))
+        if not stored:
+            self._queue("polls", key)
+            return None
+        return merge_polls(polls)
 
     async def polls_embed(self, key: RaceKey, count: int = 5, internals: bool = True) -> discord.Embed:
         available = bool(self._available("polls"))
         polls = await self.get_polls(key) if available else []
-        return format_polls(key, polls, count=count, internals=internals, sources_available=available)
+        embed = format_polls(key, polls or [], count=count, internals=internals, sources_available=available)
+        if polls is None:
+            embed.description = QUEUED.format(kind="polls", every=_every(self.refresh_every("polls")))
+        return embed

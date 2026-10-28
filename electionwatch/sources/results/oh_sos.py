@@ -28,6 +28,7 @@ Running mates are not folded into candidate names ("Governor and Lieutenant Gove
 rows carry the running mate in `runningMate`) so names stay comparable with the call
 sources, which print one name per ticket head.
 """
+
 from __future__ import annotations
 
 import re
@@ -83,7 +84,7 @@ def race_key(name: str) -> RaceKey:
 
 
 def _stat(stats, label: str) -> str | None:
-    for item in ((stats or {}).get("allStatistics") or []):
+    for item in (stats or {}).get("allStatistics") or []:
         if isinstance(item, dict) and str(item.get("name") or "").strip().lower() == label.lower():
             return str(item.get("value") or "").strip()
     return None
@@ -104,9 +105,7 @@ def _precincts(detail: dict, rows: list[dict]) -> tuple[int | None, int | None]:
 
 def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of getContestList + the GetContestDetailsObject payloads."""
-    order = {
-        str(g.get("displayName")): i for i, g in enumerate(_groupings(contest_list or []))
-    }
+    order = {str(g.get("displayName")): i for i, g in enumerate(_groupings(contest_list or []))}
     out: list[RaceResult] = []
     seen: set[str] = set()
     for detail in details or []:
@@ -139,14 +138,19 @@ def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]
             continue
         seen.add(str(key))
         reporting, total = _precincts(detail, rows)
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=OhSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=reporting or None,
-            precincts_total=total or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=OhSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=reporting or None,
+                precincts_total=total or None,
+            )
+        )
 
     # The site lists statewide offices first; keep that order rather than dict order.
     out.sort(key=lambda result: order.get(str(result.title), len(order)))
@@ -156,12 +160,17 @@ def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]
 async def _details(client: httpx.AsyncClient, groupings: list[dict]) -> list[dict]:
     out = []
     for grouping in groupings:
-        url = str(httpx.URL(f"{BASE}/GetContestDetailsObject", params={
-            "contestName": str(grouping.get("contestName") or ""),
-            "contestObjectId": str(grouping["contestObjectId"]),
-            "resultsLevel": "",
-            "countyId": "",
-        }))
+        url = str(
+            httpx.URL(
+                f"{BASE}/GetContestDetailsObject",
+                params={
+                    "contestName": str(grouping.get("contestName") or ""),
+                    "contestObjectId": str(grouping["contestObjectId"]),
+                    "resultsLevel": "",
+                    "countyId": "",
+                },
+            )
+        )
         out.append(await c.get_json(client, url))
     return out
 
@@ -194,9 +203,9 @@ class OhSos(ResultsSource):
             return []
         contest_list = await _contest_list(client)
         selected = [
-            g for g in _groupings(contest_list)
-            if str(race_key(str(g.get("displayName") or g.get("contestName") or ""))) in
-            {str(k) for k in wanted}
+            g
+            for g in _groupings(contest_list)
+            if str(race_key(str(g.get("displayName") or g.get("contestName") or ""))) in {str(k) for k in wanted}
         ]
         if not selected:
             return []

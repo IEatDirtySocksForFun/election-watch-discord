@@ -1,0 +1,39 @@
+{
+ "election_year": 2022,
+ "state": "NC",
+ "category": "returned",
+ "election_name": "NC Absentee Ballots Returned and Accepted",
+ "snapshot_date": "2022-11-01",
+ "regions": {
+  "Mecklenburg": {
+   "Unspecified": {
+    "votes": 119689,
+    "color": "#999999"
+   }
+  },
+  "Wake": {
+   "Unspecified": {
+    "votes": 146046,
+    "color": "#999999"
+   }
+  }
+ },
+ "statewide_total": {
+  "Democratic": {
+   "votes": 507122,
+   "color": "#4874a3"
+  },
+  "No Party Affiliation": {
+   "votes": 382921,
+   "color": "#63c660"
+  },
+  "Other": {
+   "votes": 2929,
+   "color": "#e0bb24"
+  },
+  "Republican": {
+   "votes": 403062,
+   "color": "#c6606b"
+  }
+ }
+}

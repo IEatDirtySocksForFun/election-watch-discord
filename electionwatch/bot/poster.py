@@ -1,10 +1,10 @@
 """Discord rendering for the poller's Post seam."""
+
 from __future__ import annotations
 
 import discord
 
 from electionwatch.poster import Post
-
 
 # Discord's hard limits (https://discord.com/developers/docs/resources/channel#embed-object).
 MAX_TITLE = 256
@@ -12,6 +12,7 @@ MAX_DESCRIPTION = 4096
 MAX_FIELD_NAME = 256
 MAX_FIELD_VALUE = 1024
 MAX_FOOTER = 2048
+MAX_EMBED_TOTAL = 6000  # title + description + fields + footer + author, combined
 
 
 def clip(text: str, limit: int) -> str:
@@ -37,9 +38,7 @@ def render_embed(post: Post) -> discord.Embed:
         color=color,
     )
     for name, value in post.fields:
-        embed.add_field(
-            name=clip(name, MAX_FIELD_NAME), value=clip(value, MAX_FIELD_VALUE), inline=False
-        )
+        embed.add_field(name=clip(name, MAX_FIELD_NAME), value=clip(value, MAX_FIELD_VALUE), inline=False)
     if post.footer:
         embed.set_footer(text=clip(post.footer, MAX_FOOTER))
     return embed

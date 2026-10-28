@@ -1,0 +1,355 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "President/Vice President",
+  "K": "0004",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 26,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Donald J. Trump/JD Vance",
+   "DEM Kamala D. Harris/Tim Walz",
+   "LIB Chase Oliver/Mike ter Maat",
+   "GRN Jill Stein/Rudolph Ware",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "GRN",
+   ""
+  ],
+  "PCT": [
+   58.3736252724403,
+   40.0556154019591,
+   0.749054287646867,
+   0.49853445900243,
+   0.323170578951324
+  ],
+  "V": [
+   23301,
+   15989,
+   299,
+   199,
+   129
+  ],
+  "T": 39917,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Senator",
+  "K": "0005",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 26,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Ted Cruz",
+   "DEM Colin Allred",
+   "LIB Ted Brown",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   ""
+  ],
+  "PCT": [
+   55.317693554925,
+   41.6624442642886,
+   2.92865828942035,
+   0.0912038913660316
+  ],
+  "V": [
+   21835,
+   16445,
+   1156,
+   36
+  ],
+  "T": 39472,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Representative, Dist 10",
+  "K": "0006",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 13,
+  "PR": 13,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Michael T. McCaul",
+   "DEM Theresa Boisseau",
+   "LIB Jeff Miller"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB"
+  ],
+  "PCT": [
+   57.7262909876301,
+   39.5346554093854,
+   2.73905360298449
+  ],
+  "V": [
+   11760,
+   8054,
+   558
+  ],
+  "T": 20372,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Representative, Dist 27",
+  "K": "0007",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 13,
+  "PR": 13,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Michael Cloud",
+   "DEM Tanya Lloyd"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   61.0843972807163,
+   38.9156027192837
+  ],
+  "V": [
+   11052,
+   7041
+  ],
+  "T": 18093,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "C": "Justice, 3rd Ct of App Dist, Pl 2",
+  "K": "0016",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 26,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP John Messinger",
+   "DEM Maggie Ellis"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   59.2968024412896,
+   40.7031975587104
+  ],
+  "V": [
+   22346,
+   15339
+  ],
+  "T": 37685,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "County",
+  "C": "Sheriff",
+  "K": "0024",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 26,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Maurice Cook"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   26767
+  ],
+  "T": 26767,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
+]

@@ -17,10 +17,9 @@ general files are no longer served from this location (only Statement of
 Vote PDF/XLSX remains), so the adapter is configured for the live 2026
 media files and discovers the json-endpoints.csv for future elections.
 """
+
 from __future__ import annotations
 
-import csv
-import json
 import re
 from datetime import datetime
 
@@ -135,13 +134,15 @@ def _candidates(race: dict) -> list[CandidateResult]:
         name = (item.get("Name") or "").strip()
         if not name:
             continue
-        out.append(CandidateResult(
-            name=name,
-            party=c.norm_party(item.get("Party")),
-            votes=c.to_int(item.get("Votes")),
-            pct=c.to_pct(item.get("Percent")),
-            incumbent=bool(item.get("incumbent")),
-        ))
+        out.append(
+            CandidateResult(
+                name=name,
+                party=c.norm_party(item.get("Party")),
+                votes=c.to_int(item.get("Votes")),
+                pct=c.to_pct(item.get("Percent")),
+                incumbent=bool(item.get("incumbent")),
+            )
+        )
     return out
 
 
@@ -173,15 +174,20 @@ def parse_ca(
                 continue
             seen.add(str(key))
             reporting, total = _parse_reporting(race.get("Reporting"))
-            out.append(c.make_result(
-                key, title, cands, fetched_at,
-                source=CaSos.name,
-                url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
-                precincts_reporting=reporting,
-                precincts_total=total,
-                source_updated_at=c.parse_updated_at(race.get("ReportingTime")),
-            ))
+            out.append(
+                c.make_result(
+                    key,
+                    title,
+                    cands,
+                    fetched_at,
+                    source=CaSos.name,
+                    url=HUMAN,
+                    total_votes=sum(x.votes for x in cands),
+                    precincts_reporting=reporting,
+                    precincts_total=total,
+                    source_updated_at=c.parse_updated_at(race.get("ReportingTime")),
+                )
+            )
     return out
 
 
@@ -192,7 +198,8 @@ async def _media_base(client: httpx.AsyncClient, date: str) -> str:
     raise SourceUnavailable(
         f"CA: no media base URL configured for {date}; "
         f"California media JSON files are election-specific and must be "
-        f"configured in ELECTIONS")
+        f"configured in ELECTIONS"
+    )
 
 
 async def _fetch_file(
@@ -232,7 +239,4 @@ class CaSos(ResultsSource):
         payloads: dict[str, list[dict]] = {}
         for filename in FILES:
             payloads[filename] = await _fetch_file(client, base, filename)
-        return [
-            (r.key, r.title or str(r.key))
-            for r in parse_ca(payloads, fetched_at=c.utcnow())
-        ]
+        return [(r.key, r.title or str(r.key)) for r in parse_ca(payloads, fetched_at=c.utcnow())]

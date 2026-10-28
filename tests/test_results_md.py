@@ -25,7 +25,7 @@ def test_statewide_totals_are_the_sum_of_the_district_columns():
     assert (harris.name, harris.party, harris.votes) == ("Kamala D. Harris and Tim Walz", "DEM", 1902577)
     assert harris.winner is True
     assert president.total_votes == 3018951
-    assert president.candidates[1].votes == 1035550          # Trump / Vance
+    assert president.candidates[1].votes == 1035550  # Trump / Vance
 
 
 def test_senate_race():

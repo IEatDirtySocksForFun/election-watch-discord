@@ -7,7 +7,6 @@ import httpx
 
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key, parse
-from electionwatch.sources.base import REGISTRY
 from electionwatch.sources.results import ia_sos
 from electionwatch.sources.results.ia_sos import parse_ia, race_key
 
@@ -35,7 +34,7 @@ def test_us_house_and_winner_flag():
     assert ia1.candidates[0].party == "REP"
     assert ia1.candidates[0].votes == 206955
     assert ia1.candidates[0].pct == 49.98
-    assert ia1.candidates[0].winner is True          # Clarity's W flag
+    assert ia1.candidates[0].winner is True  # Clarity's W flag
     assert ia1.candidates[1].winner is False
     assert ia1.total_votes == 414078
     assert (ia1.precincts_reporting, ia1.precincts_total) == (20, 20)
@@ -59,8 +58,7 @@ def test_local_races_keep_stable_slugs():
 
 
 def test_updated_at_comes_from_electionsettings():
-    assert by_key(parsed())["IA-01"].source_updated_at == \
-        datetime(2024, 12, 16, 14, 19, 48, tzinfo=timezone.utc)
+    assert by_key(parsed())["IA-01"].source_updated_at == datetime(2024, 12, 16, 14, 19, 48, tzinfo=timezone.utc)
 
 
 def test_race_key_mapping():
@@ -71,8 +69,7 @@ def test_race_key_mapping():
     assert format_key(race_key("United States Representative District 4")) == "IA-04"
     assert format_key(race_key("State Senator District 30")) == "IA SD-30"
     assert format_key(race_key("State Representative District 100")) == "IA HD-100"
-    assert format_key(race_key("Constitutional Amendment 2")) == \
-        "IA LOCAL constitutional-amendment-2"
+    assert format_key(race_key("Constitutional Amendment 2")) == "IA LOCAL constitutional-amendment-2"
 
 
 def test_empty_summary_is_not_an_error():
@@ -82,6 +79,7 @@ def test_empty_summary_is_not_an_error():
 
 def test_registered_in_the_results_registry():
     import electionwatch.sources.results  # noqa: F401  (import for side effects)
+
     assert ia_sos.IaSos.states == frozenset({"IA"})
     assert ia_sos.IaSos.scrape is False
 

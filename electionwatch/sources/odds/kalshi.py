@@ -3,6 +3,7 @@
 Discovers 2026 U.S. election events from series tickers and parses each market
 as an OddsSnapshot. No API key is required for reads.
 """
+
 from __future__ import annotations
 
 from dataclasses import replace
@@ -12,7 +13,6 @@ from typing import ClassVar
 import httpx
 
 from electionwatch.models import Level, OddsSnapshot, RaceKey
-from electionwatch.racekeys import STATES
 from electionwatch.sources.base import OddsSource, SourceUnavailable, register
 
 
@@ -30,9 +30,7 @@ class KalshiSource(OddsSource):
         "AK": "KXGOVAK",
     }
 
-    async def fetch_odds(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[OddsSnapshot]:
+    async def fetch_odds(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[OddsSnapshot]:
         if not keys:
             return []
 
@@ -49,9 +47,7 @@ class KalshiSource(OddsSource):
             if resp.status_code == 404:
                 continue
             if resp.status_code >= 400:
-                raise SourceUnavailable(
-                    f"kalshi returned {resp.status_code} for {event_ticker}"
-                )
+                raise SourceUnavailable(f"kalshi returned {resp.status_code} for {event_ticker}")
             try:
                 payload = resp.json()
             except Exception as exc:
@@ -73,9 +69,15 @@ class KalshiSource(OddsSource):
             series = f"SENATE{state}"
         elif key.level is Level.GOVERNOR and key.office == "GOV":
             series = self._GOV_OVERRIDES.get(state, f"GOVPARTY{state}")
-        elif key.level is Level.HOUSE and key.district is not None and key.district.isdigit():
-            # Kalshi House series omit leading zeros in the district.
-            series = f"HOUSE{state}{int(key.district)}"
+        elif key.level is Level.HOUSE and key.district is not None:
+            if key.district == "AL":
+                # Kalshi spells the single statewide seat out: HOUSEAKAL-26.
+                series = f"HOUSE{state}AL"
+            elif key.district.isdigit():
+                # Kalshi House series omit leading zeros in the district.
+                series = f"HOUSE{state}{int(key.district)}"
+            else:
+                return None
         else:
             return None
         return f"{series}-26"
@@ -121,7 +123,8 @@ def parse_kalshi_event(payload: dict) -> list[OddsSnapshot]:
 def _event_ticker_to_key(event_ticker: str) -> RaceKey | None:
     """Map a Kalshi event ticker to a RaceKey, or None if it is not a race.
 
-    Supports SENATE<ST>-26, GOVPARTY<ST>-26 / KXGOV<ST>-26, HOUSE<ST><DIST>-26.
+    Supports SENATE<ST>-26, GOVPARTY<ST>-26 / KXGOV<ST>-26, HOUSE<ST><DIST>-26 and
+    HOUSE<ST>AL-26 (e.g. HOUSEAKAL-26 is the at-large seat, not district "AL").
     Unknown tickers (presidential, control-of-chamber, ...) return None rather
     than being mislabelled as a Senate race.
     """
@@ -136,7 +139,10 @@ def _event_ticker_to_key(event_ticker: str) -> RaceKey | None:
             return RaceKey(base[5:], Level.GOVERNOR, "GOV")
         if base.startswith("HOUSE"):
             tail = base[5:]
-            return RaceKey(tail[:2], Level.HOUSE, "HOUSE", f"{int(tail[2:]):02d}")
+            seat = tail[2:]
+            if seat.upper() == "AL":
+                return RaceKey(tail[:2], Level.HOUSE, "HOUSE", "AL")
+            return RaceKey(tail[:2], Level.HOUSE, "HOUSE", f"{int(seat):02d}")
     except (ValueError, TypeError):
         return None
     return None

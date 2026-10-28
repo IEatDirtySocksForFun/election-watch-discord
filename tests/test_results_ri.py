@@ -7,7 +7,8 @@ import httpx
 import pytest
 
 from electionwatch.models import Level
-from electionwatch.racekeys import format_key, parse as parse_key
+from electionwatch.racekeys import format_key
+from electionwatch.racekeys import parse as parse_key
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import ri_boe
 from electionwatch.sources.results.ri_boe import parse_ri, race_key
@@ -18,8 +19,7 @@ AT = datetime(2026, 10, 27, 17, 0, tzinfo=timezone.utc)
 
 
 def docs():
-    return [json.loads((FIX / f).read_text())
-            for f in ("statewide.json", "ga_senator.json", "ga_representative.json")]
+    return [json.loads((FIX / f).read_text()) for f in ("statewide.json", "ga_senator.json", "ga_representative.json")]
 
 
 def parse():
@@ -49,8 +49,10 @@ def test_race_key_mapping():
     assert format_key(race_key("General Treasurer")) == "RI TREAS"
     assert format_key(race_key("Senator in General Assembly District 4")) == "RI SD-04"
     assert format_key(race_key("Representative in General Assembly District 12")) == "RI HD-12"
-    assert format_key(race_key("3. HOUSING AND COMMUNITY OPPORTUNITY - $120,000,000")) == \
-        "RI LOCAL ballot-question-3-housing-and-community-opportunity-120-000-000"
+    assert (
+        format_key(race_key("3. HOUSING AND COMMUNITY OPPORTUNITY - $120,000,000"))
+        == "RI LOCAL ballot-question-3-housing-and-community-opportunity-120-000-000"
+    )
 
 
 def test_party_prefix_only_stripped_when_it_matches():
@@ -69,14 +71,14 @@ def test_party_prefix_only_stripped_when_it_matches():
 def test_votes_percent_precincts_and_timestamp():
     got = by_key(parse())
     house = got["RI-01"]
-    assert house.total_votes == 221118          # source total_votes field
+    assert house.total_votes == 221118  # source total_votes field
     assert house.precincts_total == 195
     assert house.precincts_reporting is not None
-    assert house.expected_vote_pct == pytest.approx(
-        round(100.0 * house.precincts_reporting / house.precincts_total, 2))
+    assert house.expected_vote_pct == pytest.approx(round(100.0 * house.precincts_reporting / house.precincts_total, 2))
     # Percentages are computed from the vote totals.
     assert house.candidates[0].pct == pytest.approx(
-        round(100.0 * house.candidates[0].votes / house.total_votes, 2), abs=0.02)
+        round(100.0 * house.candidates[0].votes / house.total_votes, 2), abs=0.02
+    )
     assert house.source_updated_at == datetime(2024, 11, 22, 22, 0, tzinfo=timezone.utc)
 
 
@@ -93,20 +95,19 @@ def _handler(bodies, seen):
         name = url.rsplit("/", 1)[-1]
         if name in bodies:
             return httpx.Response(200, text=bodies[name])
-        return httpx.Response(403)          # S3 answers 403 for a missing key
+        return httpx.Response(403)  # S3 answers 403 for a missing key
+
     return handler
 
 
 def test_fetch_reads_three_documents(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
     seen = []
-    bodies = {f: (FIX / f).read_text() for f in
-              ("statewide.json", "ga_senator.json", "ga_representative.json")}
+    bodies = {f: (FIX / f).read_text() for f in ("statewide.json", "ga_senator.json", "ga_representative.json")}
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as c:
-            return await ri_boe.RiBoe().fetch(
-                [parse_key("RI SEN"), parse_key("RI HD-03")], c)
+            return await ri_boe.RiBoe().fetch([parse_key("RI SEN"), parse_key("RI HD-03")], c)
 
     assert set(by_key(asyncio.run(go()))) == {"RI SEN", "RI HD-03"}
     assert seen == [f"{BASE}/2024/general_election/{f}" for f in ri_boe.FILES]
@@ -130,8 +131,7 @@ def test_unavailable_before_first_publish(monkeypatch):
     seen = []
 
     async def go():
-        async with httpx.AsyncClient(
-                transport=httpx.MockTransport(_handler({}, seen))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler({}, seen))) as c:
             return await ri_boe.RiBoe().fetch([parse_key("RI SEN")], c)
 
     with pytest.raises(SourceUnavailable, match="not published yet"):
@@ -144,8 +144,7 @@ def test_list_races_returns_empty_when_unpublished(monkeypatch):
     seen = []
 
     async def go():
-        async with httpx.AsyncClient(
-                transport=httpx.MockTransport(_handler({}, seen))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler({}, seen))) as c:
             return await ri_boe.RiBoe().list_races("RI", c)
 
     assert asyncio.run(go()) == []

@@ -1,4 +1,5 @@
 """Fox exit-poll adapter (URL + optional JSON sidecar, unverified)."""
+
 from __future__ import annotations
 
 from electionwatch.sources.base import register

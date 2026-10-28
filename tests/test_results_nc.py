@@ -14,8 +14,7 @@ def load(name):
 
 
 def parse():
-    return parse_nc(load("contest.txt"), load("results_0.txt"), load("county.txt"),
-                    fetched_at=AT)
+    return parse_nc(load("contest.txt"), load("results_0.txt"), load("county.txt"), fetched_at=AT)
 
 
 def test_governor_and_party():
@@ -23,16 +22,16 @@ def test_governor_and_party():
     assert gov.key.level is Level.GOVERNOR
     assert gov.candidates[0].name == "Josh Stein"
     assert gov.candidates[0].party == "DEM"
-    assert gov.candidates[0].pct == 54.9          # source sends 0.5490
+    assert gov.candidates[0].pct == 54.9  # source sends 0.5490
     assert gov.total_votes == sum(c.votes for c in gov.candidates)
     assert gov.title == "NC GOVERNOR"
 
 
 def test_federal_state_and_house_keys():
     keys = {format_key(r.key) for r in parse()}
-    assert "NC-01" in keys                       # US House district 01
-    assert "NC SD-01" in keys                    # state senate
-    assert "NC HD-01" in keys                    # state house (district 001)
+    assert "NC-01" in keys  # US House district 01
+    assert "NC SD-01" in keys  # state senate
+    assert "NC HD-01" in keys  # state house (district 001)
     assert "NC LOCAL us-president" in keys
     assert "NC LOCAL nc-supreme-court-associate-justice-seat-06" in keys
 
@@ -64,8 +63,7 @@ def test_race_key_mapping():
     assert format_key(race_key("NC COMMISSIONER OF LABOR")) == "NC LOCAL nc-commissioner-of-labor"
     assert format_key(race_key("NC STATE SENATE DISTRICT 01")) == "NC SD-01"
     assert format_key(race_key("NC HOUSE OF REPRESENTATIVES DISTRICT 121")) == "NC HD-121"
-    assert format_key(race_key("NC HOUSE OF REPRESENTATIVES DISTRICT 019 (UNEXPIRED)")) == \
-        "NC HD-19 S"
+    assert format_key(race_key("NC HOUSE OF REPRESENTATIVES DISTRICT 019 (UNEXPIRED)")) == "NC HD-19 S"
 
 
 def test_empty_payload_is_not_an_error():

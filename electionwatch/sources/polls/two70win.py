@@ -16,6 +16,7 @@ Notes:
 It is an HTML scrape of a site without a public API, so it is disabled by
 default.
 """
+
 from __future__ import annotations
 
 import logging
@@ -201,9 +202,7 @@ class Two70toWinPollSource(PollSource):
                 "limit": 40,
             }
             try:
-                resp = await client.get(
-                    API_URL, params=params, headers={"User-Agent": USER_AGENT}
-                )
+                resp = await client.get(API_URL, params=params, headers={"User-Agent": USER_AGENT})
             except httpx.HTTPError as exc:
                 log.warning("270towin: %s list failed: %s", level.value, exc)
                 errors += 1

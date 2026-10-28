@@ -10,13 +10,14 @@ The adapter aggregates the city/town rows to statewide totals. Contest IDs are
 discovered by searching the election year; the CSV itself carries the office
 and district names needed to map races.
 """
+
 from __future__ import annotations
 
 import csv
 import json
 import re
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
 
 import httpx
 
@@ -46,8 +47,7 @@ def race_key(office: str, district: str | None = None) -> RaceKey:
         return c.local_key("CT", "us-president")
     if o in ("UNITED STATES SENATOR", "U.S. SENATOR", "US SENATOR"):
         return RaceKey("CT", Level.SENATE, "SEN", None, special)
-    if o in ("REPRESENTATIVE IN CONGRESS", "U.S. REPRESENTATIVE", "US REPRESENTATIVE",
-             "UNITED STATES REPRESENTATIVE"):
+    if o in ("REPRESENTATIVE IN CONGRESS", "U.S. REPRESENTATIVE", "US REPRESENTATIVE", "UNITED STATES REPRESENTATIVE"):
         return RaceKey("CT", Level.HOUSE, "HOUSE", _district_number(d), special)
     if o == "GOVERNOR":
         return RaceKey("CT", Level.GOVERNOR, "GOV", None, special)
@@ -72,13 +72,15 @@ def race_key(office: str, district: str | None = None) -> RaceKey:
 
 
 def _search_json(year: int) -> str:
-    return json.dumps({
-        "global": {"years": {"from": year, "to": year}},
-        "contests": {"candidates": [], "offices": [], "divisions": []},
-        "voterStats": False,
-        "stages": [],
-        "specialElectionsOnly": False,
-    })
+    return json.dumps(
+        {
+            "global": {"years": {"from": year, "to": year}},
+            "contests": {"candidates": [], "offices": [], "divisions": []},
+            "voterStats": False,
+            "stages": [],
+            "specialElectionsOnly": False,
+        }
+    )
 
 
 def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None) -> list[RaceResult]:
@@ -104,7 +106,9 @@ def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None)
             continue
         key = (cid, office, district)
         by_contest.setdefault(key, {"office": office, "district": district, "date": row.get("election_date")})
-        totals[(cid, office, district, cand_id, cand_name, row.get("candidate_party_name") or "")] += c.to_int(row.get("votes"))
+        totals[(cid, office, district, cand_id, cand_name, row.get("candidate_party_name") or "")] += c.to_int(
+            row.get("votes")
+        )
 
     out: list[RaceResult] = []
     seen: set[str] = set()
@@ -120,23 +124,30 @@ def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None)
                 continue
             if not cand_name:
                 continue
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(party),
-                votes=votes,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=c.norm_party(party),
+                    votes=votes,
+                )
+            )
             if updated is None:
                 updated = c.parse_updated_at(info.get("date"))
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=CtSots.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=CtSots.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
@@ -168,7 +179,4 @@ class CtSots(ResultsSource):
             return []
         text = await _search_csv(client, c.election_date())
         rows = list(csv.DictReader(text.splitlines()))
-        return [
-            (r.key, r.title or str(r.key))
-            for r in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())
-        ]
+        return [(r.key, r.title or str(r.key)) for r in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())]

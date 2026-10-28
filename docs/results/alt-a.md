@@ -1,22 +1,20 @@
-# ALT-a — alternate official results sources for MI WI MN NV NH ME
+# Alternate official results: MI, WI, MN, NV, NH and ME
 
-The statewide sites for these six states were found blocked (Cloudflare / Imperva /
-Radware / CloudFront WAF), PDF-only or certified-only in `docs/results/states-1.md`.
-This package looked for another way in for each state, in the brief's order of
-preference: an alternate official statewide endpoint first, then official county
-election-night feeds merged into one partial-state adapter, and a write-up when
-nothing is reachable. No bot check, captcha, login or agreement was bypassed, faked
-or replayed; every feed below answered a plain GET with a descriptive User-Agent
+The statewide sites for these six states were blocked, PDF-only or certified-only when checked
+in `docs/results/states-1.md`. These notes cover the next best options: another official
+statewide endpoint, official county feeds merged into a partial-state result, or a clear
+explanation when nothing is reachable. No bot check, captcha, login or agreement was bypassed,
+faked or replayed. Every feed below answered a plain GET with a descriptive User-Agent
 (`election-watch-discord/0.1`).
 
-| State | Adapter | Source | Coverage | Verified |
-|-------|---------|--------|----------|----------|
-| MN | `mn_sos` | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt | **statewide** — all 87 counties, 871 contests: US Senate, US House, Governor, State Auditor, 67 state senate + 134 state house, judicial, county races & questions | **yes** — trimmed real 2026-11-03 files in `tests/fixtures/mn_sos/`, live fetch 2026-10-27 returned the 871 contests |
-| MI | `mi_county` | Clarity county feeds, `https://results.enr.clarityelections.com/MI/<County>/…` | **partial: 1 county live** (Ottawa, 178,507 of Michigan's 5,664,186 votes in the 2024 presidential = 3.2 %); Oakland/Macomb/Genesee configured in the adapter, their `elections.json` is empty until the county turns the 2026 general on | **yes** — real Ottawa 2026 general summary/elections.json in `tests/fixtures/mi_county/`, live discovery + fetch 2026-10-27 |
-| WI | `wi_dane` | https://elections.countyofdane.com/Election-Result | **partial: 1 county** (Dane, 364,840 of Wisconsin's 3,415,213 votes in 2024 = 10.7 %); whole county ballot incl. assembly/senate districts and county offices | **yes** — trimmed real page in `tests/fixtures/wi_dane/`, live fetch 2026-10-27 returned 33 contests (all at 0 votes: the county has not counted yet) |
-| NV | — | — | 0 | **not possible** — see below |
-| NH | — | — | 0 | **not possible** — see below |
-| ME | — | — | 0 | **not possible** — see below |
+| State | Adapter     | Source                                                                         | Coverage                                                                                                                                                                                                                                  | Verified                                                                                                                                              |
+| ----- | ----------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MN    | `mn_sos`    | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt                     | **statewide** — all 87 counties, 871 contests: US Senate, US House, Governor, State Auditor, 67 state senate + 134 state house, judicial, county races & questions                                                                        | **yes** — trimmed real 2026-11-03 files in `tests/fixtures/mn_sos/`, live fetch 2026-10-27 returned the 871 contests                                  |
+| MI    | `mi_county` | Clarity county feeds, `https://results.enr.clarityelections.com/MI/<County>/…` | **partial: 1 county live** (Ottawa, 178,507 of Michigan's 5,664,186 votes in the 2024 presidential = 3.2 %); Oakland/Macomb/Genesee configured in the adapter, their `elections.json` is empty until the county turns the 2026 general on | **yes** — real Ottawa 2026 general summary/elections.json in `tests/fixtures/mi_county/`, live discovery + fetch 2026-10-27                           |
+| WI    | `wi_dane`   | https://elections.countyofdane.com/Election-Result                             | **partial: 1 county** (Dane, 364,840 of Wisconsin's 3,415,213 votes in 2024 = 10.7 %); whole county ballot incl. assembly/senate districts and county offices                                                                             | **yes** — trimmed real page in `tests/fixtures/wi_dane/`, live fetch 2026-10-27 returned 33 contests (all at 0 votes: the county has not counted yet) |
+| NV    | —           | —                                                                              | 0                                                                                                                                                                                                                                         | **not possible** — see below                                                                                                                          |
+| NH    | —           | —                                                                              | 0                                                                                                                                                                                                                                         | **not possible** — see below                                                                                                                          |
+| ME    | —           | —                                                                              | 0                                                                                                                                                                                                                                         | **not possible** — see below                                                                                                                          |
 
 2024 vote shares are the presidential vote totals per county against the state total
 (NYT/NPR county tables for Wisconsin, Wikipedia's Michigan county table), used only to
@@ -28,7 +26,7 @@ Senate / Governor / House for all six.
 ## Minnesota — `mn_sos` (statewide, verified)
 
 `electionresults.sos.mn.gov` answers Radware's `__uzdbm_*` challenge, but the SOS
-publishes the same numbers as semicolon-delimited text on a *different, ungated* host —
+publishes the same numbers as semicolon-delimited text on a _different, ungated_ host —
 the file host the results site itself reads:
 
     https://electionresultsfiles.sos.mn.gov/20261103/ussenate.txt
@@ -88,15 +86,15 @@ recomputed, title suffixed ` (partial: N counties)`, `url` set to the state resu
 - Parsing is the shared `clarity.parse_clarity`; this adapter only re-keys the names to
   Michigan ones: `Governor and Lieutenant Governor` -> `MI GOV`, `Secretary of State` ->
   `MI SOS`, `United States Senator` -> `MI SEN`, `Representative in Congress 2nd
-  District` -> `MI-02`, `State Senator 30th District` -> `MI SD-30`, `Representative in
-  State Legislature 43rd District` -> `MI HD-43`; county offices and the like stay
-  `MI LOCAL <slug>` (so state-legislative and county races are covered, as the brief asks).
+District` -> `MI-02`, `State Senator 30th District` -> `MI SD-30`, `Representative in
+State Legislature 43rd District` -> `MI HD-43`; county offices and the like stay
+  `MI LOCAL <slug>`, so state-legislative and county races are covered.
 - Live on 2026-10-27: Ottawa discovered `EID 127391`, version `381490`, 68 contests on
   the ballot, 0 votes (`websiteupdatedat` 10/19/2026). Oakland, Macomb and Genesee return
   an empty `elections.json` for the 2026 general today; they are first in `COUNTIES` and
   will be picked up automatically once the county configures the election.
 - A county that has not published is skipped (its error is collected and reported only
-  if *no* county produced anything, which then raises `SourceUnavailable`).
+  if _no_ county produced anything, which then raises `SourceUnavailable`).
 - **Not covered:** Wayne County (Detroit, the largest) runs an ES&S `ResultsSW.aspx` app
   on `waynecountyresults.azurewebsites.us` with a JS pager and no per-contest URL, so it
   is not parseable without driving the page's postbacks.
@@ -120,7 +118,7 @@ one HTML page per contest that a plain GET returns:
   is what keeps the request rate at or below one a minute.
 - Keys: `Governor / Lieutenant Governor` -> `WI GOV`, `Attorney General` -> `WI AG`,
   `Secretary of State` -> `WI SOS`, `State Treasurer` -> `WI TREAS`, `Representative in
-  Congress District n` -> `WI-nn`, `State Senator District n` -> `WI SD-nn`,
+Congress District n` -> `WI-nn`, `State Senator District n` -> `WI SD-nn`,
   `Representative to the Assembly District n` -> `WI HD-nn`, everything else (sheriff,
   clerk of circuit court, municipal judges, referenda) -> `WI LOCAL <slug>`.
 - `BALLOTS CAST - TOTAL` blocks and `write-in:` rows are dropped; the party is printed
@@ -130,7 +128,7 @@ one HTML page per contest that a plain GET returns:
   county has the 2026 general staged but has not counted.
 - **Coverage:** one county (10.7 % of the 2024 presidential vote). Milwaukee (13.5 %)
   is Cloudflare-blocked on `county.milwaukee.gov`, Waukesha publishes PDF only (and the
-  package has no PDF parser), and no Wisconsin jurisdiction is a Clarity client — every
+  bot has no PDF parser), and no Wisconsin jurisdiction is a Clarity client — every
   `WI/<County>/elections.json` probe returned the vendor's error page. Adding another
   county means a new parse function, not a config row.
 
@@ -146,7 +144,7 @@ one HTML page per contest that a plain GET returns:
 - Washoe County links to `electionresults.washoecounty.gov`, which today answers HTTP
   503 with a static "Washoe County Election Results" shell (no table, no data endpoint)
   and, alongside it, per-contest PDFs (`WASHOE2026PRIMARYSummaryNN.pdf`) — PDF only, and
-  the package deliberately has no PDF dependency.
+  the bot deliberately has no PDF dependency.
 - Nothing reachable; NV stays on `cbs_results` (Senate/Gov/House).
 
 ## New Hampshire — write-up
@@ -173,14 +171,12 @@ starts publishing on the Clarity host needs only a config row — either a
 `2026-11-03` entry in `clarity.ELECTIONS` (`{"state": "ME", "jurisdiction": "<Town>",
 "election_id": "<id>"}`) or the same object in `CLARITY_FEEDS` — no new module.
 
-## Notes for the integrator
+## Adapter defaults and request costs
 
-- Three new modules, discovered automatically by `sources.base.load_all()` like the
-  rest: `mn_sos` (on by default, `scrape = False`), `mi_county` (on by default,
-  `scrape = False`), `wi_dane` (`scrape = True`, `enabled_by_default = False`).
-- `mn_sos` and `mi_county` hit their hosts on every poll: MN fetches up to 8 text files,
-  MI one `elections.json` + 3 requests per configured county. Neither has an
-  `enabled_by_default = False` flag, so the poller's normal interval applies.
-- No new dependencies. Nothing in these adapters or tests touches a model API.
-- Tests: `pytest -q tests/test_results_mn.py tests/test_results_mi.py tests/test_results_wi.py`
-  (36 tests, no network, fixtures in `tests/fixtures/{mn_sos,mi_county,wi_dane}/`).
+- `mn_sos` and `mi_county` are on by default and set `scrape = False`. `wi_dane` sets
+  `scrape = True` and `enabled_by_default = False`.
+- `mn_sos` fetches up to 8 text files per poll. `mi_county` fetches one `elections.json`
+  plus 3 requests per configured county. The poller's request budget sets the actual interval.
+- No extra dependencies are needed. Tests use fixtures and never touch the network:
+
+  `pytest -q tests/test_results_mn.py tests/test_results_mi.py tests/test_results_wi.py`

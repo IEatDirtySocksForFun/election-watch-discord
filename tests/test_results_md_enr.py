@@ -1,11 +1,11 @@
 """Maryland's unofficial election-night pages (the ENR side of md_sbe)."""
+
 from datetime import datetime, timezone
 from pathlib import Path
 
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key, parse
-from electionwatch.sources.results.md_sbe import (
-    enr_page_info, index_entries, parse_md_enr, race_key)
+from electionwatch.sources.results.md_sbe import enr_page_info, index_entries, parse_md_enr, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "md_sbe" / "MD"
 AT = datetime(2026, 10, 27, 16, 30, tzinfo=timezone.utc)
@@ -35,8 +35,7 @@ def test_governor_page_before_counting():
     # "Last refreshed: 10/21/2026 11:01:50 PM" Eastern = 03:01:50 UTC on the 22nd.
     assert info["updated_at"] == datetime(2026, 10, 22, 3, 1, 50, tzinfo=timezone.utc)
 
-    gov = parse_md_enr(html("2026_general_governor.html"), fetched_at=AT,
-                       office="Governor / Lt. Governor", url="x")
+    gov = parse_md_enr(html("2026_general_governor.html"), fetched_at=AT, office="Governor / Lt. Governor", url="x")
     assert format_key(gov.key) == "MD GOV"
     assert gov.key.level is Level.GOVERNOR
     assert [(c.name, c.party) for c in gov.candidates] == [
@@ -56,7 +55,9 @@ def test_question_row_uses_the_th_cell():
     q = parse_md_enr(html("2026_general_question1.html"), fetched_at=AT, office="Question 1")
     assert format_key(q.key) == "MD LOCAL question-1"
     assert [c.name for c in q.candidates] == [
-        "For the Constitutional Amendment", "Against the Constitutional Amendment"]
+        "For the Constitutional Amendment",
+        "Against the Constitutional Amendment",
+    ]
     assert all(c.party is None and c.votes == 0 for c in q.candidates)
 
 
@@ -64,8 +65,9 @@ def test_primary_page_merges_tables_and_keeps_winner_flags():
     # Primary results are split into one table per party; the adapter is pointed at the
     # general election, so this page is used to exercise the multi-table path and the
     # "Winner Selected" marker.
-    cd1 = parse_md_enr(html("2026_primary_congress_district1.html"), fetched_at=AT,
-                       office="Representative in Congress", district="1")
+    cd1 = parse_md_enr(
+        html("2026_primary_congress_district1.html"), fetched_at=AT, office="Representative in Congress", district="1"
+    )
     assert format_key(cd1.key) == "MD-01"
     assert cd1.title == "Representative in Congress, District 1"
     assert (cd1.precincts_reporting, cd1.precincts_total) == (309, 309)
@@ -81,8 +83,9 @@ def test_primary_page_merges_tables_and_keeps_winner_flags():
 
 
 def test_delegates_district_page():
-    hd = parse_md_enr(html("2026_general_house_delegates_d1.html"), fetched_at=AT,
-                      office="House of Delegates", district="1")
+    hd = parse_md_enr(
+        html("2026_general_house_delegates_d1.html"), fetched_at=AT, office="House of Delegates", district="1"
+    )
     assert format_key(hd.key) == "MD HD-01"
     assert hd.key.level is Level.STATE
     assert hd.precincts_total == 25

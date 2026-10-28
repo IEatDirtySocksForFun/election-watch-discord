@@ -69,6 +69,8 @@ parties:
     bucket: libertarian
     emoji: "🟡"
     aliases:
+      - LIBERTARIN
+      - WRI LBT
       - LBN
       - L
       - LIB
@@ -355,6 +357,10 @@ parties:
     bucket: constitution
     emoji: "📜"
     aliases:
+      - UST
+      - U.S. Taxpayers
+      - US Taxpayers Party
+      - U.S. Taxpayers Party
       - IAP
       - CST
       - CON
@@ -419,6 +425,11 @@ parties:
     bucket: independent
     emoji: "⚪"
     aliases:
+      - PC
+      - Petitioning Candidate
+      - WI
+      - UNENROLLED
+      - NPD
       - NP
       - NOP
       - NPA
@@ -559,6 +570,15 @@ parties:
       - Alliance Party USA
       - Alliance Party of South Carolina
     source: https://en.wikipedia.org/wiki/Alliance_Party_(United_States)
+  - code: AEL
+    name: Americans Elect
+    bucket: centrist
+    emoji: "🎩"
+    aliases:
+      - AEL
+      - Americans Elect
+      - Americans Elect Party
+    source: https://en.wikipedia.org/wiki/Americans_Elect
   - code: NOL
     name: No Labels
     bucket: centrist
@@ -656,6 +676,7 @@ parties:
     bucket: centrist
     emoji: "↔️"
     aliases:
+      - IAL
       - FIP
       - Forward Independence
       - Forward Independence Party
@@ -812,6 +833,9 @@ parties:
     bucket: other
     emoji: "🌲"
     aliases:
+      - PJP
+      - Peace and Justice
+      - Peace & Justice
       - GMPJ
       - Green Mountain Peace and Justice
       - Green Mountain Peace and Justice Party
@@ -819,6 +843,32 @@ parties:
       - Liberty Union
       - Liberty Union Party
     source: https://en.wikipedia.org/wiki/Green_Mountain_Peace_and_Justice_Party
+  - code: AMF
+    name: America First Party
+    bucket: other
+    emoji: "🦁"
+    aliases:
+      - AMF
+      - America First
+      - America First Party
+    source: https://elections.wi.gov/elections/election-results
+  - code: BP
+    name: Better Party
+    bucket: other
+    emoji: "📈"
+    aliases:
+      - BP
+      - Better Party
+    source: https://www.sos.mo.gov/elections
+  - code: CTRY
+    name: Country Party
+    bucket: other
+    emoji: "🤠"
+    aliases:
+      - CTRY
+      - Country
+      - Country Party
+    source: https://github.com/openelections/openelections-data-wy
   - code: OPP
     name: Oregon Progressive Party
     bucket: other

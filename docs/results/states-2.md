@@ -1,30 +1,27 @@
-# States — results adapters, round 2
+# Results adapters: AK, AL, AR, ID, IL, IN and more
 
-Package STATES-2 (`pkg/states-2b`). One section per state: adapter module, the feed
-it reads, and how far it was verified. "Verified fixture" means the parser is
-exercised by `tests/test_results_<st>.py` against a trimmed real response (URL and
-date recorded in `tests/fixtures/<adapter>/README.txt`); where noted, the adapter was
-also run against the live feed.
+Each section lists the adapter, its feed and how it was verified. "Verified fixture" means
+`tests/test_results_<st>.py` parses a trimmed real response. The fixture's README records the
+source URL and fetch date. Some adapters were also checked against their live feeds.
 
-Fixture layout follows the existing single-state adapters (`nc_sbe`, `ct_sots`):
-files sit directly in `tests/fixtures/<adapter>/`, no per-state sub-directory,
-because each of these adapters serves exactly one state.
+Fixtures sit directly in `tests/fixtures/<adapter>/` because each of these adapters serves one
+state.
 
 ## Summary
 
-| State | Adapter | Feed | Status |
-|-------|---------|------|--------|
-| AK | `ak_doe` | Division of Elections precinct CSV | verified fixture; live fetch blocked by the origin's TLS chain |
-| AL | — | no usable statewide feed | not possible (see below) |
-| AR | `ar_sos` | SOS election page → Tally-ENR `FullDataFile.json` | verified fixture (2024); 2026 UUID format has no contest names |
-| ID | `id_sos` | SOS results archive pages (embedded reactable JSON) | verified fixture + live run (2024 general) |
-| IL | `il_sbe` | SBE `ElectionVoteTotals.aspx` HTML | verified fixture + live run (2026 primary); 2026 general not published yet |
-| IN | `in_sos` | `enr.indianavoters.in.gov/archive/<election>/data/*.json` | verified fixture + live run (2024 general) |
-| CA | `ca_sos` | `media.sos.ca.gov/media/<office>.json` | verified fixture (commit 4790c13) |
-| CT | `ct_sots` | `ct.elstats.civera.com` search CSV | verified fixture (commit 0353add) |
-| DC | `dc_boe` | `electionresults.dcboe.org` XML export | verified fixture (commit feee25d) |
-| DE | `de_doe` | `elections.delaware.gov/reports/GE<year>.csv` | verified fixture (commit dffcb5c) |
-| HI | `hi_soe` | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture (commit 6702ce2) |
+| State | Adapter   | Feed                                                                  | Status                                                                     |
+| ----- | --------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| AK    | `ak_doe`  | Division of Elections precinct CSV                                    | verified fixture; live fetch blocked by the origin's TLS chain             |
+| AL    | —         | no usable statewide feed                                              | not possible (see below)                                                   |
+| AR    | `ar_sos`  | SOS election page → Tally-ENR `FullDataFile.json`                     | verified fixture (2024); 2026 UUID format has no contest names             |
+| ID    | `id_sos`  | SOS results archive pages (embedded reactable JSON)                   | verified fixture + live run (2024 general)                                 |
+| IL    | `il_sbe`  | SBE `ElectionVoteTotals.aspx` HTML                                    | verified fixture + live run (2026 primary); 2026 general not published yet |
+| IN    | `in_sos`  | `enr.indianavoters.in.gov/archive/<election>/data/*.json`             | verified fixture + live run (2024 general)                                 |
+| CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                | verified fixture                                                           |
+| CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture                                                           |
+| DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture                                                           |
+| DE    | `de_doe`  | `elections.delaware.gov/reports/GE<year>.csv`                         | verified fixture                                                           |
+| HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                           |
 
 ## AK — `electionwatch/sources/results/ak_doe.py`
 
@@ -34,7 +31,7 @@ because each of these adapters serves exactly one state.
   a contest reproduces the Division's published statewide totals (checked for the
   2024 U.S. House race: Begich 159,550 / Peltola 152,828 / Howe 13,010 / Hafner 3,417).
 - Fixture: six contests × the first eight precincts of `24GENR`.
-- Status: verified fixture. The data is the RCV *first-choice* count; the final
+- Status: verified fixture. The data is the RCV _first-choice_ count; the final
   round is in the Election Summary Report PDF, which the adapter does not read.
 - Known issue (checked 2026-10-27): `elections.alaska.gov` serves an incomplete TLS
   chain (leaf issued by "GlobalSign GCC R46 OV TLS CA 2025", but the server sends the
@@ -56,9 +53,9 @@ because each of these adapters serves exactly one state.
 - The only machine-readable statewide artifact is a post-certification download,
   "2024-General Precinct Level Results.zip"
   (<https://www.sos.alabama.gov/sites/default/files/election-data/2024-12/2024-General%20Precinct%20Level%20Results.zip>):
-  67 per-county legacy **.xls** (BIFF) files. Reading those needs `xlrd`, a new
-  dependency this package does not add, and the data is a certified snapshot rather
-  than a feed usable on election night.
+  67 per-county legacy **.xls** (BIFF) files. Reading those needs `xlrd`, which the bot does
+  not include, and the data is a certified snapshot rather than a feed usable on election
+  night.
 - Revisit if the SOS republishes a working results app or a CSV/JSON export.
 
 ## AR — `electionwatch/sources/results/ar_sos.py`
@@ -117,7 +114,7 @@ because each of these adapters serves exactly one state.
 - The percent column is "Percent of Party Vote" in a primary, so it is ignored; the
   share is computed from the votes.
 - Discovery: the page defaults to the newest election and its election dropdown lists
-  every election. The URL id of an *older* election is an opaque ASP.NET token, so the
+  every election. The URL id of an _older_ election is an opaque ASP.NET token, so the
   adapter checks the selected election's name against `ELECTIONS` and reports itself
   unavailable when the tracked election is not the one on screen (2026 general is not
   published yet, checked 2026-10-27). `IL_ELECTION_ID` pins the opaque id when a past

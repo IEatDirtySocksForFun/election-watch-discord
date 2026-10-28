@@ -7,7 +7,8 @@ import httpx
 import pytest
 
 from electionwatch.models import Level, RaceKey
-from electionwatch.racekeys import format_key, parse as parse_key
+from electionwatch.racekeys import format_key
+from electionwatch.racekeys import parse as parse_key
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import vt_sos
 from electionwatch.sources.results.vt_sos import parse_vt, race_key
@@ -19,8 +20,7 @@ AT = datetime(2026, 10, 27, 16, 0, tzinfo=timezone.utc)
 
 
 def docs():
-    return [json.loads(p.read_text())
-            for p in sorted(FIX.glob(f"{GUID}-*-2026*.json"))]
+    return [json.loads(p.read_text()) for p in sorted(FIX.glob(f"{GUID}-*-2026*.json"))]
 
 
 def parse():
@@ -34,9 +34,10 @@ def by_key(results):
 def test_keys_cover_federal_statewide_legislature():
     got = by_key(parse())
     assert got["VT SEN"].key.level is Level.SENATE
-    assert got["VT-AL"].key.level is Level.HOUSE       # single at-large seat
+    assert got["VT-AL"].key.level is Level.HOUSE  # single at-large seat
     from electionwatch.racekeys import parse as parse_key
-    assert got["VT-AL"].key == parse_key("VT-AL")      # what /watch add VT-AL stores
+
+    assert got["VT-AL"].key == parse_key("VT-AL")  # what /watch add VT-AL stores
     assert got["VT GOV"].key.level is Level.GOVERNOR
     assert got["VT LTGOV"].key.level is Level.GOVERNOR
     assert got["VT TREAS"].key.level is Level.GOVERNOR
@@ -47,14 +48,14 @@ def test_keys_cover_federal_statewide_legislature():
 
 def test_named_vermont_districts_become_slugs():
     assert format_key(race_key("STATE SENATOR", "BEN 1")) == "VT SD-ben-1"
-    assert format_key(race_key("STATE REPRESENTATIVE", "ADD RUT")) == "VT HD-add-rut"
+    assert format_key(race_key("STATE REPRESENTATIVE", "Add Rut")) == "VT HD-add-rut"
     assert format_key(race_key("STATE SENATOR", "CHI SE 1")) == "VT SD-chi-se-1"
 
 
 def test_candidates_aggregated_across_towns():
     got = by_key(parse())
     sen = got["VT SEN"]
-    sanders = next(c for c in sen.candidates if c.name == "BERNIE SANDERS")
+    sanders = next(c for c in sen.candidates if c.name == "Bernie Sanders")
     assert sanders.party == "IND"
 
     expected = 0
@@ -73,10 +74,10 @@ def test_candidates_aggregated_across_towns():
 def test_party_labels_and_write_ins():
     got = by_key(parse())
     gov = got["VT GOV"]
-    scott = next(c for c in gov.candidates if c.name == "PHIL SCOTT")
+    scott = next(c for c in gov.candidates if c.name == "Phil Scott")
     assert scott.party == "REP"
-    charlestin = next(c for c in gov.candidates if c.name == "ESTHER CHARLESTIN")
-    assert charlestin.party == "DEM"          # source label "DEM/PROG"
+    charlestin = next(c for c in gov.candidates if c.name == "Esther Charlestin")
+    assert charlestin.party == "DEM"  # source label "DEM/PROG"
     assert any(c.name == "Write-In" for c in gov.candidates)
 
 
@@ -84,8 +85,8 @@ def test_multi_seat_house_district_marks_top_two_winners():
     got = by_key(parse())
     hd3 = got["VT HD-add-3"]
     winners = [c.name for c in hd3.candidates if c.winner]
-    assert len(winners) == 2                   # vf == 2 for this district
-    assert winners == ["ROB NORTH", "MATT BIRONG"]
+    assert len(winners) == 2  # vf == 2 for this district
+    assert winners == ["Rob North", "Matt Birong"]
 
 
 def test_title_keeps_district_name():
@@ -109,6 +110,7 @@ def _handler(payload_by_suffix, seen):
             if url.endswith(suffix):
                 return httpx.Response(200, text=body)
         return httpx.Response(404)
+
     return handler
 
 
@@ -120,15 +122,13 @@ def test_fetch_follows_metadata_paths_and_timestamps(monkeypatch):
         bodies[p.name] = p.read_text()
 
     async def go():
-        async with httpx.AsyncClient(
-                transport=httpx.MockTransport(_handler(bodies, seen))) as c:
-            return await vt_sos.VtSos().fetch(
-                [parse_key("VT SEN"), RaceKey("VT", Level.STATE, "HD", "add-1")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as c:
+            return await vt_sos.VtSos().fetch([parse_key("VT SEN"), RaceKey("VT", Level.STATE, "HD", "add-1")], c)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"VT SEN", "VT HD-add-1"}
     assert seen[0] == f"{BASE}/{GUID}.json"
-    assert sum("2026" in u for u in seen) == 4        # f, s, sn, h documents
+    assert sum("2026" in u for u in seen) == 4  # f, s, sn, h documents
     # lastUpdatedDate "06/11/2026 03:31 PM" is Eastern -> UTC.
     assert got["VT SEN"].source_updated_at == datetime(2026, 6, 11, 19, 31, tzinfo=timezone.utc)
 
@@ -136,22 +136,33 @@ def test_fetch_follows_metadata_paths_and_timestamps(monkeypatch):
 def test_discovery_picks_general_election_by_date(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
     seen = []
-    index = [{"electionDate": "2026-08-11T00:00:00", "electionGuid": "primary-guid",
-              "isGeneralElection": False, "isStateWideElection": True},
-             {"electionDate": "2026-11-03T00:00:00", "electionGuid": "general-guid",
-              "isGeneralElection": True, "isStateWideElection": True}]
+    index = [
+        {
+            "electionDate": "2026-08-11T00:00:00",
+            "electionGuid": "primary-guid",
+            "isGeneralElection": False,
+            "isStateWideElection": True,
+        },
+        {
+            "electionDate": "2026-11-03T00:00:00",
+            "electionGuid": "general-guid",
+            "isGeneralElection": True,
+            "isStateWideElection": True,
+        },
+    ]
     bodies = {"elections.json": json.dumps(index)}
-    bodies.update({f"{GUID}{suffix}": (FIX / f"{GUID}{suffix}").read_text()
-                   for suffix in (".json",) + tuple(
-                       p.name[len(GUID):] for p in FIX.glob(f"{GUID}-*-2026*.json"))})
-    bodies["general-guid.json"] = (FIX / f"{GUID}.json").read_text().replace(
-        GUID, "general-guid")
+    bodies.update(
+        {
+            f"{GUID}{suffix}": (FIX / f"{GUID}{suffix}").read_text()
+            for suffix in (".json",) + tuple(p.name[len(GUID) :] for p in FIX.glob(f"{GUID}-*-2026*.json"))
+        }
+    )
+    bodies["general-guid.json"] = (FIX / f"{GUID}.json").read_text().replace(GUID, "general-guid")
     for p in FIX.glob(f"{GUID}-*-2026*.json"):
-        bodies[f"general-guid{p.name[len(GUID):]}"] = p.read_text()
+        bodies[f"general-guid{p.name[len(GUID) :]}"] = p.read_text()
 
     async def go():
-        async with httpx.AsyncClient(
-                transport=httpx.MockTransport(_handler(bodies, seen))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as c:
             return await vt_sos.VtSos().fetch([parse_key("VT GOV")], c)
 
     assert set(by_key(asyncio.run(go()))) == {"VT GOV"}
@@ -165,8 +176,7 @@ def test_unavailable_when_date_missing_from_index(monkeypatch):
     bodies = {"elections.json": json.dumps([])}
 
     async def go():
-        async with httpx.AsyncClient(
-                transport=httpx.MockTransport(_handler(bodies, seen))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(_handler(bodies, seen))) as c:
             return await vt_sos.VtSos().fetch([parse_key("VT GOV")], c)
 
     with pytest.raises(SourceUnavailable, match="no 2026-11-03"):
@@ -174,8 +184,25 @@ def test_unavailable_when_date_missing_from_index(monkeypatch):
 
 
 def test_winners_come_only_from_the_feed_not_from_ranking_a_partial_count():
-    doc = {"d": [{"o": [{"on": "GOVERNOR", "vf": 1, "cs": [{"rc": [
-        {"cid": 1, "cn": "A", "pn": "REPUBLICAN", "vc": 10, "isWinner": False},
-        {"cid": 2, "cn": "B", "pn": "DEMOCRATIC", "vc": 9, "isWinner": False}]}]}]}]}
+    doc = {
+        "d": [
+            {
+                "o": [
+                    {
+                        "on": "GOVERNOR",
+                        "vf": 1,
+                        "cs": [
+                            {
+                                "rc": [
+                                    {"cid": 1, "cn": "A", "pn": "REPUBLICAN", "vc": 10, "isWinner": False},
+                                    {"cid": 2, "cn": "B", "pn": "DEMOCRATIC", "vc": 9, "isWinner": False},
+                                ]
+                            }
+                        ],
+                    }
+                ]
+            }
+        ]
+    }
     (gov,) = parse_vt([doc], fetched_at=AT)
     assert not any(c.winner for c in gov.candidates)

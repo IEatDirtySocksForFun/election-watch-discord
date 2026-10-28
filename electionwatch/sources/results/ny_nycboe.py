@@ -23,6 +23,7 @@ general elections have single-vote races, so other stages are refused.
 Fetching is filtered: the bot's subscription is matched against the contest names in the
 index (`keys`), so tracking one congressional district downloads only its two files.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -49,14 +50,22 @@ COUNTIES = ("Citywide", "New York", "Bronx", "Kings", "Queens", "Richmond")
 
 #: Non-candidate rows in the "Total for ..." block of the recap files.
 _MACHINE = {
-    "PUBLIC COUNTER", "MANUALLY COUNTED EMERGENCY", "ABSENTEE / MILITARY", "ABSENTEE",
-    "AFFIDAVIT", "FEDERAL", "EMERGENCY", "PROVISIONAL", "UNRECORDED", "SCANNER",
+    "PUBLIC COUNTER",
+    "MANUALLY COUNTED EMERGENCY",
+    "ABSENTEE / MILITARY",
+    "ABSENTEE",
+    "AFFIDAVIT",
+    "FEDERAL",
+    "EMERGENCY",
+    "PROVISIONAL",
+    "UNRECORDED",
+    "SCANNER",
     "TOTAL VOTES",
 }
 
-_LINK = re.compile(
-    r"/sites/default/files/pdf/election_results/(\d{4})/(\d{8})([^/\"]*)/([^\"]+)Recap\.csv")
+_LINK = re.compile(r"/sites/default/files/pdf/election_results/(\d{4})/(\d{8})([^/\"]*)/([^\"]+)Recap\.csv")
 _STEM = re.compile(r"^\d{11}(" + "|".join(COUNTIES) + r") (.+?)(?: Citywide)?$")
+
 
 def _norm(name: str) -> str:
     return re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
@@ -119,8 +128,7 @@ def parse_index(html: str, date: str) -> list[dict]:
         if path in seen:
             continue
         seen.add(path)
-        out.append({"county": stem.group(1), "contest": _clean_contest(stem.group(2)),
-                    "path": path})
+        out.append({"county": stem.group(1), "contest": _clean_contest(stem.group(2)), "path": path})
     return out
 
 
@@ -155,12 +163,18 @@ def parse_recap(text: str, *, county: str, contest: str, fetched_at: datetime) -
     if not cands:
         return []
     key = race_key(contest)
-    results = [CandidateResult(name=name, party=party, votes=votes, pct=None)
-               for name, (party, votes) in cands.items()]
-    return [c.make_result(
-        key, _clean_contest(contest), results, fetched_at,
-        source=NyNycBoe.name, url=HUMAN,
-        total_votes=sum(x.votes for x in results))]
+    results = [CandidateResult(name=name, party=party, votes=votes, pct=None) for name, (party, votes) in cands.items()]
+    return [
+        c.make_result(
+            key,
+            _clean_contest(contest),
+            results,
+            fetched_at,
+            source=NyNycBoe.name,
+            url=HUMAN,
+            total_votes=sum(x.votes for x in results),
+        )
+    ]
 
 
 def wanted(entry: dict, keys: list[RaceKey]) -> bool:
@@ -200,8 +214,7 @@ async def _index_html(client: httpx.AsyncClient, year: str, current_year: str) -
 async def _one(client: httpx.AsyncClient, entry: dict, fetched_at: datetime) -> list[RaceResult]:
     url = HOST + quote(entry["path"])
     text = await c.get_text(client, url)
-    return parse_recap(text, county=entry["county"], contest=entry["contest"],
-                       fetched_at=fetched_at)
+    return parse_recap(text, county=entry["county"], contest=entry["contest"], fetched_at=fetched_at)
 
 
 @register
@@ -222,8 +235,8 @@ class NyNycBoe(ResultsSource):
         entries = select_entries(parse_index(html, date), keys)
         if not entries:
             raise SourceUnavailable(
-                f"ny_nycboe: no New York City recap files for {date} covering "
-                f"{', '.join(str(k) for k in keys)}")
+                f"ny_nycboe: no New York City recap files for {date} covering {', '.join(str(k) for k in keys)}"
+            )
         gate = asyncio.Semaphore(4)
         results: list[RaceResult] = []
 

@@ -9,6 +9,7 @@ Candidate names carry a party prefix such as (D), (R), (G), and may span multipl
 lines when a vice-presidential running mate is listed. The adapter normalizes
 those names and maps offices to RaceKey values.
 """
+
 from __future__ import annotations
 
 import csv
@@ -43,8 +44,13 @@ def _parse_name(raw: str) -> tuple[str, str]:
     first = body.split("\n")[0].strip()
     first = re.sub(r"\s+For\s+.*$", "", first, flags=re.I)
     party_map = {
-        "D": "DEM", "R": "REP", "G": "GRN", "L": "LIB",
-        "S": "NPA", "N": "NPA", "W": "WRI",
+        "D": "DEM",
+        "R": "REP",
+        "G": "GRN",
+        "L": "LIB",
+        "S": "NPA",
+        "N": "NPA",
+        "W": "WRI",
     }
     return first, party_map.get(prefix, c.norm_party(prefix))
 
@@ -79,19 +85,37 @@ def race_key(office_raw: str) -> RaceKey:
 def _rows(text: str) -> list[dict]:
     buf = io.StringIO(text)
     first = buf.readline()
-    if first.strip() not in ('"Format#1"', 'Format#1'):
+    if first.strip() not in ('"Format#1"', "Format#1"):
         buf.seek(0)
     # csv.reader on a file-like object preserves embedded newlines in quoted fields.
-    return list(csv.DictReader(
-        buf,
-        fieldnames=[
-            "contest_id", "office", "contest_num", "type", "blank1",
-            "f1", "f2", "f3", "f4", "f5", "f6",
-            "registered_voters", "precincts_reporting", "precincts_total",
-            "candidate_seq", "candidate_raw", "party_num", "blank2",
-            "votes_day", "votes_absentee", "votes_total",
-        ],
-    ))
+    return list(
+        csv.DictReader(
+            buf,
+            fieldnames=[
+                "contest_id",
+                "office",
+                "contest_num",
+                "type",
+                "blank1",
+                "f1",
+                "f2",
+                "f3",
+                "f4",
+                "f5",
+                "f6",
+                "registered_voters",
+                "precincts_reporting",
+                "precincts_total",
+                "candidate_seq",
+                "candidate_raw",
+                "party_num",
+                "blank2",
+                "votes_day",
+                "votes_absentee",
+                "votes_total",
+            ],
+        )
+    )
 
 
 def parse_hi(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
@@ -121,15 +145,20 @@ def parse_hi(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, _norm(office), cands, fetched_at,
-            source=HiSoe.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(first.get("precincts_reporting")),
-            precincts_total=c.to_int(first.get("precincts_total")),
-            registered_voters=c.to_int(first.get("registered_voters")) or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                _norm(office),
+                cands,
+                fetched_at,
+                source=HiSoe.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(first.get("precincts_reporting")),
+                precincts_total=c.to_int(first.get("precincts_total")),
+                registered_voters=c.to_int(first.get("registered_voters")) or None,
+            )
+        )
     return out
 
 
@@ -160,7 +189,4 @@ class HiSoe(ResultsSource):
         if state != "HI":
             return []
         text = await _summary(client, c.election_date())
-        return [
-            (r.key, r.title or str(r.key))
-            for r in parse_hi(_rows(text), fetched_at=c.utcnow())
-        ]
+        return [(r.key, r.title or str(r.key)) for r in parse_hi(_rows(text), fetched_at=c.utcnow())]

@@ -32,23 +32,26 @@ def test_senate_and_congressional_districts():
     senate = got["MT SEN"]
     assert senate.key.level is Level.SENATE
     assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
-        ("TIM SHEEHY", "REP", 319682), ("JON TESTER", "DEM", 276305),
-        ("SID DAOUD", "LIB", 7272), ("ROBERT BARB", "GRN", 4003)]
+        ("Tim Sheehy", "REP", 319682),
+        ("Jon Tester", "DEM", 276305),
+        ("Sid Daoud", "LIB", 7272),
+        ("Robert Barb", "GRN", 4003),
+    ]
     assert senate.precincts_reporting == 727 and senate.precincts_total == 727
     assert senate.turnout_pct == 76.57
     assert senate.source_updated_at == datetime(2024, 12, 19, 20, 25, 20, tzinfo=timezone.utc)
     assert senate.candidates[0].pct == 52.64
     assert got["MT-01"].key.level is Level.HOUSE
     assert got["MT-01"].precincts_total == 345
-    assert got["MT-02"].candidates[0].name == "TROY DOWNING"
+    assert got["MT-02"].candidates[0].name == "Troy Downing"
 
 
 def test_statewide_executive_offices():
     got = by_key("2024_general_state.html")
-    assert got["MT GOV"].candidates[0].name == "GREG GIANFORTE"
+    assert got["MT GOV"].candidates[0].name == "Greg Gianforte"
     assert got["MT SOS"].key.level is Level.GOVERNOR
     assert got["MT AG"].candidates[0].votes == 352682
-    assert got["MT AUD"].candidates[0].name == "JAMES BROWN"
+    assert got["MT AUD"].candidates[0].name == "James Brown"
     assert got["MT SUPT"].key.office == "SUPT"
     # No shared code for the clerk of the supreme court: it stays an identifiable LOCAL race.
     assert "MT LOCAL clerk-of-the-supreme-court" in got
@@ -58,7 +61,7 @@ def test_legislative_districts():
     senate = by_key("2024_general_senate.html")
     assert set(senate) == {"MT SD-02", "MT SD-03"}
     assert senate["MT SD-02"].key.level is Level.STATE
-    assert senate["MT SD-02"].candidates[0].name == "DAVE FERN"
+    assert senate["MT SD-02"].candidates[0].name == "Dave Fern"
     assert senate["MT SD-03"].precincts_total == 11
     house = by_key("2024_general_house.html")
     assert set(house) == {"MT HD-01", "MT HD-02"}
@@ -77,12 +80,12 @@ def test_column_header_row_is_skipped():
 def test_non_partisan_judges_and_retention_questions():
     scj = by_key("2024_general_supreme_court.html")
     judge = scj["MT LOCAL supreme-court-chief-justice"]
-    assert judge.candidates[0].party == "NP"          # page prints "Non-Partisan"
-    assert judge.precincts_reporting == 726           # 726 fully + 0 partially of 727
+    assert judge.candidates[0].party == "NP"  # page prints "Non-Partisan"
+    assert judge.precincts_reporting == 726  # 726 fully + 0 partially of 727
 
     court = by_key("2024_general_district_court.html")
     retention = court["MT LOCAL retain-judge-mike-menahan"]
-    assert [c.name for c in retention.candidates] == ["YES", "NO"]
+    assert [c.name for c in retention.candidates] == ["Yes", "No"]
     assert retention.candidates[0].party is None
     assert "MT LOCAL district-court-judge-district-2-dept-1" in court
 
@@ -124,5 +127,4 @@ def test_race_key_mapping():
     assert format_key(race_key("STATE SENATOR DISTRICT 7")) == "MT SD-07"
     assert format_key(race_key("STATE REPRESENTATIVE DISTRICT 12")) == "MT HD-12"
     assert format_key(race_key("CI-126 A CONSTITUTIONAL AMENDMENT")) == "MT LOCAL ci-126"
-    assert format_key(race_key("SUPREME COURT JUSTICE #3")) == \
-        "MT LOCAL supreme-court-justice-3"
+    assert format_key(race_key("SUPREME COURT JUSTICE #3")) == "MT LOCAL supreme-court-justice-3"

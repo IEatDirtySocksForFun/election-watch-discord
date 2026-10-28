@@ -49,8 +49,7 @@ def test_governor_ticket_and_percentages():
     gov = {format_key(r.key): r for r in parse("OffCatC_1007_A.json")}["IN GOV"]
     assert gov.candidates[0].name.startswith("Mike Braun")
     assert gov.candidates[0].winner is True
-    assert gov.candidates[0].pct == round(
-        100.0 * gov.candidates[0].votes / gov.total_votes, 2)
+    assert gov.candidates[0].pct == round(100.0 * gov.candidates[0].votes / gov.total_votes, 2)
     # WriteTime is the file's own stamp (certified build, not a live update clock).
     assert gov.source_updated_at == datetime(2025, 4, 17, 18, 31, 53, tzinfo=timezone.utc)
 

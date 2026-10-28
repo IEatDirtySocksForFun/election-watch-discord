@@ -15,6 +15,7 @@ the environment.
 Everything here is pure except `fetch_summary`; the adapters own the county list and the
 state-specific race-key mapping.
 """
+
 from __future__ import annotations
 
 import json
@@ -33,11 +34,33 @@ from . import _common as c
 BASE = "https://results.enr.clarityelections.com"
 
 #: Contest names a county publishes for candidates that did not file; they carry no votes.
-_PLACEHOLDER = re.compile(r"^NO (?:CANDIDATE|NOMINATION)(?: FILED| MADE)?$", re.I)
+#: "Rejected write-ins" (Hood County) is a tally of write-ins that were not counted, and
+#: "Unassigned write-ins" is the vendor's zero-vote placeholder row.
+_PLACEHOLDER = re.compile(r"^NO (?:CANDIDATE|NOMINATION)(?: FILED| MADE)?$|^(?:REJECTED|UNASSIGNED) WRITE-?INS?$", re.I)
+
+#: Some counties repeat the party in the candidate name ("REP Ted Cruz") even though the
+#: contest also carries a party column, and Travis writes it in parentheses ("(R) Ted Cruz").
+#: Kept as-is, the same candidate would not merge with "Ted Cruz" from the next county.
+_PARTY_PREFIX = re.compile(r"^(REP|DEM|LIB|GRN|GRE|CON|CST|IND|NPA|NP|WRI|REF|FWD)\.?\s+(\S.*)$", re.I)
+_PAREN_PARTY_PREFIX = re.compile(r"^\(([A-Za-z]{1,3})\)\s+(\S.*)$")
+
+
+def split_party_prefix(name: str, party: str | None) -> str:
+    """'REP Ted Cruz' / '(R) Ted Cruz' with party REP -> 'Ted Cruz'. Only strips a prefix
+    that repeats the contest's own party column, so a title like 'Rep. John Lewis' is left
+    alone."""
+    if not party:
+        return name
+    text = name or ""
+    for pattern in (_PARTY_PREFIX, _PAREN_PARTY_PREFIX):
+        m = pattern.match(text)
+        if m and c.norm_party(m.group(1)) == party:
+            return m.group(2).strip()
+    return name
+
 
 #: Words that mean an elections.json entry is *not* the general election for the date.
-_NOT_GENERAL = re.compile(
-    r"PRIMARY|RUNOFF|SPECIAL|SCHOOL|MUNICIPAL|CITY|TOWN|RECALL|COUNCIL|CONVENTION", re.I)
+_NOT_GENERAL = re.compile(r"PRIMARY|RUNOFF|SPECIAL|SCHOOL|MUNICIPAL|CITY|TOWN|RECALL|COUNCIL|CONVENTION", re.I)
 
 
 def _iso_date(raw: str) -> str:
@@ -60,11 +83,13 @@ def parse_elections(payload) -> list[dict]:
         eid = str(row.get("EID") or row.get("Eid") or row.get("eid") or "").strip()
         if not eid:
             continue
-        out.append({
-            "eid": eid,
-            "name": str(row.get("ElectionName") or row.get("name") or "").strip(),
-            "date": _iso_date(str(row.get("Date") or row.get("date") or "")),
-        })
+        out.append(
+            {
+                "eid": eid,
+                "name": str(row.get("ElectionName") or row.get("name") or "").strip(),
+                "date": _iso_date(str(row.get("Date") or row.get("date") or "")),
+            }
+        )
     return out
 
 
@@ -87,11 +112,15 @@ def find_election(entries: list[dict], date: str) -> str | None:
         return exact[-1]["eid"]
     year = date[:4]
     loose = sorted(
-        (e for e in entries
-         if e["date"].startswith(year)
-         and "GENERAL" in e["name"].upper()
-         and not _NOT_GENERAL.search(e["name"].upper().replace("GENERAL", ""))),
-        key=_eid_order)
+        (
+            e
+            for e in entries
+            if e["date"].startswith(year)
+            and "GENERAL" in e["name"].upper()
+            and not _NOT_GENERAL.search(e["name"].upper().replace("GENERAL", ""))
+        ),
+        key=_eid_order,
+    )
     return loose[-1]["eid"] if loose else None
 
 
@@ -124,8 +153,11 @@ def parse_contests(
     updated: datetime | None = None,
 ) -> list[RaceResult]:
     """Pure parse of one Clarity summary.json (list of contest objects)."""
-    contests = summary if isinstance(summary, list) else (
-        (summary or {}).get("Contests") or (summary or {}).get("contests") or [])
+    contests = (
+        summary
+        if isinstance(summary, list)
+        else ((summary or {}).get("Contests") or (summary or {}).get("contests") or [])
+    )
     out: list[RaceResult] = []
     seen: set[str] = set()
     for con in contests:
@@ -144,36 +176,75 @@ def parse_contests(
         cands = []
         for i, choice in enumerate(choices):
             cand_name, incumbent = c.strip_incumbent(str(choice or "").strip())
+            party = c.norm_party(parties[i] if i < len(parties) else None)
+            cand_name = split_party_prefix(cand_name, party)
             if not cand_name or _PLACEHOLDER.match(cand_name):
                 continue
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(parties[i] if i < len(parties) else None),
-                votes=c.to_int(votes[i] if i < len(votes) else 0),
-                pct=c.to_pct(pcts[i] if i < len(pcts) else None),
-                incumbent=incumbent,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=party,
+                    votes=c.to_int(votes[i] if i < len(votes) else 0),
+                    pct=c.to_pct(pcts[i] if i < len(pcts) else None),
+                    incumbent=incumbent,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         total = con.get("T")
         if isinstance(total, list):
             total = total[0] if total else None
-        out.append(c.make_result(
-            key, name, cands, fetched_at,
-            source=source,
-            url=url,
-            total_votes=c.to_int(total) or sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(con.get("PR")) or None,
-            precincts_total=c.to_int(con.get("TP")) or None,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                name,
+                cands,
+                fetched_at,
+                source=source,
+                url=url,
+                total_votes=c.to_int(total) or sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(con.get("PR")) or None,
+                precincts_total=c.to_int(con.get("TP")) or None,
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
 def _cand_id(name: str) -> str:
     """County feeds differ in punctuation only ("HARRIS & WALZ" vs "HARRIS - WALZ")."""
     return re.sub(r"[^A-Z0-9]+", " ", (name or "").upper()).strip()
+
+
+def _token_prefix(short: str, long: str) -> bool:
+    """'Donald J. Trump' is a token prefix of 'Donald J. Trump/JD Vance' and of
+    'Donald J. Trump JD Vance'."""
+    a = _cand_id(short).split()
+    b = _cand_id(long).split()
+    return len(a) >= 2 and len(b) > len(a) and b[: len(a)] == a
+
+
+def _fold_ticket_running_mates(cands: list[CandidateResult], key) -> list[CandidateResult]:
+    """Counties write a presidential ticket three ways: 'Donald J. Trump/JD Vance',
+    'Donald J. Trump JD Vance' (Comal drops the slash) and 'Donald J. Trump' (Travis).
+    Keep the presidential name alone so the per-county tallies add up."""
+    if not (str(key.district or "").startswith("president") or any("/" in c.name for c in cands)):
+        return cands
+    ordered = sorted(cands, key=lambda c: len(_cand_id(c.name).split()))
+    folded: list[CandidateResult] = []
+    for cand in ordered:
+        for kept in folded:
+            same_party = kept.party == cand.party or kept.party is None or cand.party is None
+            if same_party and _token_prefix(kept.name, cand.name):
+                kept.votes += cand.votes
+                kept.incumbent = kept.incumbent or cand.incumbent
+                kept.winner = kept.winner and cand.winner
+                kept.party = kept.party or cand.party
+                break
+        else:
+            folded.append(cand)
+    return folded
 
 
 def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[RaceResult]:
@@ -197,8 +268,13 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
                 merged = tally.get(ident)
                 if merged is None:
                     tally[ident] = CandidateResult(
-                        name=cand.name.strip(), party=cand.party, votes=cand.votes,
-                        pct=None, incumbent=cand.incumbent, winner=cand.winner)
+                        name=cand.name.strip(),
+                        party=cand.party,
+                        votes=cand.votes,
+                        pct=None,
+                        incumbent=cand.incumbent,
+                        winner=cand.winner,
+                    )
                 else:
                     merged.votes += cand.votes
                     # Counties disagree on whether a minor candidate has a party code.
@@ -208,21 +284,28 @@ def merge(results: list[RaceResult], *, source: str, url: str | None) -> list[Ra
         cands = list(tally.values())
         if not cands:
             continue
+        if len(parts) > 1:
+            cands = _fold_ticket_running_mates(cands, parts[0].key)
         n = len(parts)
         base = next((p.title for p in parts if p.title), str(parts[0].key))
         title = f"{base} (partial: {n} counties)"
         stamps = [p.source_updated_at for p in parts if p.source_updated_at]
         pr = sum(p.precincts_reporting or 0 for p in parts) or None
         pt = sum(p.precincts_total or 0 for p in parts) or None
-        out.append(c.make_result(
-            parts[0].key, title, cands, parts[0].fetched_at,
-            source=source,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=pr,
-            precincts_total=pt,
-            source_updated_at=max(stamps) if stamps else None,
-        ))
+        out.append(
+            c.make_result(
+                parts[0].key,
+                title,
+                cands,
+                parts[0].fetched_at,
+                source=source,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=pr,
+                precincts_total=pt,
+                source_updated_at=max(stamps) if stamps else None,
+            )
+        )
     return out
 
 

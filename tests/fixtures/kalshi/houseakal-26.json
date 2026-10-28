@@ -1,0 +1,29 @@
+{
+  "event": {
+    "event_ticker": "HOUSEAKAL-26",
+    "series_ticker": "HOUSEAKAL",
+    "title": "Alaska House winner?"
+  },
+  "markets": [
+    {
+      "ticker": "HOUSEAKAL-26-D",
+      "title": "Will Democratic win the House race for AK-AL?",
+      "subtitle": "Democratic party:: Democratic party",
+      "yes_sub_title": "Eric Hafner",
+      "last_price_dollars": "0.0300",
+      "yes_bid_dollars": "0.0120",
+      "yes_ask_dollars": "0.0270",
+      "updated_time": "2026-10-19T18:04:52.978454Z"
+    },
+    {
+      "ticker": "HOUSEAKAL-26-R",
+      "title": "Will Republican win the House race for AK-AL?",
+      "subtitle": "Republican party:: Republican party",
+      "yes_sub_title": "Nick Begich III",
+      "last_price_dollars": "0.7800",
+      "yes_bid_dollars": "0.7700",
+      "yes_ask_dollars": "0.7800",
+      "updated_time": "2026-10-19T18:04:53.986065Z"
+    }
+  ]
+}

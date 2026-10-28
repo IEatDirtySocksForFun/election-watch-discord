@@ -7,8 +7,13 @@ from electionwatch.sources.results.sd_sos import media_info, parse_sd, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "sd_sos" / "SD"
 AT = datetime(2026, 10, 27, 16, 30, tzinfo=timezone.utc)
-CSVS = ("2026_general_swr.csv", "2026_general_bq.csv", "2026_general_leg.csv",
-        "2026_general_cty.csv", "2026_general_mun.csv")
+CSVS = (
+    "2026_general_swr.csv",
+    "2026_general_bq.csv",
+    "2026_general_leg.csv",
+    "2026_general_cty.csv",
+    "2026_general_mun.csv",
+)
 
 
 def texts():
@@ -38,13 +43,15 @@ def test_senate_and_at_large_house():
     senate = got["SD SEN"]
     assert senate.key.level is Level.SENATE
     assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
-        ("Mike Rounds", "REP", 2132), ("Brian L Bengs", "IND", 2099)]
-    assert senate.candidates[0].pct == 50.39            # 0-1 fraction in the feed
+        ("Mike Rounds", "REP", 2132),
+        ("Brian L Bengs", "IND", 2099),
+    ]
+    assert senate.candidates[0].pct == 50.39  # 0-1 fraction in the feed
     assert senate.precincts_reporting == 122
     assert senate.precincts_total == 671
     assert senate.expected_vote_pct == 18.18
     assert senate.source_updated_at == datetime(2026, 10, 27, 15, 53, tzinfo=timezone.utc)
-    assert senate.turnout_pct == 1.04                   # 6441 / 622188
+    assert senate.turnout_pct == 1.04  # 6441 / 622188
 
     house = got["SD-AL"]
     assert house.key.level is Level.HOUSE
@@ -56,7 +63,9 @@ def test_statewide_executive_offices():
     got = by_key()
     assert got["SD GOV"].title == "Governor and Lieutenant Governor"
     assert [c.name for c in got["SD GOV"].candidates] == [
-        "Larry Rhoden and Tony Venhuizen", "Dan Ahlers and Steven McCleerey"]
+        "Larry Rhoden and Tony Venhuizen",
+        "Dan Ahlers and Steven McCleerey",
+    ]
     assert [c.party for c in got["SD SOS"].candidates] == ["DEM", "LIB", "REP"]
     assert got["SD AG"].candidates[0].pct == 100.0
     assert got["SD AUD"].key.level is Level.GOVERNOR
@@ -78,8 +87,7 @@ def test_legislative_races_and_two_seat_house_districts():
 
     hd = got["SD HD-01"]
     assert hd.key.office == "HD"
-    assert [c.name for c in hd.candidates] == [
-        "Daniel Kjos", "Nick Fosness", "Courtney Gale Enfield"]
+    assert [c.name for c in hd.candidates] == ["Daniel Kjos", "Nick Fosness", "Courtney Gale Enfield"]
     assert hd.title == "State Representative (District 01)"
 
 
@@ -116,13 +124,11 @@ def test_race_key_mapping():
     assert format_key(race_key("Commissioner of School and Public Lands")) == "SD LANDCOM"
     assert format_key(race_key("State Senator", "District 7")) == "SD SD-07"
     assert format_key(race_key("State Representative", "District 12")) == "SD HD-12"
-    assert format_key(race_key("City Council Member", "Brookings")) == \
-        "SD LOCAL city-council-member-brookings"
+    assert format_key(race_key("City Council Member", "Brookings")) == "SD LOCAL city-council-member-brookings"
 
 
 def test_partial_feed_does_not_crash():
     # Only one group fetched: the parser reports what it has.
-    got = parse_sd((FIX / "2026_general_swr.csv").read_text(encoding="utf-8"),
-                   fetched_at=AT)
+    got = parse_sd((FIX / "2026_general_swr.csv").read_text(encoding="utf-8"), fetched_at=AT)
     assert {format_key(r.key) for r in got} >= {"SD SEN", "SD-AL", "SD GOV"}
-    assert got[0].source_updated_at is None      # no media page -> no timestamp
+    assert got[0].source_updated_at is None  # no media page -> no timestamp

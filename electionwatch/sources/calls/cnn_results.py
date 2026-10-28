@@ -4,7 +4,17 @@ CNN's public race JSON (the same feed used by ``cnn.py`` for calls) carries
 ``totalVote``, ``percentReporting`` and per-candidate ``voteNum`` /
 ``votePercentNum``. It is the site's own JSON rather than a documented API, so
 ``scrape=True`` and disabled by default.
+
+At-large House seats: the code is built as ``<year>-HG-<state>-AL`` (see
+``calls._common.key_to_cnn_code``) and the parser accepts that suffix. Checked
+2026-10-27 with plain unauthenticated GETs: ``2024-HG-AK-AL.json`` answers 404,
+while a control for a race CNN did carry (``2024-SG-TX.json``) answers 200, and
+``2024-HG-AK-00`` / ``-01`` are 404 as well — so CNN's code for a single-seat
+state cannot be confirmed from outside today, and the mapping is left as is
+rather than guessed at. If CNN rate-limits (406) the fetch reports
+SourceUnavailable once and the poller backs off; it never retries in a loop.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,12 +22,12 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
-from ._common import cnn_code_to_key, epoch_ms_to_dt, key_to_cnn_code, normalize_party, parse_iso_ts
+from ._common import cnn_code_to_key, epoch_ms_to_dt, house_title, key_to_cnn_code, normalize_party, parse_iso_ts
 
 
 @register
@@ -26,6 +36,7 @@ class CNNResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
+    fallback = True  # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = "https://politics.api.cnn.io/results/race"
@@ -100,9 +111,7 @@ def parse_cnn_results(payload: dict, fetched_at: datetime | None = None) -> Race
     candidates = [
         CandidateResult(
             name=c.get("fullName") or f"{c.get('firstName', '')} {c.get('lastName', '')}".strip(),
-            party=normalize_party(
-                c.get("majorParty") or c.get("partyName") or c.get("candidatePartyCode")
-            ),
+            party=normalize_party(c.get("majorParty") or c.get("partyName") or c.get("candidatePartyCode")),
             votes=int(c.get("voteNum") or 0),
             pct=c.get("votePercentNum"),
             incumbent=bool(c.get("isIncumbent")),
@@ -113,8 +122,10 @@ def parse_cnn_results(payload: dict, fetched_at: datetime | None = None) -> Race
     if not candidates:
         return None
 
-    title = "U.S. Senate" if key.level is Level.SENATE else (
-        "Governor" if key.level is Level.GOVERNOR else f"U.S. House District {int(key.district)}"
+    title = (
+        "U.S. Senate"
+        if key.level is Level.SENATE
+        else ("Governor" if key.level is Level.GOVERNOR else house_title(key.district))
     )
     embargo = payload.get("raceEmbargo") or {}
     return RaceResult(
@@ -122,10 +133,7 @@ def parse_cnn_results(payload: dict, fetched_at: datetime | None = None) -> Race
         candidates=candidates,
         source="cnn_results",
         fetched_at=fetched_at or datetime.now(timezone.utc),
-        source_updated_at=(
-            epoch_ms_to_dt(embargo.get("callsRelease"))
-            or parse_iso_ts(payload.get("voteTimestamp"))
-        ),
+        source_updated_at=(epoch_ms_to_dt(embargo.get("callsRelease")) or parse_iso_ts(payload.get("voteTimestamp"))),
         precincts_reporting=payload.get("percentReporting"),
         expected_vote_pct=payload.get("percentReporting"),
         total_votes=payload.get("totalVote"),

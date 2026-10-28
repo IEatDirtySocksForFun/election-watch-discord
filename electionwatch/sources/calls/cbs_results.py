@@ -11,6 +11,7 @@ default. Enable with ``EW_ENABLED_SOURCES=cbs_results``. Only US Senate,
 Governor and US House are covered. ``winner`` stays False because CBS' flag is a
 projection, not an official declaration (the call itself comes from ``cbs``).
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -18,13 +19,13 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult, normalize_party
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
-from .cbs import CBSSource, _race_key, _race_url
 from ._common import parse_iso_ts
+from .cbs import CBSSource, _race_key, _race_url
 
 _LEVEL_OFFICES = {Level.SENATE: "S", Level.GOVERNOR: "G", Level.HOUSE: "H"}
 _OFFICE_TITLES = {"S": "U.S. Senate", "G": "Governor", "H": "U.S. House"}
@@ -36,6 +37,7 @@ class CBSResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
+    fallback = True  # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = CBSSource.BASE
@@ -62,7 +64,8 @@ class CBSResultsSource(ResultsSource):
         pairs = {
             (_LEVEL_OFFICES[k.level], k.state)
             for k in keys
-            if k.level in _LEVEL_OFFICES and k.state in self.states
+            if k.level in _LEVEL_OFFICES
+            and k.state in self.states
             and (k.level is not Level.GOVERNOR or k.office == "GOV")
         }
         now = datetime.now(timezone.utc)

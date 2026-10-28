@@ -3,15 +3,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
-import json
 import pytest
 
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key, parse
 from electionwatch.sources.base import SourceUnavailable
-from electionwatch.sources.results import enhanced_voting
 from electionwatch.sources.results.enhanced_voting import (
-    ELECTIONS, EnhancedVoting, export_url, feeds, race_key,
+    ELECTIONS,
+    EnhancedVoting,
+    export_url,
+    feeds,
+    race_key,
 )
 from electionwatch.sources.results.ga_sos import parse_ga
 
@@ -28,9 +30,7 @@ def by_key(results):
 
 
 def test_parse_maps_state_aware_races():
-    results = by_key(
-        parse_ga(load("export-2024NovGen.json"), fetched_at=AT)
-    )
+    results = by_key(parse_ga(load("export-2024NovGen.json"), fetched_at=AT))
     assert results["GA-01"].key.level is Level.HOUSE
     assert results["GA-01"].title == "US House of Representatives - District 1"
     assert results["GA HD-01"].key.level is Level.STATE
@@ -51,13 +51,17 @@ def test_feed_configuration(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
     monkeypatch.delenv("ENHANCED_VOTING_FEEDS", raising=False)
     assert feeds("2026-11-03", "AZ") == ELECTIONS["2026-11-03"]
-    assert export_url("AZ", "2026NovGen") == \
-        "https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json"
+    assert export_url("AZ", "2026NovGen") == "https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json"
 
-    monkeypatch.setenv("ENHANCED_VOTING_FEEDS", json.dumps([
-        {"state": "GA", "slug": "2024NovGen", "date": "2024-11-05"},
-        {"state": "AZ", "slug": "custom", "date": "2026-11-03"},
-    ]))
+    monkeypatch.setenv(
+        "ENHANCED_VOTING_FEEDS",
+        json.dumps(
+            [
+                {"state": "GA", "slug": "2024NovGen", "date": "2024-11-05"},
+                {"state": "AZ", "slug": "custom", "date": "2026-11-03"},
+            ]
+        ),
+    )
     assert [f["state"] for f in feeds("2024-11-05")] == ["GA"]
     assert [f["slug"] for f in feeds("2026-11-03")] == ["custom"]
 
@@ -89,9 +93,7 @@ def test_fetch_is_unavailable_when_export_404(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-            lambda r: httpx.Response(404)
-        )) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as client:
             return await EnhancedVoting().fetch([parse("AZ SEN")], client)
 
     with pytest.raises(SourceUnavailable, match="not published yet"):

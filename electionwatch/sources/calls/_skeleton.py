@@ -1,7 +1,6 @@
 """Skeleton helpers for unverified race-call adapters."""
-from __future__ import annotations
 
-from typing import ClassVar
+from __future__ import annotations
 
 import httpx
 
@@ -59,9 +58,7 @@ def make_skeleton_source(
     """Factory for a minimal, unverified CallSource subclass."""
 
     class _Skeleton(CallSource):
-        async def fetch_calls(
-            self, keys: list[RaceKey], client: httpx.AsyncClient
-        ) -> list[RaceCall]:
+        async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
             # Unverified skeleton: the parse function is exercised against fixtures.
             return []
 

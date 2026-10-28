@@ -27,6 +27,7 @@ pins the ones we have checked. `reportingStatus.totalUnits` counts the precincts
 the contest (133 statewide, 18 for a congressional district), which is what
 expected_vote_pct is computed from.
 """
+
 from __future__ import annotations
 
 import re
@@ -44,7 +45,8 @@ JURISDICTION = "virginia"
 HUMAN = "https://enr.elections.virginia.gov/results/public/virginia/"
 
 ELECTIONS: dict[str, str] = {
-    # date -> publicElectionId (None = discover from the jurisdiction listing).
+    # date -> publicElectionId (None = discover from the jurisdiction listing). The listing
+    # has answered 404 since late October 2026, so an election must be pinned here to work.
     "2025-11-04": "2025-November-General",
     "2026-11-03": "2026-November-General",
 }
@@ -136,26 +138,33 @@ def parse_va(payload, *, fetched_at: datetime) -> list[RaceResult]:
             party = (option.get("party") or {}).get("abbreviation") if option.get("party") else None
             if option.get("isWriteIn"):
                 party = party or "WRI"
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(party),
-                votes=c.to_int(option.get("voteCount")),
-                incumbent=incumbent,
-                winner=bool(option.get("isWinner")),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=c.norm_party(party),
+                    votes=c.to_int(option.get("voteCount")),
+                    incumbent=incumbent,
+                    winner=bool(option.get("isWinner")),
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         status = item.get("reportingStatus") or {}
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=VaElect.name,
-            url=HUMAN,
-            total_votes=c.to_int(item.get("voteTotal")) or sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(status.get("reportingUnits")) or None,
-            precincts_total=c.to_int(status.get("totalUnits")) or None,
-            source_updated_at=_iso(status.get("asOf")),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=VaElect.name,
+                url=HUMAN,
+                total_votes=c.to_int(item.get("voteTotal")) or sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(status.get("reportingUnits")) or None,
+                precincts_total=c.to_int(status.get("totalUnits")) or None,
+                source_updated_at=_iso(status.get("asOf")),
+            )
+        )
     return out
 
 
@@ -200,5 +209,4 @@ class VaElect(ResultsSource):
         if state != "VA":
             return []
         payload = await _payload(client, c.election_date())
-        return [(r.key, r.title or str(r.key))
-                for r in parse_va(payload, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_va(payload, fetched_at=c.utcnow())]

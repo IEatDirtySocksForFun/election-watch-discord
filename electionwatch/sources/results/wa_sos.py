@@ -31,6 +31,7 @@ Discovery: the folder is the election date as YYYYMMDD, so a new election needs
 no id mapping. Until the state publishes the folder for a date, the adapter
 reports itself unavailable (2026 general was a 404 on 2026-10-27).
 """
+
 from __future__ import annotations
 
 import re
@@ -50,7 +51,7 @@ HUMAN = BASE + "/"
 ELECTIONS: dict[str, str | None] = {
     # date -> folder. None = derive from the tracked date (YYYYMMDD).
     "2024-11-05": "20241105",
-    "2026-11-03": None,   # not published yet on 2026-10-27 (folder 404)
+    "2026-11-03": None,  # not published yet on 2026-10-27 (folder 404)
 }
 
 _STATEWIDE = {
@@ -66,12 +67,13 @@ _STATEWIDE = {
     "COMMISSIONER OF PUBLIC LANDS": "LANDCOM",
 }
 
-_CONGRESS = re.compile(
-    r"^CONGRESSIONAL DISTRICT\s+(\d+)\s*-\s*U\.S\. REPRESENTATIVE$", re.I)
+_CONGRESS = re.compile(r"^CONGRESSIONAL DISTRICT\s+(\d+)\s*-\s*U\.S\. REPRESENTATIVE$", re.I)
 _LEG_SEN = re.compile(r"^LEGISLATIVE DISTRICT\s+(\d+)\s*-\s*STATE SENATOR$", re.I)
 _LEG_REP = re.compile(
     r"^LEGISLATIVE DISTRICT\s+(\d+)\s*-\s*STATE REPRESENTATIVE"
-    r"(?:\s+POS\.?\s*(\d+))?$", re.I)
+    r"(?:\s+POS\.?\s*(\d+))?$",
+    re.I,
+)
 
 
 def _norm(name: str) -> str:
@@ -127,21 +129,22 @@ def race_key(name: str) -> RaceKey:
         district = f"{int(m.group(1)):02d}"
         pos = int(m.group(2) or 1)
         # Position 1 is the plain district; position 2 needs its own stable key.
-        return RaceKey("WA", Level.STATE, "HD",
-                       district if pos == 1 else f"{district}P{pos}")
+        return RaceKey("WA", Level.STATE, "HD", district if pos == 1 else f"{district}P{pos}")
     return c.local_key("WA", n)
 
 
 def _rows(root: ET.Element) -> list[dict]:
     out = []
     for row in root.iter("Result"):
-        out.append({
-            "race": (row.findtext("RaceName") or "").strip(),
-            "candidate": (row.findtext("Candidate") or "").strip(),
-            "party": (row.findtext("Party") or "").strip() or None,
-            "votes": row.findtext("Votes"),
-            "pct": row.findtext("PercentageOfTotalVote"),
-        })
+        out.append(
+            {
+                "race": (row.findtext("RaceName") or "").strip(),
+                "candidate": (row.findtext("Candidate") or "").strip(),
+                "party": (row.findtext("Party") or "").strip() or None,
+                "votes": row.findtext("Votes"),
+                "pct": row.findtext("PercentageOfTotalVote"),
+            }
+        )
     return out
 
 
@@ -164,14 +167,16 @@ def parse_wa(xml_text: str, *, fetched_at: datetime) -> list[RaceResult]:
         cand_name, incumbent = c.strip_incumbent(row["candidate"])
         if not cand_name:
             continue
-        bucket["cands"].append(CandidateResult(
-            name=cand_name,
-            party=_party(row["party"]),
-            votes=c.to_int(row["votes"]),
-            pct=c.to_pct(row["pct"]),
-            incumbent=incumbent,
-            winner=False,  # the export publishes no winner flags
-        ))
+        bucket["cands"].append(
+            CandidateResult(
+                name=cand_name,
+                party=_party(row["party"]),
+                votes=c.to_int(row["votes"]),
+                pct=c.to_pct(row["pct"]),
+                incumbent=incumbent,
+                winner=False,  # the export publishes no winner flags
+            )
+        )
 
     out: list[RaceResult] = []
     seen: set[str] = set()
@@ -179,12 +184,17 @@ def parse_wa(xml_text: str, *, fetched_at: datetime) -> list[RaceResult]:
         if not bucket["cands"] or str(bucket["key"]) in seen:
             continue
         seen.add(str(bucket["key"]))
-        out.append(c.make_result(
-            bucket["key"], name, bucket["cands"], fetched_at,
-            source=WaSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in bucket["cands"]),
-        ))
+        out.append(
+            c.make_result(
+                bucket["key"],
+                name,
+                bucket["cands"],
+                fetched_at,
+                source=WaSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in bucket["cands"]),
+            )
+        )
     return out
 
 
@@ -204,7 +214,8 @@ class WaSos(ResultsSource):
         except SourceUnavailable as exc:
             raise SourceUnavailable(
                 f"wa_sos: {url} is not published yet ({exc}); Washington posts the "
-                f"export under the election date folder on election night") from exc
+                f"export under the election date folder on election night"
+            ) from exc
         parsed = parse_wa(text, fetched_at=c.utcnow())
         return c.select(parsed, [k for k in keys if k.state == "WA"])
 

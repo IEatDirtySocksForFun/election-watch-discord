@@ -11,12 +11,13 @@ The XML is citywide-aggregated: each ``ContestDataExportViewModel`` contains
 one ``ElectionDataExportViewModel`` per candidate/choice. Turnout comes from
 the ``REGISTERED VOTERS - TOTAL`` and ``BALLOTS CAST - TOTAL`` pseudo-contests.
 """
+
 from __future__ import annotations
 
 import json
 import re
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime
 
 import httpx
 
@@ -40,8 +41,16 @@ def _norm(name: str) -> str:
 
 
 _WORD_TO_DIGIT = {
-    "ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4", "FIVE": "5",
-    "SIX": "6", "SEVEN": "7", "EIGHT": "8", "NINE": "9", "TEN": "10",
+    "ONE": "1",
+    "TWO": "2",
+    "THREE": "3",
+    "FOUR": "4",
+    "FIVE": "5",
+    "SIX": "6",
+    "SEVEN": "7",
+    "EIGHT": "8",
+    "NINE": "9",
+    "TEN": "10",
 }
 
 
@@ -55,8 +64,11 @@ def _ward_digit(tok: str) -> str:
 def race_key(name: str) -> RaceKey:
     n = _norm(name)
     special = c.is_special(n)
-    if n in ("ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES",
-             "PRESIDENT AND VICE PRESIDENT", "US PRESIDENT"):
+    if n in (
+        "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES",
+        "PRESIDENT AND VICE PRESIDENT",
+        "US PRESIDENT",
+    ):
         return c.local_key("DC", "us-president")
     if n == "UNITED STATES SENATOR":
         # DC's "U.S. Senator" contest is the shadow senator; map to LOCAL.
@@ -78,7 +90,10 @@ def race_key(name: str) -> RaceKey:
         return c.local_key("DC", f"council-ward-{_ward_digit(m.group(1))}")
     if n == "AT-LARGE MEMBER OF THE STATE BOARD OF EDUCATION":
         return c.local_key("DC", "sboe-at-large")
-    m = re.search(r"^WARD\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN)\s+MEMBER\s+OF\s+THE\s+STATE\s+BOARD\s+OF\s+EDUCATION", n)
+    m = re.search(
+        r"^WARD\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN)\s+MEMBER\s+OF\s+THE\s+STATE\s+BOARD\s+OF\s+EDUCATION",
+        n,
+    )
     if m:
         return c.local_key("DC", f"sboe-ward-{_ward_digit(m.group(1))}")
     m = re.match(r"^(INITIATIVE\s+\d+|REFERRAL\s+\d+|CHARTER\s+AMENDMENT\s+\w+)", n)
@@ -133,22 +148,29 @@ def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
                 continue
             name, pref_party = _clean_candidate(raw_name)
             votes = c.to_int(choice.findtext("Votes"))
-            cands.append(CandidateResult(
-                name=name,
-                party=c.norm_party(pref_party or party),
-                votes=votes,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=c.norm_party(pref_party or party),
+                    votes=votes,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=DcBoe.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            registered_voters=registered or None,
-            turnout_pct=c.to_pct(ballots / registered * 100) if registered else None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=DcBoe.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                registered_voters=registered or None,
+                turnout_pct=c.to_pct(ballots / registered * 100) if registered else None,
+            )
+        )
 
     # Apply turnout to every race now that we have the totals.
     if registered and ballots:
@@ -203,6 +225,5 @@ class DcBoe(ResultsSource):
         xml = await _xml_url(client, c.election_date())
         text = await c.get_text(client, xml)
         return [
-            (r.key, r.title or str(r.key))
-            for r in parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=c.utcnow())
+            (r.key, r.title or str(r.key)) for r in parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=c.utcnow())
         ]

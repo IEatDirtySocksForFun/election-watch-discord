@@ -5,6 +5,7 @@ percentages and reporting percentages into ``window['__abcnews__']``. It is
 HTML scraping of the outlet's own page, so ``scrape=True`` and disabled by
 default.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,12 +13,12 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
-from ._common import district_key, normalize_party, parse_iso_ts
+from ._common import district_key, house_title, normalize_party, parse_iso_ts
 from .abc import extract_abc_config
 
 _CHAMBERS: dict[Level, str] = {
@@ -34,6 +35,7 @@ class ABCResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
+    fallback = True  # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = "https://abcnews.go.com/widgets/generalstateresults"
@@ -44,8 +46,7 @@ class ABCResultsSource(ResultsSource):
         if chamber is None:
             return None
         return (
-            f"{self.BASE}?chamber={chamber}&hideMap=true"
-            f"&stateAbbrev={key.state.lower()}&year={self.YEAR}&type=general"
+            f"{self.BASE}?chamber={chamber}&hideMap=true&stateAbbrev={key.state.lower()}&year={self.YEAR}&type=general"
         )
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
@@ -86,8 +87,14 @@ class ABCResultsSource(ResultsSource):
         now = datetime.now(timezone.utc)
         races: list[tuple[RaceKey, str]] = []
         for chamber in _CHAMBERS.values():
-            key = RaceKey(state, Level.SENATE, "SEN") if chamber == "senate" else (
-                RaceKey(state, Level.GOVERNOR, "GOV") if chamber == "governor" else RaceKey(state, Level.HOUSE, "HOUSE")
+            key = (
+                RaceKey(state, Level.SENATE, "SEN")
+                if chamber == "senate"
+                else (
+                    RaceKey(state, Level.GOVERNOR, "GOV")
+                    if chamber == "governor"
+                    else RaceKey(state, Level.HOUSE, "HOUSE")
+                )
             )
             url = self._url(key)
             if url is None:
@@ -115,11 +122,7 @@ def parse_abc_results(html: str, fetched_at: datetime | None = None) -> list[Rac
         config = extract_abc_config(html)
     except ValueError:
         return []
-    page = (
-        config.get("page", {})
-        .get("content", {})
-        .get("generalStateResults", {})
-    )
+    page = config.get("page", {}).get("content", {}).get("generalStateResults", {})
     state = ((page.get("state") or {}).get("abbreviation") or "").strip().upper()
     if len(state) != 2 or not state.isalpha():
         return []
@@ -171,7 +174,7 @@ def _race_result(
     reporting = race.get("reporting") or {}
     title = _CHAMBER_TITLES.get(chamber)
     if key.level is Level.HOUSE and key.district:
-        title = f"U.S. House District {int(key.district)}"
+        title = house_title(key.district)
     updated = parse_iso_ts((race.get("lastUpdated") or {}).get("value")) or page_updated
     return RaceResult(
         key=key,

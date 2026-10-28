@@ -1,0 +1,223 @@
+{
+ "count": 6,
+ "offset": 0,
+ "limit": 1000,
+ "races": [
+  {
+   "id": 87439,
+   "type": "Lieutenant Governor",
+   "country": "US",
+   "province": "TX",
+   "district": null,
+   "municipality": null,
+   "election_name": "Texas Lieutenant Governor",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Vikki Goodwin",
+     "candidate_id": 221155,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    },
+    {
+     "name": "Dan Patrick",
+     "candidate_id": 221154,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    },
+    {
+     "name": "Kevin McCormick",
+     "candidate_id": 1175701,
+     "party": "Green",
+     "color": "#09ad00",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 159568,
+   "type": "State House",
+   "country": "US",
+   "province": "TX",
+   "district": null,
+   "municipality": null,
+   "election_name": "Texas State House",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "seats": 150,
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Republican",
+     "candidate_id": 385622,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 0,
+     "percent": 0,
+     "seats": 0,
+     "winner": false
+    },
+    {
+     "name": "Democratic",
+     "candidate_id": 385623,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 0,
+     "percent": 0,
+     "seats": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 56029,
+   "type": "State House",
+   "country": "US",
+   "province": "TX",
+   "district": "TX-HD-121",
+   "municipality": null,
+   "election_name": "Texas State House 121",
+   "election_type": "Local",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Zack Dunn",
+     "candidate_id": 140525,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    },
+    {
+     "name": "Marc LaHood",
+     "candidate_id": 140524,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 162619,
+   "type": "Judge",
+   "country": "US",
+   "province": "TX",
+   "district": "El Paso",
+   "municipality": null,
+   "election_name": "El Paso District Judge, 327th Judicial District",
+   "election_type": "Local",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Monique Velarde Reyes",
+     "candidate_id": 1175989,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 87435,
+   "type": "House of Representatives",
+   "country": "US",
+   "province": "TX",
+   "district": "TX-35",
+   "municipality": null,
+   "election_name": "Texas US House 35",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Carlos De La Cruz",
+     "candidate_id": 221147,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 143814,
+     "percent": 50.27,
+     "winner": true
+    },
+    {
+     "name": "Johnny Garcia",
+     "candidate_id": 221146,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 142296,
+     "percent": 49.73,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 87438,
+   "type": "US Senate",
+   "country": "US",
+   "province": "TX",
+   "district": null,
+   "municipality": null,
+   "election_name": "Texas US Senate",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "James Talarico",
+     "candidate_id": 221153,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 5008333,
+     "percent": 49.72,
+     "winner": true
+    },
+    {
+     "name": "Ken Paxton",
+     "candidate_id": 221152,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 4775756,
+     "percent": 47.42,
+     "winner": false
+    },
+    {
+     "name": "Ted Brown",
+     "candidate_id": 1175698,
+     "party": "Libertarian",
+     "color": "#d4c029",
+     "votes": 288157,
+     "percent": 2.86,
+     "winner": false
+    }
+   ]
+  }
+ ]
+}

@@ -34,6 +34,7 @@ One block per contest inside `<div class="wrapper-inside wrapper-border">`:
 Ballot measures ("Related to ...") use the same blocks with Yes/No rows and no party div.
 The pages carry no "last updated" stamp, so `source_updated_at` stays None.
 """
+
 from __future__ import annotations
 
 import re
@@ -55,10 +56,19 @@ _PRECINCTS = re.compile(r"Precincts\s+Fully:\s*([\d,]+)\s*/\s*([\d,]+)", re.I)
 _DISTRICT = re.compile(r"DISTRICT\s*0*(\d{1,2})\s*([A-Z])?", re.I)
 
 _PARTIES = {
-    "REPUBLICAN": "REP", "DEMOCRATICNPL": "DEM", "DEMOCRATIC": "DEM", "DEM": "DEM",
-    "LIBERTARIAN": "LIB", "INDEPENDENT": "IND", "INDEPENDENTNOMINATION": "IND",
-    "NONPARTISAN": "NPA", "NOPARTY": "NPA", "CONSTITUTION": "CON", "GREEN": "GRN",
-    "WRITEIN": "WRI", "OTHER": "OTH",
+    "REPUBLICAN": "REP",
+    "DEMOCRATICNPL": "DEM",
+    "DEMOCRATIC": "DEM",
+    "DEM": "DEM",
+    "LIBERTARIAN": "LIB",
+    "INDEPENDENT": "IND",
+    "INDEPENDENTNOMINATION": "IND",
+    "NONPARTISAN": "NPA",
+    "NOPARTY": "NPA",
+    "CONSTITUTION": "CON",
+    "GREEN": "GRN",
+    "WRITEIN": "WRI",
+    "OTHER": "OTH",
 }
 
 _STATEWIDE = (
@@ -144,23 +154,30 @@ def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 name = "Write-in"
             votes_node = row.css_first("h2.display-results-box-g")
             pct_node = row.css_first("h2.display-results-box-f")
-            cands.append(CandidateResult(
-                name=name,
-                party=_party(row.css_first("div.display-results-box-e div")),
-                votes=c.to_int(votes_node.text() if votes_node is not None else None),
-                pct=c.to_pct(pct_node.text() if pct_node is not None else None),
-                winner=row.css_first("img.winner-icon") is not None,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=_party(row.css_first("div.display-results-box-e div")),
+                    votes=c.to_int(votes_node.text() if votes_node is not None else None),
+                    pct=c.to_pct(pct_node.text() if pct_node is not None else None),
+                    winner=row.css_first("img.winner-icon") is not None,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=NdSos.name,
-            url=HUMAN,
-            precincts_reporting=reporting,
-            precincts_total=total,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=NdSos.name,
+                url=HUMAN,
+                precincts_reporting=reporting,
+                precincts_total=total,
+            )
+        )
     return out
 
 

@@ -2,8 +2,6 @@
 .env
 *.env
 !.env.example
-.env
-.env
 # python
 __pycache__/
 *.pyc
@@ -16,3 +14,5 @@ data/
 # ...except the party table shipped with the package
 !electionwatch/data/
 replay/out/
+uv.lock
+node_modules/

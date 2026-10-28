@@ -1,0 +1,124 @@
+{
+ "state": "US",
+ "category": "inperson",
+ "election_name": "US In-Person Early Voting",
+ "snapshot_date": "2026-10-27",
+ "regions": {
+  "FL": {
+   "Democratic": {
+    "votes": 689521,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 339172,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 47799,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 847876,
+    "color": "#c6606b"
+   }
+  },
+  "GA": {
+   "Unspecified": {
+    "votes": 1697619,
+    "color": "#999999"
+   }
+  },
+  "LA": {
+   "Unspecified": {
+    "votes": 364319,
+    "color": "#999999"
+   }
+  },
+  "NC": {
+   "Democratic": {
+    "votes": 699156,
+    "color": "#4874a3"
+   },
+   "No Party Affiliation": {
+    "votes": 586495,
+    "color": "#63c660"
+   },
+   "Other": {
+    "votes": 4314,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 418083,
+    "color": "#c6606b"
+   }
+  },
+  "NV": {
+   "Democratic": {
+    "votes": 73498,
+    "color": "#4874a3"
+   },
+   "Other": {
+    "votes": 43482,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 80170,
+    "color": "#c6606b"
+   }
+  },
+  "TN": {
+   "Unspecified": {
+    "votes": 913512,
+    "color": "#999999"
+   }
+  },
+  "TX": {
+   "Unspecified": {
+    "votes": 4857518,
+    "color": "#999999"
+   }
+  },
+  "WI": {
+   "Unspecified": {
+    "votes": 251092,
+    "color": "#999999"
+   }
+  },
+  "WV": {
+   "Democratic": {
+    "votes": 25556,
+    "color": "#4874a3"
+   },
+   "Other": {
+    "votes": 12619,
+    "color": "#e0bb24"
+   },
+   "Republican": {
+    "votes": 24191,
+    "color": "#c6606b"
+   }
+  }
+ },
+ "statewide_total": {
+  "Unspecified": {
+   "votes": 10790404,
+   "color": "#999999"
+  },
+  "Democratic": {
+   "votes": 1979309,
+   "color": "#4874a3"
+  },
+  "Other": {
+   "votes": 544304,
+   "color": "#e0bb24"
+  },
+  "Republican": {
+   "votes": 1702365,
+   "color": "#c6606b"
+  },
+  "No Party Affiliation": {
+   "votes": 956042,
+   "color": "#63c660"
+  }
+ }
+}

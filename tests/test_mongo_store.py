@@ -3,6 +3,7 @@
 The ``fake`` parameter runs MongoStore against a tiny in-memory stand-in for pymongo so the
 document round-trips are exercised even on a machine without a MongoDB server.
 """
+
 from __future__ import annotations
 
 import os
@@ -67,8 +68,18 @@ class FakeCollection:
                 return dict(doc)
         return None
 
-    def find(self, query=None):
+    def find(self, query=None, projection=None):
         return _Cursor([dict(doc) for doc in self.docs if _match(doc, query or {})])
+
+    async def aggregate(self, pipeline):
+        """The one pipeline MongoStore.latest_odds sends: $match, $sort ts desc, $group $first."""
+        match, _sort, group = pipeline
+        docs = sorted((d for d in self.docs if _match(d, match["$match"])), key=lambda d: d["ts"], reverse=True)
+        assert _sort["$sort"] == {"market": 1, "outcome": 1, "ts": -1}
+        first: dict = {}
+        for doc in docs:
+            first.setdefault((doc["market"], doc["outcome"]), doc)
+        return _Cursor([{"_id": ident, "doc": dict(doc)} for ident, doc in first.items()])
 
     def _stored(self, query, body):
         stored = {key: value for key, value in query.items() if not isinstance(value, dict)}
@@ -245,3 +256,61 @@ async def test_mongo_keeps_one_history_snapshot_per_change_and_round_trips_keys(
     assert await store.upsert_result(second.finalize()) is True
     assert len(store.result_history.docs) == 2
     assert await store.result_changed_at(special) == NOW + timedelta(minutes=1)
+
+
+def test_server_selection_fails_fast_unless_the_uri_says_otherwise():
+    """A MongoDB restart must not hold slash commands past Discord's 3 s deadline."""
+    fast = MongoStore("mongodb://127.0.0.1:1", database="ew_test")
+    assert fast.client.options.server_selection_timeout <= 2.5
+    slow = MongoStore("mongodb://127.0.0.1:1/?serverSelectionTimeoutMS=9000", database="ew_test")
+    assert slow.client.options.server_selection_timeout == 9.0
+
+
+async def test_latest_odds_is_the_newest_snapshot_per_market_and_outcome(store):
+    for minutes, prob in ((0, 0.5), (5, 0.6), (3, 0.55)):
+        await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", prob, NOW + timedelta(minutes=minutes)))
+    await store.add_odds(OddsSnapshot(KEY, "polymarket", "REP", 0.7, NOW))
+    await store.add_odds(OddsSnapshot(parse("GA SEN"), "kalshi", "REP", 0.1, NOW))
+    latest = {(s.market, s.outcome): s.prob for s in await store.latest_odds(KEY)}
+    assert latest == {("kalshi", "REP"): 0.6, ("polymarket", "REP"): 0.7}
+    assert await store.latest_odds(parse("NV SEN")) == []
+
+
+async def test_cached_pages_round_trip_by_kind(store):
+    assert await store.get_cached("polls", "TX SEN|votehub") is None
+    await store.put_cached("polls", "TX SEN|votehub", "[]", NOW)
+    await store.put_cached("polls", "TX SEN|votehub", '[{"a": 1}]', NOW + timedelta(minutes=30))
+    await store.put_cached("earlyvote", "https://civicapi.org/x", "null", NOW)
+    at, data = await store.get_cached("polls", "TX SEN|votehub")
+    assert (at, data) == (NOW + timedelta(minutes=30), '[{"a": 1}]')
+    assert await store.cached_idents("polls") == {"TX SEN|votehub": NOW + timedelta(minutes=30)}
+    assert list(await store.cached_idents("earlyvote")) == ["https://civicapi.org/x"]
+
+
+async def test_race_lists_round_trip_and_survive_a_restart(store):
+    from electionwatch.models import Level, RaceKey
+    from electionwatch.racelists import CACHE, RaceLists, cache_ident
+    from electionwatch.ratelimit import RateBook
+
+    class Lister:
+        name, states, asked = "lister", frozenset({"TX", "WA"}), []
+
+        def available(self):
+            return True
+
+        async def list_races(self, state, client):
+            self.asked.append(state)
+            return [
+                (RaceKey(state, Level.SENATE, "SEN"), "Senate"),
+                (RaceKey(state, Level.LOCAL, "LOCAL", "Advisory-Vote-10"), "Advisory Vote No. 10"),
+            ]
+
+    sources = {"results": [Lister()]}
+    lists = RaceLists(store, sources, None, lambda: NOW, rates=RateBook(clock=lambda: 0.0))
+    assert await lists.refresh() == 2
+    found, loading = await lists.stored("WA")
+    assert not loading and set(found) == {"WA SEN", "WA LOCAL Advisory-Vote-10"}
+    assert set(await store.cached_idents(CACHE)) == {cache_ident("TX", "lister"), cache_ident("WA", "lister")}
+    # A restart half an hour later: the stored lists are still fresh, nothing is asked again.
+    later = RaceLists(store, sources, None, lambda: NOW + timedelta(minutes=30), rates=RateBook(clock=lambda: 0.0))
+    assert await later.refresh() == 0 and Lister.asked == ["TX", "WA"]

@@ -36,6 +36,7 @@ Notes that matter for parsing:
 * `results.oregonvotes.gov` itself redirects to a not-found page out of election season;
   the CDN service above is the data source the site's own front end calls.
 """
+
 from __future__ import annotations
 
 import re
@@ -57,19 +58,25 @@ _MEASURE = re.compile(r"^MEASURE\s+0*(\d{1,4})\b", re.I)
 
 # Oregon's party names (the fusion lists are split before lookup).
 _OR_PARTIES = {
-    "DEMOCRAT": "DEM", "DEMOCRATIC": "DEM",
+    "DEMOCRAT": "DEM",
+    "DEMOCRATIC": "DEM",
     "REPUBLICAN": "REP",
     "LIBERTARIAN": "LIB",
-    "PACIFIC GREEN": "GRN", "GREEN": "GRN",
+    "PACIFIC GREEN": "GRN",
+    "GREEN": "GRN",
     "CONSTITUTION": "CON",
     "WORKING FAMILIES": "WFP",
     "PROGRESSIVE": "PRO",
     "INDEPENDENT": "IND",
     "AMERICAN INDEPENDENT": "AIP",
-    "NONPARTISAN": "NP", "NON-PARTISAN": "NP",
+    "NONPARTISAN": "NP",
+    "NON-PARTISAN": "NP",
     "NO PARTY AFFILIATION": "NPA",
-    "REFORM": "REF", "PATRIOT": "PAT", "SOCIALIST": "SOC",
-    "US TAXPAYERS": "UST", "WE THE PEOPLE": "WTP",
+    "REFORM": "REF",
+    "PATRIOT": "PAT",
+    "SOCIALIST": "SOC",
+    "US TAXPAYERS": "UST",
+    "WE THE PEOPLE": "WTP",
 }
 
 _STATEWIDE = {
@@ -115,8 +122,7 @@ def race_key(race_name: str, area_num: str | None = None) -> RaceKey:
     if n in ("US SENATOR", "US SENATE", "UNITED STATES SENATOR"):
         return RaceKey("OR", Level.SENATE, "SEN", None, special)
     if n.startswith(("US REPRESENTATIVE", "US HOUSE", "CONGRESSIONAL")):
-        return RaceKey("OR", Level.HOUSE, "HOUSE",
-                       _district(area_num, race_name) or "00", special)
+        return RaceKey("OR", Level.HOUSE, "HOUSE", _district(area_num, race_name) or "00", special)
     if n.startswith("GOVERNOR"):
         return RaceKey("OR", Level.GOVERNOR, "GOV", None, special)
     for prefix, code in _STATEWIDE.items():
@@ -152,24 +158,31 @@ def parse_or(payload, *, fetched_at) -> list[RaceResult]:
             name = _norm(row.get("calcCandidate"))
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=_party(row.get("PartyName")),
-                votes=c.to_int(row.get("calcCandidateVotes")),
-                winner=bool(row.get("Winner")),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=_party(row.get("PartyName")),
+                    votes=c.to_int(row.get("calcCandidateVotes")),
+                    winner=bool(row.get("Winner")),
+                )
+            )
         if not cands:
             continue
         reporting = c.to_int(first.get("PrecinctsReporting")) + c.to_int(first.get("PrecinctsPartial"))
         total = c.to_int(first.get("TotalPrecincts")) or None
-        out.append(c.make_result(
-            key, race_name, cands, fetched_at,
-            source=OrSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=reporting,
-            precincts_total=total,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                race_name,
+                cands,
+                fetched_at,
+                source=OrSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=reporting,
+                precincts_total=total,
+            )
+        )
     return out
 
 

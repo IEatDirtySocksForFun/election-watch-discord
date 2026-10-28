@@ -39,7 +39,7 @@ def test_at_large_house_and_governor():
     gov = keys["ND GOV"]
     assert gov.key.level is Level.GOVERNOR
     assert gov.candidates[0].votes == 247056
-    assert gov.candidates[2].party == "IND"          # "Independent Nomination"
+    assert gov.candidates[2].party == "IND"  # "Independent Nomination"
 
 
 def test_ballot_measure_is_local_with_yes_no():
@@ -57,7 +57,7 @@ def test_legislative_districts_including_lettered_house_seat():
     assert senate.key.level is Level.STATE and senate.key.office == "SD"
     assert senate.candidates[0].name == "Mark Enget"
     assert senate.precincts_reporting == senate.precincts_total == 22
-    house = got["ND HD-04A"]                          # "State Representative District 04a"
+    house = got["ND HD-04A"]  # "State Representative District 04a"
     assert house.key.office == "HD" and house.key.district == "04A"
     assert house.candidates[0].votes == 1627
 

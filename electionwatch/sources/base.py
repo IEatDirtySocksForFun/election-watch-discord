@@ -8,6 +8,7 @@ Rules for every adapter:
 - Paid / keyed APIs read their key from the env var named in `env`; if unset the adapter
   reports itself unavailable instead of failing.
 """
+
 from __future__ import annotations
 
 import os
@@ -23,10 +24,10 @@ class SourceUnavailable(RuntimeError):
 
 
 class Source:
-    name: ClassVar[str]                      # registry key, e.g. "tx_sos", "kalshi"
-    kind: ClassVar[str]                      # "results" | "calls" | "odds" | "exitpolls"
-    env: ClassVar[tuple[str, ...]] = ()      # required env vars (API keys)
-    scrape: ClassVar[bool] = False           # True = HTML scrape of a site without an API
+    name: ClassVar[str]  # registry key, e.g. "tx_sos", "kalshi"
+    kind: ClassVar[str]  # "results" | "calls" | "odds" | "exitpolls"
+    env: ClassVar[tuple[str, ...]] = ()  # required env vars (API keys)
+    scrape: ClassVar[bool] = False  # True = HTML scrape of a site without an API
     enabled_by_default: ClassVar[bool] = True
 
     @classmethod
@@ -36,7 +37,7 @@ class Source:
 
 class ResultsSource(Source):
     kind = "results"
-    states: ClassVar[frozenset[str]] = frozenset()   # USPS codes this adapter covers
+    states: ClassVar[frozenset[str]] = frozenset()  # USPS codes this adapter covers
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         """Current results for the requested keys this adapter covers (skip the rest)."""
@@ -49,7 +50,7 @@ class ResultsSource(Source):
 
 class CallSource(Source):
     kind = "calls"
-    outlet: ClassVar[str]                    # "AP", "CBS", ...
+    outlet: ClassVar[str]  # "AP", "CBS", ...
 
     async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         raise NotImplementedError
@@ -78,7 +79,11 @@ class PollSource(Source):
 
 
 REGISTRY: dict[str, dict[str, type[Source]]] = {
-    "results": {}, "calls": {}, "odds": {}, "exitpolls": {}, "polls": {},
+    "results": {},
+    "calls": {},
+    "odds": {},
+    "exitpolls": {},
+    "polls": {},
 }
 
 
@@ -93,6 +98,7 @@ def load_all() -> dict[str, dict[str, type[Source]]]:
     import pkgutil
 
     import electionwatch.sources as pkg
+
     for sub in ("results", "calls", "odds", "exitpolls", "polls"):
         mod = importlib.import_module(f"{pkg.__name__}.{sub}")
         for info in pkgutil.iter_modules(mod.__path__):

@@ -1,0 +1,161 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Senator",
+  "K": "0005",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 22,
+  "PR": 22,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Ted Cruz",
+   "DEM Colin Allred",
+   "LIB Ted Brown",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   "NON"
+  ],
+  "PCT": [
+   77.396433215679,
+   20.8991268809214,
+   1.65335314880178,
+   0.0510867545978079
+  ],
+  "V": [
+   16665,
+   4500,
+   356,
+   11
+  ],
+  "T": 21532,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "US Representative, Dist 1",
+  "K": "0006",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 22,
+  "PR": 22,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Nathaniel Moran"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   17120
+  ],
+  "T": 17120,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ },
+ {
+  "CATKEY": "C_3",
+  "CAT": "County",
+  "C": "Sheriff",
+  "K": "0019",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 22,
+  "PR": 22,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Johnwayne Valdez"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP"
+  ],
+  "PCT": [
+   100
+  ],
+  "V": [
+   17813
+  ],
+  "T": 17813,
+  "W": [
+   0
+  ],
+  "CRC": [
+   0
+  ],
+  "CRO": [
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false
+ }
+]

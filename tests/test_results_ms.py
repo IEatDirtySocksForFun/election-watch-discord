@@ -23,7 +23,7 @@ def test_senate_uses_state_total_not_county_sum():
     assert r.key.level is Level.SENATE
     assert r.candidates[0].name == "Roger F. Wicker"
     assert r.candidates[0].party == "REP"
-    assert r.candidates[0].votes == 761934          # State Total column
+    assert r.candidates[0].votes == 761934  # State Total column
     assert r.candidates[1].votes == 450749
     assert r.total_votes == 1212683
 
@@ -34,7 +34,7 @@ def test_house_district_and_president_ticket_names():
     president = keys["MS LOCAL us-president"]
     assert president.key.level is Level.LOCAL
     names = [c.name for c in president.candidates]
-    assert "Donald J. Trump / JD Vance" in names     # elector prose reduced to the ticket
+    assert "Donald J. Trump / JD Vance" in names  # elector prose reduced to the ticket
     assert president.candidates[0].pct == 60.91
 
 
@@ -51,8 +51,10 @@ def test_race_key_mapping():
     assert format_key(race_key("US House Of Rep 02-2nd Congressional District")) == "MS-02"
     assert format_key(race_key("State Senate 05-Fifth Senatorial District")) == "MS SD-05"
     assert format_key(race_key("State House Of Rep 12-Twelfth Representative District")) == "MS HD-12"
-    assert format_key(race_key("Court Of Appeals 03-District 3  Position 1")) == \
-        "MS LOCAL court-of-appeals-03-district-3-position-1"
+    assert (
+        format_key(race_key("Court Of Appeals 03-District 3  Position 1"))
+        == "MS LOCAL court-of-appeals-03-district-3-position-1"
+    )
 
 
 def test_empty_payload_is_not_an_error():

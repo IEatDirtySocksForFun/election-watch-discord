@@ -34,9 +34,7 @@ def test_parse_state_and_district_calls():
 
 def test_uncalled_entries_are_skipped():
     payload = _load()
-    payload["mapData"]["TX"]["tooltip"]["candidates"] = [
-        {"name": "Ted Cruz", "party": "Rep", "isWinner": False}
-    ]
+    payload["mapData"]["TX"]["tooltip"]["candidates"] = [{"name": "Ted Cruz", "party": "Rep", "isWinner": False}]
     calls = parse_nbc_results(payload)
     assert all(c.key != RaceKey("TX", Level.SENATE, "SEN") for c in calls)
 

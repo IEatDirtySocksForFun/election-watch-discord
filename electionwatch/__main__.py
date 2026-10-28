@@ -1,4 +1,5 @@
 """Process entry point: ``python -m electionwatch`` or ``--check``."""
+
 from __future__ import annotations
 
 import argparse
@@ -34,18 +35,42 @@ def build_sources(registry: Mapping[str, Mapping[str, type]], environ: Mapping[s
     names them in EW_ENABLED_SOURCES, e.g. EW_ENABLED_SOURCES=cbs,fox; EW_DISABLED_SOURCES
     turns off default adapters.
     """
+
     def names(var: str) -> set[str]:
         return {name.strip() for name in environ.get(var, "").split(",") if name.strip()}
 
     wanted, unwanted = names("EW_ENABLED_SOURCES"), names("EW_DISABLED_SOURCES")
-    return {
-        kind: [
-            adapter()
-            for name, adapter in adapters.items()
-            if name not in unwanted and (adapter.enabled_by_default or name in wanted)
-        ]
-        for kind, adapters in registry.items()
-    }
+    only = source_states(environ.get("EW_SOURCE_STATES", ""))
+    built: dict = {}
+    for kind, adapters in registry.items():
+        built[kind] = []
+        for name, adapter in adapters.items():
+            if name in unwanted or not (adapter.enabled_by_default or name in wanted):
+                continue
+            instance = adapter()
+            if name in only and getattr(instance, "states", None) is not None:
+                # Instance attribute: narrows this adapter only, the class keeps its states.
+                instance.states = frozenset(instance.states) & only[name]
+            built[kind].append(instance)
+        # Adapter order is priority order (the poller takes the first complete answer):
+        # national fallbacks go after every official feed, whatever order modules imported in.
+        built[kind].sort(key=lambda source: bool(getattr(source, "fallback", False)))
+    return built
+
+
+def source_states(raw: str) -> dict[str, frozenset[str]]:
+    """EW_SOURCE_STATES="fox_results=TX,TN,AL;cbs_results=TX" -> {name: {USPS codes}}.
+
+    Limits a (multi-state) adapter to the listed states, e.g. a national fallback switched
+    on only for the states without a complete official feed. Unlisted adapters are
+    unchanged; this never enables an adapter by itself (EW_ENABLED_SOURCES does that)."""
+    out: dict[str, frozenset[str]] = {}
+    for part in raw.split(";"):
+        name, sep, states = part.partition("=")
+        if not sep or not name.strip():
+            continue
+        out[name.strip()] = frozenset(s.strip().upper() for s in states.split(",") if s.strip())
+    return out
 
 
 async def check() -> int:

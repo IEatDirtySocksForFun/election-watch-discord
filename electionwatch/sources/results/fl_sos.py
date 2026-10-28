@@ -19,6 +19,7 @@ Statewide totals are obtained by aggregating county rows. Race codes:
 The 2026 general election date is known (2026-11-03); the POST body is the
 same format. Discovery is not needed.
 """
+
 from __future__ import annotations
 
 import csv
@@ -105,18 +106,30 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         j1 = (row.get("Juris1num") or "").strip()
         j2 = (row.get("Juris2num") or "").strip()
         key = (code, j1, j2, name)
-        race = races.setdefault(key, {
-            "code": code, "name": name, "j1": j1, "j2": j2,
-            "candidates": {}, "precincts": 0, "precincts_reporting": 0, "counties": set(),
-        })
+        race = races.setdefault(
+            key,
+            {
+                "code": code,
+                "name": name,
+                "j1": j1,
+                "j2": j2,
+                "candidates": {},
+                "precincts": 0,
+                "precincts_reporting": 0,
+                "counties": set(),
+            },
+        )
         cand_key = (row.get("CanNameLast"), row.get("CanNameFirst"), row.get("CanNameMiddle"))
-        cand = race["candidates"].setdefault(cand_key, {
-            "last": row.get("CanNameLast"),
-            "first": row.get("CanNameFirst"),
-            "middle": row.get("CanNameMiddle"),
-            "party": row.get("PartyCode"),
-            "votes": 0,
-        })
+        cand = race["candidates"].setdefault(
+            cand_key,
+            {
+                "last": row.get("CanNameLast"),
+                "first": row.get("CanNameFirst"),
+                "middle": row.get("CanNameMiddle"),
+                "party": row.get("PartyCode"),
+                "votes": 0,
+            },
+        )
         cand["votes"] += c.to_int(row.get("CanVotes"))
         # Precinct counts repeat on every candidate row of a county: count each county once.
         county = (row.get("CountyCode") or "").strip()
@@ -134,31 +147,37 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
             continue
         cands = []
         for cand in race["candidates"].values():
-            name, incumbent = _candidate_name(
-                cand["last"], cand["first"], cand["middle"], race["code"])
+            name, incumbent = _candidate_name(cand["last"], cand["first"], cand["middle"], race["code"])
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=c.norm_party(cand["party"]),
-                votes=cand["votes"],
-                incumbent=incumbent,
-                winner=False,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=c.norm_party(cand["party"]),
+                    votes=cand["votes"],
+                    incumbent=incumbent,
+                    winner=False,
+                )
+            )
         if not cands:
             continue
         seen.add(ident)
         title = race["name"]
         if race["code"] in ("USR", "STS", "STR"):
             title = f"{title} District {int(race['j1']):d}"
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=FlSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=race["precincts_reporting"] or None,
-            precincts_total=race["precincts"] or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=FlSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=race["precincts_reporting"] or None,
+                precincts_total=race["precincts"] or None,
+            )
+        )
     return out
 
 

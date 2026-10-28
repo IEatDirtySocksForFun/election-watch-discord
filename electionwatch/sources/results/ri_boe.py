@@ -32,6 +32,7 @@ The 2026 general-election JSON was not published on 2026-10-27 (S3 returned 403
 for the key, the RI.gov page 404); the URL is date-derived, so nothing needs to
 change when it appears.
 """
+
 from __future__ import annotations
 
 import re
@@ -63,8 +64,17 @@ _GA_SEN = re.compile(r"^SENATOR IN GENERAL ASSEMBLY DISTRICT (\d+)$", re.I)
 _GA_REP = re.compile(r"^REPRESENTATIVE IN GENERAL ASSEMBLY DISTRICT (\d+)$", re.I)
 _QUESTION = re.compile(r"^(\d+)\.\s*(.+)$")
 
-_PARTIES = {"KEN": "KEN", "GRN": "GRN", "NON": "NPA", "S&L": "S&L", "PAR": "PAR",
-            "MOD": "MOD", "LIB": "LIB", "CON": "CON", "IND": "IND"}
+_PARTIES = {
+    "KEN": "KEN",
+    "GRN": "GRN",
+    "NON": "NPA",
+    "S&L": "S&L",
+    "PAR": "PAR",
+    "MOD": "MOD",
+    "LIB": "LIB",
+    "CON": "CON",
+    "IND": "IND",
+}
 
 
 def _norm(name: str) -> str:
@@ -105,7 +115,7 @@ def _clean_name(raw: str, party_code: str | None) -> str:
     name = re.sub(r"\s+", " ", str(raw or "")).strip()
     code = (party_code or "").strip()
     if code and name.upper().startswith(code.upper() + " "):
-        name = name[len(code) + 1:].strip()
+        name = name[len(code) + 1 :].strip()
     return name
 
 
@@ -134,24 +144,31 @@ def parse_ri(docs, *, fetched_at: datetime) -> list[RaceResult]:
                 name = _clean_name(cand.get("name"), cand.get("party_code"))
                 if not name:
                     continue
-                cands.append(CandidateResult(
-                    name=name,
-                    party=_party(cand.get("party_code")),
-                    votes=c.to_int(cand.get("votes")),
-                    winner=False,  # RI publishes no winner flag in these files
-                ))
+                cands.append(
+                    CandidateResult(
+                        name=name,
+                        party=_party(cand.get("party_code")),
+                        votes=c.to_int(cand.get("votes")),
+                        winner=False,  # RI publishes no winner flag in these files
+                    )
+                )
             if not cands:
                 continue
             seen.add(str(key))
-            out.append(c.make_result(
-                key, title, cands, fetched_at,
-                source=RiBoe.name,
-                url=HUMAN,
-                total_votes=c.to_int(contest.get("total_votes")) or sum(x.votes for x in cands),
-                precincts_reporting=c.to_int(contest.get("precincts_reporting")) or None,
-                precincts_total=c.to_int(contest.get("precinct_count")) or None,
-                source_updated_at=updated,
-            ))
+            out.append(
+                c.make_result(
+                    key,
+                    title,
+                    cands,
+                    fetched_at,
+                    source=RiBoe.name,
+                    url=HUMAN,
+                    total_votes=c.to_int(contest.get("total_votes")) or sum(x.votes for x in cands),
+                    precincts_reporting=c.to_int(contest.get("precincts_reporting")) or None,
+                    precincts_total=c.to_int(contest.get("precinct_count")) or None,
+                    source_updated_at=updated,
+                )
+            )
     return out
 
 
@@ -169,7 +186,8 @@ async def fetch_docs(client: httpx.AsyncClient, date: str) -> list[dict]:
             if name == "statewide.json":
                 raise SourceUnavailable(
                     f"ri_boe: {base}/statewide.json is not published yet; Rhode Island "
-                    f"posts the general-election JSON on election night") from None
+                    f"posts the general-election JSON on election night"
+                ) from None
             continue  # general-assembly files appear later in the night
         docs.append(doc)
     if not docs:
@@ -197,5 +215,4 @@ class RiBoe(ResultsSource):
             docs = await fetch_docs(client, c.election_date())
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in parse_ri(docs, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_ri(docs, fetched_at=c.utcnow())]

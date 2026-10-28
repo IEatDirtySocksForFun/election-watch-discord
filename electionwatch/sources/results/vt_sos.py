@@ -32,6 +32,7 @@ Statewide races have no `dc`; legislative districts are named ("ADD 1",
 VT-AL. Precinct counts are not published (reporting units are towns), so they are
 left None; winners are only those the feed flags with isWinner.
 """
+
 from __future__ import annotations
 
 import re
@@ -98,8 +99,7 @@ def _party(value: str | None) -> str | None:
 def race_key(office: str, district_code: str | None = None) -> RaceKey:
     """Map a Vermont office (+ named district code) to a RaceKey."""
     n = _norm(office)
-    if n in ("US PRESIDENT AND VICE PRESIDENT", "PRESIDENT AND VICE PRESIDENT",
-             "PRESIDENT OF THE UNITED STATES"):
+    if n in ("US PRESIDENT AND VICE PRESIDENT", "PRESIDENT AND VICE PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
         return c.local_key("VT", "us-president")
     if n in ("US SENATOR", "UNITED STATES SENATOR"):
         return RaceKey("VT", Level.SENATE, "SEN")
@@ -128,8 +128,7 @@ def _contests(doc) -> list[dict]:
     return out
 
 
-def parse_vt(docs, *, fetched_at: datetime,
-             source_updated_at: datetime | None = None) -> list[RaceResult]:
+def parse_vt(docs, *, fetched_at: datetime, source_updated_at: datetime | None = None) -> list[RaceResult]:
     """Pure parse of the federal/statewide/senate/house documents (any order)."""
     if isinstance(docs, dict):
         docs = list(docs.values())
@@ -156,24 +155,31 @@ def parse_vt(docs, *, fetched_at: datetime,
                     if cid is None or choice.get("isWriteIn"):
                         write_ins += c.to_int(choice.get("vc"))
                         continue
-                    entry = totals.setdefault(cid, {
-                        "name": str(choice.get("cn") or "").strip(),
-                        "party": _party(choice.get("pn")),
-                        "votes": 0,
-                        "winner": False,
-                    })
+                    entry = totals.setdefault(
+                        cid,
+                        {
+                            "name": str(choice.get("cn") or "").strip(),
+                            "party": _party(choice.get("pn")),
+                            "votes": 0,
+                            "winner": False,
+                        },
+                    )
                     entry["votes"] += c.to_int(choice.get("vc"))
                     entry["winner"] = entry["winner"] or choice.get("isWinner") is True
                 for choice in row.get("wc") or []:
                     write_ins += c.to_int(choice.get("vc"))
 
-            cands = [CandidateResult(
-                name=re.sub(r"\s+", " ", entry["name"]).strip(),
-                party=entry["party"],
-                votes=entry["votes"],
-                # Only the source declares winners: ranking a partial count would "call" races.
-                winner=entry["winner"],
-            ) for entry in totals.values() if entry["name"]]
+            cands = [
+                CandidateResult(
+                    name=re.sub(r"\s+", " ", entry["name"]).strip(),
+                    party=entry["party"],
+                    votes=entry["votes"],
+                    # Only the source declares winners: ranking a partial count would "call" races.
+                    winner=entry["winner"],
+                )
+                for entry in totals.values()
+                if entry["name"]
+            ]
             if write_ins:
                 cands.append(CandidateResult(name="Write-In", party=None, votes=write_ins))
             if not cands:
@@ -185,13 +191,18 @@ def parse_vt(docs, *, fetched_at: datetime,
                 title = f"{office} - {name or district}"
 
             seen.add(str(key))
-            out.append(c.make_result(
-                key, title, cands, fetched_at,
-                source=VtSos.name,
-                url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
-                source_updated_at=source_updated_at,
-            ))
+            out.append(
+                c.make_result(
+                    key,
+                    title,
+                    cands,
+                    fetched_at,
+                    source=VtSos.name,
+                    url=HUMAN,
+                    total_votes=sum(x.votes for x in cands),
+                    source_updated_at=source_updated_at,
+                )
+            )
     return out
 
 
@@ -221,8 +232,7 @@ async def resolve_guid(client: httpx.AsyncClient, date: str) -> str:
         raise SourceUnavailable(f"vt_sos: election index unavailable ({exc})") from exc
     entry = _entry_by_date(index, date)
     if not entry or not entry.get("electionGuid"):
-        raise SourceUnavailable(
-            f"vt_sos: no {date} general election in {BASE}/elections.json")
+        raise SourceUnavailable(f"vt_sos: no {date} general election in {BASE}/elections.json")
     return entry["electionGuid"]
 
 
@@ -275,5 +285,6 @@ class VtSos(ResultsSource):
             docs, updated = await fetch_docs(client, guid)
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in parse_vt(docs, fetched_at=c.utcnow(), source_updated_at=updated)]
+        return [
+            (r.key, r.title or str(r.key)) for r in parse_vt(docs, fetched_at=c.utcnow(), source_updated_at=updated)
+        ]

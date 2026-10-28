@@ -5,21 +5,23 @@ adapter exposes a pure `parse_*(payload, ..., fetched_at=...) -> list[RaceResult
 `fetch()` / `list_races()`, and registers itself in `electionwatch.sources.base.REGISTRY`
 under `results`.
 
-| State | Adapter | Feed | Status |
-|-------|---------|------|--------|
-| TX | `tx_sos` | https://results.texas-election.com/static/data/ | verified fixture (2024 general); 2026 ID not published yet, discovery implemented |
-| GA | `ga_sos` | https://results.sos.ga.gov/cdn/results/Georgia/export-<slug>.json | verified fixture (2020 general); 2024 export live, 2026 404 on 2026-10-27 |
-| NC | `nc_sbe` | https://er.ncsbe.gov/enr/<YYYYMMDD>/data/ | verified fixture (2024 general); live 2026 general feed returns a 0-vote Senate contest |
-| PA | `pa_dos` | https://www.electionreturns.pa.gov/api/ElectionReturn/ | verified fixture (2024 general); 2026 election id 117 published, no results yet |
-| IL (McLean Co.) | `clarity` | https://results.enr.clarityelections.com/IL/McLean/127349/ | verified fixture (2026 general sample upload) |
-| WV | `clarity` | https://results.enr.clarityelections.com/WV/126209/ | verified fixture (2026 primary, non-partisan contests) |
-| AZ | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json | configured for 2026; URL not published yet (Arizona switches to Enhanced Voting for 2026) |
-| GA | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/Georgia/export-2024NovGen.json | verified fixture (2024 general); same format as GA SOS |
-| FL | `fl_sos` | https://results.elections.myflorida.com/ResultsExtract.Asp | verified fixture (2024 general tab-delimited extract) |
-| MN | `mn_sos` | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt | **verified fixture** — 2026 general text exports; live 2026-10-27 returns 871 contests (statewide) |
-| MI | `mi_county` | https://results.enr.clarityelections.com/MI/<County>/ | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)` |
-| WI | `wi_dane` | https://elections.countyofdane.com/Election-Result | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)` |
-| NV, NH, ME | — | — | blocked / PDF-only; see docs/results/alt-a.md |
+| State           | Adapter           | Feed                                                                           | Status                                                                                                                                             |
+| --------------- | ----------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TX              | `tx_sos`          | https://results.texas-election.com/static/data/                                | verified fixture (2024 general); 2026 ID not published yet, discovery implemented                                                                  |
+| GA              | `ga_sos`          | https://results.sos.ga.gov/cdn/results/Georgia/export-<slug>.json              | verified fixture (2020 general); 2024 export live, 2026 404 on 2026-10-27                                                                          |
+| NC              | `nc_sbe`          | https://er.ncsbe.gov/enr/<YYYYMMDD>/data/                                      | verified fixture (2024 general); live 2026 general feed returns a 0-vote Senate contest                                                            |
+| PA              | `pa_dos`          | https://www.electionreturns.pa.gov/api/ElectionReturn/                         | verified fixture (2024 general); 2026 election id 117 published, no results yet                                                                    |
+| IL (McLean Co.) | `clarity`         | https://results.enr.clarityelections.com/IL/McLean/127349/                     | verified fixture (2026 general sample upload)                                                                                                      |
+| WV              | `clarity`         | https://results.enr.clarityelections.com/WV/126209/                            | verified fixture (2026 primary, non-partisan contests)                                                                                             |
+| AZ              | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json           | configured for 2026; URL not published yet (Arizona switches to Enhanced Voting for 2026)                                                          |
+| GA              | `enhanced_voting` | https://app.enhancedvoting.com/cdn/results/Georgia/export-2024NovGen.json      | verified fixture (2024 general); same format as GA SOS                                                                                             |
+| FL              | `fl_sos`          | https://results.elections.myflorida.com/ResultsExtract.Asp                     | verified fixture (2024 general tab-delimited extract)                                                                                              |
+| MN              | `mn_sos`          | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt                     | **verified fixture** — 2026 general text exports; live 2026-10-27 returns 871 contests (statewide)                                                 |
+| MI              | `mi_county`       | https://results.enr.clarityelections.com/MI/<County>/                          | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)`       |
+| WI              | `wi_dane`         | https://elections.countyofdane.com/Election-Result                             | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)`                                     |
+| TN (Shelby Co.) | `tn_counties`     | https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export-<slug>.json | **verified fixture** — Shelby 2024 general (142 precincts); 2026 export 404 on 2026-10-27; `TN_COUNTY_FEEDS` pins another county/slug              |
+| TX (counties)   | `tx_counties`     | https://results.enr.clarityelections.com/TX/<County>/                          | **verified fixtures** — 17 configured, 2024 for 13 counties, 2026 for Denton/Galveston/Kaufman; per-county 2024 shares in docs/results/counties.md |
+| NV, NH, ME      | —                 | —                                                                              | blocked / PDF-only; see docs/results/alt-a.md                                                                                                      |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under
 `tests/fixtures/<adapter>/` (each README.txt records the URL and fetch date). Nothing in
@@ -59,25 +61,11 @@ produce statewide (or district-wide) totals.
   as "PRESIDENT / VP".
 - Precincts reporting/total are summed across counties for each race.
 
-## Skipped states (reviewer pass)
+## More per-state notes
 
-These states were researched but not implemented because a verified 2024
-general-election machine-readable feed could not be confirmed before this
-commit:
-
-- **MI**: MVIC publishes `GetElectionResultFile?electionId=699` but it is an
-  Excel/CSV export behind a Cloudflare-protected endpoint; needs a browser-backed
-  download or a confirmed direct URL before writing a parser.
-- **WI**: The WEC site is HTML/ArcGIS-based. A FeatureServer endpoint exists for
-  2024 (`services1.arcgis.com/utVR6GjejYAZciWt/ArcGIS/rest/services/WisconsinElection2024/FeatureServer`)
-  but contest/candidate schema was not verified; skipping until the query URL
-  and field mapping are confirmed.
-- **NV**: SilverStateElection publishes HTML results; no public JSON/CSV API
-  endpoint was found.
-- **OH**: `liveresults.ohiosos.gov` is the election-night site; its data format
-  (likely HTML/JSON) was not verified and the 2026 general feed is not yet live.
-- **NH, ME, IA, NE**: Official SOS/BOE results pages are HTML-first for 2024;
-  no confirmed JSON/XML/CSV feed URL or stable election-id pattern was found.
+Statewide and county adapters have their own notes under [docs/results/](results/).
+Start with [states-1.md](results/states-1.md) through [states-4.md](results/states-4.md), then
+see the alternate-source and county notes for states whose main site is blocked or incomplete.
 
 ## Environment
 
@@ -91,6 +79,10 @@ commit:
 - `ENHANCED_VOTING_FEEDS` — JSON list overriding the built-in Enhanced Voting
   feeds, e.g. `[{"state":"AZ","slug":"2026NovGen"}]`. Entries need `state` and
   `slug`; `date` limits an entry to one election date.
+- `TX_COUNTY_FEEDS` / `NJ_COUNTY_FEEDS` — JSON list pinning a county election id, e.g.
+  `[{"county":"Harris","election_id":"123456","date":"2026-11-03"}]`.
+- `TN_COUNTY_FEEDS` — JSON list pinning a county's Enhanced Voting export slug, e.g.
+  `[{"county":"Shelby","slug":"General11032026","date":"2026-11-03"}]`.
 
 No adapter needs an API key. All of them are plain HTTP GETs; the poller owns the
 User-Agent, timeout and retry policy.
@@ -107,7 +99,7 @@ For each election: `election/<id>/version.json` gives the data version, then
   unavailable with the URL to re-check).
 - RaceKey: `U. S. SENATOR` -> `TX SEN`, `U. S. REPRESENTATIVE DISTRICT n` -> `TX-nn`,
   statewide executives -> `TX GOV/LTGOV/AG/COMP/AGCOM/LANDCOM/RRC`, `STATE SENATOR,
-  DISTRICT n` -> `TX SD-nn`, `STATE REPRESENTATIVE DISTRICT n` -> `TX HD-nn` (both with
+DISTRICT n` -> `TX SD-nn`, `STATE REPRESENTATIVE DISTRICT n` -> `TX HD-nn` (both with
   `special` for `- UNEXPIRED TERM`), everything else -> `TX LOCAL <slug>`.
 - Precincts and last-updated time come from `Home.json` and are applied to every race.
   Texas publishes no winner flags in these files.
@@ -154,7 +146,7 @@ Angular app over `/api/ElectionReturn/`. Responses are JSON strings containing J
 - Office ids: 1 President, 2 US Senate, 3 Governor, 5 Attorney General, 6 Auditor
   General, 7 State Treasurer, 11 US House, 12 state Senate, 13 state House.
 - Districts come from the group label (`1st Congressional District`, `121st Legislative
-  District`) or `DistrictId`.
+District`) or `DistrictId`.
 - `ELECTIONS`: `2024-11-05` = id 105, `2026-11-03` = id 117 (from `GetLatestElection` on
   2026-10-27). Discovery by date is implemented for future ids.
 - The API publishes no precinct counts, no winner flags and an empty
@@ -194,6 +186,6 @@ usually a JSON array of contests; `{"Contests": [...]} ` is also accepted.
    (URLs + fetch date) and add `tests/test_results_<st>.py`.
 4. Add the row to the table above.
 
-Run the package tests with:
+Run the adapter tests with:
 
     python -m pytest -q tests/test_results_*.py

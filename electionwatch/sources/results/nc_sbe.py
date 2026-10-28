@@ -20,6 +20,7 @@ rows are one per candidate per contest:
 Discovery: elections.txt lists "11/03/2026" first with arc "0" (not archived), so the
 folder for the tracked date is found without a hard-coded election id.
 """
+
 from __future__ import annotations
 
 import json
@@ -119,9 +120,7 @@ def parse_nc(
             continue
         by_contest.setdefault(_bare(row.get("cnm", "")), []).append(row)
 
-    names = list(dict.fromkeys([n for n in ordered if n])) + [
-        n for n in by_contest if n and n not in ordered
-    ]
+    names = list(dict.fromkeys([n for n in ordered if n])) + [n for n in by_contest if n and n not in ordered]
     for name in names:
         rows = by_contest.get(name)
         if not rows:
@@ -134,29 +133,36 @@ def parse_nc(
             cand_name, incumbent = c.strip_incumbent(str(row.get("bnm") or "").strip())
             if not cand_name:
                 continue  # "NO CANDIDATE FILED" placeholder rows
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(row.get("pty")),
-                votes=c.to_int(row.get("vct")),
-                pct=c.to_pct(row.get("pct"), fraction=True),
-                incumbent=incumbent,
-                winner=False,  # NC publishes no winner flag in the ENR files
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=c.norm_party(row.get("pty")),
+                    votes=c.to_int(row.get("vct")),
+                    pct=c.to_pct(row.get("pct"), fraction=True),
+                    incumbent=incumbent,
+                    winner=False,  # NC publishes no winner flag in the ENR files
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         first = rows[0]
-        out.append(c.make_result(
-            key, name, cands, fetched_at,
-            source=NcSbe.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(first.get("prt")) or None,
-            precincts_total=c.to_int(first.get("ptl")) or None,
-            registered_voters=registered,
-            turnout_pct=turnout,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                name,
+                cands,
+                fetched_at,
+                source=NcSbe.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(first.get("prt")) or None,
+                precincts_total=c.to_int(first.get("ptl")) or None,
+                registered_voters=registered,
+                turnout_pct=turnout,
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
@@ -201,8 +207,4 @@ class NcSbe(ResultsSource):
             return []
         folder = await _folder(client, c.election_date())
         contests = await _data(client, folder, "contest.txt")
-        return [
-            (race_key(r["cnm"]), _bare(r["cnm"]))
-            for r in contests
-            if str(r.get("cid")) == "0" and r.get("cnm")
-        ]
+        return [(race_key(r["cnm"]), _bare(r["cnm"])) for r in contests if str(r.get("cid")) == "0" and r.get("cnm")]

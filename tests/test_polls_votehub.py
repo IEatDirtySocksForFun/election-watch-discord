@@ -1,4 +1,5 @@
 """VoteHub polling-API adapter, tested against a trimmed real response."""
+
 import asyncio
 import json
 from datetime import date
@@ -47,7 +48,10 @@ def test_four_way_poll_keeps_every_candidate():
     poll = _polls("OH SEN")[0]
     assert poll.partisan is None and poll.internal is False
     assert [r.name for r in poll.results] == [
-        "Sherrod Brown", "Jon Husted", "Bill Redpath", "Greg Levy",
+        "Sherrod Brown",
+        "Jon Husted",
+        "Bill Redpath",
+        "Greg Levy",
     ]
 
 
@@ -92,15 +96,18 @@ def test_party_word_answers_get_a_normalised_party():
     assert votehub._result("Abdul El-Sayed", 44.0).party is None
 
 
-@pytest.mark.parametrize("subject,expected", [
-    ("2026 Michigan", ("MI", None)),
-    ("2026 North Carolina", ("NC", None)),
-    ("2026 IL-04", ("IL", "04")),
-    ("2026 AK-01", ("AK", "AL")),   # single-district state -> at-large race key
-    ("2026-10-27", None),
-    ("2026", None),
-    ("JD Vance", None),
-])
+@pytest.mark.parametrize(
+    "subject,expected",
+    [
+        ("2026 Michigan", ("MI", None)),
+        ("2026 North Carolina", ("NC", None)),
+        ("2026 IL-04", ("IL", "04")),
+        ("2026 AK-01", ("AK", "AL")),  # single-district state -> at-large race key
+        ("2026-10-27", None),
+        ("2026", None),
+        ("JD Vance", None),
+    ],
+)
 def test_parse_subject(subject, expected):
     assert votehub.parse_subject(subject) == expected
 

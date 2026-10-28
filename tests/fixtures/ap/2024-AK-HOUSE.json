@@ -1,0 +1,36 @@
+{
+  "electionDate": "2024-11-05",
+  "timestamp": "2024-11-06T05:30:00.000Z",
+  "races": [
+    {
+      "raceID": "34567",
+      "officeID": "H",
+      "officeName": "U.S. House",
+      "seatName": "1",
+      "statePostal": "AK",
+      "raceType": "General",
+      "raceTypeID": "G",
+      "national": false,
+      "lastUpdated": "2024-11-06T06:00:00.000Z",
+      "precinctsReporting": 402,
+      "precinctsTotal": 402,
+      "candidates": [
+        {
+          "first": "Nick",
+          "last": "Begich",
+          "party": "GOP",
+          "candidateID": "221",
+          "voteCount": 159550,
+          "winner": "X"
+        },
+        {
+          "first": "Mary",
+          "last": "Peltola",
+          "party": "Dem",
+          "candidateID": "222",
+          "voteCount": 152828
+        }
+      ]
+    }
+  ]
+}

@@ -13,7 +13,6 @@ from electionwatch.bot.logic import (
     is_admin,
     remember_navigation,
 )
-from electionwatch.models import Level
 from electionwatch.racekeys import parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
@@ -98,10 +97,7 @@ def test_favorites_navigation_and_faq_are_pure_data_operations():
 def test_faq_without_a_state_lists_available_states_and_fits_one_message():
     from electionwatch.racekeys import STATES
 
-    states = {
-        code: {"official_results_url": "https://example.test", "notes": "n" * 300}
-        for code in STATES
-    }
+    states = {code: {"official_results_url": "https://example.test", "notes": "n" * 300} for code in STATES}
     outlets = {"AP": {"name": "Associated Press", "results_url": "https://ap.test"}}
     text = faq_text(states, outlets)
     assert len(text) <= 2000
@@ -120,3 +116,25 @@ def test_settings_dump_and_watch_list_fit_in_one_discord_message():
     gs = GuildSettings(1, important=[f"TX HD-{n:02d}" for n in range(1, 151)])
     assert len(f"```yaml\n{settings_dump(gs)}\n```") <= 2000
     assert len(change_watch(gs, "list")) <= 2000
+
+
+def test_settings_dump_shows_every_setting_even_with_hundreds_of_watched_races():
+    # Found by replay/command_sim (2020/2024, all races watched): the important list came
+    # before post_mode/paused and the 1900-character clip cut them off.
+    import yaml
+
+    from electionwatch.bot.logic import settings_dump
+
+    gs = GuildSettings(
+        1,
+        channel_id=2,
+        important=[f"TX HD-{n:03d}" for n in range(1, 151)],
+        post_mode=PostMode.INTERVAL,
+        interval_minutes=10,
+        paused=True,
+    )
+    text = settings_dump(gs)
+    assert len(f"```yaml\n{text}\n```") <= 2000
+    head = yaml.safe_load(text.split("\nimportant:")[0])
+    assert head["post_mode"] == "interval" and head["interval_minutes"] == 10 and head["paused"] is True
+    assert "important:\n- TX HD-001" in text
