@@ -1120,7 +1120,9 @@ async def sc_watch(ctx: Ctx, c: Checks):
 async def sc_calls(ctx: Ctx, c: Checks):
     outlets = {"AP": 0, "FOX": 3, "NBC": 6}
     calls = default_calls_for(ctx, outlets=outlets)
-    steps = ["21:00 calls AP off", "22:00 calls outlets=FOX enabled=on", "23:30 calls AP,NBC on"]
+    # "/calls X off" stops only the named outlets: name every outlet to switch calls off.
+    steps = ["21:00 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",
+             "22:00 calls outlets=FOX enabled=on", "23:30 calls AP,NBC on"]
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], calls=calls)
     res = await night.run(steps)
     ticks = [t for t, _ in res.ticks]

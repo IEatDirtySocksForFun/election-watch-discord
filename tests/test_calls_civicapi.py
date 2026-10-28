@@ -170,3 +170,43 @@ async def test_uncalled_races_are_rechecked_every_five_minutes_not_every_tick(mo
             clock[0] = 1000.0 + minute * 60
             await source.fetch_calls([TX_SEN], client)
     assert detail.call_count == 2                     # t=0 and t=300 s
+
+
+@pytest.mark.parametrize("row,expected", [
+    # AZ/CA/DE/MD label their US Senate race "Senate".
+    ({"country": "US", "province": "AZ", "type": "Senate", "district": None,
+      "election_name": "Arizona Senate"}, "AZ SEN"),
+    ({"country": "US", "province": "TX", "type": "House of Representatives", "district": "TX-18",
+      "election_name": "Texas US House 18 Special"}, "TX-18 S"),
+    ({"country": "US", "province": "TX", "type": "State House", "district": "TX-HD-56",
+      "election_name": "Texas State House 56 Special"}, "TX HD-56 S"),
+    ({"country": "US", "province": "VA", "type": "House of Representatives", "district": "VA-05",
+      "election_name": "Virginia US House 5 Democratic Primary"}, None),
+])
+def test_race_key_specials_primaries_and_plain_senate(row, expected):
+    key = race_key(row)
+    assert key == (parse(expected) if expected else None)
+
+
+@respx.mock
+async def test_the_row_with_a_county_breakdown_wins_over_a_shadow_row():
+    shadow = {"id": 1, "country": "US", "province": "MA", "type": "US Senate", "district": None,
+              "election_name": "Massachusetts US Senate", "has_breakdown": False}
+    live = dict(shadow, id=2, has_breakdown=True)
+    respx.get(f"{API}/race/search").respond(json={"races": [shadow, live]})
+    async with httpx.AsyncClient() as client:
+        index = await _CivicAPI().state_races("MA", client)
+    assert index[parse("MA SEN")][0] == 2
+
+
+def test_zero_percent_reporting_with_votes_is_unknown():
+    race = _load("race_tx_sen_2024.json") | {"percent_reporting": 0}
+    assert parse_race(race, 107793, TX_SEN, NOW).expected_vote_pct is None
+    empty = race | {"candidates": [dict(c, votes=0) for c in race["candidates"]]}
+    assert parse_race(empty, 107793, TX_SEN, NOW).expected_vote_pct == 0
+
+
+def test_party_names_use_the_party_table():
+    race = _load("race_tx_sen_2024.json")
+    parties = {c.name: c.party for c in parse_race(race, 107793, TX_SEN, NOW).candidates}
+    assert parties["Analisa Roche"] == "ASP"     # "American Solidarity"

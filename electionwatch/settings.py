@@ -25,9 +25,8 @@ class GuildSettings:
     interval_minutes: int = DEFAULT_INTERVAL_MIN
     results_sources: list[str] = field(default_factory=list)   # empty = all available
     post_calls: bool = True
-    call_outlets: list[str] = field(
-        default_factory=lambda: ["AP", "NBC", "CNN", "FOX", "DDHQ", "VOTEHUB", "CIVICAPI"]
-    )   # CIVICAPI is the only one that is free and on by default
+    # CIVICAPI (free) is opt-in: its decision desk had no real call on record to check yet.
+    call_outlets: list[str] = field(default_factory=lambda: ["AP", "NBC", "CNN", "FOX", "DDHQ", "VOTEHUB"])
     post_turnout: bool = True
     post_exit_polls: bool = True
     odds_alerts: bool = False

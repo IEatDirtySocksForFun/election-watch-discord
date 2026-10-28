@@ -44,7 +44,8 @@ JURISDICTION = "virginia"
 HUMAN = "https://enr.elections.virginia.gov/results/public/virginia/"
 
 ELECTIONS: dict[str, str] = {
-    # date -> publicElectionId (None = discover from the jurisdiction listing).
+    # date -> publicElectionId (None = discover from the jurisdiction listing). The listing
+    # has answered 404 since late October 2026, so an election must be pinned here to work.
     "2025-11-04": "2025-November-General",
     "2026-11-03": "2026-November-General",
 }

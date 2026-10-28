@@ -36,7 +36,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 |---|---|
 | **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
 | **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
-| **Race calls** | From the outlets you choose: civicAPI's own decision desk (free, on by default) plus AP, DDHQ, CNN, NBC, CBS, Fox, ABC. Posted the moment they appear, with retractions. |
+| **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted the moment they appear, with retractions. |
 | **Odds** | Kalshi and Polymarket for every watched race. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
 | **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia. |
 | **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI, credited with a link in every embed. |
@@ -97,7 +97,8 @@ EW_ENABLED_SOURCES=cbs_results,fox_results,nbc,cbs,fox,abc,cnn_exit_polls,270tow
 Without that line:
 - **Results:** every state still has results through civicAPI (see below); the outlet
   fallbacks are a second opinion if civicAPI is down.
-- **Race calls:** only civicAPI's calls are posted (AP and DDHQ need a paid key).
+- **Race calls:** none are posted (AP and DDHQ need a paid key). civicAPI's free calls are
+  opt-in: `/calls outlets:CIVICAPI enabled:on`.
 
 CNN's call feed (`cnn`) is left out above: it asks once per race per minute and blocks quickly.
 Fallback sources are only asked about races that no official feed answered completely.
@@ -126,8 +127,16 @@ down-ballot races, so it fills the states above without an official feed. It ran
 official feed (`fallback = True`), so a working state feed still wins. civicAPI publishes test
 data before election night (fake winners flagged `test_data`); the adapter drops it, and drops
 any votes reported before the polls open. Its race calls are available as the `CIVICAPI`
-outlet (`/calls outlets:CIVICAPI enabled:on`); they are off by default. Its 2024 archive is
-partial (e.g. TX yes, NV no), so the replay tests don't use it.
+outlet (`/calls outlets:CIVICAPI enabled:on`); they are off by default because no real race in
+its archive carries a call time yet, so its decision desk could not be checked. Its 2024 archive
+covers 14 states, so the replay tests don't use it.
+
+Accuracy, checked 2026-10-27 against official feeds (full report in
+[docs/civicapi-accuracy.md](docs/civicapi-accuracy.md)): VA 2025 statewide and all 100 House of
+Delegates seats match within a few write-in votes (100 of 103 exact); NC 2024 matches in 184 of
+191 races (a few real errors, e.g. one House district off by 10,000 votes); NJ 2025 Governor is
+exact, but its Assembly races were left at election-night numbers (2–11% low). Winners agreed in
+every reliable comparison. Treat civicAPI as election-night numbers, not certified totals.
 
 With the national fallbacks on as well, every state + DC has a second source for Senate, Governor and US House.
 A complete statewide result always wins over a `(partial: N counties)` county tally for the same

@@ -651,14 +651,14 @@ async def test_fallback_sources_are_only_asked_about_races_without_a_complete_an
     assert (await store.latest_result(pa)).source == "pa_sos"
 
 
-def test_civicapi_calls_are_on_by_default_and_attributed():
+def test_civicapi_calls_are_opt_in_and_attributed():
     from datetime import datetime, timezone
 
     from electionwatch.models import Level, RaceCall, RaceKey
     from electionwatch.poller import format_call
     from electionwatch.settings import GuildSettings
 
-    assert "CIVICAPI" in GuildSettings(1).call_outlets
+    assert "CIVICAPI" not in GuildSettings(1).call_outlets
     call = RaceCall(RaceKey("TX", Level.SENATE, "SEN"), "CIVICAPI", "Ted Cruz", "REP",
                     datetime(2024, 11, 6, 2, 10, tzinfo=timezone.utc), "https://civicapi.org/results/elections/1")
     post = format_call(call)

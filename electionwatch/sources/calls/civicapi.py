@@ -20,6 +20,7 @@ from __future__ import annotations
 import asyncio
 import re
 import time
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import ClassVar
 
@@ -30,7 +31,9 @@ from electionwatch.racekeys import ALL_JURISDICTIONS, STATEWIDE, RaceKeyError, p
 from electionwatch.sources.base import CallSource, ResultsSource, SourceUnavailable, register
 from electionwatch.sources.results._common import election_date
 
-from ._common import normalize_party, parse_iso_ts
+from electionwatch.parties import party_code
+
+from ._common import parse_iso_ts
 
 API = "https://civicapi.org/api/v2"
 PAGE = "https://civicapi.org/results/elections/{id}"
@@ -55,20 +58,26 @@ def race_key(row: dict) -> RaceKey | None:
     kind = row.get("type") or ""
     district = row.get("district")
     name = row.get("election_name") or ""
+    lowered = name.lower()
+    if "primary" in lowered or "primary" in (row.get("election_type") or "").lower():
+        return None   # party primaries share keys with each other and with the general
+    special = "special" in lowered
     try:
-        if kind == "US Senate":
-            return RaceKey(state, Level.SENATE, "SEN", None, "special" in name.lower())
+        # AZ, CA, DE and MD label their US Senate race plain "Senate".
+        if kind == "US Senate" or (kind == "Senate" and not district and "state senate" not in lowered):
+            return RaceKey(state, Level.SENATE, "SEN", None, special)
         if kind == "House of Representatives":
-            return parse(district) if district else None
+            return replace(parse(district), special=special) if district else None
         if kind in _OFFICES and row.get("election_type") == "Statewide" and not district:
-            return RaceKey(state, Level.GOVERNOR, _OFFICES[kind])
+            return RaceKey(state, Level.GOVERNOR, _OFFICES[kind], None, special)
         if kind in ("State House", "State Senate"):
             match = _LEGISLATURE.fullmatch(district or "")
             # No district = the chamber-control summary (seats per party), not a race.
-            return parse(f"{state} {match.group(1)}-{match.group(2)}") if match else None
+            key = parse(f"{state} {match.group(1)}-{match.group(2)}") if match else None
+            return replace(key, special=special) if key else None
     except (RaceKeyError, ValueError):
         return None
-    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    slug = re.sub(r"[^a-z0-9]+", "-", lowered).strip("-")
     return RaceKey(state, Level.LOCAL, "LOCAL", slug) if slug else None
 
 
@@ -82,7 +91,7 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
     candidates = [
         CandidateResult(
             name=str(c.get("name") or "").strip(),
-            party=normalize_party(c.get("party")),
+            party=party_code(c.get("party")),
             votes=int(c.get("votes") or 0),
             pct=c.get("percent"),
             incumbent=bool(c.get("incumbent")),
@@ -99,7 +108,9 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
         source="civicapi",
         fetched_at=fetched_at,
         source_updated_at=parse_iso_ts(race.get("last_updated")) if race.get("last_updated") else None,
-        expected_vote_pct=race.get("percent_reporting"),
+        # civicAPI shows 0% on hundreds of races that already carry votes: unknown, not zero.
+        expected_vote_pct=(race.get("percent_reporting") or None) if any(c.votes for c in candidates)
+        else race.get("percent_reporting"),
         total_votes=sum(c.votes for c in candidates),
         registered_voters=race.get("registered_voters"),
         url=PAGE.format(id=race_id),
@@ -118,7 +129,7 @@ def parse_call(race: dict, race_id: int, key: RaceKey) -> RaceCall | None:
         key=key,
         outlet="CIVICAPI",
         winner=str(winners[0].get("name")),
-        party=normalize_party(winners[0].get("party")),
+        party=party_code(winners[0].get("party")),
         called_at=parse_iso_ts(race["called_at"]),
         url=PAGE.format(id=race_id),
     )
@@ -153,6 +164,7 @@ class _CivicAPI:
         if cached and time.monotonic() < cached[0]:
             return cached[1]
         found: dict[RaceKey, tuple[int, str]] = {}
+        breakdown: dict[RaceKey, bool] = {}
         for page in range(MAX_PAGES):
             payload = await self._get(client, "race/search", {
                 "country": "US", "province": state, "startDate": date, "endDate": date,
@@ -161,8 +173,13 @@ class _CivicAPI:
             rows = payload.get("races") or []
             for row in rows:
                 key = race_key(row)
-                if key is not None and row.get("id") is not None:
-                    found.setdefault(key, (int(row["id"]), row.get("election_name") or str(key)))
+                if key is None or row.get("id") is None:
+                    continue
+                # Some races have shadow rows (an old matchup, a second Senate row); the one
+                # with a county breakdown is the live race, else the first listed.
+                if key not in found or (row.get("has_breakdown") and not breakdown.get(key)):
+                    found[key] = (int(row["id"]), row.get("election_name") or str(key))
+                    breakdown[key] = bool(row.get("has_breakdown"))
             if len(rows) < PAGE_SIZE:
                 break
         self.index[ident] = (time.monotonic() + INDEX_TTL, found)
