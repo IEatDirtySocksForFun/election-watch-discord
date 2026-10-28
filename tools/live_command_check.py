@@ -1,7 +1,7 @@
 """Check the bot's command surface against the REAL Discord API (dev guild only).
 
     EW_ENV_FILES=.env python tools/live_command_check.py --guild 100000000000000001 \
-        --channel 100000000000000002 --out ../logs/cmdtest
+        --channel 100000000000000002 --out replay/out/cmdtest
 
 a) Logs in with the bot token (HTTP only, no gateway), copies the global commands to the
    dev guild and syncs them (exactly what ElectionBot.setup_hook does with DEV_GUILD_ID),
