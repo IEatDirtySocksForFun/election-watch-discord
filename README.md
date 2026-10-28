@@ -15,6 +15,7 @@ to be forked and bent to your needs.
 Turnout: 57.1% · 8,116,309/14,214,001 ballots
 Source: tx_sos · Nov 04 03:41 UTC
 ```
+
 <sub>Example post format (illustrative numbers).</sub>
 
 - **No AI inside.** The bot is plain, deterministic Python. It makes no calls to OpenAI,
@@ -26,6 +27,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 ---
 
 ## Contents
+
 [Features](#features) · [Quick start](#quick-start) · [Recommended election-night setup](#recommended-election-night-setup) ·
 [Coverage](#coverage-by-state) · [Limitations](#limitations-worth-a-read) · [Slash commands](#slash-commands) ·
 [Race keys](#race-keys) · [Party markers](#party-markers) · [Testing](#testing) ·
@@ -33,26 +35,26 @@ Source: tx_sos · Nov 04 03:41 UTC
 
 ## Features
 
-| | |
-|---|---|
-| **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
-| **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
-| **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted as soon as they appear, and a retracted call gets its own post. |
-| **Odds** | Kalshi and Polymarket for every watched race, refreshed in the background. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
-| **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia (refreshed every 30 minutes). |
-| **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI (downloaded hourly), credited with a link in every embed. |
-| **Race browser** | `/races` is a private browser with Congressional, Senate, State and Local tabs and a state picker. Each race has Odds and Polls buttons, and it remembers your last view. |
-| **Voting FAQ** | `/faq <state>` covers poll-closing times, what each state counts first and last, mail deadlines, recount thresholds and typical call times. All 50 states + DC are covered, each with official sources. |
-| **Per-server settings** | Stored in MongoDB: channel, watched races, posting mode, outlets, alert thresholds, an admin role and command limits. |
-| **Polite to its sources** | `/odds`, `/polls` and `/earlyvote` never call a data source: they read what the background refresh stored in MongoDB. Each source host gets at most half of its published rate limit per hour, shared evenly by the sources that use it; users can't make the bot hammer an API by repeating a command. |
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Results**               | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout.                                                                                                                                                                                           |
+| **Posting rule**          | Per server: every 5 minutes if numbers changed (default), every _N_ minutes if changed, or on every change. An update is never re-posted when it would look identical.                                                                                                                                                                                                                                                                                                                      |
+| **Race calls**            | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted as soon as they appear, and a retracted call gets its own post.                                                                                                                                                                                                                                                                                                     |
+| **Odds**                  | Kalshi and Polymarket for every watched race, refreshed in the background. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable).                                                                                                                                                                                                                                                                                                 |
+| **Polls**                 | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia (refreshed every 30 minutes).                                                                                                                                                                                                                                                                                                                          |
+| **Early vote**            | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI (downloaded hourly), credited with a link in every embed. |
+| **Race browser**          | `/races` is a private browser with Congressional, Senate, State and Local tabs and a state picker. Each race has Odds and Polls buttons, and it remembers your last view.                                                                                                                                                                                                                                                                                                                   |
+| **Voting FAQ**            | `/faq <state>` covers poll-closing times, what each state counts first and last, mail deadlines, recount thresholds and typical call times. All 50 states + DC are covered, each with official sources.                                                                                                                                                                                                                                                                                     |
+| **Per-server settings**   | Stored in MongoDB: channel, watched races, posting mode, outlets, alert thresholds, an admin role and command limits.                                                                                                                                                                                                                                                                                                                                                                       |
+| **Polite to its sources** | `/odds`, `/polls` and `/earlyvote` never call a data source: they read what the background refresh stored in MongoDB. Each source host gets at most half of its published rate limit per hour, shared evenly by the sources that use it; users can't make the bot hammer an API by repeating a command.                                                                                                                                                                                     |
 
 ## Quick start
 
 **You need:** Python 3.11+, a Discord application, and MongoDB (local, or a free Atlas cluster).
 
-1. **Create the bot.** Go to <https://discord.com/developers/applications>, choose *New Application*,
-   then *Bot* → *Reset Token*. The token is your `DISCORD_TOKEN`. No privileged intents are needed.
-2. **Invite it.** Under *OAuth2 → URL Generator*, pick the scopes `bot` and `applications.commands`
+1. **Create the bot.** Go to <https://discord.com/developers/applications>, choose _New Application_,
+   then _Bot_ → _Reset Token_. The token is your `DISCORD_TOKEN`. No privileged intents are needed.
+2. **Invite it.** Under _OAuth2 → URL Generator_, pick the scopes `bot` and `applications.commands`
    and these permissions: **View Channels, Send Messages, Embed Links, Read Message History**.
    Open the generated URL and pick your server.
 3. **Install.**
@@ -65,18 +67,18 @@ Source: tx_sos · Nov 04 03:41 UTC
 4. **Configure `.env`.** Both `KEY=value` and `KEY: value` work, and `EW_ENV_FILES=a.env,b.env` reads
    several files. Real environment variables take precedence over the files.
 
-   | variable | required | meaning |
-   |---|---|---|
-   | `DISCORD_TOKEN` | yes | bot token |
-   | `MONGODB_URI` | yes | `mongodb://127.0.0.1:27017` or an Atlas `mongodb+srv://…` URI |
-   | `MONGODB_DB` | | database name (default `electionwatch`) |
-   | `DEV_GUILD_ID` | | register slash commands instantly in one test server |
-   | `ELECTION_DATE` | | election to follow (default `2026-11-03`) |
-   | `EW_ENABLED_SOURCES` | | turn on optional sources (see below) |
-   | `EW_DISABLED_SOURCES` | | turn off default sources |
-   | `EW_SOURCE_STATES` | | limit a source to some states: `fox_results=TX,TN;cbs_results=AL` |
-   | `AP_API_KEY`, `DDHQ_API_KEY` | | paid race-call feeds; the adapters are skipped without a key |
-   | `EW_RATE_SAFETY`, `EW_RATE_LIMITS`, `EW_INTERVALS`, `EW_USER_COOLDOWN`, … | | refresh rates and command limits; computed by default ([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)) |
+   | variable                                                                  | required | meaning                                                                                                                     |
+   | ------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+   | `DISCORD_TOKEN`                                                           | yes      | bot token                                                                                                                   |
+   | `MONGODB_URI`                                                             | yes      | `mongodb://127.0.0.1:27017` or an Atlas `mongodb+srv://…` URI                                                               |
+   | `MONGODB_DB`                                                              |          | database name (default `electionwatch`)                                                                                     |
+   | `DEV_GUILD_ID`                                                            |          | register slash commands instantly in one test server                                                                        |
+   | `ELECTION_DATE`                                                           |          | election to follow (default `2026-11-03`)                                                                                   |
+   | `EW_ENABLED_SOURCES`                                                      |          | turn on optional sources (see below)                                                                                        |
+   | `EW_DISABLED_SOURCES`                                                     |          | turn off default sources                                                                                                    |
+   | `EW_SOURCE_STATES`                                                        |          | limit a source to some states: `fox_results=TX,TN;cbs_results=AL`                                                           |
+   | `AP_API_KEY`, `DDHQ_API_KEY`                                              |          | paid race-call feeds; the adapters are skipped without a key                                                                |
+   | `EW_RATE_SAFETY`, `EW_RATE_LIMITS`, `EW_INTERVALS`, `EW_USER_COOLDOWN`, … |          | refresh rates and command limits; computed by default ([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)) |
 
 5. **Run.**
    ```sh
@@ -99,6 +101,7 @@ EW_ENABLED_SOURCES=cbs_results,fox_results,nbc,cbs,fox,abc,cnn_exit_polls,270tow
 ```
 
 Without that line:
+
 - **Results:** every state still has results through civicAPI (see below); the outlet
   fallbacks are a second opinion if civicAPI is down.
 - **Race calls:** none are posted (AP and DDHQ need a paid key). civicAPI's free calls are
@@ -117,14 +120,14 @@ returns arrive) and `/limits` in Discord to see how often each source is being a
 Status as of 2026-10-27, checked with `tools/health_check.py` against the 2024 general and the
 2026 feeds.
 
-| Coverage | States |
-|---|---|
-| **Official statewide feed** (the state's own election-night data) | AR, AZ, CA, CO, CT, DC, DE, FL, GA, HI, IA, ID, IL, IN, KS, LA, MD, MN, MT, NC, ND, NM, OH, OR, PA, RI, SC, SD, UT, VA, VT, WA, WV |
-| **Official feed, opt-in scraper** | NE (`ne_sos`) |
-| **Official county feeds only** (partial state) | TX (Harris, Tarrant, Bexar, Travis, Fort Bend + 15 more Clarity counties: about 49% of the 2024 vote; backup for the state site), MI (Ottawa), WI (Dane, opt-in), NJ (14 counties), MO (St. Louis Co.), NY (NYC, opt-in), TN (Shelby), AL (Madison) |
-| **No official feed reachable**: civicAPI + national fallbacks | KY, MA, ME, MS*, NH, NV, OK, WY |
-| **civicAPI** (free API, no key, on by default; every state, federal + statewide + legislature + local) | all 50 + DC; fills every gap above |
-| **Known problems right now** | TX: results.texas-election.com sometimes returns a Cloudflare challenge (the county feeds and civicAPI cover it). AK's incomplete certificate chain is handled by shipping the missing public intermediate (`electionwatch/data/certs/`). |
+| Coverage                                                                                               | States                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Official statewide feed** (the state's own election-night data)                                      | AR, AZ, CA, CO, CT, DC, DE, FL, GA, HI, IA, ID, IL, IN, KS, LA, MD, MN, MT, NC, ND, NM, OH, OR, PA, RI, SC, SD, UT, VA, VT, WA, WV                                                                                                                  |
+| **Official feed, opt-in scraper**                                                                      | NE (`ne_sos`)                                                                                                                                                                                                                                       |
+| **Official county feeds only** (partial state)                                                         | TX (Harris, Tarrant, Bexar, Travis, Fort Bend + 15 more Clarity counties: about 49% of the 2024 vote; backup for the state site), MI (Ottawa), WI (Dane, opt-in), NJ (14 counties), MO (St. Louis Co.), NY (NYC, opt-in), TN (Shelby), AL (Madison) |
+| **No official feed reachable**: civicAPI + national fallbacks                                          | KY, MA, ME, MS*, NH, NV, OK, WY                                                                                                                                                                                                                     |
+| **civicAPI** (free API, no key, on by default; every state, federal + statewide + legislature + local) | all 50 + DC; fills every gap above                                                                                                                                                                                                                  |
+| **Known problems right now**                                                                           | TX: results.texas-election.com sometimes returns a Cloudflare challenge (the county feeds and civicAPI cover it). AK's incomplete certificate chain is handled by shipping the missing public intermediate (`electionwatch/data/certs/`).           |
 
 \* MS publishes certified results only, days after the election.
 
@@ -196,40 +199,40 @@ Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 ## Slash commands
 
 Admin commands need **Manage Server**, or the admin role set in `/setup`. Replies marked
-*private* are ephemeral: only the person who asked sees them.
+_private_ are ephemeral: only the person who asked sees them.
 
-| command | who | what |
-|---|---|---|
-| `/setup channel:<#channel> [admin_role]` | admin | where the bot posts, and who may configure it |
-| `/watch add·remove·list <race>` | admin | the server's important races (with autocomplete) |
-| `/posting mode:<default·interval·immediate> [minutes]` | admin | results timing |
-| `/calls outlets:<…> on·off` | admin | which outlets' calls are posted |
-| `/oddsalerts on·off [threshold] [window]` | admin | Kalshi / Polymarket swing alerts |
-| `/turnout on·off`, `/exitpolls on·off` | admin | extra lines and posts |
-| `/earlyvote_posts on·off` | admin | daily early-vote summary for watched states (off by default) |
-| `/pause`, `/resume` | admin | stop or restart all posting |
-| `/refresh [what:all·results·odds·polls·earlyvote·races]` | admin | fetch fresh data now instead of waiting for the next refresh (once per 2 refresh intervals per server; the hourly request allowance still applies) |
-| `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | everyone sees · admin sets | refresh rates, request budgets and this server's command limits (`-1` = back to default) |
-| `/settings` | everyone | this server's settings (private) |
-| `/races` | everyone | private race browser with Odds and Polls buttons |
-| `/odds [race]` | everyone | private Kalshi + Polymarket probabilities with 1 h / 24 h moves (read from the database; see [rate limits](docs/customizing.md#refresh-rates-and-limits)) |
-| `/polls race:<race> [count] [internals]` | everyone | private latest polls, internals tagged |
-| `/favorite add·remove <race>` | everyone | pin races in your browser |
-| `/faq [state]` | everyone | private per-state election FAQ |
-| `/earlyvote [state] [breakdown:party·method·age·county]` | everyone | private early-vote numbers from [civicAPI](https://civicapi.org/early-vote) (attribution: each embed links civicapi.org and names it in the footer) |
+| command                                                    | who                        | what                                                                                                                                                      |
+| ---------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/setup channel:<#channel> [admin_role]`                   | admin                      | where the bot posts, and who may configure it                                                                                                             |
+| `/watch add·remove·list <race>`                            | admin                      | the server's important races (with autocomplete)                                                                                                          |
+| `/posting mode:<default·interval·immediate> [minutes]`     | admin                      | results timing                                                                                                                                            |
+| `/calls outlets:<…> on·off`                                | admin                      | which outlets' calls are posted                                                                                                                           |
+| `/oddsalerts on·off [threshold] [window]`                  | admin                      | Kalshi / Polymarket swing alerts                                                                                                                          |
+| `/turnout on·off`, `/exitpolls on·off`                     | admin                      | extra lines and posts                                                                                                                                     |
+| `/earlyvote_posts on·off`                                  | admin                      | daily early-vote summary for watched states (off by default)                                                                                              |
+| `/pause`, `/resume`                                        | admin                      | stop or restart all posting                                                                                                                               |
+| `/refresh [what:all·results·odds·polls·earlyvote·races]`   | admin                      | fetch fresh data now instead of waiting for the next refresh (once per 2 refresh intervals per server; the hourly request allowance still applies)        |
+| `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | everyone sees · admin sets | refresh rates, request budgets and this server's command limits (`-1` = back to default)                                                                  |
+| `/settings`                                                | everyone                   | this server's settings (private)                                                                                                                          |
+| `/races`                                                   | everyone                   | private race browser with Odds and Polls buttons                                                                                                          |
+| `/odds [race]`                                             | everyone                   | private Kalshi + Polymarket probabilities with 1 h / 24 h moves (read from the database; see [rate limits](docs/customizing.md#refresh-rates-and-limits)) |
+| `/polls race:<race> [count] [internals]`                   | everyone                   | private latest polls, internals tagged                                                                                                                    |
+| `/favorite add·remove <race>`                              | everyone                   | pin races in your browser                                                                                                                                 |
+| `/faq [state]`                                             | everyone                   | private per-state election FAQ                                                                                                                            |
+| `/earlyvote [state] [breakdown:party·method·age·county]`   | everyone                   | private early-vote numbers from [civicAPI](https://civicapi.org/early-vote) (attribution: each embed links civicapi.org and names it in the footer)       |
 
 ## Race keys
 
 `config/races.yaml` holds the default watch list for new servers.
 
-| key | race |
-|---|---|
-| `NC-01`, `AK-AL` | US House district (`AL` = at-large; single-seat states always use `AL`) |
-| `TX SEN`, `OH SEN S` | US Senate; `S` = special election (2026: watch `OH SEN S` and `FL SEN S`) |
-| `GA GOV`, `AZ AG` | statewide office: `GOV LTGOV AG SOS TREAS AUD COMP SUPT AGCOM INSCOM LANDCOM RRC` |
-| `TX SD-05`, `TX HD-121` | state senate / state house district |
-| `TX LOCAL harris-county-judge` | local race (slug as the results adapter publishes it) |
-| `PR-AL`, `GU GOV` | territories |
+| key                            | race                                                                              |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| `NC-01`, `AK-AL`               | US House district (`AL` = at-large; single-seat states always use `AL`)           |
+| `TX SEN`, `OH SEN S`           | US Senate; `S` = special election (2026: watch `OH SEN S` and `FL SEN S`)         |
+| `GA GOV`, `AZ AG`              | statewide office: `GOV LTGOV AG SOS TREAS AUD COMP SUPT AGCOM INSCOM LANDCOM RRC` |
+| `TX SD-05`, `TX HD-121`        | state senate / state house district                                               |
+| `TX LOCAL harris-county-judge` | local race (slug as the results adapter publishes it)                             |
+| `PR-AL`, `GU GOV`              | territories                                                                       |
 
 Plain names work too: `Texas Senate`, `North Carolina Congressional District 1`.
 

@@ -1,1166 +1,1166 @@
 {
- "election": {
-  "publicElectionId": null,
-  "electionDate": "2026-11-03",
-  "name": [
-   {
-    "languageId": "en",
-    "text": "2026 November General"
-   },
-   {
-    "languageId": "1",
-    "text": "Elecciones generales de noviembre de 2026"
-   },
-   {
-    "languageId": "2",
-    "text": "2026년 총선거"
-   },
-   {
-    "languageId": "5",
-    "text": "Tổng tuyển cử tháng 11 năm 2026"
-   }
+  "election": {
+    "publicElectionId": null,
+    "electionDate": "2026-11-03",
+    "name": [
+      {
+        "languageId": "en",
+        "text": "2026 November General"
+      },
+      {
+        "languageId": "1",
+        "text": "Elecciones generales de noviembre de 2026"
+      },
+      {
+        "languageId": "2",
+        "text": "2026년 총선거"
+      },
+      {
+        "languageId": "5",
+        "text": "Tổng tuyển cử tháng 11 năm 2026"
+      }
+    ]
+  },
+  "jurisdiction": {
+    "shortName": "virginia"
+  },
+  "ballotItems": [
+    {
+      "id": "01000000-f030-c43d-d69c-08df1fee529a",
+      "parentId": null,
+      "parentJurisdictionName": "",
+      "publishPublicElectionId": "2026-November-General",
+      "relatedIds": null,
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, United States Senate"
+        },
+        {
+          "languageId": "1",
+          "text": "Miembro del Senado de los Estados Unidos"
+        },
+        {
+          "languageId": "2",
+          "text": "의원, 미국 상원"
+        },
+        {
+          "languageId": "5",
+          "text": "Thượng nghị sĩ Hoa Kỳ "
+        }
+      ],
+      "voteFor": [
+        {
+          "languageId": "en",
+          "text": "Vote for only one"
+        },
+        {
+          "languageId": "1",
+          "text": "Votar por uno solo"
+        },
+        {
+          "languageId": "2",
+          "text": "1명에만 투표"
+        },
+        {
+          "languageId": "5",
+          "text": "Chỉ bỏ phiếu cho 1"
+        }
+      ],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 0,
+        "totalUnits": 133,
+        "asOf": "2026-10-26T22:53:33.7465541Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 0,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-f030-c43d-d93c-08df1fee529a",
+            "nativeId": "cs290",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Mark R. Warner"
+              },
+              {
+                "languageId": "1",
+                "text": "Mark R. Warner"
+              },
+              {
+                "languageId": "2",
+                "text": "Mark R. Warner"
+              },
+              {
+                "languageId": "5",
+                "text": "Mark R. Warner"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c502-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Democratic"
+                }
+              ],
+              "abbreviation": "D",
+              "standardName": null,
+              "color": "#2039c5",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-da9d-08df1fee529a",
+            "nativeId": "cs291",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Bert Mizusawa"
+              },
+              {
+                "languageId": "1",
+                "text": "Bert Mizusawa"
+              },
+              {
+                "languageId": "2",
+                "text": "Bert Mizusawa"
+              },
+              {
+                "languageId": "5",
+                "text": "Bert Mizusawa"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c8f4-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Republican"
+                }
+              ],
+              "abbreviation": "R",
+              "standardName": null,
+              "color": "#d92d20",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-dab3-08df1fee529a",
+            "nativeId": "wi-cc142",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              },
+              {
+                "languageId": "1",
+                "text": "Votar por un candidato por nombre escrito a mano"
+              },
+              {
+                "languageId": "2",
+                "text": "기재"
+              },
+              {
+                "languageId": "5",
+                "text": "Viết ra"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": true,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "isCloseRace": false,
+      "partyName": null
+    },
+    {
+      "id": "01000000-f030-c43d-abd6-08df1fee5328",
+      "parentId": null,
+      "parentJurisdictionName": "",
+      "publishPublicElectionId": "2026-November-General",
+      "relatedIds": null,
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, House of Representatives (1st District)"
+        },
+        {
+          "languageId": "1",
+          "text": "Miembro de la Cámara de Representantes (Distrito 1)"
+        },
+        {
+          "languageId": "2",
+          "text": "의원, 하원 (제1 지구)"
+        },
+        {
+          "languageId": "5",
+          "text": "Dân biểu Hạ viện (Đơn vị  1)"
+        }
+      ],
+      "voteFor": [
+        {
+          "languageId": "en",
+          "text": "Vote for only one"
+        },
+        {
+          "languageId": "1",
+          "text": "Votar por uno solo"
+        },
+        {
+          "languageId": "2",
+          "text": "1명에만 투표"
+        },
+        {
+          "languageId": "5",
+          "text": "Chỉ bỏ phiếu cho 1"
+        }
+      ],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 0,
+        "totalUnits": 18,
+        "asOf": "2026-10-26T22:53:33.7465541Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 0,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-f030-c43d-ac1b-08df1fee5328",
+            "nativeId": "cs188",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Shannon L. Taylor"
+              },
+              {
+                "languageId": "1",
+                "text": "Shannon L. Taylor"
+              },
+              {
+                "languageId": "2",
+                "text": "Shannon L. Taylor"
+              },
+              {
+                "languageId": "5",
+                "text": "Shannon L. Taylor"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c502-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Democratic"
+                }
+              ],
+              "abbreviation": "D",
+              "standardName": null,
+              "color": "#2039c5",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-ac4c-08df1fee5328",
+            "nativeId": "cs189",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Robert J. \"Rob\" Wittman"
+              },
+              {
+                "languageId": "1",
+                "text": "Robert J. \"Rob\" Wittman"
+              },
+              {
+                "languageId": "2",
+                "text": "Robert J. \"Rob\" Wittman"
+              },
+              {
+                "languageId": "5",
+                "text": "Robert J. \"Rob\" Wittman"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c8f4-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Republican"
+                }
+              ],
+              "abbreviation": "R",
+              "standardName": null,
+              "color": "#d92d20",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-ac60-08df1fee5328",
+            "nativeId": "wi-cc90",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              },
+              {
+                "languageId": "1",
+                "text": "Votar por un candidato por nombre escrito a mano"
+              },
+              {
+                "languageId": "2",
+                "text": "기재"
+              },
+              {
+                "languageId": "5",
+                "text": "Viết ra"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": true,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "isCloseRace": false,
+      "partyName": null
+    },
+    {
+      "id": "01000000-f030-c43d-c993-08df1fee52e3",
+      "parentId": null,
+      "parentJurisdictionName": "",
+      "publishPublicElectionId": "2026-November-General",
+      "relatedIds": null,
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, House of Representatives (11th District)"
+        },
+        {
+          "languageId": "1",
+          "text": "Miembro de la Cámara de Representantes (Distrito 11)"
+        },
+        {
+          "languageId": "2",
+          "text": "의원, 하원 (제11 지구)"
+        },
+        {
+          "languageId": "5",
+          "text": "Dân biểu Hạ viện (Đơn vị  11)"
+        }
+      ],
+      "voteFor": [
+        {
+          "languageId": "en",
+          "text": "Vote for only one"
+        },
+        {
+          "languageId": "1",
+          "text": "Votar por uno solo"
+        },
+        {
+          "languageId": "2",
+          "text": "1명에만 투표"
+        },
+        {
+          "languageId": "5",
+          "text": "Chỉ bỏ phiếu cho 1"
+        }
+      ],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 0,
+        "totalUnits": 2,
+        "asOf": "2026-10-26T22:53:33.7465541Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 0,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-f030-c43d-c9fb-08df1fee52e3",
+            "nativeId": "cs218",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "James R. Walkinshaw"
+              },
+              {
+                "languageId": "1",
+                "text": "James R. Walkinshaw"
+              },
+              {
+                "languageId": "2",
+                "text": "James R. Walkinshaw"
+              },
+              {
+                "languageId": "5",
+                "text": "James R. Walkinshaw"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c502-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Democratic"
+                }
+              ],
+              "abbreviation": "D",
+              "standardName": null,
+              "color": "#2039c5",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-ca35-08df1fee52e3",
+            "nativeId": "cs219",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Arthur G. Purves"
+              },
+              {
+                "languageId": "1",
+                "text": "Arthur G. Purves"
+              },
+              {
+                "languageId": "2",
+                "text": "Arthur G. Purves"
+              },
+              {
+                "languageId": "5",
+                "text": "Arthur G. Purves"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c8f4-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Republican"
+                }
+              ],
+              "abbreviation": "R",
+              "standardName": null,
+              "color": "#d92d20",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-ca46-08df1fee52e3",
+            "nativeId": "cs220",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Dianne L. Blais"
+              },
+              {
+                "languageId": "1",
+                "text": "Dianne L. Blais"
+              },
+              {
+                "languageId": "2",
+                "text": "Dianne L. Blais"
+              },
+              {
+                "languageId": "5",
+                "text": "Dianne L. Blais"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c96a-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Green"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Green"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Green"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Green"
+                }
+              ],
+              "abbreviation": "G",
+              "standardName": null,
+              "color": "#27cc37",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-ca57-08df1fee52e3",
+            "nativeId": "wi-cc105",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              },
+              {
+                "languageId": "1",
+                "text": "Votar por un candidato por nombre escrito a mano"
+              },
+              {
+                "languageId": "2",
+                "text": "기재"
+              },
+              {
+                "languageId": "5",
+                "text": "Viết ra"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": true,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "isCloseRace": false,
+      "partyName": null
+    },
+    {
+      "id": "01000000-f030-c43d-73f4-08df1fee5331",
+      "parentId": null,
+      "parentJurisdictionName": "",
+      "publishPublicElectionId": "2026-November-General",
+      "relatedIds": null,
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, House of Delegates (20th District)"
+        },
+        {
+          "languageId": "1",
+          "text": "Miembro de la Cámara de Delegados (Distrito 20)"
+        },
+        {
+          "languageId": "2",
+          "text": "일원, 대의원 (20지구)"
+        },
+        {
+          "languageId": "5",
+          "text": "Thành viên, Hạ viện Virginia (Quận 20)"
+        }
+      ],
+      "voteFor": [
+        {
+          "languageId": "en",
+          "text": "Vote for only one"
+        },
+        {
+          "languageId": "1",
+          "text": "Votar por uno solo"
+        },
+        {
+          "languageId": "2",
+          "text": "1명에만 투표"
+        },
+        {
+          "languageId": "5",
+          "text": "Chỉ bỏ phiếu cho 1"
+        }
+      ],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 0,
+        "totalUnits": 3,
+        "asOf": "2026-10-26T22:53:33.7465541Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 0,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-f030-c43d-744e-08df1fee5331",
+            "nativeId": "cs250",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Sonia Ruth Vasquez Luna"
+              },
+              {
+                "languageId": "1",
+                "text": "Sonia Ruth Vasquez Luna"
+              },
+              {
+                "languageId": "2",
+                "text": "Sonia Ruth Vasquez Luna"
+              },
+              {
+                "languageId": "5",
+                "text": "Sonia Ruth Vasquez Luna"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c502-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Democratic"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Democratic"
+                }
+              ],
+              "abbreviation": "D",
+              "standardName": null,
+              "color": "#2039c5",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-7515-08df1fee5331",
+            "nativeId": "cs251",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Nathaniel \"Nate\" Fritzen"
+              },
+              {
+                "languageId": "1",
+                "text": "Nathaniel \"Nate\" Fritzen"
+              },
+              {
+                "languageId": "2",
+                "text": "Nathaniel \"Nate\" Fritzen"
+              },
+              {
+                "languageId": "5",
+                "text": "Nathaniel \"Nate\" Fritzen"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": "01000000-f030-c43d-c8f4-08df1fee529a",
+              "name": [
+                {
+                  "languageId": "en",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "1",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "2",
+                  "text": "Republican"
+                },
+                {
+                  "languageId": "5",
+                  "text": "Republican"
+                }
+              ],
+              "abbreviation": "R",
+              "standardName": null,
+              "color": "#d92d20",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-752c-08df1fee5331",
+            "nativeId": "wi-cc124",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              },
+              {
+                "languageId": "1",
+                "text": "Votar por un candidato por nombre escrito a mano"
+              },
+              {
+                "languageId": "2",
+                "text": "기재"
+              },
+              {
+                "languageId": "5",
+                "text": "Viết ra"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": true,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "isCloseRace": false,
+      "partyName": null
+    },
+    {
+      "id": "01000000-f030-c43d-2e5b-08df1fee534b",
+      "parentId": null,
+      "parentJurisdictionName": "",
+      "publishPublicElectionId": "2026-November-General",
+      "relatedIds": null,
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Proposed Constitutional Amendment Question 1"
+        },
+        {
+          "languageId": "1",
+          "text": "Enmienda constitucional propuesta n.º 1"
+        },
+        {
+          "languageId": "2",
+          "text": "헌법 개정안 제1호"
+        },
+        {
+          "languageId": "5",
+          "text": "Đề xuất sửa đổi Hiến pháp số 1"
+        }
+      ],
+      "voteFor": [
+        {
+          "languageId": "en",
+          "text": "Vote for only one"
+        },
+        {
+          "languageId": "1",
+          "text": "Votar por uno solo"
+        },
+        {
+          "languageId": "2",
+          "text": "1명에만 투표"
+        },
+        {
+          "languageId": "5",
+          "text": "Chỉ bỏ phiếu cho 1"
+        }
+      ],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 0,
+        "totalUnits": 133,
+        "asOf": "2026-10-26T22:53:33.7465541Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 0,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "BallotMeasure",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-f030-c43d-2f3f-08df1fee534b",
+            "nativeId": "bms1361",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Yes"
+              },
+              {
+                "languageId": "1",
+                "text": "Sí"
+              },
+              {
+                "languageId": "2",
+                "text": "예"
+              },
+              {
+                "languageId": "5",
+                "text": "Đúng"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-2f52-08df1fee534b",
+            "nativeId": "bms1423",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "No"
+              },
+              {
+                "languageId": "1",
+                "text": "No"
+              },
+              {
+                "languageId": "2",
+                "text": "아니요"
+              },
+              {
+                "languageId": "5",
+                "text": "Không"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "isCloseRace": false,
+      "partyName": null
+    },
+    {
+      "id": "01000000-f030-c43d-0b6f-08df1fee5338",
+      "parentId": null,
+      "parentJurisdictionName": "",
+      "publishPublicElectionId": "2026-November-General",
+      "relatedIds": null,
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Mayor - Belle Haven (Town of Belle Haven)"
+        },
+        {
+          "languageId": "1",
+          "text": "Alcalde - Belle Haven (localidad de Belle Haven)"
+        },
+        {
+          "languageId": "2",
+          "text": "시장 - Belle Haven (Belle Haven 타운)"
+        },
+        {
+          "languageId": "5",
+          "text": "Thị trưởng - Belle Haven (Thị trấn Belle Haven)"
+        }
+      ],
+      "voteFor": [
+        {
+          "languageId": "en",
+          "text": "Vote for only one"
+        },
+        {
+          "languageId": "1",
+          "text": "Votar por uno solo"
+        },
+        {
+          "languageId": "2",
+          "text": "1명에만 투표"
+        },
+        {
+          "languageId": "5",
+          "text": "Chỉ bỏ phiếu cho 1"
+        }
+      ],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 0,
+        "totalUnits": 2,
+        "asOf": "2026-10-26T22:53:33.7465541Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 0,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-f030-c43d-0bc2-08df1fee5338",
+            "nativeId": "cs760",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "David A. McCaleb"
+              },
+              {
+                "languageId": "1",
+                "text": "David A. McCaleb"
+              },
+              {
+                "languageId": "2",
+                "text": "David A. McCaleb"
+              },
+              {
+                "languageId": "5",
+                "text": "David A. McCaleb"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-0bcb-08df1fee5338",
+            "nativeId": "cs761",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Lawrence Burr Willcox II"
+              },
+              {
+                "languageId": "1",
+                "text": "Lawrence Burr Willcox II"
+              },
+              {
+                "languageId": "2",
+                "text": "Lawrence Burr Willcox II"
+              },
+              {
+                "languageId": "5",
+                "text": "Lawrence Burr Willcox II"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-f030-c43d-0bcf-08df1fee5338",
+            "nativeId": "wi-cc334",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              },
+              {
+                "languageId": "1",
+                "text": "Votar por un candidato por nombre escrito a mano"
+              },
+              {
+                "languageId": "2",
+                "text": "기재"
+              },
+              {
+                "languageId": "5",
+                "text": "Viết ra"
+              }
+            ],
+            "voteCount": 0,
+            "party": {
+              "id": null,
+              "name": null,
+              "abbreviation": null,
+              "standardName": null,
+              "color": "#999999",
+              "textColor": null
+            },
+            "isWriteIn": true,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "isCloseRace": false,
+      "partyName": null
+    }
   ]
- },
- "jurisdiction": {
-  "shortName": "virginia"
- },
- "ballotItems": [
-  {
-   "id": "01000000-f030-c43d-d69c-08df1fee529a",
-   "parentId": null,
-   "parentJurisdictionName": "",
-   "publishPublicElectionId": "2026-November-General",
-   "relatedIds": null,
-   "name": [
-    {
-     "languageId": "en",
-     "text": "Member, United States Senate"
-    },
-    {
-     "languageId": "1",
-     "text": "Miembro del Senado de los Estados Unidos"
-    },
-    {
-     "languageId": "2",
-     "text": "의원, 미국 상원"
-    },
-    {
-     "languageId": "5",
-     "text": "Thượng nghị sĩ Hoa Kỳ "
-    }
-   ],
-   "voteFor": [
-    {
-     "languageId": "en",
-     "text": "Vote for only one"
-    },
-    {
-     "languageId": "1",
-     "text": "Votar por uno solo"
-    },
-    {
-     "languageId": "2",
-     "text": "1명에만 투표"
-    },
-    {
-     "languageId": "5",
-     "text": "Chỉ bỏ phiếu cho 1"
-    }
-   ],
-   "turnout": null,
-   "reportingStatus": {
-    "reportingUnits": 0,
-    "totalUnits": 133,
-    "asOf": "2026-10-26T22:53:33.7465541Z",
-    "reportingStatusDetails": null
-   },
-   "voteTotal": 0,
-   "underVoteCount": null,
-   "overVoteCount": null,
-   "contestGroupId": null,
-   "contestType": "Candidate",
-   "summaryResults": {
-    "ballotOptions": [
-     {
-      "id": "01000000-f030-c43d-d93c-08df1fee529a",
-      "nativeId": "cs290",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Mark R. Warner"
-       },
-       {
-        "languageId": "1",
-        "text": "Mark R. Warner"
-       },
-       {
-        "languageId": "2",
-        "text": "Mark R. Warner"
-       },
-       {
-        "languageId": "5",
-        "text": "Mark R. Warner"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c502-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "1",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "2",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "5",
-         "text": "Democratic"
-        }
-       ],
-       "abbreviation": "D",
-       "standardName": null,
-       "color": "#2039c5",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-da9d-08df1fee529a",
-      "nativeId": "cs291",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Bert Mizusawa"
-       },
-       {
-        "languageId": "1",
-        "text": "Bert Mizusawa"
-       },
-       {
-        "languageId": "2",
-        "text": "Bert Mizusawa"
-       },
-       {
-        "languageId": "5",
-        "text": "Bert Mizusawa"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c8f4-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Republican"
-        },
-        {
-         "languageId": "1",
-         "text": "Republican"
-        },
-        {
-         "languageId": "2",
-         "text": "Republican"
-        },
-        {
-         "languageId": "5",
-         "text": "Republican"
-        }
-       ],
-       "abbreviation": "R",
-       "standardName": null,
-       "color": "#d92d20",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-dab3-08df1fee529a",
-      "nativeId": "wi-cc142",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Write-In"
-       },
-       {
-        "languageId": "1",
-        "text": "Votar por un candidato por nombre escrito a mano"
-       },
-       {
-        "languageId": "2",
-        "text": "기재"
-       },
-       {
-        "languageId": "5",
-        "text": "Viết ra"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": true,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     }
-    ]
-   },
-   "rankedChoiceSummaryResults": null,
-   "isCloseRace": false,
-   "partyName": null
-  },
-  {
-   "id": "01000000-f030-c43d-abd6-08df1fee5328",
-   "parentId": null,
-   "parentJurisdictionName": "",
-   "publishPublicElectionId": "2026-November-General",
-   "relatedIds": null,
-   "name": [
-    {
-     "languageId": "en",
-     "text": "Member, House of Representatives (1st District)"
-    },
-    {
-     "languageId": "1",
-     "text": "Miembro de la Cámara de Representantes (Distrito 1)"
-    },
-    {
-     "languageId": "2",
-     "text": "의원, 하원 (제1 지구)"
-    },
-    {
-     "languageId": "5",
-     "text": "Dân biểu Hạ viện (Đơn vị  1)"
-    }
-   ],
-   "voteFor": [
-    {
-     "languageId": "en",
-     "text": "Vote for only one"
-    },
-    {
-     "languageId": "1",
-     "text": "Votar por uno solo"
-    },
-    {
-     "languageId": "2",
-     "text": "1명에만 투표"
-    },
-    {
-     "languageId": "5",
-     "text": "Chỉ bỏ phiếu cho 1"
-    }
-   ],
-   "turnout": null,
-   "reportingStatus": {
-    "reportingUnits": 0,
-    "totalUnits": 18,
-    "asOf": "2026-10-26T22:53:33.7465541Z",
-    "reportingStatusDetails": null
-   },
-   "voteTotal": 0,
-   "underVoteCount": null,
-   "overVoteCount": null,
-   "contestGroupId": null,
-   "contestType": "Candidate",
-   "summaryResults": {
-    "ballotOptions": [
-     {
-      "id": "01000000-f030-c43d-ac1b-08df1fee5328",
-      "nativeId": "cs188",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Shannon L. Taylor"
-       },
-       {
-        "languageId": "1",
-        "text": "Shannon L. Taylor"
-       },
-       {
-        "languageId": "2",
-        "text": "Shannon L. Taylor"
-       },
-       {
-        "languageId": "5",
-        "text": "Shannon L. Taylor"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c502-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "1",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "2",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "5",
-         "text": "Democratic"
-        }
-       ],
-       "abbreviation": "D",
-       "standardName": null,
-       "color": "#2039c5",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-ac4c-08df1fee5328",
-      "nativeId": "cs189",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Robert J. \"Rob\" Wittman"
-       },
-       {
-        "languageId": "1",
-        "text": "Robert J. \"Rob\" Wittman"
-       },
-       {
-        "languageId": "2",
-        "text": "Robert J. \"Rob\" Wittman"
-       },
-       {
-        "languageId": "5",
-        "text": "Robert J. \"Rob\" Wittman"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c8f4-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Republican"
-        },
-        {
-         "languageId": "1",
-         "text": "Republican"
-        },
-        {
-         "languageId": "2",
-         "text": "Republican"
-        },
-        {
-         "languageId": "5",
-         "text": "Republican"
-        }
-       ],
-       "abbreviation": "R",
-       "standardName": null,
-       "color": "#d92d20",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-ac60-08df1fee5328",
-      "nativeId": "wi-cc90",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Write-In"
-       },
-       {
-        "languageId": "1",
-        "text": "Votar por un candidato por nombre escrito a mano"
-       },
-       {
-        "languageId": "2",
-        "text": "기재"
-       },
-       {
-        "languageId": "5",
-        "text": "Viết ra"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": true,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     }
-    ]
-   },
-   "rankedChoiceSummaryResults": null,
-   "isCloseRace": false,
-   "partyName": null
-  },
-  {
-   "id": "01000000-f030-c43d-c993-08df1fee52e3",
-   "parentId": null,
-   "parentJurisdictionName": "",
-   "publishPublicElectionId": "2026-November-General",
-   "relatedIds": null,
-   "name": [
-    {
-     "languageId": "en",
-     "text": "Member, House of Representatives (11th District)"
-    },
-    {
-     "languageId": "1",
-     "text": "Miembro de la Cámara de Representantes (Distrito 11)"
-    },
-    {
-     "languageId": "2",
-     "text": "의원, 하원 (제11 지구)"
-    },
-    {
-     "languageId": "5",
-     "text": "Dân biểu Hạ viện (Đơn vị  11)"
-    }
-   ],
-   "voteFor": [
-    {
-     "languageId": "en",
-     "text": "Vote for only one"
-    },
-    {
-     "languageId": "1",
-     "text": "Votar por uno solo"
-    },
-    {
-     "languageId": "2",
-     "text": "1명에만 투표"
-    },
-    {
-     "languageId": "5",
-     "text": "Chỉ bỏ phiếu cho 1"
-    }
-   ],
-   "turnout": null,
-   "reportingStatus": {
-    "reportingUnits": 0,
-    "totalUnits": 2,
-    "asOf": "2026-10-26T22:53:33.7465541Z",
-    "reportingStatusDetails": null
-   },
-   "voteTotal": 0,
-   "underVoteCount": null,
-   "overVoteCount": null,
-   "contestGroupId": null,
-   "contestType": "Candidate",
-   "summaryResults": {
-    "ballotOptions": [
-     {
-      "id": "01000000-f030-c43d-c9fb-08df1fee52e3",
-      "nativeId": "cs218",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "James R. Walkinshaw"
-       },
-       {
-        "languageId": "1",
-        "text": "James R. Walkinshaw"
-       },
-       {
-        "languageId": "2",
-        "text": "James R. Walkinshaw"
-       },
-       {
-        "languageId": "5",
-        "text": "James R. Walkinshaw"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c502-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "1",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "2",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "5",
-         "text": "Democratic"
-        }
-       ],
-       "abbreviation": "D",
-       "standardName": null,
-       "color": "#2039c5",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-ca35-08df1fee52e3",
-      "nativeId": "cs219",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Arthur G. Purves"
-       },
-       {
-        "languageId": "1",
-        "text": "Arthur G. Purves"
-       },
-       {
-        "languageId": "2",
-        "text": "Arthur G. Purves"
-       },
-       {
-        "languageId": "5",
-        "text": "Arthur G. Purves"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c8f4-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Republican"
-        },
-        {
-         "languageId": "1",
-         "text": "Republican"
-        },
-        {
-         "languageId": "2",
-         "text": "Republican"
-        },
-        {
-         "languageId": "5",
-         "text": "Republican"
-        }
-       ],
-       "abbreviation": "R",
-       "standardName": null,
-       "color": "#d92d20",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-ca46-08df1fee52e3",
-      "nativeId": "cs220",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Dianne L. Blais"
-       },
-       {
-        "languageId": "1",
-        "text": "Dianne L. Blais"
-       },
-       {
-        "languageId": "2",
-        "text": "Dianne L. Blais"
-       },
-       {
-        "languageId": "5",
-        "text": "Dianne L. Blais"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c96a-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Green"
-        },
-        {
-         "languageId": "1",
-         "text": "Green"
-        },
-        {
-         "languageId": "2",
-         "text": "Green"
-        },
-        {
-         "languageId": "5",
-         "text": "Green"
-        }
-       ],
-       "abbreviation": "G",
-       "standardName": null,
-       "color": "#27cc37",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-ca57-08df1fee52e3",
-      "nativeId": "wi-cc105",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Write-In"
-       },
-       {
-        "languageId": "1",
-        "text": "Votar por un candidato por nombre escrito a mano"
-       },
-       {
-        "languageId": "2",
-        "text": "기재"
-       },
-       {
-        "languageId": "5",
-        "text": "Viết ra"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": true,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     }
-    ]
-   },
-   "rankedChoiceSummaryResults": null,
-   "isCloseRace": false,
-   "partyName": null
-  },
-  {
-   "id": "01000000-f030-c43d-73f4-08df1fee5331",
-   "parentId": null,
-   "parentJurisdictionName": "",
-   "publishPublicElectionId": "2026-November-General",
-   "relatedIds": null,
-   "name": [
-    {
-     "languageId": "en",
-     "text": "Member, House of Delegates (20th District)"
-    },
-    {
-     "languageId": "1",
-     "text": "Miembro de la Cámara de Delegados (Distrito 20)"
-    },
-    {
-     "languageId": "2",
-     "text": "일원, 대의원 (20지구)"
-    },
-    {
-     "languageId": "5",
-     "text": "Thành viên, Hạ viện Virginia (Quận 20)"
-    }
-   ],
-   "voteFor": [
-    {
-     "languageId": "en",
-     "text": "Vote for only one"
-    },
-    {
-     "languageId": "1",
-     "text": "Votar por uno solo"
-    },
-    {
-     "languageId": "2",
-     "text": "1명에만 투표"
-    },
-    {
-     "languageId": "5",
-     "text": "Chỉ bỏ phiếu cho 1"
-    }
-   ],
-   "turnout": null,
-   "reportingStatus": {
-    "reportingUnits": 0,
-    "totalUnits": 3,
-    "asOf": "2026-10-26T22:53:33.7465541Z",
-    "reportingStatusDetails": null
-   },
-   "voteTotal": 0,
-   "underVoteCount": null,
-   "overVoteCount": null,
-   "contestGroupId": null,
-   "contestType": "Candidate",
-   "summaryResults": {
-    "ballotOptions": [
-     {
-      "id": "01000000-f030-c43d-744e-08df1fee5331",
-      "nativeId": "cs250",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Sonia Ruth Vasquez Luna"
-       },
-       {
-        "languageId": "1",
-        "text": "Sonia Ruth Vasquez Luna"
-       },
-       {
-        "languageId": "2",
-        "text": "Sonia Ruth Vasquez Luna"
-       },
-       {
-        "languageId": "5",
-        "text": "Sonia Ruth Vasquez Luna"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c502-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "1",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "2",
-         "text": "Democratic"
-        },
-        {
-         "languageId": "5",
-         "text": "Democratic"
-        }
-       ],
-       "abbreviation": "D",
-       "standardName": null,
-       "color": "#2039c5",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-7515-08df1fee5331",
-      "nativeId": "cs251",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Nathaniel \"Nate\" Fritzen"
-       },
-       {
-        "languageId": "1",
-        "text": "Nathaniel \"Nate\" Fritzen"
-       },
-       {
-        "languageId": "2",
-        "text": "Nathaniel \"Nate\" Fritzen"
-       },
-       {
-        "languageId": "5",
-        "text": "Nathaniel \"Nate\" Fritzen"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": "01000000-f030-c43d-c8f4-08df1fee529a",
-       "name": [
-        {
-         "languageId": "en",
-         "text": "Republican"
-        },
-        {
-         "languageId": "1",
-         "text": "Republican"
-        },
-        {
-         "languageId": "2",
-         "text": "Republican"
-        },
-        {
-         "languageId": "5",
-         "text": "Republican"
-        }
-       ],
-       "abbreviation": "R",
-       "standardName": null,
-       "color": "#d92d20",
-       "textColor": "#FFFFFF"
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-752c-08df1fee5331",
-      "nativeId": "wi-cc124",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Write-In"
-       },
-       {
-        "languageId": "1",
-        "text": "Votar por un candidato por nombre escrito a mano"
-       },
-       {
-        "languageId": "2",
-        "text": "기재"
-       },
-       {
-        "languageId": "5",
-        "text": "Viết ra"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": true,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     }
-    ]
-   },
-   "rankedChoiceSummaryResults": null,
-   "isCloseRace": false,
-   "partyName": null
-  },
-  {
-   "id": "01000000-f030-c43d-2e5b-08df1fee534b",
-   "parentId": null,
-   "parentJurisdictionName": "",
-   "publishPublicElectionId": "2026-November-General",
-   "relatedIds": null,
-   "name": [
-    {
-     "languageId": "en",
-     "text": "Proposed Constitutional Amendment Question 1"
-    },
-    {
-     "languageId": "1",
-     "text": "Enmienda constitucional propuesta n.º 1"
-    },
-    {
-     "languageId": "2",
-     "text": "헌법 개정안 제1호"
-    },
-    {
-     "languageId": "5",
-     "text": "Đề xuất sửa đổi Hiến pháp số 1"
-    }
-   ],
-   "voteFor": [
-    {
-     "languageId": "en",
-     "text": "Vote for only one"
-    },
-    {
-     "languageId": "1",
-     "text": "Votar por uno solo"
-    },
-    {
-     "languageId": "2",
-     "text": "1명에만 투표"
-    },
-    {
-     "languageId": "5",
-     "text": "Chỉ bỏ phiếu cho 1"
-    }
-   ],
-   "turnout": null,
-   "reportingStatus": {
-    "reportingUnits": 0,
-    "totalUnits": 133,
-    "asOf": "2026-10-26T22:53:33.7465541Z",
-    "reportingStatusDetails": null
-   },
-   "voteTotal": 0,
-   "underVoteCount": null,
-   "overVoteCount": null,
-   "contestGroupId": null,
-   "contestType": "BallotMeasure",
-   "summaryResults": {
-    "ballotOptions": [
-     {
-      "id": "01000000-f030-c43d-2f3f-08df1fee534b",
-      "nativeId": "bms1361",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Yes"
-       },
-       {
-        "languageId": "1",
-        "text": "Sí"
-       },
-       {
-        "languageId": "2",
-        "text": "예"
-       },
-       {
-        "languageId": "5",
-        "text": "Đúng"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-2f52-08df1fee534b",
-      "nativeId": "bms1423",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "No"
-       },
-       {
-        "languageId": "1",
-        "text": "No"
-       },
-       {
-        "languageId": "2",
-        "text": "아니요"
-       },
-       {
-        "languageId": "5",
-        "text": "Không"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     }
-    ]
-   },
-   "rankedChoiceSummaryResults": null,
-   "isCloseRace": false,
-   "partyName": null
-  },
-  {
-   "id": "01000000-f030-c43d-0b6f-08df1fee5338",
-   "parentId": null,
-   "parentJurisdictionName": "",
-   "publishPublicElectionId": "2026-November-General",
-   "relatedIds": null,
-   "name": [
-    {
-     "languageId": "en",
-     "text": "Mayor - Belle Haven (Town of Belle Haven)"
-    },
-    {
-     "languageId": "1",
-     "text": "Alcalde - Belle Haven (localidad de Belle Haven)"
-    },
-    {
-     "languageId": "2",
-     "text": "시장 - Belle Haven (Belle Haven 타운)"
-    },
-    {
-     "languageId": "5",
-     "text": "Thị trưởng - Belle Haven (Thị trấn Belle Haven)"
-    }
-   ],
-   "voteFor": [
-    {
-     "languageId": "en",
-     "text": "Vote for only one"
-    },
-    {
-     "languageId": "1",
-     "text": "Votar por uno solo"
-    },
-    {
-     "languageId": "2",
-     "text": "1명에만 투표"
-    },
-    {
-     "languageId": "5",
-     "text": "Chỉ bỏ phiếu cho 1"
-    }
-   ],
-   "turnout": null,
-   "reportingStatus": {
-    "reportingUnits": 0,
-    "totalUnits": 2,
-    "asOf": "2026-10-26T22:53:33.7465541Z",
-    "reportingStatusDetails": null
-   },
-   "voteTotal": 0,
-   "underVoteCount": null,
-   "overVoteCount": null,
-   "contestGroupId": null,
-   "contestType": "Candidate",
-   "summaryResults": {
-    "ballotOptions": [
-     {
-      "id": "01000000-f030-c43d-0bc2-08df1fee5338",
-      "nativeId": "cs760",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "David A. McCaleb"
-       },
-       {
-        "languageId": "1",
-        "text": "David A. McCaleb"
-       },
-       {
-        "languageId": "2",
-        "text": "David A. McCaleb"
-       },
-       {
-        "languageId": "5",
-        "text": "David A. McCaleb"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-0bcb-08df1fee5338",
-      "nativeId": "cs761",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Lawrence Burr Willcox II"
-       },
-       {
-        "languageId": "1",
-        "text": "Lawrence Burr Willcox II"
-       },
-       {
-        "languageId": "2",
-        "text": "Lawrence Burr Willcox II"
-       },
-       {
-        "languageId": "5",
-        "text": "Lawrence Burr Willcox II"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": false,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     },
-     {
-      "id": "01000000-f030-c43d-0bcf-08df1fee5338",
-      "nativeId": "wi-cc334",
-      "name": [
-       {
-        "languageId": "en",
-        "text": "Write-In"
-       },
-       {
-        "languageId": "1",
-        "text": "Votar por un candidato por nombre escrito a mano"
-       },
-       {
-        "languageId": "2",
-        "text": "기재"
-       },
-       {
-        "languageId": "5",
-        "text": "Viết ra"
-       }
-      ],
-      "voteCount": 0,
-      "party": {
-       "id": null,
-       "name": null,
-       "abbreviation": null,
-       "standardName": null,
-       "color": "#999999",
-       "textColor": null
-      },
-      "isWriteIn": true,
-      "isQualifiedWriteIn": false,
-      "isWinner": null
-     }
-    ]
-   },
-   "rankedChoiceSummaryResults": null,
-   "isCloseRace": false,
-   "partyName": null
-  }
- ]
 }

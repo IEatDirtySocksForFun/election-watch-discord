@@ -16,12 +16,12 @@ A parser needs a real fixture. An interesting endpoint alone is not enough to sh
 
 ### Associated Press
 
-| Route | Public access | What it means for the bot |
-|---|---|---|
-| AP Elections API v3 (`api.ap.org/v3/elections`) | Paid key, under contract [doc: [Elex docs](https://elex.readthedocs.io/)] | Use the existing `ap` adapter and set `AP_API_KEY`. |
-| [Knight Election Hub](https://accounts.muckrock.com/election-hub/) | Free results graphics for qualifying newsrooms | Newsroom program, not a general-purpose data API. |
-| AP results pages and member-outlet embeds | Public pages, licensed data [prior] | Not implemented. Public access does not grant redistribution rights. |
-| Elex / python-elections | Open-source clients that still need an AP key | Another client for the same paid API. |
+| Route                                                              | Public access                                                             | What it means for the bot                                            |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| AP Elections API v3 (`api.ap.org/v3/elections`)                    | Paid key, under contract [doc: [Elex docs](https://elex.readthedocs.io/)] | Use the existing `ap` adapter and set `AP_API_KEY`.                  |
+| [Knight Election Hub](https://accounts.muckrock.com/election-hub/) | Free results graphics for qualifying newsrooms                            | Newsroom program, not a general-purpose data API.                    |
+| AP results pages and member-outlet embeds                          | Public pages, licensed data [prior]                                       | Not implemented. Public access does not grant redistribution rights. |
+| Elex / python-elections                                            | Open-source clients that still need an AP key                             | Another client for the same paid API.                                |
 
 There is no free public AP results API. The outlet adapters already in the bot are the
 alternative for race calls, and the national results adapters below are the alternative for
@@ -29,13 +29,13 @@ vote counts.
 
 ### Decision Desk HQ
 
-| Route | Public access | What it means for the bot |
-|---|---|---|
-| [DDHQ API](https://ddhq.io) | Paid, with client-specific endpoint and authentication details | The `ddhq` adapter is a skeleton and needs `DDHQ_API_KEY` plus the client's API details. |
-| DDHQ widgets through the Knight Election Hub | Free for some qualifying newsrooms | Widgets, not a data API. |
-| DDHQ academic partnerships | By agreement | A possible route for an eligible institution, not a public API. |
-| The Hill / NewsNation election hub | Public pages containing licensed DDHQ data [prior] | Not implemented. It would need a real capture and permission to redistribute the data. |
-| DDHQ polling API | Public documentation; access terms need checking | Relevant to polls, not race calls. |
+| Route                                        | Public access                                                  | What it means for the bot                                                                |
+| -------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [DDHQ API](https://ddhq.io)                  | Paid, with client-specific endpoint and authentication details | The `ddhq` adapter is a skeleton and needs `DDHQ_API_KEY` plus the client's API details. |
+| DDHQ widgets through the Knight Election Hub | Free for some qualifying newsrooms                             | Widgets, not a data API.                                                                 |
+| DDHQ academic partnerships                   | By agreement                                                   | A possible route for an eligible institution, not a public API.                          |
+| The Hill / NewsNation election hub           | Public pages containing licensed DDHQ data [prior]             | Not implemented. It would need a real capture and permission to redistribute the data.   |
+| DDHQ polling API                             | Public documentation; access terms need checking               | Relevant to polls, not race calls.                                                       |
 
 DDHQ has no public free results API either. Do not treat a widget or a news site's JSON as
 permission to republish the underlying data.
@@ -44,19 +44,19 @@ permission to republish the underlying data.
 
 Only enable a keyed source after reviewing its price, quota and redistribution terms.
 
-| Source | Data | Access | Bot support |
-|---|---|---|---|
-| AP Elections API | Results and calls | Paid key | `ap`, using `AP_API_KEY` |
-| DDHQ API | Results and calls | Paid key and client-specific setup | `ddhq` skeleton, using `DDHQ_API_KEY` |
-| Texas SOS election-night media feed | Official Texas results | Paid media feed; see the [public notice](https://www.texaspress.com/sites/texaspress.com/files/file_uploads/SOSGeneralMediaFeed.pdf) | No adapter; the feed specification is needed first |
-| Kalshi | Prediction-market prices | Keyless public market-data reads | `kalshi` [fixture] |
-| Polymarket Gamma API | Market prices | Keyless public reads | `polymarket` [fixture] |
-| VoteHub | Polls | Free, keyless | `votehub` polls adapter |
-| civicAPI | Results and race calls | Free, keyless, attribution required | `civicapi`, on by default for results and opt in for calls |
-| OpenFEC | Candidate and finance data | Free key | No adapter |
-| Open States / Plural | Legislators and districts | Free tier | No adapter |
-| Google Civic Information API | Elections and voter information, not results | Free key | No adapter |
-| Democracy Works Elections API | Dates, deadlines and ballot information | Paid or by request | No adapter |
+| Source                              | Data                                         | Access                                                                                                                               | Bot support                                                |
+| ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| AP Elections API                    | Results and calls                            | Paid key                                                                                                                             | `ap`, using `AP_API_KEY`                                   |
+| DDHQ API                            | Results and calls                            | Paid key and client-specific setup                                                                                                   | `ddhq` skeleton, using `DDHQ_API_KEY`                      |
+| Texas SOS election-night media feed | Official Texas results                       | Paid media feed; see the [public notice](https://www.texaspress.com/sites/texaspress.com/files/file_uploads/SOSGeneralMediaFeed.pdf) | No adapter; the feed specification is needed first         |
+| Kalshi                              | Prediction-market prices                     | Keyless public market-data reads                                                                                                     | `kalshi` [fixture]                                         |
+| Polymarket Gamma API                | Market prices                                | Keyless public reads                                                                                                                 | `polymarket` [fixture]                                     |
+| VoteHub                             | Polls                                        | Free, keyless                                                                                                                        | `votehub` polls adapter                                    |
+| civicAPI                            | Results and race calls                       | Free, keyless, attribution required                                                                                                  | `civicapi`, on by default for results and opt in for calls |
+| OpenFEC                             | Candidate and finance data                   | Free key                                                                                                                             | No adapter                                                 |
+| Open States / Plural                | Legislators and districts                    | Free tier                                                                                                                            | No adapter                                                 |
+| Google Civic Information API        | Elections and voter information, not results | Free key                                                                                                                             | No adapter                                                 |
+| Democracy Works Elections API       | Dates, deadlines and ballot information      | Paid or by request                                                                                                                   | No adapter                                                 |
 
 There is no reason to sign up for a key until an adapter uses it.
 
@@ -66,13 +66,13 @@ These adapters reuse outlet feeds for Senate, Governor and US House vote counts.
 `scrape=True` and `enabled_by_default=False`. Outlet projections stay in the call adapters;
 the results adapters do not mark winners themselves.
 
-| Outlet | Results adapter | Coverage and fields | Verification |
-|---|---|---|---|
-| CBS | `cbs_results` | All states; votes, vote share and expected vote | 2024 fixture |
-| NBC | `nbc_results` | All states; votes, vote share and reporting percentage | 2024 fixture |
-| Fox | `fox_results` | All states; votes, vote share, precincts and expected vote | 2024 fixture |
-| ABC | `abc_results` | All states; votes, vote share and reporting percentage | 2024 fixture |
-| CNN | `cnn_results` | All states; votes, vote share and reporting percentage | 2024 fixture |
+| Outlet | Results adapter | Coverage and fields                                        | Verification |
+| ------ | --------------- | ---------------------------------------------------------- | ------------ |
+| CBS    | `cbs_results`   | All states; votes, vote share and expected vote            | 2024 fixture |
+| NBC    | `nbc_results`   | All states; votes, vote share and reporting percentage     | 2024 fixture |
+| Fox    | `fox_results`   | All states; votes, vote share, precincts and expected vote | 2024 fixture |
+| ABC    | `abc_results`   | All states; votes, vote share and reporting percentage     | 2024 fixture |
+| CNN    | `cnn_results`   | All states; votes, vote share and reporting percentage     | 2024 fixture |
 
 Enable one with `EW_ENABLED_SOURCES`, for example:
 

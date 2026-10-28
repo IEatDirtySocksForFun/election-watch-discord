@@ -1,235 +1,141 @@
 [
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "President/Vice President",
-  "K": "0004",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 46,
-  "PR": 45,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Donald J. Trump/JD Vance",
-   "Kamala D. Harris/Tim Walz",
-   "Chase Oliver/Mike ter Maat",
-   "Jill Stein/Rudolph Ware",
-   "Write-in"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM",
-   "LIB",
-   "GRN",
-   ""
-  ],
-  "PCT": [
-   79.6092796092796,
-   19.2494234160901,
-   0.615588115588116,
-   0.240808574141907,
-   0.284900284900285
-  ],
-  "V": [
-   46944,
-   11351,
-   363,
-   142,
-   168
-  ],
-  "T": 58968,
-  "W": [
-   0,
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "US Senator",
-  "K": "0005",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 46,
-  "PR": 45,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Ted Cruz",
-   "Colin Allred",
-   "Ted Brown",
-   "Write-in"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM",
-   "LIB",
-   ""
-  ],
-  "PCT": [
-   77.3612781309053,
-   20.3848136059096,
-   2.20408864456279,
-   0.0498196186222299
-  ],
-  "V": [
-   45032,
-   11866,
-   1283,
-   29
-  ],
-  "T": 58210,
-  "W": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "C": "Chief Justice, 11th Ct of App Dist",
-  "K": "0016",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 46,
-  "PR": 45,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "John Bailey"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP"
-  ],
-  "PCT": [
-   100
-  ],
-  "V": [
-   48728
-  ],
-  "T": 48728,
-  "W": [
-   0
-  ],
-  "CRC": [
-   0
-  ],
-  "CRO": [
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_3",
-  "CAT": "County",
-  "C": "Sheriff",
-  "K": "0020",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 46,
-  "PR": 45,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "David Criner"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP"
-  ],
-  "PCT": [
-   100
-  ],
-  "V": [
-   48043
-  ],
-  "T": 48043,
-  "W": [
-   0
-  ],
-  "CRC": [
-   0
-  ],
-  "CRO": [
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- }
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "President/Vice President",
+    "K": "0004",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 46,
+    "PR": 45,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": [
+      "Donald J. Trump/JD Vance",
+      "Kamala D. Harris/Tim Walz",
+      "Chase Oliver/Mike ter Maat",
+      "Jill Stein/Rudolph Ware",
+      "Write-in"
+    ],
+    "CHAggId": null,
+    "P": ["REP", "DEM", "LIB", "GRN", ""],
+    "PCT": [
+      79.6092796092796, 19.2494234160901, 0.615588115588116, 0.240808574141907,
+      0.284900284900285
+    ],
+    "V": [46944, 11351, 363, 142, 168],
+    "T": 58968,
+    "W": [0, 0, 0, 0, 0],
+    "CRC": [0, 0, 0, 0, 0],
+    "CRO": [0, 0, 0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "US Senator",
+    "K": "0005",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 46,
+    "PR": 45,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Ted Cruz", "Colin Allred", "Ted Brown", "Write-in"],
+    "CHAggId": null,
+    "P": ["REP", "DEM", "LIB", ""],
+    "PCT": [
+      77.3612781309053, 20.3848136059096, 2.20408864456279, 0.0498196186222299
+    ],
+    "V": [45032, 11866, 1283, 29],
+    "T": 58210,
+    "W": [0, 0, 0, 0],
+    "CRC": [0, 0, 0, 0],
+    "CRO": [0, 0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "C": "Chief Justice, 11th Ct of App Dist",
+    "K": "0016",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 46,
+    "PR": 45,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["John Bailey"],
+    "CHAggId": null,
+    "P": ["REP"],
+    "PCT": [100],
+    "V": [48728],
+    "T": 48728,
+    "W": [0],
+    "CRC": [0],
+    "CRO": [0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_3",
+    "CAT": "County",
+    "C": "Sheriff",
+    "K": "0020",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 46,
+    "PR": 45,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["David Criner"],
+    "CHAggId": null,
+    "P": ["REP"],
+    "PCT": [100],
+    "V": [48043],
+    "T": 48043,
+    "W": [0],
+    "CRC": [0],
+    "CRO": [0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  }
 ]

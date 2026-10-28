@@ -1,46 +1,46 @@
 {
- "Root": {
-  "WriteTime": "2025-04-17T18:31:12.53",
-  "List": [
-   {
-    "Heading": "Federal",
-    "Items": {
-     "Item": [
+  "Root": {
+    "WriteTime": "2025-04-17T18:31:12.53",
+    "List": [
       {
-       "OFFICECATEGORYID": "1006",
-       "OFFICE_CATEGORY_NAME": "US Senator",
-       "BALLOT_ORDER": "30"
+        "Heading": "Federal",
+        "Items": {
+          "Item": [
+            {
+              "OFFICECATEGORYID": "1006",
+              "OFFICE_CATEGORY_NAME": "US Senator",
+              "BALLOT_ORDER": "30"
+            },
+            {
+              "OFFICECATEGORYID": "1005",
+              "OFFICE_CATEGORY_NAME": "US Representative",
+              "BALLOT_ORDER": "100"
+            }
+          ]
+        }
       },
       {
-       "OFFICECATEGORYID": "1005",
-       "OFFICE_CATEGORY_NAME": "US Representative",
-       "BALLOT_ORDER": "100"
+        "Heading": "State",
+        "Items": {
+          "Item": [
+            {
+              "OFFICECATEGORYID": "1007",
+              "OFFICE_CATEGORY_NAME": "Governor & Lt. Governor",
+              "BALLOT_ORDER": "40"
+            },
+            {
+              "OFFICECATEGORYID": "1018",
+              "OFFICE_CATEGORY_NAME": "State Senator",
+              "BALLOT_ORDER": "110"
+            },
+            {
+              "OFFICECATEGORYID": "1039",
+              "OFFICE_CATEGORY_NAME": "State Representative",
+              "BALLOT_ORDER": "120"
+            }
+          ]
+        }
       }
-     ]
-    }
-   },
-   {
-    "Heading": "State",
-    "Items": {
-     "Item": [
-      {
-       "OFFICECATEGORYID": "1007",
-       "OFFICE_CATEGORY_NAME": "Governor & Lt. Governor",
-       "BALLOT_ORDER": "40"
-      },
-      {
-       "OFFICECATEGORYID": "1018",
-       "OFFICE_CATEGORY_NAME": "State Senator",
-       "BALLOT_ORDER": "110"
-      },
-      {
-       "OFFICECATEGORYID": "1039",
-       "OFFICE_CATEGORY_NAME": "State Representative",
-       "BALLOT_ORDER": "120"
-      }
-     ]
-    }
-   }
-  ]
- }
+    ]
+  }
 }

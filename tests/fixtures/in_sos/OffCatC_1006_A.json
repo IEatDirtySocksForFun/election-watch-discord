@@ -1,68 +1,68 @@
 {
- "Root": {
-  "WriteTime": "2025-04-17T18:31:49.483",
-  "StatewideSummary": {
-   "Race": {
-    "OFFICEID": "1409",
-    "OFFICE_TITLE": "United States Senator From Indiana, Class 1",
-    "SubSortOrder": "United States Senator from Indiana, Class 1",
-    "NumofSeats": "1",
-    "BALLOT_ORDER": "30",
-    "Candidates": {
-     "Candidate": [
-      {
-       "NAME_ON_BALLOT": "Jim Banks",
-       "isWinner": "T",
-       "POLITICALPARTYID": "1018",
-       "PARTY": "R",
-       "DISPLAY_COLOR": "#F63D3D",
-       "TOTAL": 1659416,
-       "CandidateName": "Banks, James James",
-       "SORT_ORDER": "15"
-      },
-      {
-       "NAME_ON_BALLOT": "Valerie McCray",
-       "isWinner": "F",
-       "POLITICALPARTYID": "1017",
-       "PARTY": "D",
-       "DISPLAY_COLOR": "#007ECD",
-       "TOTAL": 1097061,
-       "CandidateName": "McCray, Valerie Valerie",
-       "SORT_ORDER": "10"
-      },
-      {
-       "NAME_ON_BALLOT": "Andrew Horning",
-       "isWinner": "F",
-       "POLITICALPARTYID": "1012",
-       "PARTY": "L",
-       "DISPLAY_COLOR": "#008000",
-       "TOTAL": 73233,
-       "CandidateName": "Horning, Andrew Andrew",
-       "SORT_ORDER": "20"
-      },
-      {
-       "NAME_ON_BALLOT": "Phillip D. Beachy (Phil) (W/I)",
-       "isWinner": "F",
-       "POLITICALPARTYID": "1006",
-       "PARTY": "I",
-       "DISPLAY_COLOR": "#008000",
-       "TOTAL": 168,
-       "CandidateName": "Beachy, Phillip Phillip",
-       "SORT_ORDER": "101"
-      },
-      {
-       "NAME_ON_BALLOT": "Antonio Xavier Alvarez (W/I)",
-       "isWinner": "F",
-       "POLITICALPARTYID": "1006",
-       "PARTY": "I",
-       "DISPLAY_COLOR": "#008000",
-       "TOTAL": 19,
-       "CandidateName": "Alvarez, Antonio Antonio",
-       "SORT_ORDER": "101"
+  "Root": {
+    "WriteTime": "2025-04-17T18:31:49.483",
+    "StatewideSummary": {
+      "Race": {
+        "OFFICEID": "1409",
+        "OFFICE_TITLE": "United States Senator From Indiana, Class 1",
+        "SubSortOrder": "United States Senator from Indiana, Class 1",
+        "NumofSeats": "1",
+        "BALLOT_ORDER": "30",
+        "Candidates": {
+          "Candidate": [
+            {
+              "NAME_ON_BALLOT": "Jim Banks",
+              "isWinner": "T",
+              "POLITICALPARTYID": "1018",
+              "PARTY": "R",
+              "DISPLAY_COLOR": "#F63D3D",
+              "TOTAL": 1659416,
+              "CandidateName": "Banks, James James",
+              "SORT_ORDER": "15"
+            },
+            {
+              "NAME_ON_BALLOT": "Valerie McCray",
+              "isWinner": "F",
+              "POLITICALPARTYID": "1017",
+              "PARTY": "D",
+              "DISPLAY_COLOR": "#007ECD",
+              "TOTAL": 1097061,
+              "CandidateName": "McCray, Valerie Valerie",
+              "SORT_ORDER": "10"
+            },
+            {
+              "NAME_ON_BALLOT": "Andrew Horning",
+              "isWinner": "F",
+              "POLITICALPARTYID": "1012",
+              "PARTY": "L",
+              "DISPLAY_COLOR": "#008000",
+              "TOTAL": 73233,
+              "CandidateName": "Horning, Andrew Andrew",
+              "SORT_ORDER": "20"
+            },
+            {
+              "NAME_ON_BALLOT": "Phillip D. Beachy (Phil) (W/I)",
+              "isWinner": "F",
+              "POLITICALPARTYID": "1006",
+              "PARTY": "I",
+              "DISPLAY_COLOR": "#008000",
+              "TOTAL": 168,
+              "CandidateName": "Beachy, Phillip Phillip",
+              "SORT_ORDER": "101"
+            },
+            {
+              "NAME_ON_BALLOT": "Antonio Xavier Alvarez (W/I)",
+              "isWinner": "F",
+              "POLITICALPARTYID": "1006",
+              "PARTY": "I",
+              "DISPLAY_COLOR": "#008000",
+              "TOTAL": 19,
+              "CandidateName": "Alvarez, Antonio Antonio",
+              "SORT_ORDER": "101"
+            }
+          ]
+        }
       }
-     ]
     }
-   }
   }
- }
 }

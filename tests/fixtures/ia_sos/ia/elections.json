@@ -1,47 +1,47 @@
 [
- {
-  "State": "IA",
-  "StateId": "608",
-  "County": "",
-  "CountyId": "",
-  "EID": "126082",
-  "ElectionName": "2026 Primary Election",
-  "Date": "6/2/2026 12:00:00 AM"
- },
- {
-  "State": "IA",
-  "StateId": "608",
-  "County": "",
-  "CountyId": "",
-  "EID": "125665",
-  "ElectionName": "2025 Special - SD 16",
-  "Date": "12/30/2025 12:00:00 AM"
- },
- {
-  "State": "IA",
-  "StateId": "608",
-  "County": "",
-  "CountyId": "",
-  "EID": "125502",
-  "ElectionName": "2025 Special - HD 7",
-  "Date": "12/9/2025 12:00:00 AM"
- },
- {
-  "State": "IA",
-  "StateId": "608",
-  "County": "",
-  "CountyId": "",
-  "EID": "124196",
-  "ElectionName": "2025 City-School Election",
-  "Date": "11/4/2025 12:00:00 AM"
- },
- {
-  "State": "IA",
-  "StateId": "608",
-  "County": "",
-  "CountyId": "",
-  "EID": "122322",
-  "ElectionName": "2024 General Election",
-  "Date": "11/5/2024 12:00:00 AM"
- }
+  {
+    "State": "IA",
+    "StateId": "608",
+    "County": "",
+    "CountyId": "",
+    "EID": "126082",
+    "ElectionName": "2026 Primary Election",
+    "Date": "6/2/2026 12:00:00 AM"
+  },
+  {
+    "State": "IA",
+    "StateId": "608",
+    "County": "",
+    "CountyId": "",
+    "EID": "125665",
+    "ElectionName": "2025 Special - SD 16",
+    "Date": "12/30/2025 12:00:00 AM"
+  },
+  {
+    "State": "IA",
+    "StateId": "608",
+    "County": "",
+    "CountyId": "",
+    "EID": "125502",
+    "ElectionName": "2025 Special - HD 7",
+    "Date": "12/9/2025 12:00:00 AM"
+  },
+  {
+    "State": "IA",
+    "StateId": "608",
+    "County": "",
+    "CountyId": "",
+    "EID": "124196",
+    "ElectionName": "2025 City-School Election",
+    "Date": "11/4/2025 12:00:00 AM"
+  },
+  {
+    "State": "IA",
+    "StateId": "608",
+    "County": "",
+    "CountyId": "",
+    "EID": "122322",
+    "ElectionName": "2024 General Election",
+    "Date": "11/5/2024 12:00:00 AM"
+  }
 ]

@@ -1,13 +1,13 @@
 {
- "Root": {
-  "WriteTime": "2025-04-17T18:32:33.447",
-  "IntervalInMinutes": "2",
-  "VersionCode": "20241213_160047",
-  "VersionType": "A",
-  "CurrentElection": "11/05/2024",
-  "JSONContainer": "site",
-  "StateFP": "18",
-  "ElectionType": "G",
-  "Certified": "T"
- }
+  "Root": {
+    "WriteTime": "2025-04-17T18:32:33.447",
+    "IntervalInMinutes": "2",
+    "VersionCode": "20241213_160047",
+    "VersionType": "A",
+    "CurrentElection": "11/05/2024",
+    "JSONContainer": "site",
+    "StateFP": "18",
+    "ElectionType": "G",
+    "Certified": "T"
+  }
 }

@@ -1,56 +1,56 @@
 [
- {
-  "State": "TX",
-  "StateId": "9",
-  "County": "Denton",
-  "CountyId": "966",
-  "EID": "127398",
-  "ElectionName": "2026 General Election",
-  "Date": "11/3/2026 12:00:00 AM"
- },
- {
-  "State": "TX",
-  "StateId": "9",
-  "County": "Denton",
-  "CountyId": "966",
-  "EID": "126716",
-  "ElectionName": "2026 Joint Runoff Election",
-  "Date": "6/13/2026 12:00:00 AM"
- },
- {
-  "State": "TX",
-  "StateId": "9",
-  "County": "Denton",
-  "CountyId": "966",
-  "EID": "126377",
-  "ElectionName": "2026 Republican Primary Runoff",
-  "Date": "5/26/2026 12:00:00 AM"
- },
- {
-  "State": "TX",
-  "StateId": "9",
-  "County": "Denton",
-  "CountyId": "966",
-  "EID": "126378",
-  "ElectionName": "2026 Democratic Primary Runoff",
-  "Date": "5/26/2026 12:00:00 AM"
- },
- {
-  "State": "TX",
-  "StateId": "9",
-  "County": "Denton",
-  "CountyId": "966",
-  "EID": "122426",
-  "ElectionName": "2024 General Election",
-  "Date": "11/5/2024 12:00:00 AM"
- },
- {
-  "State": "TX",
-  "StateId": "9",
-  "County": "Denton",
-  "CountyId": "966",
-  "EID": "105530",
-  "ElectionName": "2020 General Election",
-  "Date": "11/3/2020 12:00:00 AM"
- }
+  {
+    "State": "TX",
+    "StateId": "9",
+    "County": "Denton",
+    "CountyId": "966",
+    "EID": "127398",
+    "ElectionName": "2026 General Election",
+    "Date": "11/3/2026 12:00:00 AM"
+  },
+  {
+    "State": "TX",
+    "StateId": "9",
+    "County": "Denton",
+    "CountyId": "966",
+    "EID": "126716",
+    "ElectionName": "2026 Joint Runoff Election",
+    "Date": "6/13/2026 12:00:00 AM"
+  },
+  {
+    "State": "TX",
+    "StateId": "9",
+    "County": "Denton",
+    "CountyId": "966",
+    "EID": "126377",
+    "ElectionName": "2026 Republican Primary Runoff",
+    "Date": "5/26/2026 12:00:00 AM"
+  },
+  {
+    "State": "TX",
+    "StateId": "9",
+    "County": "Denton",
+    "CountyId": "966",
+    "EID": "126378",
+    "ElectionName": "2026 Democratic Primary Runoff",
+    "Date": "5/26/2026 12:00:00 AM"
+  },
+  {
+    "State": "TX",
+    "StateId": "9",
+    "County": "Denton",
+    "CountyId": "966",
+    "EID": "122426",
+    "ElectionName": "2024 General Election",
+    "Date": "11/5/2024 12:00:00 AM"
+  },
+  {
+    "State": "TX",
+    "StateId": "9",
+    "County": "Denton",
+    "CountyId": "966",
+    "EID": "105530",
+    "ElectionName": "2020 General Election",
+    "Date": "11/3/2020 12:00:00 AM"
+  }
 ]

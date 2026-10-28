@@ -1,255 +1,123 @@
 [
- {
-  "C": "United States Senator",
-  "CAT": "FEDERAL",
-  "K": "0034",
-  "VF": 1,
-  "TP": 221,
-  "PR": 215,
-  "T": 245124,
-  "CH": [
-   "Ted Cruz",
-   "Colin Allred",
-   "Ted Brown",
-   "Write-in"
-  ],
-  "P": [
-   "Rep",
-   "Dem",
-   "Lib",
-   ""
-  ],
-  "V": [
-   92997,
-   141826,
-   10074,
-   227
-  ],
-  "PCT": [
-   37.9387575268028,
-   57.8588795874741,
-   4.10975669457091,
-   0.0926061911522332
-  ],
-  "W": [
-   0,
-   0,
-   0,
-   0
-  ]
- },
- {
-  "C": "US Representative, District 16",
-  "CAT": "FEDERAL",
-  "K": "0035",
-  "VF": 1,
-  "TP": 197,
-  "PR": 192,
-  "T": 221049,
-  "CH": [
-   "Irene Armendariz Jackson",
-   "Veronica Escobar",
-   "Write-in"
-  ],
-  "P": [
-   "Rep",
-   "Dem",
-   ""
-  ],
-  "V": [
-   89281,
-   131391,
-   377
-  ],
-  "PCT": [
-   40.3896873543875,
-   59.4397622246651,
-   0.170550420947392
-  ],
-  "W": [
-   0,
-   0,
-   0
-  ]
- },
- {
-  "C": "Railroad Commissioner",
-  "CAT": "STATE",
-  "K": "0037",
-  "VF": 1,
-  "TP": 221,
-  "PR": 215,
-  "T": 230724,
-  "CH": [
-   "Christi Craddick",
-   "Katherine Culbert",
-   "Hawk Dunlap",
-   "Eddie Espinoza",
-   "Write-in"
-  ],
-  "P": [
-   "Rep",
-   "Dem",
-   "Lib",
-   "Grn",
-   ""
-  ],
-  "V": [
-   85525,
-   117572,
-   7922,
-   19547,
-   158
-  ],
-  "PCT": [
-   37.0680986806747,
-   50.9578544061303,
-   3.43353964043619,
-   8.47202718399473,
-   0.0684800887640644
-  ],
-  "W": [
-   0,
-   0,
-   0,
-   0,
-   0
-  ]
- },
- {
-  "C": "Chief Justice, 8th Crt of App Dist",
-  "CAT": "STATE",
-  "K": "0051",
-  "VF": 1,
-  "TP": 221,
-  "PR": 215,
-  "T": 159315,
-  "CH": [
-   "Maria Salas Mendoza"
-  ],
-  "P": [
-   "Dem"
-  ],
-  "V": [
-   159315
-  ],
-  "PCT": [
-   100
-  ],
-  "W": [
-   0
-  ]
- },
- {
-  "C": "Justice, 8th Crt of App Dist, Place 2",
-  "CAT": "STATE",
-  "K": "0052",
-  "VF": 1,
-  "TP": 221,
-  "PR": 215,
-  "T": 158485,
-  "CH": [
-   "Lisa Soto"
-  ],
-  "P": [
-   "Dem"
-  ],
-  "V": [
-   158485
-  ],
-  "PCT": [
-   100
-  ],
-  "W": [
-   0
-  ]
- },
- {
-  "C": "Sheriff",
-  "CAT": "COUNTY",
-  "K": "0069",
-  "VF": 1,
-  "TP": 221,
-  "PR": 215,
-  "T": 232573,
-  "CH": [
-   "Minerva Torres Shelton",
-   "Oscar Ugarte"
-  ],
-  "P": [
-   "Rep",
-   "Dem"
-  ],
-  "V": [
-   95040,
-   137533
-  ],
-  "PCT": [
-   40.8645887527787,
-   59.1354112472213
-  ],
-  "W": [
-   0,
-   0
-  ]
- },
- {
-  "C": "Mayor, City of El Paso",
-  "CAT": "CITIES",
-  "K": "0015",
-  "VF": 1,
-  "TP": 176,
-  "PR": 174,
-  "T": 183873,
-  "CH": [
-   "Steven B. Winters",
-   "Renard U. Johnson",
-   "Cassandra Hernandez",
-   "Elizabeth Cordova",
-   "Isabel Salcido",
-   "Brian Kennedy",
-   "Marco Antonio Contreras",
-   "Ben Mendoza"
-  ],
-  "P": [
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   ""
-  ],
-  "V": [
-   15843,
-   59698,
-   19025,
-   10773,
-   13631,
-   44516,
-   11925,
-   8462
-  ],
-  "PCT": [
-   8.61627318855949,
-   32.4669744878258,
-   10.3468154650221,
-   5.85893524334731,
-   7.41326894106258,
-   24.2101885540563,
-   6.48545463444878,
-   4.60208948567761
-  ],
-  "W": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0
-  ]
- }
+  {
+    "C": "United States Senator",
+    "CAT": "FEDERAL",
+    "K": "0034",
+    "VF": 1,
+    "TP": 221,
+    "PR": 215,
+    "T": 245124,
+    "CH": ["Ted Cruz", "Colin Allred", "Ted Brown", "Write-in"],
+    "P": ["Rep", "Dem", "Lib", ""],
+    "V": [92997, 141826, 10074, 227],
+    "PCT": [
+      37.9387575268028, 57.8588795874741, 4.10975669457091, 0.0926061911522332
+    ],
+    "W": [0, 0, 0, 0]
+  },
+  {
+    "C": "US Representative, District 16",
+    "CAT": "FEDERAL",
+    "K": "0035",
+    "VF": 1,
+    "TP": 197,
+    "PR": 192,
+    "T": 221049,
+    "CH": ["Irene Armendariz Jackson", "Veronica Escobar", "Write-in"],
+    "P": ["Rep", "Dem", ""],
+    "V": [89281, 131391, 377],
+    "PCT": [40.3896873543875, 59.4397622246651, 0.170550420947392],
+    "W": [0, 0, 0]
+  },
+  {
+    "C": "Railroad Commissioner",
+    "CAT": "STATE",
+    "K": "0037",
+    "VF": 1,
+    "TP": 221,
+    "PR": 215,
+    "T": 230724,
+    "CH": [
+      "Christi Craddick",
+      "Katherine Culbert",
+      "Hawk Dunlap",
+      "Eddie Espinoza",
+      "Write-in"
+    ],
+    "P": ["Rep", "Dem", "Lib", "Grn", ""],
+    "V": [85525, 117572, 7922, 19547, 158],
+    "PCT": [
+      37.0680986806747, 50.9578544061303, 3.43353964043619, 8.47202718399473,
+      0.0684800887640644
+    ],
+    "W": [0, 0, 0, 0, 0]
+  },
+  {
+    "C": "Chief Justice, 8th Crt of App Dist",
+    "CAT": "STATE",
+    "K": "0051",
+    "VF": 1,
+    "TP": 221,
+    "PR": 215,
+    "T": 159315,
+    "CH": ["Maria Salas Mendoza"],
+    "P": ["Dem"],
+    "V": [159315],
+    "PCT": [100],
+    "W": [0]
+  },
+  {
+    "C": "Justice, 8th Crt of App Dist, Place 2",
+    "CAT": "STATE",
+    "K": "0052",
+    "VF": 1,
+    "TP": 221,
+    "PR": 215,
+    "T": 158485,
+    "CH": ["Lisa Soto"],
+    "P": ["Dem"],
+    "V": [158485],
+    "PCT": [100],
+    "W": [0]
+  },
+  {
+    "C": "Sheriff",
+    "CAT": "COUNTY",
+    "K": "0069",
+    "VF": 1,
+    "TP": 221,
+    "PR": 215,
+    "T": 232573,
+    "CH": ["Minerva Torres Shelton", "Oscar Ugarte"],
+    "P": ["Rep", "Dem"],
+    "V": [95040, 137533],
+    "PCT": [40.8645887527787, 59.1354112472213],
+    "W": [0, 0]
+  },
+  {
+    "C": "Mayor, City of El Paso",
+    "CAT": "CITIES",
+    "K": "0015",
+    "VF": 1,
+    "TP": 176,
+    "PR": 174,
+    "T": 183873,
+    "CH": [
+      "Steven B. Winters",
+      "Renard U. Johnson",
+      "Cassandra Hernandez",
+      "Elizabeth Cordova",
+      "Isabel Salcido",
+      "Brian Kennedy",
+      "Marco Antonio Contreras",
+      "Ben Mendoza"
+    ],
+    "P": ["", "", "", "", "", "", "", ""],
+    "V": [15843, 59698, 19025, 10773, 13631, 44516, 11925, 8462],
+    "PCT": [
+      8.61627318855949, 32.4669744878258, 10.3468154650221, 5.85893524334731,
+      7.41326894106258, 24.2101885540563, 6.48545463444878, 4.60208948567761
+    ],
+    "W": [0, 0, 0, 0, 0, 0, 0, 0]
+  }
 ]

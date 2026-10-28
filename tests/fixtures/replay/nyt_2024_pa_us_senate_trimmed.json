@@ -1,201 +1,201 @@
 {
- "races": [
-  {
-   "nyt_id": "PA-G-S-2024-11-05",
-   "office": "U.S. Senate",
-   "office_id": "S",
-   "race_type_id": "G",
-   "url": "https://www.nytimes.com/interactive/2024/11/05/us/elections/results-pennsylvania-us-senate.html",
-   "candidate_metadata": {
-    "casey-b": {
-     "party": {
-      "name": "Democrat",
-      "nyt_id": "DEM",
-      "abbreviation": "Dem."
-     },
-     "nyt_id": "casey-b",
-     "last_name": "Casey",
-     "first_name": "Bob"
-    },
-    "hazou-l": {
-     "party": {
-      "name": "Green",
-      "nyt_id": "GRN",
-      "abbreviation": "Green"
-     },
-     "nyt_id": "hazou-l",
-     "last_name": "Hazou",
-     "first_name": "Leila"
-    },
-    "selker-m": {
-     "party": {
-      "name": "Constitution",
-      "nyt_id": "CST",
-      "abbreviation": "Const."
-     },
-     "nyt_id": "selker-m",
-     "last_name": "Selker",
-     "first_name": "Marty"
-    },
-    "thomas-j": {
-     "party": {
-      "name": "Libertarian",
-      "nyt_id": "LIB",
-      "abbreviation": "Lib."
-     },
-     "nyt_id": "thomas-j",
-     "last_name": "Thomas",
-     "first_name": "John"
-    },
-    "mccormick-d": {
-     "party": {
-      "name": "Republican",
-      "nyt_id": "GOP",
-      "abbreviation": "Rep."
-     },
-     "nyt_id": "mccormick-d",
-     "last_name": "McCormick",
-     "first_name": "Dave"
+  "races": [
+    {
+      "nyt_id": "PA-G-S-2024-11-05",
+      "office": "U.S. Senate",
+      "office_id": "S",
+      "race_type_id": "G",
+      "url": "https://www.nytimes.com/interactive/2024/11/05/us/elections/results-pennsylvania-us-senate.html",
+      "candidate_metadata": {
+        "casey-b": {
+          "party": {
+            "name": "Democrat",
+            "nyt_id": "DEM",
+            "abbreviation": "Dem."
+          },
+          "nyt_id": "casey-b",
+          "last_name": "Casey",
+          "first_name": "Bob"
+        },
+        "hazou-l": {
+          "party": {
+            "name": "Green",
+            "nyt_id": "GRN",
+            "abbreviation": "Green"
+          },
+          "nyt_id": "hazou-l",
+          "last_name": "Hazou",
+          "first_name": "Leila"
+        },
+        "selker-m": {
+          "party": {
+            "name": "Constitution",
+            "nyt_id": "CST",
+            "abbreviation": "Const."
+          },
+          "nyt_id": "selker-m",
+          "last_name": "Selker",
+          "first_name": "Marty"
+        },
+        "thomas-j": {
+          "party": {
+            "name": "Libertarian",
+            "nyt_id": "LIB",
+            "abbreviation": "Lib."
+          },
+          "nyt_id": "thomas-j",
+          "last_name": "Thomas",
+          "first_name": "John"
+        },
+        "mccormick-d": {
+          "party": {
+            "name": "Republican",
+            "nyt_id": "GOP",
+            "abbreviation": "Rep."
+          },
+          "nyt_id": "mccormick-d",
+          "last_name": "McCormick",
+          "first_name": "Dave"
+        }
+      }
     }
-   }
+  ],
+  "timeseries": {
+    "PA-G-S-2024-11-05": [
+      {
+        "eevp": 0,
+        "candidates": [
+          {
+            "votes": {
+              "total": 0
+            },
+            "leader": false,
+            "nyt_id": "hazou-l"
+          },
+          {
+            "votes": {
+              "total": 0
+            },
+            "leader": false,
+            "nyt_id": "thomas-j"
+          },
+          {
+            "votes": {
+              "total": 0
+            },
+            "leader": false,
+            "nyt_id": "mccormick-d"
+          },
+          {
+            "votes": {
+              "total": 0
+            },
+            "leader": false,
+            "nyt_id": "selker-m"
+          },
+          {
+            "votes": {
+              "total": 0
+            },
+            "leader": false,
+            "nyt_id": "casey-b"
+          }
+        ],
+        "total_votes": 0,
+        "greatest_updated_at": "2024-10-25T18:27:23.554Z",
+        "nyt_model_estimates": null
+      },
+      {
+        "eevp": 83.72,
+        "candidates": [
+          {
+            "votes": {
+              "total": 2896346,
+              "advance": 474205
+            },
+            "leader": true,
+            "nyt_id": "mccormick-d"
+          },
+          {
+            "votes": {
+              "total": 53817,
+              "advance": 13207
+            },
+            "leader": false,
+            "nyt_id": "hazou-l"
+          },
+          {
+            "votes": {
+              "total": 79213,
+              "advance": 12381
+            },
+            "leader": false,
+            "nyt_id": "thomas-j"
+          },
+          {
+            "votes": {
+              "total": 19960,
+              "advance": 3708
+            },
+            "leader": false,
+            "nyt_id": "selker-m"
+          },
+          {
+            "votes": {
+              "total": 2822093,
+              "advance": 905024
+            },
+            "leader": false,
+            "nyt_id": "casey-b"
+          }
+        ],
+        "total_votes": 5871429,
+        "greatest_updated_at": "2024-11-06T05:08:18.168Z",
+        "nyt_model_estimates": null
+      },
+      {
+        "eevp": 100,
+        "candidates": [
+          {
+            "votes": {
+              "total": 89653
+            },
+            "leader": false,
+            "nyt_id": "thomas-j"
+          },
+          {
+            "votes": {
+              "total": 66388
+            },
+            "leader": false,
+            "nyt_id": "hazou-l"
+          },
+          {
+            "votes": {
+              "total": 23621
+            },
+            "leader": false,
+            "nyt_id": "selker-m"
+          },
+          {
+            "votes": {
+              "total": 3384180
+            },
+            "leader": false,
+            "nyt_id": "casey-b"
+          },
+          {
+            "votes": {
+              "total": 3399295
+            },
+            "leader": true,
+            "nyt_id": "mccormick-d"
+          }
+        ],
+        "total_votes": 6963137,
+        "greatest_updated_at": "2024-12-05T17:35:55.281Z",
+        "nyt_model_estimates": null
+      }
+    ]
   }
- ],
- "timeseries": {
-  "PA-G-S-2024-11-05": [
-   {
-    "eevp": 0,
-    "candidates": [
-     {
-      "votes": {
-       "total": 0
-      },
-      "leader": false,
-      "nyt_id": "hazou-l"
-     },
-     {
-      "votes": {
-       "total": 0
-      },
-      "leader": false,
-      "nyt_id": "thomas-j"
-     },
-     {
-      "votes": {
-       "total": 0
-      },
-      "leader": false,
-      "nyt_id": "mccormick-d"
-     },
-     {
-      "votes": {
-       "total": 0
-      },
-      "leader": false,
-      "nyt_id": "selker-m"
-     },
-     {
-      "votes": {
-       "total": 0
-      },
-      "leader": false,
-      "nyt_id": "casey-b"
-     }
-    ],
-    "total_votes": 0,
-    "greatest_updated_at": "2024-10-25T18:27:23.554Z",
-    "nyt_model_estimates": null
-   },
-   {
-    "eevp": 83.72,
-    "candidates": [
-     {
-      "votes": {
-       "total": 2896346,
-       "advance": 474205
-      },
-      "leader": true,
-      "nyt_id": "mccormick-d"
-     },
-     {
-      "votes": {
-       "total": 53817,
-       "advance": 13207
-      },
-      "leader": false,
-      "nyt_id": "hazou-l"
-     },
-     {
-      "votes": {
-       "total": 79213,
-       "advance": 12381
-      },
-      "leader": false,
-      "nyt_id": "thomas-j"
-     },
-     {
-      "votes": {
-       "total": 19960,
-       "advance": 3708
-      },
-      "leader": false,
-      "nyt_id": "selker-m"
-     },
-     {
-      "votes": {
-       "total": 2822093,
-       "advance": 905024
-      },
-      "leader": false,
-      "nyt_id": "casey-b"
-     }
-    ],
-    "total_votes": 5871429,
-    "greatest_updated_at": "2024-11-06T05:08:18.168Z",
-    "nyt_model_estimates": null
-   },
-   {
-    "eevp": 100,
-    "candidates": [
-     {
-      "votes": {
-       "total": 89653
-      },
-      "leader": false,
-      "nyt_id": "thomas-j"
-     },
-     {
-      "votes": {
-       "total": 66388
-      },
-      "leader": false,
-      "nyt_id": "hazou-l"
-     },
-     {
-      "votes": {
-       "total": 23621
-      },
-      "leader": false,
-      "nyt_id": "selker-m"
-     },
-     {
-      "votes": {
-       "total": 3384180
-      },
-      "leader": false,
-      "nyt_id": "casey-b"
-     },
-     {
-      "votes": {
-       "total": 3399295
-      },
-      "leader": true,
-      "nyt_id": "mccormick-d"
-     }
-    ],
-    "total_votes": 6963137,
-    "greatest_updated_at": "2024-12-05T17:35:55.281Z",
-    "nyt_model_estimates": null
-   }
-  ]
- }
 }

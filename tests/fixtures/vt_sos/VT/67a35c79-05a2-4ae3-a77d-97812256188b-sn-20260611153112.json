@@ -1,1 +1,2457 @@
-{"d":[{"pid":0,"pn":"","pc":"","pco":null,"o":[{"dc":"ADD 1","dn":"ADDISON_","isrep":false,"oid":12,"on":"STATE SENATOR","vf":2,"otc":"GA","cid1":179079,"cn1":"RUTH HARDY","cid2":179102,"cn2":"STEVEN HEFFERNAN","cid3":179080,"cn3":"CHRISTOPHER BRAY","cs":[{"tid":158,"ctyId":0,"oid":0,"sc":1566,"sv":0,"bv":298,"vf":2,"tn":"ORWELL","repd":"ADDISON RUTLAND","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":198,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":325,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":257,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":483,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":182950,"cn":"BRIAN COLLAMORE","vc":3,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":182951,"cn":"TODD NELSON","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":184713,"cn":"CALEB ELDER","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":198,"ctyId":0,"oid":0,"sc":1468,"sv":0,"bv":281,"vf":2,"tn":"SHOREHAM","repd":"ADDISON RUTLAND","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":261,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":245,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":283,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":398,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":249,"ctyId":0,"oid":0,"sc":472,"sv":0,"bv":91,"vf":2,"tn":"WHITING","repd":"ADDISON RUTLAND","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":65,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":90,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":75,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":151,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":135,"ctyId":0,"oid":0,"sc":7990,"sv":0,"bv":1125,"vf":2,"tn":"MIDDLEBURY","repd":"ADDISON-1","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":2216,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":905,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":2438,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":1295,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":190221,"cn":"STEPHEN ABBOTT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190222,"cn":"ESTHER CHARLESTIN","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190223,"cn":"STEVE ROZELT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190224,"cn":"STEVE VINES","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190225,"cn":"RAY MASON","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190226,"cn":"KAREN MOTT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":184713,"cn":"CALEB ELDER","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":4,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":122,"ctyId":0,"oid":0,"sc":1228,"sv":0,"bv":202,"vf":2,"tn":"LEICESTER","repd":"ADDISON-2","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":187,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":259,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":212,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":367,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":179976,"cn":"LESLEY BIENVENUE","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":92,"ctyId":0,"oid":0,"sc":264,"sv":0,"bv":48,"vf":2,"tn":"GOSHEN","repd":"ADDISON-2","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":68,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":29,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":71,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":48,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":66,"ctyId":0,"oid":0,"sc":1734,"sv":0,"bv":220,"vf":2,"tn":"CORNWALL","repd":"ADDISON-2","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":491,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":220,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":503,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":300,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":190,"ctyId":0,"oid":0,"sc":1384,"sv":7,"bv":279,"vf":2,"tn":"SALISBURY","repd":"ADDISON-2","send":"ADDISON_","ctyName":null,"distReported":null,"townsReported":"25/25","distCode":"ADD 1","rc":[{"cid":179080,"cn":"CHRISTOPHER BRAY","vc":209,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179103,"cn":"LANDEL JAMES COCHRAN","vc":232,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179079,"cn":"RUTH HARDY","vc":249,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":179102,"cn":"STEVEN HEFFERNAN","vc":408,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]}]},{"dc":"BEN 1","dn":"BENNINGTON_","isrep":false,"oid":12,"on":"STATE SENATOR","vf":2,"otc":"GA","cid1":179536,"cn1":"SETH BONGARTZ","cid2":179789,"cn2":"ROB PLUNKETT","cid3":178761,"cn3":"JOSEPH \"JOE\" GERVAIS","cs":[{"tid":121,"ctyId":0,"oid":0,"sc":234,"sv":0,"bv":34,"vf":2,"tn":"LANDGROVE","repd":"BENNINGTON RUTLAND","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":11,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":81,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":8,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":23,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":68,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":8,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":180323,"cn":"BARACK OBAMA","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":72,"ctyId":0,"oid":0,"sc":2942,"sv":0,"bv":630,"vf":2,"tn":"DORSET","repd":"BENNINGTON RUTLAND","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":240,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":756,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":175,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":458,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":551,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":127,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":181910,"cn":"MICHAEL ALFANO","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":181911,"cn":"LEBRON JAMES","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":181912,"cn":"JAMES BOUDREAU","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":181913,"cn":"ROB HUNTER","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":181914,"cn":"JAMES COGGINS","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":162,"ctyId":0,"oid":0,"sc":588,"sv":0,"bv":123,"vf":2,"tn":"PERU","repd":"BENNINGTON RUTLAND","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":39,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":182,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":25,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":78,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":129,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":10,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":2,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":169,"ctyId":0,"oid":0,"sc":2654,"sv":2,"bv":624,"vf":2,"tn":"POWNAL","repd":"BENNINGTON-1","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":107,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":413,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":134,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":615,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":460,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":293,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":190633,"cn":"COLLEEN HARRINGTON","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190634,"cn":"CHERYL GERROW","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190635,"cn":"JUSTINE SCHOLLE","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190636,"cn":"SARA RUKAVINA","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":190637,"cn":"MIRIAM MACK","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":1,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":174,"ctyId":0,"oid":0,"sc":894,"sv":0,"bv":247,"vf":2,"tn":"READSBORO","repd":"BENNINGTON-1","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":26,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":138,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":21,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":225,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":149,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":87,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":1,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":192,"ctyId":0,"oid":0,"sc":120,"sv":0,"bv":26,"vf":2,"tn":"SEARSBURG","repd":"BENNINGTON-1","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":5,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":9,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":6,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":44,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":12,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":17,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":199784,"cn":"BRUCE BUSA","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":260,"ctyId":0,"oid":0,"sc":436,"sv":0,"bv":118,"vf":2,"tn":"WOODFORD","repd":"BENNINGTON-1","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":16,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":60,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":34,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":99,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":65,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":44,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":203,"ctyId":0,"oid":0,"sc":1134,"sv":3,"bv":302,"vf":2,"tn":"STAMFORD","repd":"BENNINGTON-1","send":"BENNINGTON_","ctyName":null,"distReported":null,"townsReported":"19/19","distCode":"BEN 1","rc":[{"cid":165897,"cn":"STEVE BERRY","vc":38,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":179536,"cn":"SETH BONGARTZ","vc":145,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":166215,"cn":"CYNTHIA BROWNING","vc":24,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"},{"cid":178761,"cn":"JOSEPH \"JOE\" GERVAIS","vc":304,"isWriteIn":false,"isWinner":false,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":179789,"cn":"ROB PLUNKETT","vc":157,"isWriteIn":false,"isWinner":true,"pn":"DEMOCRATIC","pco":"007ABC"},{"cid":165748,"cn":"LAWRENCE \"SPIKE\" WHITMIRE","vc":158,"isWriteIn":false,"isWinner":false,"pn":"INDEPENDENT","pco":"ccc1d9"}],"wc":[{"cid":181125,"cn":"JAMES BLEAU","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":181126,"cn":"PAM TWORIG","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":181127,"cn":"KEVIN HOYT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]}]},{"dc":"CAL 1","dn":"CALEDONIA_","isrep":false,"oid":12,"on":"STATE SENATOR","vf":1,"otc":"GA","cid1":178778,"cn1":"SCOTT BECK","cid2":178774,"cn2":"AMANDA COCHRANE","cid3":187118,"cn3":"LARY HART","cs":[{"tid":234,"ctyId":0,"oid":0,"sc":869,"sv":1,"bv":23,"vf":1,"tn":"WATERFORD","repd":"CALEDONIA 1","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":559,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":283,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":180543,"cn":"SHAWN HALLISEY","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":180544,"cn":"JANE KITCHEL","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":180545,"cn":"BLANK","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":185,"ctyId":0,"oid":0,"sc":689,"sv":0,"bv":26,"vf":1,"tn":"RYEGATE","repd":"CALEDONIA 1","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":457,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":204,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":182906,"cn":"LARRY HART","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":191528,"cn":"SAMUEL DOUGLAS","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":25,"ctyId":0,"oid":0,"sc":1107,"sv":0,"bv":27,"vf":1,"tn":"BARNET","repd":"CALEDONIA 1","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":604,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":472,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":184330,"cn":"KEVIN HOYT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":184331,"cn":"MARCIA MARTEL","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":184332,"cn":"ERICKA REDIC","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":184333,"cn":"JOE CARBEE","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":103,"ctyId":0,"oid":0,"sc":1569,"sv":0,"bv":72,"vf":1,"tn":"HARDWICK","repd":"CALEDONIA 2","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":809,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":688,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":227,"ctyId":0,"oid":0,"sc":613,"sv":0,"bv":21,"vf":1,"tn":"WALDEN","repd":"CALEDONIA 2","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":340,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":252,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":204,"ctyId":0,"oid":0,"sc":128,"sv":0,"bv":8,"vf":1,"tn":"STANNARD","repd":"CALEDONIA 2","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":58,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":62,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":248,"ctyId":0,"oid":0,"sc":457,"sv":1,"bv":15,"vf":1,"tn":"WHEELOCK","repd":"CALEDONIA 3","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":272,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":169,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":189,"ctyId":0,"oid":0,"sc":3500,"sv":1,"bv":90,"vf":1,"tn":"SAINT JOHNSBURY","repd":"CALEDONIA ESSEX","send":"CALEDONIA_","ctyName":null,"distReported":null,"townsReported":"12/12","distCode":"CAL 1","rc":[{"cid":178778,"cn":"SCOTT BECK","vc":1932,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178774,"cn":"AMANDA COCHRANE","vc":1471,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":183782,"cn":"LARRY FLINT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":183783,"cn":"LORI DAVIS","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":183784,"cn":"ANDERS HAHR","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":183785,"cn":"BOB SOUTH","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":183786,"cn":"VASILI ARKHIPOV","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":183787,"cn":"KATE WINSLET","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]}]},{"dc":"ORL 1","dn":"ORLEANS_","isrep":false,"oid":12,"on":"STATE SENATOR","vf":1,"otc":"GA","cid1":178792,"cn1":"SAMUEL A. DOUGLASS","cid2":178793,"cn2":"KATHERINE SIMS","cid3":191833,"cn3":"VINCENT ILLUZZI","cs":[{"tid":212,"ctyId":0,"oid":0,"sc":533,"sv":0,"bv":22,"vf":1,"tn":"SUTTON","repd":"CALEDONIA 3","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":343,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":165,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":3,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":195,"ctyId":0,"oid":0,"sc":394,"sv":0,"bv":14,"vf":1,"tn":"SHEFFIELD","repd":"CALEDONIA 3","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":226,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":152,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":180218,"cn":"BRANDIN THRAILKILL","vc":2,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":148,"ctyId":0,"oid":0,"sc":361,"sv":0,"bv":11,"vf":1,"tn":"NEWARK","repd":"CALEDONIA 3","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":215,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":135,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":49,"ctyId":0,"oid":0,"sc":960,"sv":2,"bv":32,"vf":1,"tn":"BURKE","repd":"ESSEX CALEDONIA","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":468,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":455,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":189275,"cn":"COREY LESCAULT","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":189276,"cn":"SCOTT BECK","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":189277,"cn":"JUSTIN SCOVILLE","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":140,"ctyId":0,"oid":0,"sc":768,"sv":0,"bv":32,"vf":1,"tn":"MONTGOMERY","repd":"FRANKLIN-7","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":334,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":399,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":197436,"cn":"K LOVEJOY","vc":1,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":197437,"cn":"ALLEN PENNY DEMAR","vc":2,"isWriteIn":true,"isWinner":false,"pn":null,"pco":null},{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":57,"ctyId":0,"oid":0,"sc":561,"sv":0,"bv":14,"vf":1,"tn":"CHARLESTON","repd":"ESSEX ORLEANS","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":361,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":186,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":116,"ctyId":0,"oid":0,"sc":315,"sv":0,"bv":4,"vf":1,"tn":"JAY","repd":"ORLEANS LAMOILLE","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":190,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":121,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]},{"tid":113,"ctyId":0,"oid":0,"sc":699,"sv":0,"bv":13,"vf":1,"tn":"IRASBURG","repd":"ORLEANS LAMOILLE","send":"ORLEANS_","ctyName":null,"distReported":null,"townsReported":"20/20","distCode":"ORL 1","rc":[{"cid":178792,"cn":"SAMUEL A. DOUGLASS","vc":531,"isWriteIn":false,"isWinner":true,"pn":"REPUBLICAN","pco":"ff2c2c"},{"cid":178793,"cn":"KATHERINE SIMS","vc":155,"isWriteIn":false,"isWinner":false,"pn":"DEMOCRATIC","pco":"007ABC"}],"wc":[{"cid":0,"cn":"OTHER WRITEIN","vc":0,"isWriteIn":false,"isWinner":false,"pn":null,"pco":null}]}]}],"dist":[{"dn":"ADDISON_","dc":"ADD 1"},{"dn":"BENNINGTON_","dc":"BEN 1"},{"dn":"CALEDONIA_","dc":"CAL 1"},{"dn":"CHITTENDEN-CENTRAL_","dc":"CHI CT 1"},{"dn":"CHITTENDEN-NORTH_","dc":"CHI N 1"},{"dn":"CHITTENDEN-SOUTHEAST_","dc":"CHI SE 1"},{"dn":"ESSEX_","dc":"ESX 1"},{"dn":"FRANKLIN_","dc":"FRA 1"},{"dn":"GRAND ISLE_","dc":"GI 1"},{"dn":"LAMOILLE_","dc":"LAM 1"},{"dn":"ORANGE_","dc":"ORA 1"},{"dn":"ORLEANS_","dc":"ORL 1"},{"dn":"RUTLAND_","dc":"RUT 1"},{"dn":"WASHINGTON_","dc":"WAS 1"},{"dn":"WINDHAM_","dc":"WDH 1"},{"dn":"WINDSOR_","dc":"WDR 1"}]}]}
+{
+  "d": [
+    {
+      "pid": 0,
+      "pn": "",
+      "pc": "",
+      "pco": null,
+      "o": [
+        {
+          "dc": "ADD 1",
+          "dn": "ADDISON_",
+          "isrep": false,
+          "oid": 12,
+          "on": "STATE SENATOR",
+          "vf": 2,
+          "otc": "GA",
+          "cid1": 179079,
+          "cn1": "RUTH HARDY",
+          "cid2": 179102,
+          "cn2": "STEVEN HEFFERNAN",
+          "cid3": 179080,
+          "cn3": "CHRISTOPHER BRAY",
+          "cs": [
+            {
+              "tid": 158,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1566,
+              "sv": 0,
+              "bv": 298,
+              "vf": 2,
+              "tn": "ORWELL",
+              "repd": "ADDISON RUTLAND",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 198,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 325,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 257,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 483,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 182950,
+                  "cn": "BRIAN COLLAMORE",
+                  "vc": 3,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 182951,
+                  "cn": "TODD NELSON",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 184713,
+                  "cn": "CALEB ELDER",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 198,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1468,
+              "sv": 0,
+              "bv": 281,
+              "vf": 2,
+              "tn": "SHOREHAM",
+              "repd": "ADDISON RUTLAND",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 261,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 245,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 283,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 398,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 249,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 472,
+              "sv": 0,
+              "bv": 91,
+              "vf": 2,
+              "tn": "WHITING",
+              "repd": "ADDISON RUTLAND",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 65,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 90,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 75,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 151,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 135,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 7990,
+              "sv": 0,
+              "bv": 1125,
+              "vf": 2,
+              "tn": "MIDDLEBURY",
+              "repd": "ADDISON-1",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 2216,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 905,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 2438,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 1295,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 190221,
+                  "cn": "STEPHEN ABBOTT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190222,
+                  "cn": "ESTHER CHARLESTIN",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190223,
+                  "cn": "STEVE ROZELT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190224,
+                  "cn": "STEVE VINES",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190225,
+                  "cn": "RAY MASON",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190226,
+                  "cn": "KAREN MOTT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 184713,
+                  "cn": "CALEB ELDER",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 4,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 122,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1228,
+              "sv": 0,
+              "bv": 202,
+              "vf": 2,
+              "tn": "LEICESTER",
+              "repd": "ADDISON-2",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 187,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 259,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 212,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 367,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 179976,
+                  "cn": "LESLEY BIENVENUE",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 92,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 264,
+              "sv": 0,
+              "bv": 48,
+              "vf": 2,
+              "tn": "GOSHEN",
+              "repd": "ADDISON-2",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 68,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 29,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 71,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 48,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 66,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1734,
+              "sv": 0,
+              "bv": 220,
+              "vf": 2,
+              "tn": "CORNWALL",
+              "repd": "ADDISON-2",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 491,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 220,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 503,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 300,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 190,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1384,
+              "sv": 7,
+              "bv": 279,
+              "vf": 2,
+              "tn": "SALISBURY",
+              "repd": "ADDISON-2",
+              "send": "ADDISON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "25/25",
+              "distCode": "ADD 1",
+              "rc": [
+                {
+                  "cid": 179080,
+                  "cn": "CHRISTOPHER BRAY",
+                  "vc": 209,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179103,
+                  "cn": "LANDEL JAMES COCHRAN",
+                  "vc": 232,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179079,
+                  "cn": "RUTH HARDY",
+                  "vc": 249,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 179102,
+                  "cn": "STEVEN HEFFERNAN",
+                  "vc": 408,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "dc": "BEN 1",
+          "dn": "BENNINGTON_",
+          "isrep": false,
+          "oid": 12,
+          "on": "STATE SENATOR",
+          "vf": 2,
+          "otc": "GA",
+          "cid1": 179536,
+          "cn1": "SETH BONGARTZ",
+          "cid2": 179789,
+          "cn2": "ROB PLUNKETT",
+          "cid3": 178761,
+          "cn3": "JOSEPH \"JOE\" GERVAIS",
+          "cs": [
+            {
+              "tid": 121,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 234,
+              "sv": 0,
+              "bv": 34,
+              "vf": 2,
+              "tn": "LANDGROVE",
+              "repd": "BENNINGTON RUTLAND",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 11,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 81,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 8,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 23,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 68,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 8,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 180323,
+                  "cn": "BARACK OBAMA",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 72,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 2942,
+              "sv": 0,
+              "bv": 630,
+              "vf": 2,
+              "tn": "DORSET",
+              "repd": "BENNINGTON RUTLAND",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 240,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 756,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 175,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 458,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 551,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 127,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 181910,
+                  "cn": "MICHAEL ALFANO",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 181911,
+                  "cn": "LEBRON JAMES",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 181912,
+                  "cn": "JAMES BOUDREAU",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 181913,
+                  "cn": "ROB HUNTER",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 181914,
+                  "cn": "JAMES COGGINS",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 162,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 588,
+              "sv": 0,
+              "bv": 123,
+              "vf": 2,
+              "tn": "PERU",
+              "repd": "BENNINGTON RUTLAND",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 39,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 182,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 25,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 78,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 129,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 10,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 2,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 169,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 2654,
+              "sv": 2,
+              "bv": 624,
+              "vf": 2,
+              "tn": "POWNAL",
+              "repd": "BENNINGTON-1",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 107,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 413,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 134,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 615,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 460,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 293,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 190633,
+                  "cn": "COLLEEN HARRINGTON",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190634,
+                  "cn": "CHERYL GERROW",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190635,
+                  "cn": "JUSTINE SCHOLLE",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190636,
+                  "cn": "SARA RUKAVINA",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 190637,
+                  "cn": "MIRIAM MACK",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 1,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 174,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 894,
+              "sv": 0,
+              "bv": 247,
+              "vf": 2,
+              "tn": "READSBORO",
+              "repd": "BENNINGTON-1",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 26,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 138,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 21,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 225,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 149,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 87,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 1,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 192,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 120,
+              "sv": 0,
+              "bv": 26,
+              "vf": 2,
+              "tn": "SEARSBURG",
+              "repd": "BENNINGTON-1",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 5,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 9,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 6,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 44,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 12,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 17,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 199784,
+                  "cn": "BRUCE BUSA",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 260,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 436,
+              "sv": 0,
+              "bv": 118,
+              "vf": 2,
+              "tn": "WOODFORD",
+              "repd": "BENNINGTON-1",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 16,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 60,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 34,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 99,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 65,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 44,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 203,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1134,
+              "sv": 3,
+              "bv": 302,
+              "vf": 2,
+              "tn": "STAMFORD",
+              "repd": "BENNINGTON-1",
+              "send": "BENNINGTON_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "19/19",
+              "distCode": "BEN 1",
+              "rc": [
+                {
+                  "cid": 165897,
+                  "cn": "STEVE BERRY",
+                  "vc": 38,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 179536,
+                  "cn": "SETH BONGARTZ",
+                  "vc": 145,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 166215,
+                  "cn": "CYNTHIA BROWNING",
+                  "vc": 24,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                },
+                {
+                  "cid": 178761,
+                  "cn": "JOSEPH \"JOE\" GERVAIS",
+                  "vc": 304,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 179789,
+                  "cn": "ROB PLUNKETT",
+                  "vc": 157,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                },
+                {
+                  "cid": 165748,
+                  "cn": "LAWRENCE \"SPIKE\" WHITMIRE",
+                  "vc": 158,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "INDEPENDENT",
+                  "pco": "ccc1d9"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 181125,
+                  "cn": "JAMES BLEAU",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 181126,
+                  "cn": "PAM TWORIG",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 181127,
+                  "cn": "KEVIN HOYT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "dc": "CAL 1",
+          "dn": "CALEDONIA_",
+          "isrep": false,
+          "oid": 12,
+          "on": "STATE SENATOR",
+          "vf": 1,
+          "otc": "GA",
+          "cid1": 178778,
+          "cn1": "SCOTT BECK",
+          "cid2": 178774,
+          "cn2": "AMANDA COCHRANE",
+          "cid3": 187118,
+          "cn3": "LARY HART",
+          "cs": [
+            {
+              "tid": 234,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 869,
+              "sv": 1,
+              "bv": 23,
+              "vf": 1,
+              "tn": "WATERFORD",
+              "repd": "CALEDONIA 1",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 559,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 283,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 180543,
+                  "cn": "SHAWN HALLISEY",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 180544,
+                  "cn": "JANE KITCHEL",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 180545,
+                  "cn": "BLANK",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 185,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 689,
+              "sv": 0,
+              "bv": 26,
+              "vf": 1,
+              "tn": "RYEGATE",
+              "repd": "CALEDONIA 1",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 457,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 204,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 182906,
+                  "cn": "LARRY HART",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 191528,
+                  "cn": "SAMUEL DOUGLAS",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 25,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1107,
+              "sv": 0,
+              "bv": 27,
+              "vf": 1,
+              "tn": "BARNET",
+              "repd": "CALEDONIA 1",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 604,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 472,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 184330,
+                  "cn": "KEVIN HOYT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 184331,
+                  "cn": "MARCIA MARTEL",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 184332,
+                  "cn": "ERICKA REDIC",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 184333,
+                  "cn": "JOE CARBEE",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 103,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 1569,
+              "sv": 0,
+              "bv": 72,
+              "vf": 1,
+              "tn": "HARDWICK",
+              "repd": "CALEDONIA 2",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 809,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 688,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 227,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 613,
+              "sv": 0,
+              "bv": 21,
+              "vf": 1,
+              "tn": "WALDEN",
+              "repd": "CALEDONIA 2",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 340,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 252,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 204,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 128,
+              "sv": 0,
+              "bv": 8,
+              "vf": 1,
+              "tn": "STANNARD",
+              "repd": "CALEDONIA 2",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 58,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 62,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 248,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 457,
+              "sv": 1,
+              "bv": 15,
+              "vf": 1,
+              "tn": "WHEELOCK",
+              "repd": "CALEDONIA 3",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 272,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 169,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 189,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 3500,
+              "sv": 1,
+              "bv": 90,
+              "vf": 1,
+              "tn": "SAINT JOHNSBURY",
+              "repd": "CALEDONIA ESSEX",
+              "send": "CALEDONIA_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "12/12",
+              "distCode": "CAL 1",
+              "rc": [
+                {
+                  "cid": 178778,
+                  "cn": "SCOTT BECK",
+                  "vc": 1932,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178774,
+                  "cn": "AMANDA COCHRANE",
+                  "vc": 1471,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 183782,
+                  "cn": "LARRY FLINT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 183783,
+                  "cn": "LORI DAVIS",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 183784,
+                  "cn": "ANDERS HAHR",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 183785,
+                  "cn": "BOB SOUTH",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 183786,
+                  "cn": "VASILI ARKHIPOV",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 183787,
+                  "cn": "KATE WINSLET",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "dc": "ORL 1",
+          "dn": "ORLEANS_",
+          "isrep": false,
+          "oid": 12,
+          "on": "STATE SENATOR",
+          "vf": 1,
+          "otc": "GA",
+          "cid1": 178792,
+          "cn1": "SAMUEL A. DOUGLASS",
+          "cid2": 178793,
+          "cn2": "KATHERINE SIMS",
+          "cid3": 191833,
+          "cn3": "VINCENT ILLUZZI",
+          "cs": [
+            {
+              "tid": 212,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 533,
+              "sv": 0,
+              "bv": 22,
+              "vf": 1,
+              "tn": "SUTTON",
+              "repd": "CALEDONIA 3",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 343,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 165,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 3,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 195,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 394,
+              "sv": 0,
+              "bv": 14,
+              "vf": 1,
+              "tn": "SHEFFIELD",
+              "repd": "CALEDONIA 3",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 226,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 152,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 180218,
+                  "cn": "BRANDIN THRAILKILL",
+                  "vc": 2,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 148,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 361,
+              "sv": 0,
+              "bv": 11,
+              "vf": 1,
+              "tn": "NEWARK",
+              "repd": "CALEDONIA 3",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 215,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 135,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 49,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 960,
+              "sv": 2,
+              "bv": 32,
+              "vf": 1,
+              "tn": "BURKE",
+              "repd": "ESSEX CALEDONIA",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 468,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 455,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 189275,
+                  "cn": "COREY LESCAULT",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 189276,
+                  "cn": "SCOTT BECK",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 189277,
+                  "cn": "JUSTIN SCOVILLE",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 140,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 768,
+              "sv": 0,
+              "bv": 32,
+              "vf": 1,
+              "tn": "MONTGOMERY",
+              "repd": "FRANKLIN-7",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 334,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 399,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 197436,
+                  "cn": "K LOVEJOY",
+                  "vc": 1,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 197437,
+                  "cn": "ALLEN PENNY DEMAR",
+                  "vc": 2,
+                  "isWriteIn": true,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                },
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 57,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 561,
+              "sv": 0,
+              "bv": 14,
+              "vf": 1,
+              "tn": "CHARLESTON",
+              "repd": "ESSEX ORLEANS",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 361,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 186,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 116,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 315,
+              "sv": 0,
+              "bv": 4,
+              "vf": 1,
+              "tn": "JAY",
+              "repd": "ORLEANS LAMOILLE",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 190,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 121,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            },
+            {
+              "tid": 113,
+              "ctyId": 0,
+              "oid": 0,
+              "sc": 699,
+              "sv": 0,
+              "bv": 13,
+              "vf": 1,
+              "tn": "IRASBURG",
+              "repd": "ORLEANS LAMOILLE",
+              "send": "ORLEANS_",
+              "ctyName": null,
+              "distReported": null,
+              "townsReported": "20/20",
+              "distCode": "ORL 1",
+              "rc": [
+                {
+                  "cid": 178792,
+                  "cn": "SAMUEL A. DOUGLASS",
+                  "vc": 531,
+                  "isWriteIn": false,
+                  "isWinner": true,
+                  "pn": "REPUBLICAN",
+                  "pco": "ff2c2c"
+                },
+                {
+                  "cid": 178793,
+                  "cn": "KATHERINE SIMS",
+                  "vc": 155,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": "DEMOCRATIC",
+                  "pco": "007ABC"
+                }
+              ],
+              "wc": [
+                {
+                  "cid": 0,
+                  "cn": "OTHER WRITEIN",
+                  "vc": 0,
+                  "isWriteIn": false,
+                  "isWinner": false,
+                  "pn": null,
+                  "pco": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "dist": [
+        { "dn": "ADDISON_", "dc": "ADD 1" },
+        { "dn": "BENNINGTON_", "dc": "BEN 1" },
+        { "dn": "CALEDONIA_", "dc": "CAL 1" },
+        { "dn": "CHITTENDEN-CENTRAL_", "dc": "CHI CT 1" },
+        { "dn": "CHITTENDEN-NORTH_", "dc": "CHI N 1" },
+        { "dn": "CHITTENDEN-SOUTHEAST_", "dc": "CHI SE 1" },
+        { "dn": "ESSEX_", "dc": "ESX 1" },
+        { "dn": "FRANKLIN_", "dc": "FRA 1" },
+        { "dn": "GRAND ISLE_", "dc": "GI 1" },
+        { "dn": "LAMOILLE_", "dc": "LAM 1" },
+        { "dn": "ORANGE_", "dc": "ORA 1" },
+        { "dn": "ORLEANS_", "dc": "ORL 1" },
+        { "dn": "RUTLAND_", "dc": "RUT 1" },
+        { "dn": "WASHINGTON_", "dc": "WAS 1" },
+        { "dn": "WINDHAM_", "dc": "WDH 1" },
+        { "dn": "WINDSOR_", "dc": "WDR 1" }
+      ]
+    }
+  ]
+}

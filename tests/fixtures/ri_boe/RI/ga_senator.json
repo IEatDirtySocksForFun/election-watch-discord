@@ -1,1 +1,94 @@
-{"election_name":"General Election","election_date":"November 05, 2024","last_updated":"November 22, 2024 05:00 PM","contests":[{"name":"Senator in General Assembly District 1","contest_number":"5","precinct_count":"13","precincts_reporting":"13","votes_allowed":"1","candidates":[{"name":"DEM Jacob Bissaillon","party_code":"DEM","votes":"5773"},{"name":"Write-in","party_code":"NON","votes":"277"}]},{"name":"Senator in General Assembly District 2","contest_number":"6","precinct_count":"12","precincts_reporting":"12","votes_allowed":"1","candidates":[{"name":"DEM Ana B. Quezada","party_code":"DEM","votes":"5096"},{"name":"Write-in","party_code":"NON","votes":"224"}]},{"name":"Senator in General Assembly District 3","contest_number":"7","precinct_count":"9","precincts_reporting":"9","votes_allowed":"1","candidates":[{"name":"DEM Samuel D. Zurier","party_code":"DEM","votes":"9141"},{"name":"Write-in","party_code":"NON","votes":"198"}]},{"name":"Senator in General Assembly District 4","contest_number":"8","precinct_count":"12","precincts_reporting":"12","votes_allowed":"1","candidates":[{"name":"DEM Dominick J. Ruggerio","party_code":"DEM","votes":"10736"},{"name":"Write-in","party_code":"NON","votes":"580"}]},{"name":"Senator in General Assembly District 5","contest_number":"9","precinct_count":"13","precincts_reporting":"13","votes_allowed":"1","candidates":[{"name":"DEM Samuel W. Bell","party_code":"DEM","votes":"7937"},{"name":"REP William D. Connell, Jr.","party_code":"REP","votes":"2105"},{"name":"Write-in","party_code":"NON","votes":"57"}]},{"name":"Senator in General Assembly District 6","contest_number":"10","precinct_count":"14","precincts_reporting":"14","votes_allowed":"1","candidates":[{"name":"DEM Tiara TyShae Mack","party_code":"DEM","votes":"6469"},{"name":"Write-in","party_code":"NON","votes":"236"}]}]}
+{
+  "election_name": "General Election",
+  "election_date": "November 05, 2024",
+  "last_updated": "November 22, 2024 05:00 PM",
+  "contests": [
+    {
+      "name": "Senator in General Assembly District 1",
+      "contest_number": "5",
+      "precinct_count": "13",
+      "precincts_reporting": "13",
+      "votes_allowed": "1",
+      "candidates": [
+        {
+          "name": "DEM Jacob Bissaillon",
+          "party_code": "DEM",
+          "votes": "5773"
+        },
+        { "name": "Write-in", "party_code": "NON", "votes": "277" }
+      ]
+    },
+    {
+      "name": "Senator in General Assembly District 2",
+      "contest_number": "6",
+      "precinct_count": "12",
+      "precincts_reporting": "12",
+      "votes_allowed": "1",
+      "candidates": [
+        { "name": "DEM Ana B. Quezada", "party_code": "DEM", "votes": "5096" },
+        { "name": "Write-in", "party_code": "NON", "votes": "224" }
+      ]
+    },
+    {
+      "name": "Senator in General Assembly District 3",
+      "contest_number": "7",
+      "precinct_count": "9",
+      "precincts_reporting": "9",
+      "votes_allowed": "1",
+      "candidates": [
+        {
+          "name": "DEM Samuel D. Zurier",
+          "party_code": "DEM",
+          "votes": "9141"
+        },
+        { "name": "Write-in", "party_code": "NON", "votes": "198" }
+      ]
+    },
+    {
+      "name": "Senator in General Assembly District 4",
+      "contest_number": "8",
+      "precinct_count": "12",
+      "precincts_reporting": "12",
+      "votes_allowed": "1",
+      "candidates": [
+        {
+          "name": "DEM Dominick J. Ruggerio",
+          "party_code": "DEM",
+          "votes": "10736"
+        },
+        { "name": "Write-in", "party_code": "NON", "votes": "580" }
+      ]
+    },
+    {
+      "name": "Senator in General Assembly District 5",
+      "contest_number": "9",
+      "precinct_count": "13",
+      "precincts_reporting": "13",
+      "votes_allowed": "1",
+      "candidates": [
+        { "name": "DEM Samuel W. Bell", "party_code": "DEM", "votes": "7937" },
+        {
+          "name": "REP William D. Connell, Jr.",
+          "party_code": "REP",
+          "votes": "2105"
+        },
+        { "name": "Write-in", "party_code": "NON", "votes": "57" }
+      ]
+    },
+    {
+      "name": "Senator in General Assembly District 6",
+      "contest_number": "10",
+      "precinct_count": "14",
+      "precincts_reporting": "14",
+      "votes_allowed": "1",
+      "candidates": [
+        {
+          "name": "DEM Tiara TyShae Mack",
+          "party_code": "DEM",
+          "votes": "6469"
+        },
+        { "name": "Write-in", "party_code": "NON", "votes": "236" }
+      ]
+    }
+  ]
+}

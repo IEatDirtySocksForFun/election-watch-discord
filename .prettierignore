@@ -1,3 +1,2 @@
-# Saved real responses are kept byte for byte.
+.github/*
 tests/fixtures/
-replay/out/

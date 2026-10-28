@@ -1,135 +1,135 @@
 {
- "ElectionInfo": {
-  "ElectionID": 1846,
-  "ElectionName": "2024 General",
-  "ElectionDate": "2024-11-05T00:00:00",
-  "ElectionMessage": "",
-  "IsOfficial": true
- },
- "Turnout": {
-  "VotesCast": 1190172,
-  "RegisteredVoters": 1828129,
-  "VotePercent": 65.1,
-  "PrecinctsReporting": 2841,
-  "PrecinctsPartiallyReporting": 0,
-  "TotalPrecincts": 2841,
-  "ReportingPercent": 100
- },
- "ContestData": [
-  {
-   "ContestName": "U.S. President",
-   "PrecinctsReporting": 2839,
-   "PrecinctsPartiallyReporting": 0,
-   "TotalPrecincts": 2839,
-   "TotalVotes": 1184575,
-   "Candidates": [
-    {
-     "Name": "Jill Stein/Rudolph Ware",
-     "PartyName": "Nevada Green Party",
-     "TotalVotes": 4284
-    },
-    {
-     "Name": "Kamala D. Harris/Tim Walz",
-     "PartyName": "Democratic Party",
-     "TotalVotes": 397420
-    },
-    {
-     "Name": "Donald J. Trump/JD Vance",
-     "PartyName": "Republican Party",
-     "TotalVotes": 760581
-    },
-    {
-     "Name": "Chase Oliver/Mike ter Maat",
-     "PartyName": "",
-     "TotalVotes": 5729
-    }
-   ]
+  "ElectionInfo": {
+    "ElectionID": 1846,
+    "ElectionName": "2024 General",
+    "ElectionDate": "2024-11-05T00:00:00",
+    "ElectionMessage": "",
+    "IsOfficial": true
   },
-  {
-   "ContestName": "U.S. Congress District 01",
-   "PrecinctsReporting": 687,
-   "PrecinctsPartiallyReporting": 0,
-   "TotalPrecincts": 687,
-   "TotalVotes": 267177,
-   "Candidates": [
-    {
-     "Name": "Steve G. Parsons",
-     "PartyName": "",
-     "TotalVotes": 8353
-    },
-    {
-     "Name": "Rodney Govens",
-     "PartyName": "Democratic Party",
-     "TotalVotes": 64113
-    },
-    {
-     "Name": "Congressman Rick Crawford",
-     "PartyName": "Republican Party",
-     "TotalVotes": 194711
-    }
-   ]
+  "Turnout": {
+    "VotesCast": 1190172,
+    "RegisteredVoters": 1828129,
+    "VotePercent": 65.1,
+    "PrecinctsReporting": 2841,
+    "PrecinctsPartiallyReporting": 0,
+    "TotalPrecincts": 2841,
+    "ReportingPercent": 100
   },
-  {
-   "ContestName": "State Senate District 01",
-   "PrecinctsReporting": 122,
-   "PrecinctsPartiallyReporting": 0,
-   "TotalPrecincts": 122,
-   "TotalVotes": 29646,
-   "Candidates": [
+  "ContestData": [
     {
-     "Name": "Asher Williams",
-     "PartyName": "",
-     "TotalVotes": 6713
+      "ContestName": "U.S. President",
+      "PrecinctsReporting": 2839,
+      "PrecinctsPartiallyReporting": 0,
+      "TotalPrecincts": 2839,
+      "TotalVotes": 1184575,
+      "Candidates": [
+        {
+          "Name": "Jill Stein/Rudolph Ware",
+          "PartyName": "Nevada Green Party",
+          "TotalVotes": 4284
+        },
+        {
+          "Name": "Kamala D. Harris/Tim Walz",
+          "PartyName": "Democratic Party",
+          "TotalVotes": 397420
+        },
+        {
+          "Name": "Donald J. Trump/JD Vance",
+          "PartyName": "Republican Party",
+          "TotalVotes": 760581
+        },
+        {
+          "Name": "Chase Oliver/Mike ter Maat",
+          "PartyName": "",
+          "TotalVotes": 5729
+        }
+      ]
     },
     {
-     "Name": "Senator Ben Gilmore",
-     "PartyName": "Republican Party",
-     "TotalVotes": 22933
+      "ContestName": "U.S. Congress District 01",
+      "PrecinctsReporting": 687,
+      "PrecinctsPartiallyReporting": 0,
+      "TotalPrecincts": 687,
+      "TotalVotes": 267177,
+      "Candidates": [
+        {
+          "Name": "Steve G. Parsons",
+          "PartyName": "",
+          "TotalVotes": 8353
+        },
+        {
+          "Name": "Rodney Govens",
+          "PartyName": "Democratic Party",
+          "TotalVotes": 64113
+        },
+        {
+          "Name": "Congressman Rick Crawford",
+          "PartyName": "Republican Party",
+          "TotalVotes": 194711
+        }
+      ]
+    },
+    {
+      "ContestName": "State Senate District 01",
+      "PrecinctsReporting": 122,
+      "PrecinctsPartiallyReporting": 0,
+      "TotalPrecincts": 122,
+      "TotalVotes": 29646,
+      "Candidates": [
+        {
+          "Name": "Asher Williams",
+          "PartyName": "",
+          "TotalVotes": 6713
+        },
+        {
+          "Name": "Senator Ben Gilmore",
+          "PartyName": "Republican Party",
+          "TotalVotes": 22933
+        }
+      ]
+    },
+    {
+      "ContestName": "State Representative District 01",
+      "PrecinctsReporting": 39,
+      "PrecinctsPartiallyReporting": 0,
+      "TotalPrecincts": 39,
+      "TotalVotes": 9993,
+      "Candidates": [
+        {
+          "Name": "State Representative Jeremy Wooldridge",
+          "PartyName": "Republican Party",
+          "TotalVotes": 9993
+        }
+      ]
+    },
+    {
+      "ContestName": "Justice of the Peace District 7",
+      "PrecinctsReporting": 53,
+      "PrecinctsPartiallyReporting": 0,
+      "TotalPrecincts": 53,
+      "TotalVotes": 23560,
+      "Candidates": [
+        {
+          "Name": "REP Brandee Weaver",
+          "PartyName": "Republican Party",
+          "TotalVotes": 346
+        },
+        {
+          "Name": "IND Michelle Blasengame",
+          "PartyName": "",
+          "TotalVotes": 357
+        },
+        {
+          "Name": "Bob Nault",
+          "PartyName": "Republican Party",
+          "TotalVotes": 1344
+        },
+        {
+          "Name": "Derek Huber",
+          "PartyName": "Democratic Party",
+          "TotalVotes": 505
+        }
+      ]
     }
-   ]
-  },
-  {
-   "ContestName": "State Representative District 01",
-   "PrecinctsReporting": 39,
-   "PrecinctsPartiallyReporting": 0,
-   "TotalPrecincts": 39,
-   "TotalVotes": 9993,
-   "Candidates": [
-    {
-     "Name": "State Representative Jeremy Wooldridge",
-     "PartyName": "Republican Party",
-     "TotalVotes": 9993
-    }
-   ]
-  },
-  {
-   "ContestName": "Justice of the Peace District 7",
-   "PrecinctsReporting": 53,
-   "PrecinctsPartiallyReporting": 0,
-   "TotalPrecincts": 53,
-   "TotalVotes": 23560,
-   "Candidates": [
-    {
-     "Name": "REP Brandee Weaver",
-     "PartyName": "Republican Party",
-     "TotalVotes": 346
-    },
-    {
-     "Name": "IND Michelle Blasengame",
-     "PartyName": "",
-     "TotalVotes": 357
-    },
-    {
-     "Name": "Bob Nault",
-     "PartyName": "Republican Party",
-     "TotalVotes": 1344
-    },
-    {
-     "Name": "Derek Huber",
-     "PartyName": "Democratic Party",
-     "TotalVotes": 505
-    }
-   ]
-  }
- ]
+  ]
 }

@@ -1,340 +1,200 @@
 [
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "United States Representative District 1",
-  "K": "1100",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 20,
-  "PR": 20,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Christina Bohannan",
-   "Mariannette Miller-Meeks",
-   "Write-in"
-  ],
-  "CHAggId": null,
-  "P": [
-   "DEM",
-   "REP",
-   ""
-  ],
-  "PCT": [
-   49.7867551524109,
-   49.9797139669338,
-   0.233530880655335
-  ],
-  "V": [
-   206156,
-   206955,
-   967
-  ],
-  "T": 414078,
-  "W": [
-   0,
-   1,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "SUBCATKEY": "C_2_1",
-  "SUBCAT": "State Senate 1 - 25",
-  "C": "State Senator District 2",
-  "K": "1500",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 3,
-  "PR": 3,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Jeff Taylor",
-   "Write-in"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   ""
-  ],
-  "PCT": [
-   99.1149803128274,
-   0.885019687172633
-  ],
-  "V": [
-   27438,
-   245
-  ],
-  "T": 27683,
-  "W": [
-   1,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "SUBCATKEY": "C_2_3",
-  "SUBCAT": "State Representative 1 - 25",
-  "C": "State Representative District 1",
-  "K": "4000",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 1,
-  "PR": 1,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "J.D. Scholten",
-   "Josh Steinhoff",
-   "Write-in"
-  ],
-  "CHAggId": null,
-  "P": [
-   "DEM",
-   "REP",
-   ""
-  ],
-  "PCT": [
-   53.395811639477,
-   46.4769177368969,
-   0.127270623626056
-  ],
-  "V": [
-   4615,
-   4017,
-   11
-  ],
-  "T": 8643,
-  "W": [
-   1,
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "SUBCATKEY": "C_2_7",
-  "SUBCAT": "Constitutional Amendments",
-  "C": "Constitutional Amendment 1",
-  "K": "14000",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 99,
-  "PR": 97,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Yes",
-   "No"
-  ],
-  "CHAggId": null,
-  "P": [
-   "",
-   ""
-  ],
-  "PCT": [
-   77.1327762601534,
-   22.8672237398466
-  ],
-  "V": [
-   1150332,
-   341034
-  ],
-  "T": 1491366,
-  "W": [
-   1,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_5",
-  "CAT": "Judicial",
-  "C": "Supreme Court Justice - David May",
-  "K": "14200",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 99,
-  "PR": 97,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Yes",
-   "No"
-  ],
-  "CHAggId": null,
-  "P": [
-   "",
-   ""
-  ],
-  "PCT": [
-   63.2901466770456,
-   36.7098533229544
-  ],
-  "V": [
-   776472,
-   450373
-  ],
-  "T": 1226845,
-  "W": [
-   1,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_3",
-  "CAT": "School",
-  "C": "AGWSR School - Public Measure IQ",
-  "K": "22200",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 4,
-  "PR": 4,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Yes",
-   "No"
-  ],
-  "CHAggId": null,
-  "P": [
-   "",
-   ""
-  ],
-  "PCT": [
-   59.9393676916414,
-   40.0606323083586
-  ],
-  "V": [
-   1384,
-   925
-  ],
-  "T": 2309,
-  "W": [
-   1,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- }
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "United States Representative District 1",
+    "K": "1100",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 20,
+    "PR": 20,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Christina Bohannan", "Mariannette Miller-Meeks", "Write-in"],
+    "CHAggId": null,
+    "P": ["DEM", "REP", ""],
+    "PCT": [49.7867551524109, 49.9797139669338, 0.233530880655335],
+    "V": [206156, 206955, 967],
+    "T": 414078,
+    "W": [0, 1, 0],
+    "CRC": [0, 0, 0],
+    "CRO": [0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "SUBCATKEY": "C_2_1",
+    "SUBCAT": "State Senate 1 - 25",
+    "C": "State Senator District 2",
+    "K": "1500",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 3,
+    "PR": 3,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Jeff Taylor", "Write-in"],
+    "CHAggId": null,
+    "P": ["REP", ""],
+    "PCT": [99.1149803128274, 0.885019687172633],
+    "V": [27438, 245],
+    "T": 27683,
+    "W": [1, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "SUBCATKEY": "C_2_3",
+    "SUBCAT": "State Representative 1 - 25",
+    "C": "State Representative District 1",
+    "K": "4000",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 1,
+    "PR": 1,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["J.D. Scholten", "Josh Steinhoff", "Write-in"],
+    "CHAggId": null,
+    "P": ["DEM", "REP", ""],
+    "PCT": [53.395811639477, 46.4769177368969, 0.127270623626056],
+    "V": [4615, 4017, 11],
+    "T": 8643,
+    "W": [1, 0, 0],
+    "CRC": [0, 0, 0],
+    "CRO": [0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "SUBCATKEY": "C_2_7",
+    "SUBCAT": "Constitutional Amendments",
+    "C": "Constitutional Amendment 1",
+    "K": "14000",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 99,
+    "PR": 97,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Yes", "No"],
+    "CHAggId": null,
+    "P": ["", ""],
+    "PCT": [77.1327762601534, 22.8672237398466],
+    "V": [1150332, 341034],
+    "T": 1491366,
+    "W": [1, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_5",
+    "CAT": "Judicial",
+    "C": "Supreme Court Justice - David May",
+    "K": "14200",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 99,
+    "PR": 97,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Yes", "No"],
+    "CHAggId": null,
+    "P": ["", ""],
+    "PCT": [63.2901466770456, 36.7098533229544],
+    "V": [776472, 450373],
+    "T": 1226845,
+    "W": [1, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_3",
+    "CAT": "School",
+    "C": "AGWSR School - Public Measure IQ",
+    "K": "22200",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 4,
+    "PR": 4,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Yes", "No"],
+    "CHAggId": null,
+    "P": ["", ""],
+    "PCT": [59.9393676916414, 40.0606323083586],
+    "V": [1384, 925],
+    "T": 2309,
+    "W": [1, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  }
 ]

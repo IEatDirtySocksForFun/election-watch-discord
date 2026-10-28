@@ -1,134 +1,134 @@
 {
- "state": "NC",
- "category": "returned",
- "election_name": "North Carolina Ballots Returned",
- "snapshot_date": "2026-10-27",
- "regions": {
-  "Alamance": {
-   "Democratic": {
-    "votes": 455,
-    "color": "#4874a3"
-   },
-   "No Party Affiliation": {
-    "votes": 417,
-    "color": "#63c660"
-   },
-   "Other": {
-    "votes": 2,
-    "color": "#e0bb24"
-   },
-   "Republican": {
-    "votes": 224,
-    "color": "#c6606b"
-   }
+  "state": "NC",
+  "category": "returned",
+  "election_name": "North Carolina Ballots Returned",
+  "snapshot_date": "2026-10-27",
+  "regions": {
+    "Alamance": {
+      "Democratic": {
+        "votes": 455,
+        "color": "#4874a3"
+      },
+      "No Party Affiliation": {
+        "votes": 417,
+        "color": "#63c660"
+      },
+      "Other": {
+        "votes": 2,
+        "color": "#e0bb24"
+      },
+      "Republican": {
+        "votes": 224,
+        "color": "#c6606b"
+      }
+    },
+    "Durham": {
+      "Democratic": {
+        "votes": 1362,
+        "color": "#4874a3"
+      },
+      "No Party Affiliation": {
+        "votes": 1074,
+        "color": "#63c660"
+      },
+      "Other": {
+        "votes": 9,
+        "color": "#e0bb24"
+      },
+      "Republican": {
+        "votes": 163,
+        "color": "#c6606b"
+      }
+    },
+    "Guilford": {
+      "Democratic": {
+        "votes": 1272,
+        "color": "#4874a3"
+      },
+      "No Party Affiliation": {
+        "votes": 980,
+        "color": "#63c660"
+      },
+      "Other": {
+        "votes": 5,
+        "color": "#e0bb24"
+      },
+      "Republican": {
+        "votes": 503,
+        "color": "#c6606b"
+      }
+    },
+    "Mecklenburg": {
+      "Democratic": {
+        "votes": 3325,
+        "color": "#4874a3"
+      },
+      "No Party Affiliation": {
+        "votes": 3457,
+        "color": "#63c660"
+      },
+      "Other": {
+        "votes": 16,
+        "color": "#e0bb24"
+      },
+      "Republican": {
+        "votes": 1224,
+        "color": "#c6606b"
+      }
+    },
+    "Tyrrell": {
+      "Democratic": {
+        "votes": 0,
+        "color": "#4874a3"
+      },
+      "No Party Affiliation": {
+        "votes": 0,
+        "color": "#63c660"
+      },
+      "Other": {
+        "votes": 0,
+        "color": "#e0bb24"
+      },
+      "Republican": {
+        "votes": 0,
+        "color": "#c6606b"
+      }
+    },
+    "Wake": {
+      "Democratic": {
+        "votes": 4911,
+        "color": "#4874a3"
+      },
+      "No Party Affiliation": {
+        "votes": 5389,
+        "color": "#63c660"
+      },
+      "Other": {
+        "votes": 29,
+        "color": "#e0bb24"
+      },
+      "Republican": {
+        "votes": 1569,
+        "color": "#c6606b"
+      }
+    }
   },
-  "Durham": {
-   "Democratic": {
-    "votes": 1362,
-    "color": "#4874a3"
-   },
-   "No Party Affiliation": {
-    "votes": 1074,
-    "color": "#63c660"
-   },
-   "Other": {
-    "votes": 9,
-    "color": "#e0bb24"
-   },
-   "Republican": {
-    "votes": 163,
-    "color": "#c6606b"
-   }
-  },
-  "Guilford": {
-   "Democratic": {
-    "votes": 1272,
-    "color": "#4874a3"
-   },
-   "No Party Affiliation": {
-    "votes": 980,
-    "color": "#63c660"
-   },
-   "Other": {
-    "votes": 5,
-    "color": "#e0bb24"
-   },
-   "Republican": {
-    "votes": 503,
-    "color": "#c6606b"
-   }
-  },
-  "Mecklenburg": {
-   "Democratic": {
-    "votes": 3325,
-    "color": "#4874a3"
-   },
-   "No Party Affiliation": {
-    "votes": 3457,
-    "color": "#63c660"
-   },
-   "Other": {
-    "votes": 16,
-    "color": "#e0bb24"
-   },
-   "Republican": {
-    "votes": 1224,
-    "color": "#c6606b"
-   }
-  },
-  "Tyrrell": {
-   "Democratic": {
-    "votes": 0,
-    "color": "#4874a3"
-   },
-   "No Party Affiliation": {
-    "votes": 0,
-    "color": "#63c660"
-   },
-   "Other": {
-    "votes": 0,
-    "color": "#e0bb24"
-   },
-   "Republican": {
-    "votes": 0,
-    "color": "#c6606b"
-   }
-  },
-  "Wake": {
-   "Democratic": {
-    "votes": 4911,
-    "color": "#4874a3"
-   },
-   "No Party Affiliation": {
-    "votes": 5389,
-    "color": "#63c660"
-   },
-   "Other": {
-    "votes": 29,
-    "color": "#e0bb24"
-   },
-   "Republican": {
-    "votes": 1569,
-    "color": "#c6606b"
-   }
+  "statewide_total": {
+    "Democratic": {
+      "votes": 27481,
+      "color": "#4874a3"
+    },
+    "No Party Affiliation": {
+      "votes": 26223,
+      "color": "#63c660"
+    },
+    "Other": {
+      "votes": 188,
+      "color": "#e0bb24"
+    },
+    "Republican": {
+      "votes": 11949,
+      "color": "#c6606b"
+    }
   }
- },
- "statewide_total": {
-  "Democratic": {
-   "votes": 27481,
-   "color": "#4874a3"
-  },
-  "No Party Affiliation": {
-   "votes": 26223,
-   "color": "#63c660"
-  },
-  "Other": {
-   "votes": 188,
-   "color": "#e0bb24"
-  },
-  "Republican": {
-   "votes": 11949,
-   "color": "#c6606b"
-  }
- }
 }

@@ -1,63 +1,63 @@
 {
- "last_updated": "2024-11-27T21:30:33.489000Z",
- "races": [
-  {
-   "district": {
-    "districtNumber": 38,
-    "districtFips": 4838,
-    "raceType": "General"
-   },
-   "results": [
+  "last_updated": "2024-11-27T21:30:33.489000Z",
+  "races": [
     {
-     "candidate": {
-      "firstName": "Wesley",
-      "lastName": "Hunt",
-      "npid": 68242
-     },
-     "partyCode": "R",
-     "partyName": "Republican",
-     "isWinner": true
+      "district": {
+        "districtNumber": 38,
+        "districtFips": 4838,
+        "raceType": "General"
+      },
+      "results": [
+        {
+          "candidate": {
+            "firstName": "Wesley",
+            "lastName": "Hunt",
+            "npid": 68242
+          },
+          "partyCode": "R",
+          "partyName": "Republican",
+          "isWinner": true
+        },
+        {
+          "candidate": {
+            "firstName": "Melissa",
+            "lastName": "McDonough",
+            "npid": 160805
+          },
+          "partyCode": "D",
+          "partyName": "Democrat",
+          "isWinner": false
+        }
+      ]
     },
     {
-     "candidate": {
-      "firstName": "Melissa",
-      "lastName": "McDonough",
-      "npid": 160805
-     },
-     "partyCode": "D",
-     "partyName": "Democrat",
-     "isWinner": false
+      "district": {
+        "districtNumber": 7,
+        "districtFips": 487,
+        "raceType": "General"
+      },
+      "results": [
+        {
+          "candidate": {
+            "firstName": "Lizzie",
+            "lastName": "Fletcher",
+            "npid": 65918
+          },
+          "partyCode": "D",
+          "partyName": "Democrat",
+          "isWinner": true
+        },
+        {
+          "candidate": {
+            "firstName": "Caroline",
+            "lastName": "Kane",
+            "npid": 160777
+          },
+          "partyCode": "R",
+          "partyName": "Republican",
+          "isWinner": false
+        }
+      ]
     }
-   ]
-  },
-  {
-   "district": {
-    "districtNumber": 7,
-    "districtFips": 487,
-    "raceType": "General"
-   },
-   "results": [
-    {
-     "candidate": {
-      "firstName": "Lizzie",
-      "lastName": "Fletcher",
-      "npid": 65918
-     },
-     "partyCode": "D",
-     "partyName": "Democrat",
-     "isWinner": true
-    },
-    {
-     "candidate": {
-      "firstName": "Caroline",
-      "lastName": "Kane",
-      "npid": 160777
-     },
-     "partyCode": "R",
-     "partyName": "Republican",
-     "isWinner": false
-    }
-   ]
-  }
- ]
+  ]
 }

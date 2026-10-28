@@ -1,1 +1,127 @@
-{"event":{"category":"Elections","collateral_return_type":"MECNET","event_ticker":"GOVPARTYTX-26","exchange_index":0,"last_updated_ts":"0001-01-01T00:00:00Z","mutually_exclusive":true,"product_metadata":{"competition":"Governor","competition_scope":"Election"},"series_ticker":"GOVPARTYTX","settlement_sources":[{"name":"Texas Secretary of State","url":"https://www.sos.texas.gov"}],"strike_period":"","sub_title":"In 2026","title":"Texas Governor winner?"},"markets":[{"can_close_early":true,"close_time":"2027-11-03T15:00:00Z","created_time":"2025-01-25T21:10:01.550397Z","custom_strike":{"political_party":"57fa2293-3102-463b-9087-68cd9f6da0a6","politician":"0de6f516-4363-401c-8f04-6af42691a163"},"early_close_condition":"This market will close early following the first person to be sworn in as governor pursuant to the 2026 gubernatorial election.","event_ticker":"GOVPARTYTX-26","exchange_index":0,"expected_expiration_time":"2027-01-20T15:00:00Z","expiration_time":"2027-11-03T15:00:00Z","expiration_value":"","last_price_dollars":"0.3300","latest_expiration_time":"2027-11-03T15:00:00Z","market_type":"binary","no_ask_dollars":"0.6800","no_bid_dollars":"0.6700","no_sub_title":"Gina Hinojosa","notional_value_dollars":"1.0000","occurrence_datetime":"2027-01-20T15:00:00Z","open_interest_fp":"2108373.98","open_time":"2025-01-26T15:00:00Z","previous_price_dollars":"0.3300","previous_yes_ask_dollars":"0.3300","previous_yes_bid_dollars":"0.3200","price_level_structure":"tapered_deci_cent","price_ranges":[{"end":"0.1000","start":"0.0000","step":"0.0010"},{"end":"0.9000","start":"0.1000","step":"0.0100"},{"end":"1.0000","start":"0.9000","step":"0.0010"}],"result":"","rules_primary":"If a representative of the Democratic party is inaugurated as the governor of Texas pursuant to the 2026 election, then the market resolves to Yes.","rules_secondary":"This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.","settlement_bounds_type":"default","settlement_timer_seconds":14,"status":"active","strike_type":"structured","subtitle":"Democratic:: Democratic party","ticker":"GOVPARTYTX-26-D","title":"Will the Democratic party win the governorship in Texas","updated_time":"2026-09-15T21:49:50.680205Z","volume_24h_fp":"168119.47","volume_fp":"3132803.73","yes_ask_dollars":"0.3300","yes_ask_size_fp":"86390.06","yes_bid_dollars":"0.3200","yes_bid_size_fp":"113701.35","yes_sub_title":"Gina Hinojosa"},{"can_close_early":true,"close_time":"2027-11-03T15:00:00Z","created_time":"2025-01-25T21:10:01.550398Z","custom_strike":{"political_party":"9244ed4c-9dfd-45cc-8211-996dc902f315","politician":"597f86f4-ea6c-4df7-9de9-3cc113294c6e"},"early_close_condition":"This market will close early following the first person to be sworn in as governor pursuant to the 2026 gubernatorial election.","event_ticker":"GOVPARTYTX-26","exchange_index":0,"expected_expiration_time":"2027-01-20T15:00:00Z","expiration_time":"2027-11-03T15:00:00Z","expiration_value":"","last_price_dollars":"0.6700","latest_expiration_time":"2027-11-03T15:00:00Z","market_type":"binary","no_ask_dollars":"0.3300","no_bid_dollars":"0.3200","no_sub_title":"Greg Abbott","notional_value_dollars":"1.0000","occurrence_datetime":"2027-01-20T15:00:00Z","open_interest_fp":"2947594.61","open_time":"2025-01-26T15:00:00Z","previous_price_dollars":"0.6800","previous_yes_ask_dollars":"0.6800","previous_yes_bid_dollars":"0.6700","price_level_structure":"tapered_deci_cent","price_ranges":[{"end":"0.1000","start":"0.0000","step":"0.0010"},{"end":"0.9000","start":"0.1000","step":"0.0100"},{"end":"1.0000","start":"0.9000","step":"0.0010"}],"result":"","rules_primary":"If a representative of the Republican party is inaugurated as the governor of Texas pursuant to the 2026 election, then the market resolves to Yes.","rules_secondary":"This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.","settlement_bounds_type":"default","settlement_timer_seconds":14,"status":"active","strike_type":"structured","subtitle":"Republican:: Republican party","ticker":"GOVPARTYTX-26-R","title":"Will the Republican party win the governorship in Texas","updated_time":"2026-10-16T16:31:15.095649Z","volume_24h_fp":"1172124.07","volume_fp":"3566094.45","yes_ask_dollars":"0.6800","yes_ask_size_fp":"106302.48","yes_bid_dollars":"0.6700","yes_bid_size_fp":"80913.58","yes_sub_title":"Greg Abbott"}]}
+{
+  "event": {
+    "category": "Elections",
+    "collateral_return_type": "MECNET",
+    "event_ticker": "GOVPARTYTX-26",
+    "exchange_index": 0,
+    "last_updated_ts": "0001-01-01T00:00:00Z",
+    "mutually_exclusive": true,
+    "product_metadata": {
+      "competition": "Governor",
+      "competition_scope": "Election"
+    },
+    "series_ticker": "GOVPARTYTX",
+    "settlement_sources": [
+      { "name": "Texas Secretary of State", "url": "https://www.sos.texas.gov" }
+    ],
+    "strike_period": "",
+    "sub_title": "In 2026",
+    "title": "Texas Governor winner?"
+  },
+  "markets": [
+    {
+      "can_close_early": true,
+      "close_time": "2027-11-03T15:00:00Z",
+      "created_time": "2025-01-25T21:10:01.550397Z",
+      "custom_strike": {
+        "political_party": "57fa2293-3102-463b-9087-68cd9f6da0a6",
+        "politician": "0de6f516-4363-401c-8f04-6af42691a163"
+      },
+      "early_close_condition": "This market will close early following the first person to be sworn in as governor pursuant to the 2026 gubernatorial election.",
+      "event_ticker": "GOVPARTYTX-26",
+      "exchange_index": 0,
+      "expected_expiration_time": "2027-01-20T15:00:00Z",
+      "expiration_time": "2027-11-03T15:00:00Z",
+      "expiration_value": "",
+      "last_price_dollars": "0.3300",
+      "latest_expiration_time": "2027-11-03T15:00:00Z",
+      "market_type": "binary",
+      "no_ask_dollars": "0.6800",
+      "no_bid_dollars": "0.6700",
+      "no_sub_title": "Gina Hinojosa",
+      "notional_value_dollars": "1.0000",
+      "occurrence_datetime": "2027-01-20T15:00:00Z",
+      "open_interest_fp": "2108373.98",
+      "open_time": "2025-01-26T15:00:00Z",
+      "previous_price_dollars": "0.3300",
+      "previous_yes_ask_dollars": "0.3300",
+      "previous_yes_bid_dollars": "0.3200",
+      "price_level_structure": "tapered_deci_cent",
+      "price_ranges": [
+        { "end": "0.1000", "start": "0.0000", "step": "0.0010" },
+        { "end": "0.9000", "start": "0.1000", "step": "0.0100" },
+        { "end": "1.0000", "start": "0.9000", "step": "0.0010" }
+      ],
+      "result": "",
+      "rules_primary": "If a representative of the Democratic party is inaugurated as the governor of Texas pursuant to the 2026 election, then the market resolves to Yes.",
+      "rules_secondary": "This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.",
+      "settlement_bounds_type": "default",
+      "settlement_timer_seconds": 14,
+      "status": "active",
+      "strike_type": "structured",
+      "subtitle": "Democratic:: Democratic party",
+      "ticker": "GOVPARTYTX-26-D",
+      "title": "Will the Democratic party win the governorship in Texas",
+      "updated_time": "2026-09-15T21:49:50.680205Z",
+      "volume_24h_fp": "168119.47",
+      "volume_fp": "3132803.73",
+      "yes_ask_dollars": "0.3300",
+      "yes_ask_size_fp": "86390.06",
+      "yes_bid_dollars": "0.3200",
+      "yes_bid_size_fp": "113701.35",
+      "yes_sub_title": "Gina Hinojosa"
+    },
+    {
+      "can_close_early": true,
+      "close_time": "2027-11-03T15:00:00Z",
+      "created_time": "2025-01-25T21:10:01.550398Z",
+      "custom_strike": {
+        "political_party": "9244ed4c-9dfd-45cc-8211-996dc902f315",
+        "politician": "597f86f4-ea6c-4df7-9de9-3cc113294c6e"
+      },
+      "early_close_condition": "This market will close early following the first person to be sworn in as governor pursuant to the 2026 gubernatorial election.",
+      "event_ticker": "GOVPARTYTX-26",
+      "exchange_index": 0,
+      "expected_expiration_time": "2027-01-20T15:00:00Z",
+      "expiration_time": "2027-11-03T15:00:00Z",
+      "expiration_value": "",
+      "last_price_dollars": "0.6700",
+      "latest_expiration_time": "2027-11-03T15:00:00Z",
+      "market_type": "binary",
+      "no_ask_dollars": "0.3300",
+      "no_bid_dollars": "0.3200",
+      "no_sub_title": "Greg Abbott",
+      "notional_value_dollars": "1.0000",
+      "occurrence_datetime": "2027-01-20T15:00:00Z",
+      "open_interest_fp": "2947594.61",
+      "open_time": "2025-01-26T15:00:00Z",
+      "previous_price_dollars": "0.6800",
+      "previous_yes_ask_dollars": "0.6800",
+      "previous_yes_bid_dollars": "0.6700",
+      "price_level_structure": "tapered_deci_cent",
+      "price_ranges": [
+        { "end": "0.1000", "start": "0.0000", "step": "0.0010" },
+        { "end": "0.9000", "start": "0.1000", "step": "0.0100" },
+        { "end": "1.0000", "start": "0.9000", "step": "0.0010" }
+      ],
+      "result": "",
+      "rules_primary": "If a representative of the Republican party is inaugurated as the governor of Texas pursuant to the 2026 election, then the market resolves to Yes.",
+      "rules_secondary": "This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.",
+      "settlement_bounds_type": "default",
+      "settlement_timer_seconds": 14,
+      "status": "active",
+      "strike_type": "structured",
+      "subtitle": "Republican:: Republican party",
+      "ticker": "GOVPARTYTX-26-R",
+      "title": "Will the Republican party win the governorship in Texas",
+      "updated_time": "2026-10-16T16:31:15.095649Z",
+      "volume_24h_fp": "1172124.07",
+      "volume_fp": "3566094.45",
+      "yes_ask_dollars": "0.6800",
+      "yes_ask_size_fp": "106302.48",
+      "yes_bid_dollars": "0.6700",
+      "yes_bid_size_fp": "80913.58",
+      "yes_sub_title": "Greg Abbott"
+    }
+  ]
+}

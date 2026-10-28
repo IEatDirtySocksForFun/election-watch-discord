@@ -9,19 +9,19 @@ state.
 
 ## Summary
 
-| State | Adapter | Feed | Status |
-|-------|---------|------|--------|
-| AK | `ak_doe` | Division of Elections precinct CSV | verified fixture; live fetch blocked by the origin's TLS chain |
-| AL | — | no usable statewide feed | not possible (see below) |
-| AR | `ar_sos` | SOS election page → Tally-ENR `FullDataFile.json` | verified fixture (2024); 2026 UUID format has no contest names |
-| ID | `id_sos` | SOS results archive pages (embedded reactable JSON) | verified fixture + live run (2024 general) |
-| IL | `il_sbe` | SBE `ElectionVoteTotals.aspx` HTML | verified fixture + live run (2026 primary); 2026 general not published yet |
-| IN | `in_sos` | `enr.indianavoters.in.gov/archive/<election>/data/*.json` | verified fixture + live run (2024 general) |
-| CA | `ca_sos` | `media.sos.ca.gov/media/<office>.json` | verified fixture |
-| CT | `ct_sots` | `ct.elstats.civera.com` search CSV | verified fixture |
-| DC | `dc_boe` | `electionresults.dcboe.org` XML export | verified fixture |
-| DE | `de_doe` | `elections.delaware.gov/reports/GE<year>.csv` | verified fixture |
-| HI | `hi_soe` | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture |
+| State | Adapter   | Feed                                                                  | Status                                                                     |
+| ----- | --------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| AK    | `ak_doe`  | Division of Elections precinct CSV                                    | verified fixture; live fetch blocked by the origin's TLS chain             |
+| AL    | —         | no usable statewide feed                                              | not possible (see below)                                                   |
+| AR    | `ar_sos`  | SOS election page → Tally-ENR `FullDataFile.json`                     | verified fixture (2024); 2026 UUID format has no contest names             |
+| ID    | `id_sos`  | SOS results archive pages (embedded reactable JSON)                   | verified fixture + live run (2024 general)                                 |
+| IL    | `il_sbe`  | SBE `ElectionVoteTotals.aspx` HTML                                    | verified fixture + live run (2026 primary); 2026 general not published yet |
+| IN    | `in_sos`  | `enr.indianavoters.in.gov/archive/<election>/data/*.json`             | verified fixture + live run (2024 general)                                 |
+| CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                | verified fixture                                                           |
+| CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture                                                           |
+| DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture                                                           |
+| DE    | `de_doe`  | `elections.delaware.gov/reports/GE<year>.csv`                         | verified fixture                                                           |
+| HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                           |
 
 ## AK — `electionwatch/sources/results/ak_doe.py`
 
@@ -31,7 +31,7 @@ state.
   a contest reproduces the Division's published statewide totals (checked for the
   2024 U.S. House race: Begich 159,550 / Peltola 152,828 / Howe 13,010 / Hafner 3,417).
 - Fixture: six contests × the first eight precincts of `24GENR`.
-- Status: verified fixture. The data is the RCV *first-choice* count; the final
+- Status: verified fixture. The data is the RCV _first-choice_ count; the final
   round is in the Election Summary Report PDF, which the adapter does not read.
 - Known issue (checked 2026-10-27): `elections.alaska.gov` serves an incomplete TLS
   chain (leaf issued by "GlobalSign GCC R46 OV TLS CA 2025", but the server sends the
@@ -114,7 +114,7 @@ state.
 - The percent column is "Percent of Party Vote" in a primary, so it is ignored; the
   share is computed from the votes.
 - Discovery: the page defaults to the newest election and its election dropdown lists
-  every election. The URL id of an *older* election is an opaque ASP.NET token, so the
+  every election. The URL id of an _older_ election is an opaque ASP.NET token, so the
   adapter checks the selected election's name against `ELECTIONS` and reports itself
   unavailable when the tracked election is not the one on screen (2026 general is not
   published yet, checked 2026-10-27). `IL_ELECTION_ID` pins the opaque id when a past

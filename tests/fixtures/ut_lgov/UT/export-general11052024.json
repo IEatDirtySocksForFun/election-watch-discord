@@ -1,600 +1,600 @@
 {
- "electionDate": "2024-11-05",
- "electionName": "2024 General Election",
- "createdAt": "2025-11-04T18:27:17.647083Z",
- "results": {
-  "id": "a7510980-7b10-4aca-a2d8-ff92951aca1c",
-  "name": "Utah",
-  "ballotItems": [
-   {
-    "type": "State",
-    "id": "State-1",
-    "name": "U.S. President ",
-    "voteFor": 1,
-    "ballotOrder": 1,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "9",
-      "name": "CORNEL RONALD WEST / MELINA ABDULLAH",
-      "ballotOrder": 1,
-      "voteCount": 2199,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "3",
-      "name": "LUCIFER \"JUSTIN CASE\" EVERYLOVE",
-      "ballotOrder": 2,
-      "voteCount": 2653,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "13",
-      "name": "JOEL SKOUSEN / RIK COMBS",
-      "ballotOrder": 3,
-      "voteCount": 8402,
-      "politicalParty": "Constitution",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "8",
-      "name": "JILL STEIN / RUDOLPH WARE",
-      "ballotOrder": 4,
-      "voteCount": 8222,
-      "politicalParty": "Green",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "5",
-      "name": "DONALD J. TRUMP / JD VANCE",
-      "ballotOrder": 5,
-      "voteCount": 883818,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "10",
-      "name": "CHASE OLIVER / MIKE TER MAAT",
-      "ballotOrder": 6,
-      "voteCount": 16902,
-      "politicalParty": "Libertarian",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "4",
-      "name": "KAMALA D. HARRIS / TIM WALZ",
-      "ballotOrder": 7,
-      "voteCount": 562566,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "15",
-      "name": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA",
-      "ballotOrder": 8,
-      "voteCount": 3189,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "1",
-      "name": "FUTURE MADAM POTUS",
-      "ballotOrder": 20,
-      "voteCount": 9,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "2",
-      "name": "PETER SONSKI / LAUREN MICHELLE ONAK",
-      "ballotOrder": 21,
-      "voteCount": 441,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "6",
-      "name": "JAY J BOWMAN / DE D. BOWMAN",
-      "ballotOrder": 22,
-      "voteCount": 59,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "7",
-      "name": "STEVE M. JOHNSON",
-      "ballotOrder": 23,
-      "voteCount": 33,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "11",
-      "name": "ANDRE RAMON MC NEIL",
-      "ballotOrder": 24,
-      "voteCount": 1,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "12",
-      "name": "SHONDRA YEVETTE IRVING",
-      "ballotOrder": 25,
-      "voteCount": 0,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "14",
-      "name": "BUDDIE ARDEN WILKERSON",
-      "ballotOrder": 26,
-      "voteCount": 0,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     }
+  "electionDate": "2024-11-05",
+  "electionName": "2024 General Election",
+  "createdAt": "2025-11-04T18:27:17.647083Z",
+  "results": {
+    "id": "a7510980-7b10-4aca-a2d8-ff92951aca1c",
+    "name": "Utah",
+    "ballotItems": [
+      {
+        "type": "State",
+        "id": "State-1",
+        "name": "U.S. President ",
+        "voteFor": 1,
+        "ballotOrder": 1,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "9",
+            "name": "CORNEL RONALD WEST / MELINA ABDULLAH",
+            "ballotOrder": 1,
+            "voteCount": 2199,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "3",
+            "name": "LUCIFER \"JUSTIN CASE\" EVERYLOVE",
+            "ballotOrder": 2,
+            "voteCount": 2653,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "13",
+            "name": "JOEL SKOUSEN / RIK COMBS",
+            "ballotOrder": 3,
+            "voteCount": 8402,
+            "politicalParty": "Constitution",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "8",
+            "name": "JILL STEIN / RUDOLPH WARE",
+            "ballotOrder": 4,
+            "voteCount": 8222,
+            "politicalParty": "Green",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "5",
+            "name": "DONALD J. TRUMP / JD VANCE",
+            "ballotOrder": 5,
+            "voteCount": 883818,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "10",
+            "name": "CHASE OLIVER / MIKE TER MAAT",
+            "ballotOrder": 6,
+            "voteCount": 16902,
+            "politicalParty": "Libertarian",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "4",
+            "name": "KAMALA D. HARRIS / TIM WALZ",
+            "ballotOrder": 7,
+            "voteCount": 562566,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "15",
+            "name": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA",
+            "ballotOrder": 8,
+            "voteCount": 3189,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "1",
+            "name": "FUTURE MADAM POTUS",
+            "ballotOrder": 20,
+            "voteCount": 9,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "2",
+            "name": "PETER SONSKI / LAUREN MICHELLE ONAK",
+            "ballotOrder": 21,
+            "voteCount": 441,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "6",
+            "name": "JAY J BOWMAN / DE D. BOWMAN",
+            "ballotOrder": 22,
+            "voteCount": 59,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "7",
+            "name": "STEVE M. JOHNSON",
+            "ballotOrder": 23,
+            "voteCount": 33,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "11",
+            "name": "ANDRE RAMON MC NEIL",
+            "ballotOrder": 24,
+            "voteCount": 1,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "12",
+            "name": "SHONDRA YEVETTE IRVING",
+            "ballotOrder": 25,
+            "voteCount": 0,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "14",
+            "name": "BUDDIE ARDEN WILKERSON",
+            "ballotOrder": 26,
+            "voteCount": 0,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-2",
+        "name": "U.S. Senate ",
+        "voteFor": 1,
+        "ballotOrder": 2,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "19",
+            "name": "CARLTON E. BOWEN",
+            "ballotOrder": 5,
+            "voteCount": 83972,
+            "politicalParty": "Independent American",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "18",
+            "name": "JOHN CURTIS",
+            "ballotOrder": 10,
+            "voteCount": 914700,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "17",
+            "name": "CAROLINE GLEICH",
+            "ballotOrder": 15,
+            "voteCount": 464515,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "16",
+            "name": "LAIRD FETZER HAMBLIN",
+            "ballotOrder": 20,
+            "voteCount": 322,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-3",
+        "name": "U.S. House 1 ",
+        "voteFor": 1,
+        "ballotOrder": 3,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "22",
+            "name": "BILL CAMPBELL",
+            "ballotOrder": 5,
+            "voteCount": 117319,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "20",
+            "name": "DANIEL R. COTTAM",
+            "ballotOrder": 10,
+            "voteCount": 17601,
+            "politicalParty": "Libertarian",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "21",
+            "name": "BLAKE D. MOORE",
+            "ballotOrder": 15,
+            "voteCount": 230975,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-7",
+        "name": "Governor ",
+        "voteFor": 1,
+        "ballotOrder": 7,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "36",
+            "name": "SPENCER J. COX DEIDRE M. HENDERSON",
+            "ballotOrder": 2,
+            "voteCount": 781431,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "40",
+            "name": "TOMMY WILLIAMS ARCHIE A. WILLIAMS III",
+            "ballotOrder": 4,
+            "voteCount": 27480,
+            "politicalParty": "Independent American",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "34",
+            "name": "BRIAN SMITH KING REBEKAH CUMMINGS",
+            "ballotOrder": 6,
+            "voteCount": 420514,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "33",
+            "name": "J. ROBERT LATHAM BARRY EVAN SHORT",
+            "ballotOrder": 8,
+            "voteCount": 41164,
+            "politicalParty": "Libertarian",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "39",
+            "name": "TOM TOMENY WILLIAM LANSING TAYLOR",
+            "ballotOrder": 10,
+            "voteCount": 5792,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "37",
+            "name": "PHIL LYMAN NATALIE CLAWSON",
+            "ballotOrder": 37,
+            "voteCount": 200551,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "38",
+            "name": "CHARLIE TAUTUAA SYLVIA MIERA FISK",
+            "ballotOrder": 38,
+            "voteCount": 525,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-8",
+        "name": "Attorney General ",
+        "voteFor": 1,
+        "ballotOrder": 8,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "45",
+            "name": "DEREK BROWN",
+            "ballotOrder": 5,
+            "voteCount": 838445,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "41",
+            "name": "RUDY J BAUTISTA",
+            "ballotOrder": 10,
+            "voteCount": 401234,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "42",
+            "name": "W. ANDREW MCCULLOUGH",
+            "ballotOrder": 15,
+            "voteCount": 55932,
+            "politicalParty": "Libertarian",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "43",
+            "name": "AUSTIN HEPWORTH",
+            "ballotOrder": 20,
+            "voteCount": 50053,
+            "politicalParty": "Unaffiliated",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "44",
+            "name": "MICHELLE QUIST",
+            "ballotOrder": 25,
+            "voteCount": 103831,
+            "politicalParty": "United Utah Party",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-9",
+        "name": "State Auditor ",
+        "voteFor": 1,
+        "ballotOrder": 9,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "48",
+            "name": "TINA CANNON",
+            "ballotOrder": 5,
+            "voteCount": 906531,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "46",
+            "name": "JEFFREY L. OSTLER",
+            "ballotOrder": 10,
+            "voteCount": 73741,
+            "politicalParty": "Constitution",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "47",
+            "name": "CATHERINE VOUTAZ",
+            "ballotOrder": 15,
+            "voteCount": 446608,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-10",
+        "name": "State Treasurer ",
+        "voteFor": 1,
+        "ballotOrder": 10,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "49",
+            "name": "MILES POMEROY",
+            "ballotOrder": 5,
+            "voteCount": 76212,
+            "politicalParty": "Utah Forward",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "50",
+            "name": "MARLO M. OAKS",
+            "ballotOrder": 10,
+            "voteCount": 920760,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "51",
+            "name": "NEIL A HANSEN",
+            "ballotOrder": 15,
+            "voteCount": 420883,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-11",
+        "name": "State Senate 2 (Multi-County) ",
+        "voteFor": 1,
+        "ballotOrder": 11,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "52",
+            "name": "CHRIS WILSON",
+            "ballotOrder": 52,
+            "voteCount": 32995,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "53",
+            "name": "NANCY HUNTLY",
+            "ballotOrder": 53,
+            "voteCount": 14262,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-84",
+        "name": "State House 59  (Multi-County) ",
+        "voteFor": 13,
+        "ballotOrder": 84,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "190",
+            "name": "JULIE A. MONAHAN",
+            "ballotOrder": 190,
+            "voteCount": 9798,
+            "politicalParty": "Democratic",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "191",
+            "name": "MIKE KOHLER",
+            "ballotOrder": 191,
+            "voteCount": 14241,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-101",
+        "name": "State School Board 3 (Multi-County) ",
+        "voteFor": 30,
+        "ballotOrder": 101,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "217",
+            "name": "ROD HALL",
+            "ballotOrder": 194,
+            "voteCount": 60766,
+            "politicalParty": "Republican",
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "218",
+            "name": "LAURA JOHNSON",
+            "ballotOrder": 194,
+            "voteCount": 26628,
+            "politicalParty": "Utah Forward",
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      },
+      {
+        "type": "State",
+        "id": "State-145",
+        "name": "Constitutional Amendment B ",
+        "voteFor": 74,
+        "ballotOrder": 145,
+        "precinctsParticipating": null,
+        "precinctsReporting": null,
+        "contestType": "Candidate",
+        "ballotOptions": [
+          {
+            "id": "303",
+            "name": "FOR",
+            "ballotOrder": 193,
+            "voteCount": 1004901,
+            "politicalParty": null,
+            "groupResults": null,
+            "precinctResults": null
+          },
+          {
+            "id": "304",
+            "name": "AGAINST",
+            "ballotOrder": 194,
+            "voteCount": 402865,
+            "politicalParty": null,
+            "groupResults": null,
+            "precinctResults": null
+          }
+        ],
+        "rankedChoiceResults": null
+      }
     ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-2",
-    "name": "U.S. Senate ",
-    "voteFor": 1,
-    "ballotOrder": 2,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "19",
-      "name": "CARLTON E. BOWEN",
-      "ballotOrder": 5,
-      "voteCount": 83972,
-      "politicalParty": "Independent American",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "18",
-      "name": "JOHN CURTIS",
-      "ballotOrder": 10,
-      "voteCount": 914700,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "17",
-      "name": "CAROLINE GLEICH",
-      "ballotOrder": 15,
-      "voteCount": 464515,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "16",
-      "name": "LAIRD FETZER HAMBLIN",
-      "ballotOrder": 20,
-      "voteCount": 322,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-3",
-    "name": "U.S. House 1 ",
-    "voteFor": 1,
-    "ballotOrder": 3,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "22",
-      "name": "BILL CAMPBELL",
-      "ballotOrder": 5,
-      "voteCount": 117319,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "20",
-      "name": "DANIEL R. COTTAM",
-      "ballotOrder": 10,
-      "voteCount": 17601,
-      "politicalParty": "Libertarian",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "21",
-      "name": "BLAKE D. MOORE",
-      "ballotOrder": 15,
-      "voteCount": 230975,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-7",
-    "name": "Governor ",
-    "voteFor": 1,
-    "ballotOrder": 7,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "36",
-      "name": "SPENCER J. COX DEIDRE M. HENDERSON",
-      "ballotOrder": 2,
-      "voteCount": 781431,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "40",
-      "name": "TOMMY WILLIAMS ARCHIE A. WILLIAMS III",
-      "ballotOrder": 4,
-      "voteCount": 27480,
-      "politicalParty": "Independent American",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "34",
-      "name": "BRIAN SMITH KING REBEKAH CUMMINGS",
-      "ballotOrder": 6,
-      "voteCount": 420514,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "33",
-      "name": "J. ROBERT LATHAM BARRY EVAN SHORT",
-      "ballotOrder": 8,
-      "voteCount": 41164,
-      "politicalParty": "Libertarian",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "39",
-      "name": "TOM TOMENY WILLIAM LANSING TAYLOR",
-      "ballotOrder": 10,
-      "voteCount": 5792,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "37",
-      "name": "PHIL LYMAN NATALIE CLAWSON",
-      "ballotOrder": 37,
-      "voteCount": 200551,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "38",
-      "name": "CHARLIE TAUTUAA SYLVIA MIERA FISK",
-      "ballotOrder": 38,
-      "voteCount": 525,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-8",
-    "name": "Attorney General ",
-    "voteFor": 1,
-    "ballotOrder": 8,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "45",
-      "name": "DEREK BROWN",
-      "ballotOrder": 5,
-      "voteCount": 838445,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "41",
-      "name": "RUDY J BAUTISTA",
-      "ballotOrder": 10,
-      "voteCount": 401234,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "42",
-      "name": "W. ANDREW MCCULLOUGH",
-      "ballotOrder": 15,
-      "voteCount": 55932,
-      "politicalParty": "Libertarian",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "43",
-      "name": "AUSTIN HEPWORTH",
-      "ballotOrder": 20,
-      "voteCount": 50053,
-      "politicalParty": "Unaffiliated",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "44",
-      "name": "MICHELLE QUIST",
-      "ballotOrder": 25,
-      "voteCount": 103831,
-      "politicalParty": "United Utah Party",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-9",
-    "name": "State Auditor ",
-    "voteFor": 1,
-    "ballotOrder": 9,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "48",
-      "name": "TINA CANNON",
-      "ballotOrder": 5,
-      "voteCount": 906531,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "46",
-      "name": "JEFFREY L. OSTLER",
-      "ballotOrder": 10,
-      "voteCount": 73741,
-      "politicalParty": "Constitution",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "47",
-      "name": "CATHERINE VOUTAZ",
-      "ballotOrder": 15,
-      "voteCount": 446608,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-10",
-    "name": "State Treasurer ",
-    "voteFor": 1,
-    "ballotOrder": 10,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "49",
-      "name": "MILES POMEROY",
-      "ballotOrder": 5,
-      "voteCount": 76212,
-      "politicalParty": "Utah Forward",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "50",
-      "name": "MARLO M. OAKS",
-      "ballotOrder": 10,
-      "voteCount": 920760,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "51",
-      "name": "NEIL A HANSEN",
-      "ballotOrder": 15,
-      "voteCount": 420883,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-11",
-    "name": "State Senate 2 (Multi-County) ",
-    "voteFor": 1,
-    "ballotOrder": 11,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "52",
-      "name": "CHRIS WILSON",
-      "ballotOrder": 52,
-      "voteCount": 32995,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "53",
-      "name": "NANCY HUNTLY",
-      "ballotOrder": 53,
-      "voteCount": 14262,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-84",
-    "name": "State House 59  (Multi-County) ",
-    "voteFor": 13,
-    "ballotOrder": 84,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "190",
-      "name": "JULIE A. MONAHAN",
-      "ballotOrder": 190,
-      "voteCount": 9798,
-      "politicalParty": "Democratic",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "191",
-      "name": "MIKE KOHLER",
-      "ballotOrder": 191,
-      "voteCount": 14241,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-101",
-    "name": "State School Board 3 (Multi-County) ",
-    "voteFor": 30,
-    "ballotOrder": 101,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "217",
-      "name": "ROD HALL",
-      "ballotOrder": 194,
-      "voteCount": 60766,
-      "politicalParty": "Republican",
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "218",
-      "name": "LAURA JOHNSON",
-      "ballotOrder": 194,
-      "voteCount": 26628,
-      "politicalParty": "Utah Forward",
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   },
-   {
-    "type": "State",
-    "id": "State-145",
-    "name": "Constitutional Amendment B ",
-    "voteFor": 74,
-    "ballotOrder": 145,
-    "precinctsParticipating": null,
-    "precinctsReporting": null,
-    "contestType": "Candidate",
-    "ballotOptions": [
-     {
-      "id": "303",
-      "name": "FOR",
-      "ballotOrder": 193,
-      "voteCount": 1004901,
-      "politicalParty": null,
-      "groupResults": null,
-      "precinctResults": null
-     },
-     {
-      "id": "304",
-      "name": "AGAINST",
-      "ballotOrder": 194,
-      "voteCount": 402865,
-      "politicalParty": null,
-      "groupResults": null,
-      "precinctResults": null
-     }
-    ],
-    "rankedChoiceResults": null
-   }
-  ],
-  "reportingStatuses": [
-   {
-    "groupName": "In Person",
-    "status": "Not Reported"
-   },
-   {
-    "groupName": "By Mail Ballot",
-    "status": "Not Reported"
-   },
-   {
-    "groupName": "Provisional",
-    "status": "Not Reported"
-   }
-  ]
- }
+    "reportingStatuses": [
+      {
+        "groupName": "In Person",
+        "status": "Not Reported"
+      },
+      {
+        "groupName": "By Mail Ballot",
+        "status": "Not Reported"
+      },
+      {
+        "groupName": "Provisional",
+        "status": "Not Reported"
+      }
+    ]
+  }
 }

@@ -7,14 +7,14 @@ explanation when nothing is reachable. No bot check, captcha, login or agreement
 faked or replayed. Every feed below answered a plain GET with a descriptive User-Agent
 (`election-watch-discord/0.1`).
 
-| State | Adapter | Source | Coverage | Verified |
-|-------|---------|--------|----------|----------|
-| MN | `mn_sos` | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt | **statewide** — all 87 counties, 871 contests: US Senate, US House, Governor, State Auditor, 67 state senate + 134 state house, judicial, county races & questions | **yes** — trimmed real 2026-11-03 files in `tests/fixtures/mn_sos/`, live fetch 2026-10-27 returned the 871 contests |
-| MI | `mi_county` | Clarity county feeds, `https://results.enr.clarityelections.com/MI/<County>/…` | **partial: 1 county live** (Ottawa, 178,507 of Michigan's 5,664,186 votes in the 2024 presidential = 3.2 %); Oakland/Macomb/Genesee configured in the adapter, their `elections.json` is empty until the county turns the 2026 general on | **yes** — real Ottawa 2026 general summary/elections.json in `tests/fixtures/mi_county/`, live discovery + fetch 2026-10-27 |
-| WI | `wi_dane` | https://elections.countyofdane.com/Election-Result | **partial: 1 county** (Dane, 364,840 of Wisconsin's 3,415,213 votes in 2024 = 10.7 %); whole county ballot incl. assembly/senate districts and county offices | **yes** — trimmed real page in `tests/fixtures/wi_dane/`, live fetch 2026-10-27 returned 33 contests (all at 0 votes: the county has not counted yet) |
-| NV | — | — | 0 | **not possible** — see below |
-| NH | — | — | 0 | **not possible** — see below |
-| ME | — | — | 0 | **not possible** — see below |
+| State | Adapter     | Source                                                                         | Coverage                                                                                                                                                                                                                                  | Verified                                                                                                                                              |
+| ----- | ----------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MN    | `mn_sos`    | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt                     | **statewide** — all 87 counties, 871 contests: US Senate, US House, Governor, State Auditor, 67 state senate + 134 state house, judicial, county races & questions                                                                        | **yes** — trimmed real 2026-11-03 files in `tests/fixtures/mn_sos/`, live fetch 2026-10-27 returned the 871 contests                                  |
+| MI    | `mi_county` | Clarity county feeds, `https://results.enr.clarityelections.com/MI/<County>/…` | **partial: 1 county live** (Ottawa, 178,507 of Michigan's 5,664,186 votes in the 2024 presidential = 3.2 %); Oakland/Macomb/Genesee configured in the adapter, their `elections.json` is empty until the county turns the 2026 general on | **yes** — real Ottawa 2026 general summary/elections.json in `tests/fixtures/mi_county/`, live discovery + fetch 2026-10-27                           |
+| WI    | `wi_dane`   | https://elections.countyofdane.com/Election-Result                             | **partial: 1 county** (Dane, 364,840 of Wisconsin's 3,415,213 votes in 2024 = 10.7 %); whole county ballot incl. assembly/senate districts and county offices                                                                             | **yes** — trimmed real page in `tests/fixtures/wi_dane/`, live fetch 2026-10-27 returned 33 contests (all at 0 votes: the county has not counted yet) |
+| NV    | —           | —                                                                              | 0                                                                                                                                                                                                                                         | **not possible** — see below                                                                                                                          |
+| NH    | —           | —                                                                              | 0                                                                                                                                                                                                                                         | **not possible** — see below                                                                                                                          |
+| ME    | —           | —                                                                              | 0                                                                                                                                                                                                                                         | **not possible** — see below                                                                                                                          |
 
 2024 vote shares are the presidential vote totals per county against the state total
 (NYT/NPR county tables for Wisconsin, Wikipedia's Michigan county table), used only to
@@ -26,7 +26,7 @@ Senate / Governor / House for all six.
 ## Minnesota — `mn_sos` (statewide, verified)
 
 `electionresults.sos.mn.gov` answers Radware's `__uzdbm_*` challenge, but the SOS
-publishes the same numbers as semicolon-delimited text on a *different, ungated* host —
+publishes the same numbers as semicolon-delimited text on a _different, ungated_ host —
 the file host the results site itself reads:
 
     https://electionresultsfiles.sos.mn.gov/20261103/ussenate.txt
@@ -86,15 +86,15 @@ recomputed, title suffixed ` (partial: N counties)`, `url` set to the state resu
 - Parsing is the shared `clarity.parse_clarity`; this adapter only re-keys the names to
   Michigan ones: `Governor and Lieutenant Governor` -> `MI GOV`, `Secretary of State` ->
   `MI SOS`, `United States Senator` -> `MI SEN`, `Representative in Congress 2nd
-  District` -> `MI-02`, `State Senator 30th District` -> `MI SD-30`, `Representative in
-  State Legislature 43rd District` -> `MI HD-43`; county offices and the like stay
+District` -> `MI-02`, `State Senator 30th District` -> `MI SD-30`, `Representative in
+State Legislature 43rd District` -> `MI HD-43`; county offices and the like stay
   `MI LOCAL <slug>`, so state-legislative and county races are covered.
 - Live on 2026-10-27: Ottawa discovered `EID 127391`, version `381490`, 68 contests on
   the ballot, 0 votes (`websiteupdatedat` 10/19/2026). Oakland, Macomb and Genesee return
   an empty `elections.json` for the 2026 general today; they are first in `COUNTIES` and
   will be picked up automatically once the county configures the election.
 - A county that has not published is skipped (its error is collected and reported only
-  if *no* county produced anything, which then raises `SourceUnavailable`).
+  if _no_ county produced anything, which then raises `SourceUnavailable`).
 - **Not covered:** Wayne County (Detroit, the largest) runs an ES&S `ResultsSW.aspx` app
   on `waynecountyresults.azurewebsites.us` with a JS pager and no per-contest URL, so it
   is not parseable without driving the page's postbacks.
@@ -118,7 +118,7 @@ one HTML page per contest that a plain GET returns:
   is what keeps the request rate at or below one a minute.
 - Keys: `Governor / Lieutenant Governor` -> `WI GOV`, `Attorney General` -> `WI AG`,
   `Secretary of State` -> `WI SOS`, `State Treasurer` -> `WI TREAS`, `Representative in
-  Congress District n` -> `WI-nn`, `State Senator District n` -> `WI SD-nn`,
+Congress District n` -> `WI-nn`, `State Senator District n` -> `WI SD-nn`,
   `Representative to the Assembly District n` -> `WI HD-nn`, everything else (sheriff,
   clerk of circuit court, municipal judges, referenda) -> `WI LOCAL <slug>`.
 - `BALLOTS CAST - TOTAL` blocks and `write-in:` rows are dropped; the party is printed

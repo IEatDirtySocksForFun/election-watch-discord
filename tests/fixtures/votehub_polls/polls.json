@@ -1,230 +1,226 @@
 [
- {
-  "id": "us-202thee5a838a4",
-  "poll_type": "us-senator",
-  "sample_size": 600,
-  "population": "lv",
-  "url": "https://www.breitbart.com/politics/2026/10/15/exclusive-poll-shows-mike-rogers-edging-out-abdul-el-sayed-in-michigan-senate-race/",
-  "created_at": "2026-10-16",
-  "start_date": "2026-09-24",
-  "end_date": "2026-09-27",
-  "pollster": "The Tyson Group",
-  "answers": [
-   {
-    "choice": "Abdul El-Sayed",
-    "pct": 44.0
-   },
-   {
-    "choice": "Mike Rogers",
-    "pct": 43.0
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [
-   "Alliance for a Better Future"
-  ],
-  "internal": false,
-  "partisan": "REP",
-  "subject": "2026 Michigan"
- },
- {
-  "id": "us-202bow14c3613e",
-  "poll_type": "us-senator",
-  "sample_size": 1000,
-  "population": "lv",
-  "url": "https://scholarworks.bgsu.edu/cgi/viewcontent.cgi?article=1030&context=depo",
-  "created_at": "2026-10-16",
-  "start_date": "2026-09-29",
-  "end_date": "2026-10-09",
-  "pollster": "Bowling Green State University/YouGov",
-  "answers": [
-   {
-    "choice": "Sherrod Brown",
-    "pct": 48.0
-   },
-   {
-    "choice": "Jon Husted",
-    "pct": 42.0
-   },
-   {
-    "choice": "Bill Redpath",
-    "pct": 3.0
-   },
-   {
-    "choice": "Greg Levy",
-    "pct": 5.0
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [],
-  "internal": false,
-  "partisan": null,
-  "subject": "2026 Ohio"
- },
- {
-  "id": "us-202unie89cc6b4",
-  "poll_type": "us-senator",
-  "sample_size": 1032,
-  "population": "rv",
-  "url": "https://www.uttyler.edu/academics/colleges-schools/arts-sciences/departments/political-science/files/topline-report-of-texas-voters-revised-september-2025.pdf",
-  "created_at": "2026-04-28",
-  "start_date": "2025-09-17",
-  "end_date": "2025-09-24",
-  "pollster": "University of Texas at Tyler",
-  "answers": [
-   {
-    "choice": "Ken Paxton",
-    "pct": 38.0
-   },
-   {
-    "choice": "James Talarico",
-    "pct": 37.0
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [],
-  "internal": false,
-  "partisan": null,
-  "subject": "2026 Texas"
- },
- {
-  "id": "us-202vic0a006caa",
-  "poll_type": "us-senator",
-  "sample_size": 800,
-  "population": "lv",
-  "url": "https://irp.cdn-website.com/07e08705/files/uploaded/PollReport_NC-2026_12-2-24.pdf",
-  "created_at": "2026-02-17",
-  "start_date": "2024-11-26",
-  "end_date": "2024-11-29",
-  "pollster": "Victory Insights",
-  "answers": [
-   {
-    "choice": "Roy Cooper",
-    "pct": 45.5
-   },
-   {
-    "choice": "Lara Trump",
-    "pct": 44.3
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [],
-  "internal": false,
-  "partisan": null,
-  "subject": "2026 North Carolina"
- },
- {
-  "id": "gov202youbb5e2c57",
-  "poll_type": "governor",
-  "sample_size": 2245,
-  "population": "lv",
-  "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/ttw_ia_20261006_lv.pdf",
-  "created_at": "2026-10-15",
-  "start_date": "2026-10-06",
-  "end_date": "2026-10-12",
-  "pollster": "YouGov",
-  "answers": [
-   {
-    "choice": "Rob Sand",
-    "pct": 50.0
-   },
-   {
-    "choice": "Zach Lahn",
-    "pct": 44.0
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [],
-  "internal": false,
-  "partisan": null,
-  "subject": "2026 Iowa"
- },
- {
-  "id": "us-202the26d4530e",
-  "poll_type": "us-representative",
-  "sample_size": 653,
-  "population": "rv",
-  "url": "https://independentcentervoice.com/insights/july-2026-district-survey-illinoiss-4th-congressional-district",
-  "created_at": "2026-08-10",
-  "start_date": "2026-07-31",
-  "end_date": "2026-08-04",
-  "pollster": "The Bullfinch Group",
-  "answers": [
-   {
-    "choice": "Patty Garcia",
-    "pct": 34.0
-   },
-   {
-    "choice": "Lupe Castillo",
-    "pct": 15.0
-   },
-   {
-    "choice": "Chris Getty",
-    "pct": 9.0
-   },
-   {
-    "choice": "Ed Hershey",
-    "pct": 4.0
-   }
-  ],
-  "seat_name": "IL-04",
-  "sponsors": [
-   "The Independent Center"
-  ],
-  "internal": false,
-  "partisan": null,
-  "subject": "2026 IL-04"
- },
- {
-  "id": "gen202you9adbf42a",
-  "poll_type": "generic-ballot",
-  "sample_size": 1572,
-  "population": "lv",
-  "url": "https://assets1.cbsnewsstatic.com/hub/cms/prod_cms_alt/file/2026/10/04/0957ee32-a848-4872-b659-14303d3d3734/cbsnews_20261004_sun.pdf",
-  "created_at": "2026-10-04",
-  "start_date": "2026-09-30",
-  "end_date": "2026-10-02",
-  "pollster": "YouGov - CBS News",
-  "answers": [
-   {
-    "choice": "Dem",
-    "pct": 54.0
-   },
-   {
-    "choice": "Rep",
-    "pct": 45.0
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [],
-  "internal": false,
-  "partisan": null,
-  "subject": "2026"
- },
- {
-  "id": "appjd cnn0458ca16",
-  "poll_type": "approval",
-  "sample_size": 1206,
-  "population": "a",
-  "url": "https://www.cnn.com/2026/09/22/politics/cnn-poll-donald-trump-foreign-affairs-iran-war",
-  "created_at": "2026-09-22",
-  "start_date": "2026-09-16",
-  "end_date": "2026-09-17",
-  "pollster": "CNN/SSRS",
-  "answers": [
-   {
-    "choice": "Approve",
-    "pct": 36.0
-   },
-   {
-    "choice": "Disapprove",
-    "pct": 63.0
-   }
-  ],
-  "seat_name": null,
-  "sponsors": [],
-  "internal": false,
-  "partisan": null,
-  "subject": "JD Vance"
- }
+  {
+    "id": "us-202thee5a838a4",
+    "poll_type": "us-senator",
+    "sample_size": 600,
+    "population": "lv",
+    "url": "https://www.breitbart.com/politics/2026/10/15/exclusive-poll-shows-mike-rogers-edging-out-abdul-el-sayed-in-michigan-senate-race/",
+    "created_at": "2026-10-16",
+    "start_date": "2026-09-24",
+    "end_date": "2026-09-27",
+    "pollster": "The Tyson Group",
+    "answers": [
+      {
+        "choice": "Abdul El-Sayed",
+        "pct": 44.0
+      },
+      {
+        "choice": "Mike Rogers",
+        "pct": 43.0
+      }
+    ],
+    "seat_name": null,
+    "sponsors": ["Alliance for a Better Future"],
+    "internal": false,
+    "partisan": "REP",
+    "subject": "2026 Michigan"
+  },
+  {
+    "id": "us-202bow14c3613e",
+    "poll_type": "us-senator",
+    "sample_size": 1000,
+    "population": "lv",
+    "url": "https://scholarworks.bgsu.edu/cgi/viewcontent.cgi?article=1030&context=depo",
+    "created_at": "2026-10-16",
+    "start_date": "2026-09-29",
+    "end_date": "2026-10-09",
+    "pollster": "Bowling Green State University/YouGov",
+    "answers": [
+      {
+        "choice": "Sherrod Brown",
+        "pct": 48.0
+      },
+      {
+        "choice": "Jon Husted",
+        "pct": 42.0
+      },
+      {
+        "choice": "Bill Redpath",
+        "pct": 3.0
+      },
+      {
+        "choice": "Greg Levy",
+        "pct": 5.0
+      }
+    ],
+    "seat_name": null,
+    "sponsors": [],
+    "internal": false,
+    "partisan": null,
+    "subject": "2026 Ohio"
+  },
+  {
+    "id": "us-202unie89cc6b4",
+    "poll_type": "us-senator",
+    "sample_size": 1032,
+    "population": "rv",
+    "url": "https://www.uttyler.edu/academics/colleges-schools/arts-sciences/departments/political-science/files/topline-report-of-texas-voters-revised-september-2025.pdf",
+    "created_at": "2026-04-28",
+    "start_date": "2025-09-17",
+    "end_date": "2025-09-24",
+    "pollster": "University of Texas at Tyler",
+    "answers": [
+      {
+        "choice": "Ken Paxton",
+        "pct": 38.0
+      },
+      {
+        "choice": "James Talarico",
+        "pct": 37.0
+      }
+    ],
+    "seat_name": null,
+    "sponsors": [],
+    "internal": false,
+    "partisan": null,
+    "subject": "2026 Texas"
+  },
+  {
+    "id": "us-202vic0a006caa",
+    "poll_type": "us-senator",
+    "sample_size": 800,
+    "population": "lv",
+    "url": "https://irp.cdn-website.com/07e08705/files/uploaded/PollReport_NC-2026_12-2-24.pdf",
+    "created_at": "2026-02-17",
+    "start_date": "2024-11-26",
+    "end_date": "2024-11-29",
+    "pollster": "Victory Insights",
+    "answers": [
+      {
+        "choice": "Roy Cooper",
+        "pct": 45.5
+      },
+      {
+        "choice": "Lara Trump",
+        "pct": 44.3
+      }
+    ],
+    "seat_name": null,
+    "sponsors": [],
+    "internal": false,
+    "partisan": null,
+    "subject": "2026 North Carolina"
+  },
+  {
+    "id": "gov202youbb5e2c57",
+    "poll_type": "governor",
+    "sample_size": 2245,
+    "population": "lv",
+    "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/ttw_ia_20261006_lv.pdf",
+    "created_at": "2026-10-15",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-12",
+    "pollster": "YouGov",
+    "answers": [
+      {
+        "choice": "Rob Sand",
+        "pct": 50.0
+      },
+      {
+        "choice": "Zach Lahn",
+        "pct": 44.0
+      }
+    ],
+    "seat_name": null,
+    "sponsors": [],
+    "internal": false,
+    "partisan": null,
+    "subject": "2026 Iowa"
+  },
+  {
+    "id": "us-202the26d4530e",
+    "poll_type": "us-representative",
+    "sample_size": 653,
+    "population": "rv",
+    "url": "https://independentcentervoice.com/insights/july-2026-district-survey-illinoiss-4th-congressional-district",
+    "created_at": "2026-08-10",
+    "start_date": "2026-07-31",
+    "end_date": "2026-08-04",
+    "pollster": "The Bullfinch Group",
+    "answers": [
+      {
+        "choice": "Patty Garcia",
+        "pct": 34.0
+      },
+      {
+        "choice": "Lupe Castillo",
+        "pct": 15.0
+      },
+      {
+        "choice": "Chris Getty",
+        "pct": 9.0
+      },
+      {
+        "choice": "Ed Hershey",
+        "pct": 4.0
+      }
+    ],
+    "seat_name": "IL-04",
+    "sponsors": ["The Independent Center"],
+    "internal": false,
+    "partisan": null,
+    "subject": "2026 IL-04"
+  },
+  {
+    "id": "gen202you9adbf42a",
+    "poll_type": "generic-ballot",
+    "sample_size": 1572,
+    "population": "lv",
+    "url": "https://assets1.cbsnewsstatic.com/hub/cms/prod_cms_alt/file/2026/10/04/0957ee32-a848-4872-b659-14303d3d3734/cbsnews_20261004_sun.pdf",
+    "created_at": "2026-10-04",
+    "start_date": "2026-09-30",
+    "end_date": "2026-10-02",
+    "pollster": "YouGov - CBS News",
+    "answers": [
+      {
+        "choice": "Dem",
+        "pct": 54.0
+      },
+      {
+        "choice": "Rep",
+        "pct": 45.0
+      }
+    ],
+    "seat_name": null,
+    "sponsors": [],
+    "internal": false,
+    "partisan": null,
+    "subject": "2026"
+  },
+  {
+    "id": "appjd cnn0458ca16",
+    "poll_type": "approval",
+    "sample_size": 1206,
+    "population": "a",
+    "url": "https://www.cnn.com/2026/09/22/politics/cnn-poll-donald-trump-foreign-affairs-iran-war",
+    "created_at": "2026-09-22",
+    "start_date": "2026-09-16",
+    "end_date": "2026-09-17",
+    "pollster": "CNN/SSRS",
+    "answers": [
+      {
+        "choice": "Approve",
+        "pct": 36.0
+      },
+      {
+        "choice": "Disapprove",
+        "pct": 63.0
+      }
+    ],
+    "seat_name": null,
+    "sponsors": [],
+    "internal": false,
+    "partisan": null,
+    "subject": "JD Vance"
+  }
 ]

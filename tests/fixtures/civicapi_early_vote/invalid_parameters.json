@@ -1,9 +1,4 @@
 {
- "error": "invalid parameters",
- "categories": [
-  "requested",
-  "returned",
-  "inperson",
-  "grace"
- ]
+  "error": "invalid parameters",
+  "categories": ["requested", "returned", "inperson", "grace"]
 }

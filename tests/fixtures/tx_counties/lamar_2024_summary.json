@@ -1,221 +1,132 @@
 [
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "US Senator",
-  "K": "0005",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 26,
-  "PR": 26,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "REP Ted Cruz",
-   "DEM Colin Allred",
-   "LIB Ted Brown",
-   "Write-in"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM",
-   "LIB",
-   ""
-  ],
-  "PCT": [
-   77.907196969697,
-   20.5681818181818,
-   1.45833333333333,
-   0.0662878787878788
-  ],
-  "V": [
-   16454,
-   4344,
-   308,
-   14
-  ],
-  "T": 21120,
-  "W": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "US Representative, Dist 4",
-  "K": "0006",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 26,
-  "PR": 26,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "REP Pat Fallon",
-   "DEM Simon Cardell"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM"
-  ],
-  "PCT": [
-   81.7683311496094,
-   18.2316688503906
-  ],
-  "V": [
-   16850,
-   3757
-  ],
-  "T": 20607,
-  "W": [
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "C": "Justice, Supreme Court, Pl 2",
-  "K": "0008",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 26,
-  "PR": 26,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "REP Jimmy Blacklock",
-   "DEM DaSean Jones"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM"
-  ],
-  "PCT": [
-   81.5277231616201,
-   18.4722768383799
-  ],
-  "V": [
-   16586,
-   3758
-  ],
-  "T": 20344,
-  "W": [
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- },
- {
-  "CATKEY": "C_3",
-  "CAT": "County",
-  "C": "County Commissioner Pct 1",
-  "K": "0022",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 7,
-  "PR": 7,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "REP Alan Keith Skidmore"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP"
-  ],
-  "PCT": [
-   100
-  ],
-  "V": [
-   4635
-  ],
-  "T": 4635,
-  "W": [
-   0
-  ],
-  "CRC": [
-   0
-  ],
-  "CRO": [
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false
- }
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "US Senator",
+    "K": "0005",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 26,
+    "PR": 26,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["REP Ted Cruz", "DEM Colin Allred", "LIB Ted Brown", "Write-in"],
+    "CHAggId": null,
+    "P": ["REP", "DEM", "LIB", ""],
+    "PCT": [
+      77.907196969697, 20.5681818181818, 1.45833333333333, 0.0662878787878788
+    ],
+    "V": [16454, 4344, 308, 14],
+    "T": 21120,
+    "W": [0, 0, 0, 0],
+    "CRC": [0, 0, 0, 0],
+    "CRO": [0, 0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "US Representative, Dist 4",
+    "K": "0006",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 26,
+    "PR": 26,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["REP Pat Fallon", "DEM Simon Cardell"],
+    "CHAggId": null,
+    "P": ["REP", "DEM"],
+    "PCT": [81.7683311496094, 18.2316688503906],
+    "V": [16850, 3757],
+    "T": 20607,
+    "W": [0, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "C": "Justice, Supreme Court, Pl 2",
+    "K": "0008",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 26,
+    "PR": 26,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["REP Jimmy Blacklock", "DEM DaSean Jones"],
+    "CHAggId": null,
+    "P": ["REP", "DEM"],
+    "PCT": [81.5277231616201, 18.4722768383799],
+    "V": [16586, 3758],
+    "T": 20344,
+    "W": [0, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  },
+  {
+    "CATKEY": "C_3",
+    "CAT": "County",
+    "C": "County Commissioner Pct 1",
+    "K": "0022",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 7,
+    "PR": 7,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["REP Alan Keith Skidmore"],
+    "CHAggId": null,
+    "P": ["REP"],
+    "PCT": [100],
+    "V": [4635],
+    "T": 4635,
+    "W": [0],
+    "CRC": [0],
+    "CRO": [0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false
+  }
 ]

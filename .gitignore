@@ -15,3 +15,4 @@ data/
 !electionwatch/data/
 replay/out/
 uv.lock
+node_modules/

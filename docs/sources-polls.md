@@ -7,8 +7,8 @@ Code: `electionwatch/sources/polls/` (contract: `PollSource` in
 
 Every adapter is pure parsing + fetch:
 
-  parse_<source>_polls(payload, ...) -> list[Poll]   (offline, tested against fixtures)
-  <Source>().fetch_polls(keys, client)               (httpx.AsyncClient is passed in)
+parse_<source>_polls(payload, ...) -> list[Poll] (offline, tested against fixtures)
+<Source>().fetch_polls(keys, client) (httpx.AsyncClient is passed in)
 
 All three are tested against trimmed **real** responses in
 `tests/fixtures/<adapter>/` (URL and fetch date in each `README.txt`). Tests
@@ -18,7 +18,7 @@ never touch the network. No LLM / model API is involved anywhere: "partisan",
 Available sources
 -----------------
 
-1. votehub  -- `electionwatch/sources/polls/votehub.py`
+1. votehub -- `electionwatch/sources/polls/votehub.py`
    Method: JSON API, `GET https://api.votehub.com/polls`. The endpoint returns
    the whole database as one array (~2.9 MB, no auth, no pagination). Query
    parameters (`poll_type`, `state`, ...) are accepted but ignored, so the
@@ -35,7 +35,7 @@ Available sources
    are normalised with `normalize_party`. `internal` is always `false` upstream
    (it exports partisanship through `partisan` instead).
 
-2. 270towin  -- `electionwatch/sources/polls/two70win.py`
+2. 270towin -- `electionwatch/sources/polls/two70win.py`
    Method: the poll list on "Latest 2026 <office> Election Polls" is injected by
    jQuery from `https://www.270towin.com/polls/php/get-polls-list-v2.php`
    (`election_year=2026`, `election_types[]=S|G|H`,
@@ -55,10 +55,10 @@ Available sources
    ("Collins *" for the incumbent). 270toWin shows no sponsor / partisan marker
    in this fragment. The single date column is used as `end_date` with
    `start_date = None`; note that Wikipedia's editors document 270toWin dates as
-   *publication* dates, so cross-source de-duplication should be tolerant of a
+   _publication_ dates, so cross-source de-duplication should be tolerant of a
    few days of drift.
 
-3. wikipedia  -- `electionwatch/sources/polls/wikipedia.py`
+3. wikipedia -- `electionwatch/sources/polls/wikipedia.py`
    Method: MediaWiki API, `action=parse` with `prop=text|wikitext&redirects=1`,
    one call per race article. HTML supplies the tables (selectolax); the
    wikitext supplies a candidate -> party map built from each party's primary

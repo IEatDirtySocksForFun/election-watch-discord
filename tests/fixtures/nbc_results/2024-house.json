@@ -1,91 +1,91 @@
 {
- "mapData": {
-  "4838": {
-   "style": {
-    "fill": "#dd2929",
-    "textFill": "#fff"
-   },
-   "tooltip": {
-    "electoralVotes": null,
-    "callStatusCode": "P",
-    "totalVote": 342764,
-    "raceName": "Texas District 38",
-    "percentIn": 100,
-    "electionTypeCode": "G",
-    "geography": "districts",
-    "candidates": [
-     {
-      "name": "Wesley Hunt",
-      "firstName": "Wesley",
-      "lastName": "Hunt",
-      "party": "Rep",
-      "callStatus": "P",
-      "isIncumbent": true,
-      "isWinner": true,
-      "vote": 215030,
-      "votes": 215030,
-      "electoralVotes": 0,
-      "percentVote": 62.7,
-      "formattedPercentVote": "62.7%"
-     },
-     {
-      "name": "Melissa McDonough",
-      "firstName": "Melissa",
-      "lastName": "McDonough",
-      "party": "Dem",
-      "callStatus": "",
-      "isIncumbent": false,
-      "isWinner": false,
-      "vote": 127640,
-      "votes": 127640,
-      "electoralVotes": 0,
-      "percentVote": 37.2,
-      "formattedPercentVote": "37.2%"
-     },
-     {
-      "name": " Write-ins",
-      "firstName": "",
-      "lastName": "Write-ins",
-      "party": "Wri",
-      "callStatus": "",
-      "isIncumbent": false,
-      "isWinner": false,
-      "vote": 94,
-      "votes": 94,
-      "electoralVotes": 0,
-      "percentVote": 0,
-      "formattedPercentVote": null
-     }
-    ],
-    "pollsCloseUTC": "2024-11-06 01:00:00",
-    "pollsCloseFormatted": "Polls begin closing at 7:00 PM ET",
-    "remainingVote": 0,
-    "officeCode": "H",
-    "currentTime": "2026-10-27T16:05:09.534Z"
-   },
-   "winner": {
-    "name": "Wesley Hunt",
-    "firstName": "Wesley",
-    "lastName": "Hunt",
-    "party": "Rep",
-    "callStatus": "P",
-    "colorHex": "#dd2929",
-    "headshotUrl": "https://media-cldnry.s-nbcnews.com/image/upload/v7/firecracker/headshots/2024/TX_H38_R_W_HUNT.jpg",
-    "isIncumbent": true,
-    "isWinner": true,
-    "vote": 215030,
-    "votes": 215030,
-    "electoralVotes": 0,
-    "percentVote": 62.7,
-    "formattedPercentVote": "62.7%"
-   },
-   "pollsClosed": true,
-   "isKeyRace": false,
-   "stateCode": "TX",
-   "votingToday": false,
-   "href": "/politics/2024-elections/texas-us-house-district-38-results"
-  }
- },
- "lastModified": "Fri, 22 Aug 2025 13:29:37 GMT",
- "electionSeason": "2024"
+  "mapData": {
+    "4838": {
+      "style": {
+        "fill": "#dd2929",
+        "textFill": "#fff"
+      },
+      "tooltip": {
+        "electoralVotes": null,
+        "callStatusCode": "P",
+        "totalVote": 342764,
+        "raceName": "Texas District 38",
+        "percentIn": 100,
+        "electionTypeCode": "G",
+        "geography": "districts",
+        "candidates": [
+          {
+            "name": "Wesley Hunt",
+            "firstName": "Wesley",
+            "lastName": "Hunt",
+            "party": "Rep",
+            "callStatus": "P",
+            "isIncumbent": true,
+            "isWinner": true,
+            "vote": 215030,
+            "votes": 215030,
+            "electoralVotes": 0,
+            "percentVote": 62.7,
+            "formattedPercentVote": "62.7%"
+          },
+          {
+            "name": "Melissa McDonough",
+            "firstName": "Melissa",
+            "lastName": "McDonough",
+            "party": "Dem",
+            "callStatus": "",
+            "isIncumbent": false,
+            "isWinner": false,
+            "vote": 127640,
+            "votes": 127640,
+            "electoralVotes": 0,
+            "percentVote": 37.2,
+            "formattedPercentVote": "37.2%"
+          },
+          {
+            "name": " Write-ins",
+            "firstName": "",
+            "lastName": "Write-ins",
+            "party": "Wri",
+            "callStatus": "",
+            "isIncumbent": false,
+            "isWinner": false,
+            "vote": 94,
+            "votes": 94,
+            "electoralVotes": 0,
+            "percentVote": 0,
+            "formattedPercentVote": null
+          }
+        ],
+        "pollsCloseUTC": "2024-11-06 01:00:00",
+        "pollsCloseFormatted": "Polls begin closing at 7:00 PM ET",
+        "remainingVote": 0,
+        "officeCode": "H",
+        "currentTime": "2026-10-27T16:05:09.534Z"
+      },
+      "winner": {
+        "name": "Wesley Hunt",
+        "firstName": "Wesley",
+        "lastName": "Hunt",
+        "party": "Rep",
+        "callStatus": "P",
+        "colorHex": "#dd2929",
+        "headshotUrl": "https://media-cldnry.s-nbcnews.com/image/upload/v7/firecracker/headshots/2024/TX_H38_R_W_HUNT.jpg",
+        "isIncumbent": true,
+        "isWinner": true,
+        "vote": 215030,
+        "votes": 215030,
+        "electoralVotes": 0,
+        "percentVote": 62.7,
+        "formattedPercentVote": "62.7%"
+      },
+      "pollsClosed": true,
+      "isKeyRace": false,
+      "stateCode": "TX",
+      "votingToday": false,
+      "href": "/politics/2024-elections/texas-us-house-district-38-results"
+    }
+  },
+  "lastModified": "Fri, 22 Aug 2025 13:29:37 GMT",
+  "electionSeason": "2024"
 }

@@ -1,29 +1,29 @@
 [
- {
-  "State": "CO",
-  "StateId": "286",
-  "County": "",
-  "CountyId": "",
-  "EID": "126592",
-  "ElectionName": "2026 Primary",
-  "Date": "6/30/2026 12:00:00 AM"
- },
- {
-  "State": "CO",
-  "StateId": "286",
-  "County": "",
-  "CountyId": "",
-  "EID": "124409",
-  "ElectionName": "2025 Coordinated",
-  "Date": "11/4/2025 12:00:00 AM"
- },
- {
-  "State": "CO",
-  "StateId": "286",
-  "County": "",
-  "CountyId": "",
-  "EID": "122598",
-  "ElectionName": "2024 General",
-  "Date": "11/5/2024 12:00:00 AM"
- }
+  {
+    "State": "CO",
+    "StateId": "286",
+    "County": "",
+    "CountyId": "",
+    "EID": "126592",
+    "ElectionName": "2026 Primary",
+    "Date": "6/30/2026 12:00:00 AM"
+  },
+  {
+    "State": "CO",
+    "StateId": "286",
+    "County": "",
+    "CountyId": "",
+    "EID": "124409",
+    "ElectionName": "2025 Coordinated",
+    "Date": "11/4/2025 12:00:00 AM"
+  },
+  {
+    "State": "CO",
+    "StateId": "286",
+    "County": "",
+    "CountyId": "",
+    "EID": "122598",
+    "ElectionName": "2024 General",
+    "Date": "11/5/2024 12:00:00 AM"
+  }
 ]

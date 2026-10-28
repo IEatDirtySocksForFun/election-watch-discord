@@ -10,12 +10,12 @@ timelines from the county rows. Everything is plain HTTP + `csv`; no model is in
 
 Sources, in the order they are tried:
 
-| Source | What it gives | Notes |
-|--------|---------------|-------|
-| `MEDSL/<year>-elections-official` (GitHub) | precinct returns per state, `<year>-<st>-precinct-general.zip` | only 2018/2020/2022/2024 exist; the 2014 and 2016 repos were never published |
-| Harvard Dataverse `doi:10.7910/DVN/NT66Z3` | 2020 precinct returns by state | fallback when the GitHub zip is missing |
-| Harvard Dataverse `doi:10.7910/DVN/PEJ5QU` | U.S. Senate statewide 1976–2024 | one TSV, drives every `SEN` row |
-| `openelections/openelections-data-<st>` (GitHub) | county/town/precinct CSVs per state | primary source for 2014/2016 and for state-legislative races |
+| Source                                           | What it gives                                                  | Notes                                                                        |
+| ------------------------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `MEDSL/<year>-elections-official` (GitHub)       | precinct returns per state, `<year>-<st>-precinct-general.zip` | only 2018/2020/2022/2024 exist; the 2014 and 2016 repos were never published |
+| Harvard Dataverse `doi:10.7910/DVN/NT66Z3`       | 2020 precinct returns by state                                 | fallback when the GitHub zip is missing                                      |
+| Harvard Dataverse `doi:10.7910/DVN/PEJ5QU`       | U.S. Senate statewide 1976–2024                                | one TSV, drives every `SEN` row                                              |
+| `openelections/openelections-data-<st>` (GitHub) | county/town/precinct CSVs per state                            | primary source for 2014/2016 and for state-legislative races                 |
 
 GitHub is only listed through a blobless shallow clone (`git clone --filter=blob:none
 --no-checkout --depth 1`), cached under `<data>/_cache/git/`, and files are fetched from
@@ -47,34 +47,34 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
 
 2014 (`--years 2014`, races = distinct race keys):
 
-| State | Levels |
-|-------|--------|
-| CT | governor 5, house 5, state 111 |
-| UT | governor 3, house 4, state 93, local 110 |
-| WI | governor 4, state 116 |
-| DC, FL, MD | nothing — see below |
+| State      | Levels                                   |
+| ---------- | ---------------------------------------- |
+| CT         | governor 5, house 5, state 111           |
+| UT         | governor 3, house 4, state 93, local 110 |
+| WI         | governor 4, state 116                    |
+| DC, FL, MD | nothing — see below                      |
 
 2016 (17 states that were empty before):
 
-| State | Levels |
-|-------|--------|
-| DC | local 288 |
-| DE | governor 2, house 1, state 52 |
-| MA | house 9, state 200 |
-| ME | house 2, state 187 |
-| MI | house 14, state 113 |
-| MN | house 8, state 200, local 1417 |
-| MS | house 4 (no legislative election in 2016) |
-| MT | governor 5, house 1, state 125 |
-| NE | house 3, local 187 (unicameral legislature is not published in the county files) |
-| NJ | house 12, state 3, local 22 (the county files carry only President + U.S. House) |
-| NM | governor 1, house 3, state 112 |
-| RI | house 2, state 113, local 587 |
-| TN | house 9, state 115 |
-| TX | governor 1, house 36, state 166, local 2429 |
-| WV | governor 6, house 3, state 85 |
-| WY | house 1, state 75 |
-| VA | nothing — see below |
+| State | Levels                                                                           |
+| ----- | -------------------------------------------------------------------------------- |
+| DC    | local 288                                                                        |
+| DE    | governor 2, house 1, state 52                                                    |
+| MA    | house 9, state 200                                                               |
+| ME    | house 2, state 187                                                               |
+| MI    | house 14, state 113                                                              |
+| MN    | house 8, state 200, local 1417                                                   |
+| MS    | house 4 (no legislative election in 2016)                                        |
+| MT    | governor 5, house 1, state 125                                                   |
+| NE    | house 3, local 187 (unicameral legislature is not published in the county files) |
+| NJ    | house 12, state 3, local 22 (the county files carry only President + U.S. House) |
+| NM    | governor 1, house 3, state 112                                                   |
+| RI    | house 2, state 113, local 587                                                    |
+| TN    | house 9, state 115                                                               |
+| TX    | governor 1, house 36, state 166, local 2429                                      |
+| WV    | governor 6, house 3, state 85                                                    |
+| WY    | house 1, state 75                                                                |
+| VA    | nothing — see below                                                              |
 
 ## What is still missing, and why
 
@@ -90,7 +90,7 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
 - **MEDSL 2016 precinct returns** (`doi:10.7910/DVN/NH5S2I`) and **U.S. House 1976–2024**
   (`doi:10.7910/DVN/IG0UN2`) sit behind a Harvard Dataverse guestbook form
   (`"You may not download this file without the required Guestbook response for guestbookID
-  458."`). They are deliberately not automated: a human has to accept the guestbook in a
+458."`). They are deliberately not automated: a human has to accept the guestbook in a
   browser, download the file and drop it into `<data>/_cache/medsl/`. Adding the 2016 file
   would fill the remaining 2016 gaps for states whose OpenElections repos are empty (VA) and
   for Nebraska's legislature.

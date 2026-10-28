@@ -1,274 +1,154 @@
 [
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "United States Senator",
-  "K": "58",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 93,
-  "PR": 0,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Ken Paxton",
-   "James Talarico",
-   "Ted Brown",
-   "Unassigned write-ins"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM",
-   "LIB",
-   ""
-  ],
-  "PCT": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "V": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "RCVRoundVGain": null,
-  "RCVRoundPCTGain": null,
-  "T": [
-   0
-  ],
-  "RCVExhaustedBallots": null,
-  "RCVBallotsCast": null,
-  "RCVOverVotes": null,
-  "W": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false,
-  "RCVRounds": 0
- },
- {
-  "CATKEY": "C_1",
-  "CAT": "Federal",
-  "C": "United States Representative, District 14",
-  "K": "41",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 93,
-  "PR": 0,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Randy Weber",
-   "Thurman Bill Bartie"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM"
-  ],
-  "PCT": [
-   0,
-   0
-  ],
-  "V": [
-   0,
-   0
-  ],
-  "RCVRoundVGain": null,
-  "RCVRoundPCTGain": null,
-  "T": [
-   0
-  ],
-  "RCVExhaustedBallots": null,
-  "RCVBallotsCast": null,
-  "RCVOverVotes": null,
-  "W": [
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false,
-  "RCVRounds": 0
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "C": "Governor",
-  "K": "19",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 93,
-  "PR": 0,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "Greg Abbott",
-   "Gina Hinojosa",
-   "Pat Dixon",
-   "Unassigned write-ins"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM",
-   "LIB",
-   ""
-  ],
-  "PCT": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "V": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "RCVRoundVGain": null,
-  "RCVRoundPCTGain": null,
-  "T": [
-   0
-  ],
-  "RCVExhaustedBallots": null,
-  "RCVBallotsCast": null,
-  "RCVOverVotes": null,
-  "W": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0,
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false,
-  "RCVRounds": 0
- },
- {
-  "CATKEY": "C_2",
-  "CAT": "State",
-  "C": "Justice, Supreme Court, Place 2, Unexpired Term",
-  "K": "45",
-  "AggID": null,
-  "regvoters": 0,
-  "BCxContest": 0,
-  "VF": 1,
-  "TP": 93,
-  "PR": 0,
-  "TV": 0,
-  "BC": 0,
-  "RC": 0,
-  "RO": 0,
-  "CH": [
-   "James P. Sullivan",
-   "Chari Kelly"
-  ],
-  "CHAggId": null,
-  "P": [
-   "REP",
-   "DEM"
-  ],
-  "PCT": [
-   0,
-   0
-  ],
-  "V": [
-   0,
-   0
-  ],
-  "RCVRoundVGain": null,
-  "RCVRoundPCTGain": null,
-  "T": [
-   0
-  ],
-  "RCVExhaustedBallots": null,
-  "RCVBallotsCast": null,
-  "RCVOverVotes": null,
-  "W": [
-   0,
-   0
-  ],
-  "CRC": [
-   0,
-   0
-  ],
-  "CRO": [
-   0,
-   0
-  ],
-  "IsCumulative": null,
-  "CumulativeVotes": null,
-  "CumulativeChoices": null,
-  "CumulativePercentages": null,
-  "IsContestNoChoice": 0,
-  "IsRCV": false,
-  "RCVAwaitingResults": false,
-  "RCVRounds": 0
- }
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "United States Senator",
+    "K": "58",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 93,
+    "PR": 0,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Ken Paxton", "James Talarico", "Ted Brown", "Unassigned write-ins"],
+    "CHAggId": null,
+    "P": ["REP", "DEM", "LIB", ""],
+    "PCT": [0, 0, 0, 0],
+    "V": [0, 0, 0, 0],
+    "RCVRoundVGain": null,
+    "RCVRoundPCTGain": null,
+    "T": [0],
+    "RCVExhaustedBallots": null,
+    "RCVBallotsCast": null,
+    "RCVOverVotes": null,
+    "W": [0, 0, 0, 0],
+    "CRC": [0, 0, 0, 0],
+    "CRO": [0, 0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false,
+    "RCVRounds": 0
+  },
+  {
+    "CATKEY": "C_1",
+    "CAT": "Federal",
+    "C": "United States Representative, District 14",
+    "K": "41",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 93,
+    "PR": 0,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Randy Weber", "Thurman Bill Bartie"],
+    "CHAggId": null,
+    "P": ["REP", "DEM"],
+    "PCT": [0, 0],
+    "V": [0, 0],
+    "RCVRoundVGain": null,
+    "RCVRoundPCTGain": null,
+    "T": [0],
+    "RCVExhaustedBallots": null,
+    "RCVBallotsCast": null,
+    "RCVOverVotes": null,
+    "W": [0, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false,
+    "RCVRounds": 0
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "C": "Governor",
+    "K": "19",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 93,
+    "PR": 0,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["Greg Abbott", "Gina Hinojosa", "Pat Dixon", "Unassigned write-ins"],
+    "CHAggId": null,
+    "P": ["REP", "DEM", "LIB", ""],
+    "PCT": [0, 0, 0, 0],
+    "V": [0, 0, 0, 0],
+    "RCVRoundVGain": null,
+    "RCVRoundPCTGain": null,
+    "T": [0],
+    "RCVExhaustedBallots": null,
+    "RCVBallotsCast": null,
+    "RCVOverVotes": null,
+    "W": [0, 0, 0, 0],
+    "CRC": [0, 0, 0, 0],
+    "CRO": [0, 0, 0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false,
+    "RCVRounds": 0
+  },
+  {
+    "CATKEY": "C_2",
+    "CAT": "State",
+    "C": "Justice, Supreme Court, Place 2, Unexpired Term",
+    "K": "45",
+    "AggID": null,
+    "regvoters": 0,
+    "BCxContest": 0,
+    "VF": 1,
+    "TP": 93,
+    "PR": 0,
+    "TV": 0,
+    "BC": 0,
+    "RC": 0,
+    "RO": 0,
+    "CH": ["James P. Sullivan", "Chari Kelly"],
+    "CHAggId": null,
+    "P": ["REP", "DEM"],
+    "PCT": [0, 0],
+    "V": [0, 0],
+    "RCVRoundVGain": null,
+    "RCVRoundPCTGain": null,
+    "T": [0],
+    "RCVExhaustedBallots": null,
+    "RCVBallotsCast": null,
+    "RCVOverVotes": null,
+    "W": [0, 0],
+    "CRC": [0, 0],
+    "CRO": [0, 0],
+    "IsCumulative": null,
+    "CumulativeVotes": null,
+    "CumulativeChoices": null,
+    "CumulativePercentages": null,
+    "IsContestNoChoice": 0,
+    "IsRCV": false,
+    "RCVAwaitingResults": false,
+    "RCVRounds": 0
+  }
 ]

@@ -1,107 +1,107 @@
 {
- "last_updated": "2024-11-27T21:30:33.489000Z",
- "races": [
-  {
-   "district": {
-    "districtNumber": 38,
-    "districtFips": 4838,
-    "raceType": "General"
-   },
-   "districtTotals": {
-    "precinctsReporting": 100,
-    "expectedPercentage": 100,
-    "votes": 342670
-   },
-   "keyWin": false,
-   "results": [
+  "last_updated": "2024-11-27T21:30:33.489000Z",
+  "races": [
     {
-     "candidate": {
-      "firstName": "Wesley",
-      "lastName": "Hunt",
-      "npid": 68242
-     },
-     "partyCode": "R",
-     "partyName": "Republican",
-     "isWinner": true,
-     "isIncumbent": true,
-     "margin": null,
-     "votes": {
-      "count": 215030,
-      "percentage": 62.75
-     },
-     "vote_types": [],
-     "delegates": 0
+      "district": {
+        "districtNumber": 38,
+        "districtFips": 4838,
+        "raceType": "General"
+      },
+      "districtTotals": {
+        "precinctsReporting": 100,
+        "expectedPercentage": 100,
+        "votes": 342670
+      },
+      "keyWin": false,
+      "results": [
+        {
+          "candidate": {
+            "firstName": "Wesley",
+            "lastName": "Hunt",
+            "npid": 68242
+          },
+          "partyCode": "R",
+          "partyName": "Republican",
+          "isWinner": true,
+          "isIncumbent": true,
+          "margin": null,
+          "votes": {
+            "count": 215030,
+            "percentage": 62.75
+          },
+          "vote_types": [],
+          "delegates": 0
+        },
+        {
+          "candidate": {
+            "firstName": "Melissa",
+            "lastName": "McDonough",
+            "npid": 160805
+          },
+          "partyCode": "D",
+          "partyName": "Democrat",
+          "isWinner": false,
+          "isIncumbent": false,
+          "margin": null,
+          "votes": {
+            "count": 127640,
+            "percentage": 37.25
+          },
+          "vote_types": [],
+          "delegates": 0
+        }
+      ]
     },
     {
-     "candidate": {
-      "firstName": "Melissa",
-      "lastName": "McDonough",
-      "npid": 160805
-     },
-     "partyCode": "D",
-     "partyName": "Democrat",
-     "isWinner": false,
-     "isIncumbent": false,
-     "margin": null,
-     "votes": {
-      "count": 127640,
-      "percentage": 37.25
-     },
-     "vote_types": [],
-     "delegates": 0
+      "district": {
+        "districtNumber": 7,
+        "districtFips": 487,
+        "raceType": "General"
+      },
+      "districtTotals": {
+        "precinctsReporting": 100,
+        "expectedPercentage": 100,
+        "votes": 244471
+      },
+      "keyWin": false,
+      "results": [
+        {
+          "candidate": {
+            "firstName": "Lizzie",
+            "lastName": "Fletcher",
+            "npid": 65918
+          },
+          "partyCode": "D",
+          "partyName": "Democrat",
+          "isWinner": true,
+          "isIncumbent": true,
+          "margin": null,
+          "votes": {
+            "count": 149820,
+            "percentage": 61.28
+          },
+          "vote_types": [],
+          "delegates": 0
+        },
+        {
+          "candidate": {
+            "firstName": "Caroline",
+            "lastName": "Kane",
+            "npid": 160777
+          },
+          "partyCode": "R",
+          "partyName": "Republican",
+          "isWinner": false,
+          "isIncumbent": false,
+          "margin": null,
+          "votes": {
+            "count": 94651,
+            "percentage": 38.72
+          },
+          "vote_types": [],
+          "delegates": 0
+        }
+      ]
     }
-   ]
-  },
-  {
-   "district": {
-    "districtNumber": 7,
-    "districtFips": 487,
-    "raceType": "General"
-   },
-   "districtTotals": {
-    "precinctsReporting": 100,
-    "expectedPercentage": 100,
-    "votes": 244471
-   },
-   "keyWin": false,
-   "results": [
-    {
-     "candidate": {
-      "firstName": "Lizzie",
-      "lastName": "Fletcher",
-      "npid": 65918
-     },
-     "partyCode": "D",
-     "partyName": "Democrat",
-     "isWinner": true,
-     "isIncumbent": true,
-     "margin": null,
-     "votes": {
-      "count": 149820,
-      "percentage": 61.28
-     },
-     "vote_types": [],
-     "delegates": 0
-    },
-    {
-     "candidate": {
-      "firstName": "Caroline",
-      "lastName": "Kane",
-      "npid": 160777
-     },
-     "partyCode": "R",
-     "partyName": "Republican",
-     "isWinner": false,
-     "isIncumbent": false,
-     "margin": null,
-     "votes": {
-      "count": 94651,
-      "percentage": 38.72
-     },
-     "vote_types": [],
-     "delegates": 0
-    }
-   ]
-  }
- ]
+  ]
 }

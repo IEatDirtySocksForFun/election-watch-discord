@@ -1,1 +1,127 @@
-{"event":{"category":"Elections","collateral_return_type":"MECNET","event_ticker":"HOUSECA22-26","exchange_index":0,"last_updated_ts":"0001-01-01T00:00:00Z","mutually_exclusive":true,"product_metadata":{"competition":"House","competition_scope":"Election"},"series_ticker":"HOUSECA22","settlement_sources":[{"name":"Library of Congress","url":"https://www.congress.gov/"}],"strike_period":"","sub_title":"In 2026","title":"CA-22 House winner?"},"markets":[{"can_close_early":true,"close_time":"2027-11-03T15:00:00Z","created_time":"2025-07-01T05:55:21.223721Z","custom_strike":{"political_party":"57fa2293-3102-463b-9087-68cd9f6da0a6","politician":"0ca8d31a-641e-49a8-a8af-e108b8ff895a"},"early_close_condition":"This market will close following the swearing in of the Representative for the seat in question.","event_ticker":"HOUSECA22-26","exchange_index":0,"expected_expiration_time":"2027-01-04T15:00:00Z","expiration_time":"2027-11-03T15:00:00Z","expiration_value":"","last_price_dollars":"0.9150","latest_expiration_time":"2027-11-03T15:00:00Z","market_type":"binary","no_ask_dollars":"0.1000","no_bid_dollars":"0.0880","no_sub_title":"Randy Villegas","notional_value_dollars":"1.0000","occurrence_datetime":"2027-01-03T15:00:00Z","open_interest_fp":"38722.37","open_time":"2025-07-01T14:00:00Z","previous_price_dollars":"0.9150","previous_yes_ask_dollars":"0.9130","previous_yes_bid_dollars":"0.9000","price_level_structure":"tapered_deci_cent","price_ranges":[{"end":"0.1000","start":"0.0000","step":"0.0010"},{"end":"0.9000","start":"0.1000","step":"0.0100"},{"end":"1.0000","start":"0.9000","step":"0.0010"}],"result":"","rules_primary":"If the House member sworn in for CA-22 for the term beginning in 2027 is a member of the Democratic party, then the market resolves to Yes.","rules_secondary":"This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.","settlement_bounds_type":"default","settlement_timer_seconds":14,"status":"active","strike_type":"structured","subtitle":"Democratic party:: Democratic party","ticker":"HOUSECA22-26-D","title":"Will Democratic win the House race for CA-22?","updated_time":"2026-09-15T23:03:21.266569Z","volume_24h_fp":"0.00","volume_fp":"60075.38","yes_ask_dollars":"0.9120","yes_ask_size_fp":"100.01","yes_bid_dollars":"0.9000","yes_bid_size_fp":"1003.00","yes_sub_title":"Randy Villegas"},{"can_close_early":true,"close_time":"2027-11-03T15:00:00Z","created_time":"2025-07-01T05:55:21.223721Z","custom_strike":{"political_party":"9244ed4c-9dfd-45cc-8211-996dc902f315","politician":"b743dd37-b27b-48eb-b574-6a27fe0bb53d"},"early_close_condition":"This market will close following the swearing in of the Representative for the seat in question.","event_ticker":"HOUSECA22-26","exchange_index":0,"expected_expiration_time":"2027-01-04T15:00:00Z","expiration_time":"2027-11-03T15:00:00Z","expiration_value":"","last_price_dollars":"0.0900","latest_expiration_time":"2027-11-03T15:00:00Z","market_type":"binary","no_ask_dollars":"0.9120","no_bid_dollars":"0.9100","no_sub_title":"David Valadao","notional_value_dollars":"1.0000","occurrence_datetime":"2027-01-03T15:00:00Z","open_interest_fp":"111674.54","open_time":"2025-07-01T14:00:00Z","previous_price_dollars":"0.1000","previous_yes_ask_dollars":"0.1000","previous_yes_bid_dollars":"0.0980","price_level_structure":"tapered_deci_cent","price_ranges":[{"end":"0.1000","start":"0.0000","step":"0.0010"},{"end":"0.9000","start":"0.1000","step":"0.0100"},{"end":"1.0000","start":"0.9000","step":"0.0010"}],"result":"","rules_primary":"If the House member sworn in for CA-22 for the term beginning in 2027 is a member of the Republican party, then the market resolves to Yes.","rules_secondary":"This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.","settlement_bounds_type":"default","settlement_timer_seconds":14,"status":"active","strike_type":"structured","subtitle":"Republican party:: Republican party","ticker":"HOUSECA22-26-R","title":"Will Republican win the House race for CA-22?","updated_time":"2026-10-16T16:31:26.408885Z","volume_24h_fp":"43327.04","volume_fp":"158756.98","yes_ask_dollars":"0.0900","yes_ask_size_fp":"878.17","yes_bid_dollars":"0.0880","yes_bid_size_fp":"6.00","yes_sub_title":"David Valadao"}]}
+{
+  "event": {
+    "category": "Elections",
+    "collateral_return_type": "MECNET",
+    "event_ticker": "HOUSECA22-26",
+    "exchange_index": 0,
+    "last_updated_ts": "0001-01-01T00:00:00Z",
+    "mutually_exclusive": true,
+    "product_metadata": {
+      "competition": "House",
+      "competition_scope": "Election"
+    },
+    "series_ticker": "HOUSECA22",
+    "settlement_sources": [
+      { "name": "Library of Congress", "url": "https://www.congress.gov/" }
+    ],
+    "strike_period": "",
+    "sub_title": "In 2026",
+    "title": "CA-22 House winner?"
+  },
+  "markets": [
+    {
+      "can_close_early": true,
+      "close_time": "2027-11-03T15:00:00Z",
+      "created_time": "2025-07-01T05:55:21.223721Z",
+      "custom_strike": {
+        "political_party": "57fa2293-3102-463b-9087-68cd9f6da0a6",
+        "politician": "0ca8d31a-641e-49a8-a8af-e108b8ff895a"
+      },
+      "early_close_condition": "This market will close following the swearing in of the Representative for the seat in question.",
+      "event_ticker": "HOUSECA22-26",
+      "exchange_index": 0,
+      "expected_expiration_time": "2027-01-04T15:00:00Z",
+      "expiration_time": "2027-11-03T15:00:00Z",
+      "expiration_value": "",
+      "last_price_dollars": "0.9150",
+      "latest_expiration_time": "2027-11-03T15:00:00Z",
+      "market_type": "binary",
+      "no_ask_dollars": "0.1000",
+      "no_bid_dollars": "0.0880",
+      "no_sub_title": "Randy Villegas",
+      "notional_value_dollars": "1.0000",
+      "occurrence_datetime": "2027-01-03T15:00:00Z",
+      "open_interest_fp": "38722.37",
+      "open_time": "2025-07-01T14:00:00Z",
+      "previous_price_dollars": "0.9150",
+      "previous_yes_ask_dollars": "0.9130",
+      "previous_yes_bid_dollars": "0.9000",
+      "price_level_structure": "tapered_deci_cent",
+      "price_ranges": [
+        { "end": "0.1000", "start": "0.0000", "step": "0.0010" },
+        { "end": "0.9000", "start": "0.1000", "step": "0.0100" },
+        { "end": "1.0000", "start": "0.9000", "step": "0.0010" }
+      ],
+      "result": "",
+      "rules_primary": "If the House member sworn in for CA-22 for the term beginning in 2027 is a member of the Democratic party, then the market resolves to Yes.",
+      "rules_secondary": "This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.",
+      "settlement_bounds_type": "default",
+      "settlement_timer_seconds": 14,
+      "status": "active",
+      "strike_type": "structured",
+      "subtitle": "Democratic party:: Democratic party",
+      "ticker": "HOUSECA22-26-D",
+      "title": "Will Democratic win the House race for CA-22?",
+      "updated_time": "2026-09-15T23:03:21.266569Z",
+      "volume_24h_fp": "0.00",
+      "volume_fp": "60075.38",
+      "yes_ask_dollars": "0.9120",
+      "yes_ask_size_fp": "100.01",
+      "yes_bid_dollars": "0.9000",
+      "yes_bid_size_fp": "1003.00",
+      "yes_sub_title": "Randy Villegas"
+    },
+    {
+      "can_close_early": true,
+      "close_time": "2027-11-03T15:00:00Z",
+      "created_time": "2025-07-01T05:55:21.223721Z",
+      "custom_strike": {
+        "political_party": "9244ed4c-9dfd-45cc-8211-996dc902f315",
+        "politician": "b743dd37-b27b-48eb-b574-6a27fe0bb53d"
+      },
+      "early_close_condition": "This market will close following the swearing in of the Representative for the seat in question.",
+      "event_ticker": "HOUSECA22-26",
+      "exchange_index": 0,
+      "expected_expiration_time": "2027-01-04T15:00:00Z",
+      "expiration_time": "2027-11-03T15:00:00Z",
+      "expiration_value": "",
+      "last_price_dollars": "0.0900",
+      "latest_expiration_time": "2027-11-03T15:00:00Z",
+      "market_type": "binary",
+      "no_ask_dollars": "0.9120",
+      "no_bid_dollars": "0.9100",
+      "no_sub_title": "David Valadao",
+      "notional_value_dollars": "1.0000",
+      "occurrence_datetime": "2027-01-03T15:00:00Z",
+      "open_interest_fp": "111674.54",
+      "open_time": "2025-07-01T14:00:00Z",
+      "previous_price_dollars": "0.1000",
+      "previous_yes_ask_dollars": "0.1000",
+      "previous_yes_bid_dollars": "0.0980",
+      "price_level_structure": "tapered_deci_cent",
+      "price_ranges": [
+        { "end": "0.1000", "start": "0.0000", "step": "0.0010" },
+        { "end": "0.9000", "start": "0.1000", "step": "0.0100" },
+        { "end": "1.0000", "start": "0.9000", "step": "0.0010" }
+      ],
+      "result": "",
+      "rules_primary": "If the House member sworn in for CA-22 for the term beginning in 2027 is a member of the Republican party, then the market resolves to Yes.",
+      "rules_secondary": "This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.",
+      "settlement_bounds_type": "default",
+      "settlement_timer_seconds": 14,
+      "status": "active",
+      "strike_type": "structured",
+      "subtitle": "Republican party:: Republican party",
+      "ticker": "HOUSECA22-26-R",
+      "title": "Will Republican win the House race for CA-22?",
+      "updated_time": "2026-10-16T16:31:26.408885Z",
+      "volume_24h_fp": "43327.04",
+      "volume_fp": "158756.98",
+      "yes_ask_dollars": "0.0900",
+      "yes_ask_size_fp": "878.17",
+      "yes_bid_dollars": "0.0880",
+      "yes_bid_size_fp": "6.00",
+      "yes_sub_title": "David Valadao"
+    }
+  ]
+}
