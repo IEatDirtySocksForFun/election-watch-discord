@@ -284,3 +284,30 @@ async def test_cached_pages_round_trip_by_kind(store):
     assert (at, data) == (NOW + timedelta(minutes=30), '[{"a": 1}]')
     assert await store.cached_idents("polls") == {"TX SEN|votehub": NOW + timedelta(minutes=30)}
     assert list(await store.cached_idents("earlyvote")) == ["https://civicapi.org/x"]
+
+
+async def test_race_lists_round_trip_and_survive_a_restart(store):
+    from electionwatch.models import Level, RaceKey
+    from electionwatch.racelists import CACHE, RaceLists, cache_ident
+    from electionwatch.ratelimit import RateBook
+
+    class Lister:
+        name, states, asked = "lister", frozenset({"TX", "WA"}), []
+
+        def available(self):
+            return True
+
+        async def list_races(self, state, client):
+            self.asked.append(state)
+            return [(RaceKey(state, Level.SENATE, "SEN"), "Senate"),
+                    (RaceKey(state, Level.LOCAL, "LOCAL", "Advisory-Vote-10"), "Advisory Vote No. 10")]
+
+    sources = {"results": [Lister()]}
+    lists = RaceLists(store, sources, None, lambda: NOW, rates=RateBook(clock=lambda: 0.0))
+    assert await lists.refresh() == 2
+    found, loading = await lists.stored("WA")
+    assert not loading and set(found) == {"WA SEN", "WA LOCAL Advisory-Vote-10"}
+    assert set(await store.cached_idents(CACHE)) == {cache_ident("TX", "lister"), cache_ident("WA", "lister")}
+    # A restart half an hour later: the stored lists are still fresh, nothing is asked again.
+    later = RaceLists(store, sources, None, lambda: NOW + timedelta(minutes=30), rates=RateBook(clock=lambda: 0.0))
+    assert await later.refresh() == 0 and Lister.asked == ["TX", "WA"]

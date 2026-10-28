@@ -6,6 +6,7 @@ import pytest
 from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.models import CandidateResult, RaceResult
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, parse
+from electionwatch.racelists import RaceLists
 from electionwatch.settings import UserSettings
 from electionwatch.sources.base import ResultsSource
 from electionwatch.store.memory import MemoryStore
@@ -31,6 +32,7 @@ async def test_navigator_lists_races_and_all_states_within_discord_limits():
     client = SimpleNamespace(
         store=store, sources={"results": [ListSource()]}, http_client=object(), poller=None
     )
+    await RaceLists(store, client.sources, client.http_client).refresh()   # the background refresh
     view = RaceNavigator(client, 9, UserSettings(9))
     await view.refresh()
 
@@ -54,14 +56,11 @@ async def test_navigator_lists_races_and_all_states_within_discord_limits():
 
 
 @pytest.mark.asyncio
-async def test_race_listing_is_cached_and_a_slow_source_cannot_blow_the_deadline(monkeypatch):
+async def test_commands_never_call_a_source_and_a_slow_source_cannot_blow_the_deadline():
     import asyncio
     import time
 
     from electionwatch.bot import navigator
-
-    navigator._list_cache.clear()
-    monkeypatch.setattr(navigator, "LIST_TIMEOUT_SECONDS", 0.05)
 
     class Counting(ListSource):
         name = "counting"
@@ -78,29 +77,38 @@ async def test_race_listing_is_cached_and_a_slow_source_cannot_blow_the_deadline
             await asyncio.sleep(5)
             return []
 
+    store = MemoryStore()
     client = SimpleNamespace(
-        store=MemoryStore(), sources={"results": [Slow(), Counting()]}, http_client=object(), poller=None
+        store=store, sources={"results": [Slow(), Counting()]}, http_client=object(), poller=None
     )
+    # Before any refresh: nothing stored, nothing asked.
+    assert await navigator.list_races(client, "TX") == {}
+    assert Counting.hits == 0
+    # The background refresh times the slow source out and stores the other one's list.
+    refresher = RaceLists(store, client.sources, client.http_client, timeout=0.05)
+    assert await refresher.refresh() == 1
+    assert Counting.hits == 1
     started = time.monotonic()
-    found = await navigator.list_races(client, "TX")
-    found = await navigator.list_races(client, "TX")
+    for _ in range(5):
+        found = await navigator.list_races(client, "TX")
     assert time.monotonic() - started < 1
     assert set(found) == {"TX SEN", "TX GOV"}
     assert Counting.hits == 1
-    navigator._list_cache.clear()
 
 
 @pytest.mark.asyncio
-async def test_navigator_clicks_defer_before_listing_races():
-    from electionwatch.bot import navigator
-
-    navigator._list_cache.clear()
+async def test_navigator_clicks_defer_before_reading_race_lists():
     calls = []
 
     class Recording(ListSource):
         async def list_races(self, state, client):
             calls.append("list")
             return await super().list_races(state, client)
+
+    class RecordingStore(MemoryStore):
+        async def get_cached(self, kind, ident):
+            calls.append("read")
+            return await super().get_cached(kind, ident)
 
     async def defer(*args, **kwargs):
         calls.append("defer")
@@ -109,7 +117,7 @@ async def test_navigator_clicks_defer_before_listing_races():
         calls.append("edit")
 
     client = SimpleNamespace(
-        store=MemoryStore(), sources={"results": [Recording()]}, http_client=object(), poller=None
+        store=RecordingStore(), sources={"results": [Recording()]}, http_client=object(), poller=None
     )
     view = RaceNavigator(client, 9, UserSettings(9))
     interaction = SimpleNamespace(
@@ -119,8 +127,7 @@ async def test_navigator_clicks_defer_before_listing_races():
         edit_original_response=edit_original_response,
     )
     await view._state_callback(interaction)
-    assert calls == ["defer", "list", "edit"]
-    navigator._list_cache.clear()
+    assert calls == ["defer", "read", "edit"]     # no "list": the click never asks the source
 
 
 async def test_fallback_local_races_are_hidden_where_an_official_feed_lists_local_races():
@@ -141,10 +148,9 @@ async def test_fallback_local_races_are_hidden_where_an_official_feed_lists_loca
     official = Lister("tx_counties", ["TX LOCAL harris-county-judge"])
     civic = Lister("civicapi", ["TX LOCAL harris-county-judge-general", "TX SEN", "WY LOCAL laramie-mayor"],
                    fallback=True)
-    navigator._list_cache.clear()
-    client = SimpleNamespace(sources={"results": [civic, official]}, http_client=None)
+    client = SimpleNamespace(store=MemoryStore(), sources={"results": [civic, official]}, http_client=None)
+    await RaceLists(client.store, client.sources, None).refresh()
     tx = set(await navigator.list_races(client, "TX"))
     wy = set(await navigator.list_races(client, "WY"))
-    navigator._list_cache.clear()
     assert tx == {"TX LOCAL harris-county-judge", "TX SEN"}    # civicAPI's duplicate local race hidden
     assert wy == {"WY LOCAL laramie-mayor"}                    # no official local feed: civicAPI's stay

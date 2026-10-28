@@ -43,7 +43,7 @@ from electionwatch.bot.logic import (  # noqa: E402
     change_calls, change_favorite, change_odds, change_posting, change_setup, change_watch,
     faq_text, settings_dump,
 )
-from electionwatch.bot.navigator import RaceNavigator, _list_cache  # noqa: E402
+from electionwatch.bot.navigator import RaceNavigator  # noqa: E402
 from electionwatch.bot.poster import render_embed  # noqa: E402
 from electionwatch.config import load_env  # noqa: E402
 from electionwatch.models import (  # noqa: E402
@@ -270,7 +270,10 @@ async def build_payloads(bot: CheckBot):
         tx_sen, "CNN", "https://cnn.com/election/2026/exit-polls/texas/senate",
         "Women: D 55 R 44\n" + "Independents: " + "x" * 3000)))}
 
-    # The race navigator: every tab for a sample of states, plus the race-select step.
+    # The race navigator: every tab for a sample of states, plus the race-select step. It reads
+    # the stored race lists: run the background refresh until every state is listed.
+    while await bot.race_lists.refresh():
+        pass
     for state in SAMPLE_STATES:
         for level in ("congressional", "senate", "state", "local"):
             view = RaceNavigator(bot, 1, UserSettings(1, home_state=state, default_level=level))
@@ -339,7 +342,6 @@ async def run(a) -> int:
     if not token:
         print("DISCORD_TOKEN is not set (env or EW_ENV_FILES)", file=sys.stderr)
         return 2
-    _list_cache.clear()
     summary: dict = {"started": stamp, "guild": a.guild, "channel": a.channel}
     async with httpx.AsyncClient() as http_client:
         bot = CheckBot(MemoryStore(), {"results": [FakeResults()]}, http_client)

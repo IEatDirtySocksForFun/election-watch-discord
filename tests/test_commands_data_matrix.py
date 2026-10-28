@@ -64,7 +64,6 @@ import httpx
 import pytest
 import yaml
 
-from electionwatch.bot import navigator
 from electionwatch.bot.discord import faq_command, odds_command, polls_command, race_autocomplete
 from electionwatch.models import Level, OddsSnapshot, Poll, PollResult, RaceKey
 from electionwatch.racekeys import STATES, TERRITORIES, describe, parse
@@ -75,13 +74,6 @@ from fake_interaction_data import check_choices, check_embed, embed_total, FakeI
 
 NOW = datetime(2026, 10, 27, 12, 0, tzinfo=timezone.utc)
 TX_SEN = parse("TX SEN")
-
-
-@pytest.fixture(autouse=True)
-def _clean_list_cache():
-    navigator._list_cache.clear()
-    yield
-    navigator._list_cache.clear()
 
 
 # --------------------------------------------------------------------------- fakes
@@ -146,8 +138,10 @@ class AllStates(ResultsSource):
         self.per_state = per_state or {}
         self.delay = delay
         self.long_slug = long_slug
+        self.calls = 0
 
     async def list_races(self, state, client):
+        self.calls += 1
         if self.delay:
             await asyncio.sleep(self.delay)
         races = list(self.per_state.get(state, []))
@@ -564,14 +558,50 @@ async def test_autocomplete_truncates_to_25():
     assert len(choices) == 25
 
 
-async def test_autocomplete_answers_in_time_with_a_slow_source_in_many_states(monkeypatch):
-    monkeypatch.setattr(navigator, "LIST_TIMEOUT_SECONDS", 0.3)
+async def test_autocomplete_never_calls_a_source_even_a_slow_one():
     store = Store()
     await store.save_guild(GuildSettings(1, important=[f"{code} SEN" for code in sorted(STATES)[:20]]))
+    source = AllStates(delay=10)
+    client = make_client(store, {"results": [source]}, refreshed=False)
     started = time.monotonic()
-    choices = await autocomplete(results_client(store, delay=10), "")
-    assert time.monotonic() - started < 1.5   # 20 states x 0.3 s sequentially would be 6 s
-    assert len(choices) == 20
+    choices = await autocomplete(client, "")
+    assert time.monotonic() - started < 0.5
+    assert len(choices) == 20 and source.calls == 0
+
+
+async def test_autocomplete_answers_in_time_when_the_database_is_slow(monkeypatch):
+    from electionwatch.bot import discord as bot_module
+
+    class SlowStore(Store):
+        async def get_cached(self, kind, ident):
+            await asyncio.sleep(10)
+
+    monkeypatch.setattr(bot_module, "READ_TIMEOUT", 0.2)
+    store = SlowStore()
+    await store.save_guild(GuildSettings(1, important=["TX SEN", "PA SEN"]))
+    started = time.monotonic()
+    choices = await autocomplete(make_client(store, {"results": [AllStates()]}, refreshed=False), "")
+    assert time.monotonic() - started < 1
+    assert {c.value for c in choices} == {"TX SEN", "PA SEN"}   # the watched races still come
+
+
+async def test_autocomplete_offers_stored_races_of_a_typed_state_and_queues_it():
+    from electionwatch.demand import Demand
+    from electionwatch.racelists import KIND, STATES_PER_TICK, RaceLists
+
+    source = AllStates(per_state={"PA": [(parse("PA SEN"), "Pennsylvania Senate"),
+                                         (parse("PA-07"), "Pennsylvania District 7")]})
+    client = make_client(Store(), {"results": [source]}, refreshed=False)
+    demand = Demand()
+    client.race_lists = RaceLists(client.store, client.sources, client.http_client, demand=demand)
+    assert {c.value for c in await autocomplete(client, "pa")} == set()   # PA not listed yet
+    assert demand.items(KIND) == ["PA"] and source.calls == 0
+    await client.race_lists.refresh()                                     # demanded state first
+    assert source.calls == STATES_PER_TICK
+    for typed in ("pa", "PA-0", "pennsylvania"):
+        values = {c.value for c in await autocomplete(client, typed)}
+        assert "PA-07" in values, typed
+    assert source.calls == STATES_PER_TICK
 
 
 async def test_autocomplete_never_offers_a_value_over_100_chars():

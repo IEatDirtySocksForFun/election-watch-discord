@@ -24,7 +24,6 @@ import httpx
 import pytest
 from discord.webhook.async_ import AsyncWebhookAdapter, async_context
 
-from electionwatch.bot import navigator
 from electionwatch.bot.discord import ElectionBot
 from electionwatch.models import (
     CandidateResult, Level, OddsSnapshot, Poll, PollResult, RaceKey, RaceResult,
@@ -243,7 +242,6 @@ class ExplodingStore(MemoryStore):
 
 @pytest.fixture
 async def harness():
-    navigator._list_cache.clear()
     recorder = RecordingAdapter()
     reset = async_context.set(recorder)
     store = MemoryStore()
@@ -263,6 +261,7 @@ async def harness():
         # What the background refresh stores; /odds and /polls read only the store.
         await bot.poller._odds(NOW, [], [TX_SEN, RaceKey("CA", Level.SENATE, "SEN")])
         await bot.poller._polls(NOW, [TX_SEN])
+        await bot.race_lists.refresh()           # the /races browser reads the stored lists
         early_vote_http = mock_http_client()   # /earlyvote reads recorded civicAPI responses
         bot.early_vote = fixture_client(early_vote_http)
         try:
@@ -273,7 +272,6 @@ async def harness():
             await early_vote_http.aclose()
             await bot.close()
             async_context.reset(reset)
-            navigator._list_cache.clear()
 
 
 class Harness:
@@ -422,6 +420,7 @@ CASES = [
                                         opt("internals", False, 5)], None, {}, "internals excluded"),
     ("polls-bad-race", "polls", [opt("race", "Narnia SEN")], None, {}, ""),
     ("refresh", "refresh", [opt("what", "odds")], None, {}, "Refreshed"),
+    ("refresh-races", "refresh", [opt("what", "races")], None, {}, "Race lists are refreshing"),
     ("refresh-not-admin", "refresh", [], None, {"permissions": 0}, "Manage Server"),
     ("limits", "limits", [], None, {"permissions": 0}, "Data refresh"),
     ("limits-set", "limits", [opt("user_cooldown", 30, 4)], None, {}, "Limits set"),

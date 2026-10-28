@@ -297,6 +297,7 @@ class SimReplaySource(ReplaySource):
         self.turnout = turnout
         self.outages: list[tuple[datetime, datetime]] = []
         self.attempts: list[tuple[datetime, bool]] = []
+        self.list_calls: list[str | None] = []   # the budget each list_races call ran under
         self._reg = {k: int(max(v[-1].result.total_votes or 0, 1) * 1.6) for k, v in self.timelines.items()}
 
     async def fetch(self, keys, client=None):
@@ -313,6 +314,14 @@ class SimReplaySource(ReplaySource):
                     r.registered_voters = reg
                     r.turnout_pct = round(100.0 * r.total_votes / reg, 2)
         return out
+
+    async def list_races(self, state, client=None):
+        from electionwatch.ratelimit import current_source
+
+        # Only the background race-list refresh may ask: it runs under a "replay:racelists:XX"
+        # budget; a command would run under none.
+        self.list_calls.append(current_source.get())
+        return await super().list_races(state, client)
 
 
 @dataclass
@@ -667,10 +676,8 @@ class Night:
     # -- setup
 
     async def _build(self, http):
-        from electionwatch.bot import navigator
         from electionwatch.bot.discord import ElectionBot
 
-        navigator._list_cache.clear()     # module-level cache: keyed by source name, not year
         if self.default_races:
             path = self.workdir / f"races-{self.year}.yaml"
             path.write_text(yaml.safe_dump({"important": [{"key": k} for k in self.default_races]}))
@@ -839,16 +846,23 @@ class Night:
     async def _tick(self, bot, record=True):
         t = time.perf_counter()
         hb = asyncio.create_task(self._heartbeat()) if self.measure_stall and record else None
-        try:
-            await bot.poller.tick()
-        except Exception as exc:       # the bot's poll_results loop logs and carries on
-            self.tick_errors.append((self.clock(), f"{type(exc).__name__}: {exc}"[:200]))
+        # The bot runs the poller and the race-list refresh as two loops on one event loop,
+        # each once a minute: run both, concurrently, every simulated minute.
+        polled, _ = await asyncio.gather(bot.poller.tick(), self._race_lists(bot), return_exceptions=True)
+        if isinstance(polled, Exception):   # the bot's poll_results loop logs and carries on
+            self.tick_errors.append((self.clock(), f"{type(polled).__name__}: {polled}"[:200]))
         if hb is not None:
             hb.cancel()
         if record:
             self.ticks.append((self.clock(), time.perf_counter() - t))
             if hb is not None:
                 self.stalls.append(self._stall)
+
+    async def _race_lists(self, bot) -> None:
+        try:
+            await bot.race_lists.refresh()
+        except Exception:              # the bot's refresh_race_lists loop logs and carries on
+            log.debug("race list refresh failed", exc_info=True)
 
     async def _heartbeat(self) -> None:
         """Longest stretch the event loop was blocked during a tick: an interaction arriving
@@ -1472,6 +1486,14 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
             await store.client.drop_database(db)
             await store.close()
     replies_ok(c, res)
+    # The navigator and autocomplete read the race lists the background refresh stored.
+    calls = night.src.list_calls
+    c.ok(bool(calls) and all(name and ":racelists:" in name for name in calls),
+         f"list_races called outside the race-list refresh: {[n for n in calls if not n or ':racelists:' not in n][:3]}")
+    nav = [r for r in res.cmds if r.label.startswith("races")]
+    loading = [r for r in nav if "still loading" in r.text]
+    c.ok(bool(nav) and not loading,
+         f"navigator said a race list was still loading at {et(loading[0].at)}" if loading else "no navigator")
     for r in res.cmds:
         c.ok(r.error is None, f"/{r.label} at {et(r.at)} raised {r.error}")
         if r.ack_s is None or r.ack_s > DEADLINE_FLAG_S:

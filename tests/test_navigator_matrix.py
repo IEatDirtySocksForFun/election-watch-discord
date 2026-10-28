@@ -17,9 +17,11 @@ Checklist
 [x] Choose race button -> race select replaces the race tools (edit_message)
 [x] another user clicking ANY control -> ephemeral refusal, view state and stored settings unchanged
 [x] navigation round-trips: a new navigator opens where the last one was left
-[x] list_races raising / SourceUnavailable / timing out (LIST_TIMEOUT_SECONDS) still renders,
-    and watched (poller default) races stay navigable
-[x] list cache: TTL (LIST_TTL_SECONDS) and failure retry (LIST_RETRY_SECONDS); cache reset per test
+[x] list_races raising / SourceUnavailable / timing out in the background refresh: the
+    navigator still renders, says the list is loading, and watched (poller default) races
+    stay navigable
+[x] the navigator never calls a source: race lists come from the store (the refresh itself is
+    tested in tests/test_racelists.py)
 [x] view timeout is 600 s
 """
 from __future__ import annotations
@@ -38,6 +40,7 @@ from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.config import load_races
 from electionwatch.models import CandidateResult, Level, OddsSnapshot, Poll, PollResult, RaceKey, RaceResult
 from electionwatch.racekeys import STATES, TERRITORIES, parse
+from electionwatch.racelists import RaceLists
 from electionwatch.settings import UserSettings
 from electionwatch.sources.base import OddsSource, PollSource, ResultsSource, SourceUnavailable
 from electionwatch.store.memory import MemoryStore
@@ -46,13 +49,6 @@ from fake_interaction_data import FakeInteraction, check_embed, check_view, make
 NOW = datetime(2026, 10, 27, 12, 0, tzinfo=timezone.utc)
 TABS = {"congressional": "Congressional", "senate": "Senate", "state": "State", "local": "Local"}
 OWNER, OTHER = 9, 10
-
-
-@pytest.fixture(autouse=True)
-def _clean_list_cache():
-    navigator._list_cache.clear()
-    yield
-    navigator._list_cache.clear()
 
 
 def races_for(state: str) -> list[tuple[RaceKey, str]]:
@@ -335,48 +331,47 @@ async def test_navigation_round_trips_through_user_settings():
     Results(error=SourceUnavailable("gone")),
     Results(delay=10),
 ], ids=["raises", "unavailable", "times-out"])
-async def test_failing_list_races_still_renders(source, monkeypatch):
-    monkeypatch.setattr(navigator, "LIST_TIMEOUT_SECONDS", 0.05)
+async def test_failing_list_races_still_renders(source):
     poller = SimpleNamespace(default_races=load_races())
-    client = client_with(source, poller=poller)
+    client = make_client(MemoryStore(), {"results": [source]}, clock=lambda: NOW, poller=poller, refreshed=False)
+    client.race_lists = RaceLists(client.store, client.sources, client.http_client, lambda: NOW, timeout=0.05)
     started = time.monotonic()
+    assert await client.race_lists.refresh() == 0          # the background refresh stores nothing
+    calls = source.calls
     interaction = FakeInteraction(client, user_id=OWNER)
     await races_command.callback(interaction)
     assert time.monotonic() - started < 1
     view = interaction.assert_ephemeral_flow().view
     # The watched default race (TX SEN) stays navigable without any source listing.
     assert view.selected_race == "TX SEN"
+    await click(view, buttons(view)["Choose race"])
+    assert "Texas's race list is still loading" in (await view.embed()).description
     interaction = await click(view, state_select_for(view, "OH"), values=["OH"])
     reply = assert_edited(interaction, ["defer", "edit_original"])
     assert view.selected_race is None and race_select(view) is None
     assert reply.embed.description.startswith("No current result")
+    assert "Ohio's race list is still loading" in reply.embed.description
+    assert source.calls == calls                           # the commands never asked the source
 
 
-async def test_list_cache_ttl_and_failure_retry(monkeypatch):
-    now = [1000.0]
-    monkeypatch.setattr(navigator.time, "monotonic", lambda: now[0])
-    good = Results()
-    client = client_with(good)
-    for delta in (0, navigator.LIST_TTL_SECONDS - 1):
-        now[0] = 1000.0 + delta
-        assert "TX SEN" in await navigator.list_races(client, "TX")
-    assert good.calls == 1
-    now[0] = 1000.0 + navigator.LIST_TTL_SECONDS + 1
-    await navigator.list_races(client, "TX")
-    assert good.calls == 2
-
-    navigator._list_cache.clear()
-    bad = Results(error=RuntimeError("down"))
-    client = client_with(bad)
-    now[0] = 5000.0
-    assert await navigator.list_races(client, "TX") == {}
-    now[0] = 5000.0 + navigator.LIST_RETRY_SECONDS - 1
-    assert await navigator.list_races(client, "TX") == {}
-    assert bad.calls == 1
-    bad.error = None
-    now[0] = 5000.0 + navigator.LIST_RETRY_SECONDS + 1
-    assert "TX SEN" in await navigator.list_races(client, "TX")
-    assert bad.calls == 2
+async def test_navigator_reads_only_the_store():
+    source = Results()
+    client = make_client(MemoryStore(), {"results": [source]}, clock=lambda: NOW, refreshed=False)
+    view = await navigator_for(client)
+    assert view.loading and view.selected_race is None and source.calls == 0
+    assert "still loading" in (await view.embed()).description
+    for _ in range(30):                                    # the bot's minute loop, a few states a time
+        await client.race_lists.refresh()
+    calls = source.calls
+    assert calls == len(STATES)                            # every state listed once, then nothing is due
+    view = await navigator_for(client)
+    assert not view.loading and view.selected_race == "TX SEN"
+    for code in ("GA", "PA", "OH"):
+        interaction = await click(view, state_select_for(view, code), values=[code])
+        assert "still loading" not in assert_edited(interaction, ["defer", "edit_original"]).embed.description
+        await click(view, buttons(view)["State"])
+        assert view.selected_race == f"{code} GOV"
+    assert source.calls == calls
 
 
 async def test_unavailable_and_out_of_state_sources_are_not_asked():

@@ -185,8 +185,14 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
     lines.append("Data refresh (in the background; commands read the database only):")
     rows = rates.status() if rates is not None else []
     for kind in FLOORS:
-        mine = [row for row in rows if row["kind"] == kind]
-        slowed = [row for row in mine if row["overridden"] or row["interval"] > row["floor"] + 1]
+        # Race lists have a budget entry per source and state: show one line per source (its
+        # slowest state), and count sources, not entries.
+        mine: dict[str, dict] = {}
+        for row in rows:
+            name = row["source"].split(":")[0]
+            if row["kind"] == kind and (name not in mine or row["interval"] > mine[name]["interval"]):
+                mine[name] = row
+        slowed = [row for row in mine.values() if row["overridden"] or row["interval"] > row["floor"] + 1]
         lines.append(f"  {kind}: every {_span(every(kind))}"
                      + (f" ({len(mine) - len(slowed)} sources at this rate)" if len(mine) > len(slowed) else ""))
         for row in slowed:

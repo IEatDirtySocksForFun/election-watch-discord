@@ -15,6 +15,7 @@ from typing import Any
 import discord
 
 from electionwatch.bot.command_data import CommandData
+from electionwatch.racelists import CACHE, RaceLists, cache_ident, dump_list
 
 # Discord hard limits.
 TITLE, DESCRIPTION, FIELDS, FIELD_NAME, FIELD_VALUE = 256, 4096, 25, 256, 1024
@@ -241,10 +242,33 @@ class RefreshedCommandData(CommandData):
         return await super().get_polls(key)
 
 
+class RefreshedRaceLists(RaceLists):
+    """RaceLists whose store the background refresh has just filled for the asked state.
+
+    The navigator and autocomplete read only the store; the background refresh is what asks
+    the sources. Tests about what they render get the refresh the bot would have done first
+    (a failing source stores nothing, as in the refresh)."""
+
+    async def stored(self, state):
+        from datetime import datetime, timezone
+
+        for source in self.listers(state):
+            try:
+                races = await source.list_races(state, self.http)
+            except Exception:
+                continue
+            await self.store.put_cached(CACHE, cache_ident(state, source.name), dump_list(races),
+                                        datetime.now(timezone.utc))
+        return await super().stored(state)
+
+
 def make_client(store, sources: dict | None = None, *, clock=None, poller=None, refreshed: bool = True):
-    """A bot stand-in exposing what the commands and navigator read from ``interaction.client``."""
+    """A bot stand-in exposing what the commands and navigator read from ``interaction.client``.
+    With ``refreshed`` the background refreshes run just before each read (see the classes above);
+    without it the client reads whatever the test stored."""
     sources = sources or {}
     client = SimpleNamespace(store=store, sources=sources, http_client=object(), poller=poller)
     data = RefreshedCommandData if refreshed else CommandData
     client.command_data = data(store, sources, client.http_client, clock)
+    client.race_lists = (RefreshedRaceLists if refreshed else RaceLists)(store, sources, client.http_client, clock)
     return client
