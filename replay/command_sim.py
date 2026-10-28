@@ -1606,7 +1606,7 @@ LIVE_STEPS = [
     "21:55 posting default",
     'WATCH_ADD',
     'WATCH_REMOVE',
-    "22:35 calls AP off",
+    "22:35 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",   # every outlet: calls off
     "22:50 calls outlets=FOX enabled=on",
     "23:15 oddsalerts on threshold=10 window=30",
     "23:50 oddsalerts off",
