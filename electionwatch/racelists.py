@@ -190,7 +190,7 @@ class RaceLists:
         return self._lock.locked()
 
     async def refresh(self) -> int:
-        """List the states that are due; returns how many lists were stored. A refresh still
+        """List the states that are due; returns how many lists were fetched. A refresh still
         running (the minute loop and /refresh) makes this one a no-op."""
         if self._lock.locked():
             return 0
