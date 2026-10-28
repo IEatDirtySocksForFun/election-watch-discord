@@ -1,23 +1,23 @@
-# Results adapters — package STATES-4 (NY OK OR RI SC SD TN UT VT WA WV WY)
+# Results adapters: NY, OK, OR, RI, SC, SD, TN, UT, VT, WA, WV and WY
 
-Second round of missing states for the 2026 midterms. Status is what was actually verified
-against live responses on 2026-10-27; "verified fixture" means a trimmed real response is
-committed under `tests/fixtures/` and parsed by `tests/test_results_<st>.py` (no network).
+The status below reflects live checks on 2026-10-27. "Verified fixture" means a trimmed real
+response is saved under `tests/fixtures/` and parsed by `tests/test_results_<st>.py` without
+network access.
 
 | State | Adapter | Feed | Status |
 |-------|---------|------|--------|
-| NY | — | `https://nyenr.elections.ny.gov/`, `https://results.elections.ny.gov/` | not possible — see NY notes |
-| OK | — | `https://results.okelections.gov/2024/`, `https://results.okelections.us/OKER/` | not possible — see OK notes |
-| OR | — | `https://results.oregonvotes.gov/` | not possible — see OR notes |
+| NY | — | `https://nyenr.elections.ny.gov/`, `https://results.elections.ny.gov/` | no statewide adapter — see NY notes |
+| OK | — | `https://results.okelections.gov/2024/`, `https://results.okelections.us/OKER/` | no statewide adapter — see OK notes |
+| OR | `or_sos` | `orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapData` | statewide adapter added through the alternate endpoint in [alt-c.md](alt-c.md) |
 | RI | `ri_boe` | `https://rigov.s3.amazonaws.com/election/results/<YYYY>/general_election/{statewide,ga_senator,ga_representative}.json` | verified fixture (2024 general) |
 | SC | `sc_sec` | `https://results.enr.clarityelections.com/SC/<id>/<ver>/json/en/summary.json` | verified fixture (2024 general); 2026 id discovered from `/SC/elections.json` |
-| SD | — | `https://electionresults.sd.gov/` | not possible — see SD notes |
-| TN | — | `https://elections.tn.gov/`, `https://sos.tn.gov/elections/results` | not possible — see TN notes |
+| SD | `sd_sos` | `electionresults.sd.gov/resultsCSV.aspx` | statewide adapter added through the CSV endpoint in [alt-c.md](alt-c.md) |
+| TN | — | `https://elections.tn.gov/`, `https://sos.tn.gov/elections/results` | no statewide adapter — see TN notes |
 | UT | `ut_lgov` | `https://app.enhancedvoting.com/cdn/results/Utah/export-general<MMDDYYYY>.json` | verified fixture (2024 general); 2026 export not posted yet |
 | VT | `vt_sos` | `https://static.electionresults.vermont.gov/elections/<guid>{,-f-,-s-,-sn-,-h-}<stamp>.json` | verified fixture (2024 general); 2026 guid discovered by date |
 | WA | `wa_sos` | `https://results.vote.wa.gov/results/<YYYYMMDD>/export/<YYYYMMDD>_AllState.xml` | verified fixture (2024 general); 2026 export not posted yet |
 | WV | `clarity` | `https://results.enr.clarityelections.com/WV/122766/<ver>/json/en/summary.json` (2024 general) | verified fixture (2024 general); 2026 general id not published, `CLARITY_FEEDS` overrides |
-| WY | — | `https://sos.wyo.gov/Elections/Docs/<year>/...Results.aspx` | not possible — see WY notes |
+| WY | — | `https://sos.wyo.gov/Elections/Docs/<year>/...Results.aspx` | no election-night adapter — see WY notes |
 
 Race keys follow the shared vocabulary: `XX SEN`, `XX-01` (U.S. House), `XX GOV` and the
 other statewide abbreviations, `XX SD-01` / `XX HD-01` for the legislature, and
@@ -82,7 +82,10 @@ general-election id is not published yet; set it with `CLARITY_FEEDS` when the s
 ENR site, e.g.
 `CLARITY_FEEDS='[{"state":"WV","election_id":"<id>","date":"2026-11-03"}]'`.
 
-## States without an adapter
+## Blocked or unavailable original feeds
+
+OR and SD later gained adapters through alternate official endpoints; see [alt-c.md](alt-c.md).
+The notes below explain why the original feeds were not used.
 
 ### NY — not possible
 `https://nyenr.elections.ny.gov/` and `https://results.elections.ny.gov/contest/5591` both
@@ -92,7 +95,7 @@ ENR front end sits behind a bot filter. The underlying data host is reachable
 `.../5591_table.csv?split_party=true` return 200), but it only serves *per contest id*, has no
 index endpoint (`/api/elections`, `/api/contests`, `/api/contest/5591` all 404) and the ids are
 per election, so there is no way to discover the 2026 contests without scraping the blocked
-site. Per the brief, no bypass was attempted.
+site. No bypass was attempted.
 
 ### OK — not possible
 `https://results.okelections.gov/2024/`, `https://results.okelections.us/OKER/` and the
@@ -100,19 +103,20 @@ site. Per the brief, no bypass was attempted.
 without a custom User-Agent), i.e. a WAF/Akamai-style block on the results host. No bypass
 attempted.
 
-### OR — not possible
+### OR — original page not used
 `https://results.oregonvotes.gov/` now answers **302** to `https://sos.oregon.gov/`, and the
 SOS site has no results feed (`/elections/Pages/results.aspx` 404, the historical-data page
 links HTML/pages only). No JSON/CSV/XML endpoint for the statewide results was found, so a
 scraper would have to parse an unknown front end that is not yet live for 2026.
 
-### SD — not possible
+### SD — original page not used
 `https://electionresults.sd.gov/` is a JavaScript SPA (`ResultsSW.aspx`, `ResultsList.aspx`,
 `ResultsExport.aspx` all render a shell with zero `<table>` elements; the export page only
 shows "Preparing Export..."). The data calls are not visible in the served bundle
 (`/Scripts/script.bundle.js` is a generic ASP.NET/jQuery/chart bundle), `ResultsWS.asmx`
 redirects to the home page, and `sdresws.azurewebsites.us` answers 404 for `/api/*` and
-`/results`. Reverse-engineering the SPA's XHR calls was out of scope for this round.
+`/results`. The SPA's XHR calls were not reverse-engineered, so this route did not produce an
+adapter.
 
 ### TN — not possible
 `https://elections.tn.gov/` and `https://elections.tn.gov/results-by-county` resolve to a

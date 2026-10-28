@@ -1,10 +1,9 @@
-# STATES-1 — results adapters for MI WI NV OH NH ME IA NE MN VA CO
+# Results adapters: MI, WI, NV, OH, NH, ME, IA, NE, MN, VA and CO
 
-Package brief: round 2 of the missing-state results adapters. Every adapter registers in
-`electionwatch.sources.base.REGISTRY` under `results`, exposes a pure
+Each adapter registers in `electionwatch.sources.base.REGISTRY` under `results`, exposes a pure
 `parse_*(payload, ..., fetched_at=...)` and is tested against a trimmed real response in
 `tests/fixtures/<adapter>/<st>/` (each README.txt records the URLs and the fetch date).
-Nothing in the tests touches the network.
+Tests never touch the network.
 
 | State | Adapter | Feed | Status |
 |-------|---------|------|--------|
@@ -101,11 +100,10 @@ for `websiteupdatedat`), but their contest names miss the vendor adapter's patte
     IA: United States Representative District 1
     IA: State Senator District 2            IA: State Representative District 1
 
-Adding them to `clarity.ELECTIONS` alone would file those races as LOCAL, and fixing that
-means editing `clarity.race_key()` — which the brief forbids (parallel agents append to
-that module). So each state gets its own small module with its own `race_key()`, and both
-reuse `clarity.parse_settings` for `source_updated_at` and discover the election id from
-`<ST>/elections.json` when the date is not pinned.
+Adding them to `clarity.ELECTIONS` alone would file those races as LOCAL. Each state therefore
+has its own small module and `race_key()` mapper. Both reuse `clarity.parse_settings` for
+`source_updated_at` and discover the election id from `<ST>/elections.json` when the date is
+not pinned.
 
 - `co_sos`: `ELECTIONS["2024-11-05"] = "122598"`; regents, State Board of Education,
   district attorneys, judicial retention and amendments/propositions -> LOCAL slugs.
@@ -115,17 +113,7 @@ reuse `clarity.parse_settings` for `source_updated_at` and discover the election
   `<ST>/elections.json` is the path it will take, and is covered by tests using the 2025
   elections that are published today.
 
-## Notes for the integrator
-
-- No shared contract file was touched (`models.py`, `racekeys.py`, `settings.py`,
-  `sources/base.py`, `store/base.py`), and `docs/sources-results.md` was left alone; its
-  coverage table still lists these states as unimplemented.
-- `clarity.py` still has `IA` in its `states` set with no IA feed configured, so it raises
-  `SourceUnavailable` for IA; the poller logs and skips that source, and `ia_sos` serves the
-  state. Remove `IA` from `clarity.states` when the shared file is next edited.
-- No new dependencies: `selectolax` and `httpx` are already declared.
-
-Run the package tests:
+Run the adapter tests:
 
     pytest -q tests/test_results_*.py
 

@@ -20,8 +20,7 @@ Sources, in the order they are tried:
 GitHub is only listed through a blobless shallow clone (`git clone --filter=blob:none
 --no-checkout --depth 1`), cached under `<data>/_cache/git/`, and files are fetched from
 `raw.githubusercontent.com`. The REST contents API allows 60 unauthenticated requests an hour
-per IP and was the reason the 2014/2016 runs came back empty; it is now only a fallback for
-machines without `git`.
+per IP. The clone avoids that limit; the API remains a fallback for machines without `git`.
 
 ## Which OpenElections file is read
 
@@ -44,7 +43,7 @@ single county file beats its six county-precinct slices.
 files) are supported, and total votes are taken from `votes` or summed from `election_day`,
 `absentee`, `mail`, `early`, `provisional` and `advance` columns.
 
-## Coverage after the 2014/2016 work
+## Coverage for 2014 and 2016
 
 2014 (`--years 2014`, races = distinct race keys):
 
