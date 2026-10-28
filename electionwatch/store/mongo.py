@@ -1,10 +1,12 @@
 """MongoDB persistence using pymongo's native asyncio client."""
 from __future__ import annotations
 
+import time
 from datetime import datetime, timezone
 from typing import Any
 
 from pymongo import ASCENDING
+from pymongo.errors import ServerSelectionTimeoutError
 from pymongo.asynchronous.mongo_client import AsyncMongoClient
 
 from electionwatch.models import (
@@ -19,6 +21,11 @@ from electionwatch.racekeys import parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 _ODDS_TTL_SECONDS = 3 * 24 * 60 * 60
+# pymongo waits 30 s for a server by default. While MongoDB restarts, every slash command
+# would then hang past Discord's 3 s interaction deadline (the user sees "did not respond")
+# and every poller tick would stall for 30 s. Fail fast instead; a URI setting still wins.
+SERVER_SELECTION_TIMEOUT_MS = 2000
+STARTUP_WAIT_SECONDS = 30.0
 
 
 def _utc(value: datetime) -> datetime:
@@ -64,7 +71,9 @@ def _odds(doc: dict[str, Any]) -> OddsSnapshot:
 
 class MongoStore:
     def __init__(self, uri: str, database: str = "electionwatch", *, client: AsyncMongoClient | None = None):
-        self.client = client or AsyncMongoClient(uri, tz_aware=True)
+        options = {} if "serverselectiontimeoutms" in uri.lower() else {
+            "serverSelectionTimeoutMS": SERVER_SELECTION_TIMEOUT_MS}
+        self.client = client or AsyncMongoClient(uri, tz_aware=True, **options)
         self.db = self.client[database]
         self.guilds = self.db.guilds
         self.users = self.db.users
@@ -86,8 +95,16 @@ class MongoStore:
         )
         self._indexes_ready = True
 
-    async def ping(self) -> None:
-        await self.client.admin.command("ping")
+    async def ping(self, wait: float = STARTUP_WAIT_SECONDS) -> None:
+        """Startup check: keep trying for `wait` seconds (MongoDB may still be starting)."""
+        deadline = time.monotonic() + wait
+        while True:
+            try:
+                await self.client.admin.command("ping")
+                return
+            except ServerSelectionTimeoutError:
+                if time.monotonic() >= deadline:
+                    raise
 
     async def close(self) -> None:
         await self.client.close()

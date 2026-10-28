@@ -245,3 +245,11 @@ async def test_mongo_keeps_one_history_snapshot_per_change_and_round_trips_keys(
     assert await store.upsert_result(second.finalize()) is True
     assert len(store.result_history.docs) == 2
     assert await store.result_changed_at(special) == NOW + timedelta(minutes=1)
+
+
+def test_server_selection_fails_fast_unless_the_uri_says_otherwise():
+    """A MongoDB restart must not hold slash commands past Discord's 3 s deadline."""
+    fast = MongoStore("mongodb://127.0.0.1:1", database="ew_test")
+    assert fast.client.options.server_selection_timeout <= 2.5
+    slow = MongoStore("mongodb://127.0.0.1:1/?serverSelectionTimeoutMS=9000", database="ew_test")
+    assert slow.client.options.server_selection_timeout == 9.0

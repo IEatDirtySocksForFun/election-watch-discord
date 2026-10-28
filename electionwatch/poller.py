@@ -143,6 +143,7 @@ class Poller:
         # post; those are skipped. In memory: at most one repeat after a restart.
         self._last_body: dict[tuple[int, str, str], tuple[str, ...]] = {}
         self._backoff: dict[str, tuple[int, datetime | None]] = {}   # source -> (failures, skip until)
+        self._flags_specials: set[str] = set()   # sources seen answering for a special key itself
 
     def _watched(self, guild: GuildSettings) -> set[str]:
         return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
@@ -221,6 +222,18 @@ class Poller:
         await self._calls(now, guilds, outlet_keys)
         await self._exit_polls(now, guilds, outlet_keys)
         await self._odds(now, guilds, outlet_keys)
+
+    def _canonical_batch(self, source, items: list) -> list:
+        """Apply the special-election alias to one source's answers, unless the source flags
+        specials itself (it answered for a special key, now or earlier): then its plain-key
+        answers are the *regular* race (CA SEN vs CA SEN S in 2024, GA 2020, OK 2022). Aliasing
+        those made the regular and the special call alternate as "new" every tick."""
+        name = getattr(source, "name", repr(source))
+        if any(getattr(item.key, "special", False) for item in items):
+            self._flags_specials.add(name)
+        if name in self._flags_specials:
+            return list(items)
+        return [self._canonical(item) for item in items]
 
     def _canonical(self, item):
         """item with its key replaced by the watched special race it stands for, if any."""
@@ -308,7 +321,7 @@ class Poller:
             except Exception:
                 logger.exception("Call source %s failed", source.name)
                 continue
-            for call in map(self._canonical, calls):
+            for call in self._canonical_batch(source, calls):
                 try:
                     new = await self.store.record_call(call)
                 except Exception:
@@ -335,7 +348,7 @@ class Poller:
             except Exception:
                 logger.exception("Exit-poll source %s failed", source.name)
                 continue
-            for poll in map(self._canonical, polls):
+            for poll in self._canonical_batch(source, polls):
                 ref = f"{poll.key}:{poll.outlet}"
                 for guild in guilds:
                     if str(poll.key) not in self._watched(guild) or not guild.post_exit_polls:
@@ -353,7 +366,7 @@ class Poller:
             except Exception:
                 logger.exception("Odds source %s failed", source.name)
                 continue
-            for snapshot in map(self._canonical, fetched):
+            for snapshot in self._canonical_batch(source, fetched):
                 try:
                     await self.store.add_odds(snapshot)
                     snapshots.append(snapshot)
