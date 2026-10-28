@@ -203,8 +203,9 @@ class Poller:
 
     @staticmethod
     def _enabled(source) -> bool:
-        """The brief asks for every *available* adapter: whether a source is enabled by
-        default is decided by whoever built the sources dict (__main__ / the replay sandbox)."""
+        """Every adapter in the sources dict that says it's available right now (has its API key,
+        etc.). Whether it's enabled at all was decided when the dict was built (__main__ or the
+        replay sandbox)."""
         try:
             return source.available()
         except Exception:

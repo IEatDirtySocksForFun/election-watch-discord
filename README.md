@@ -1,9 +1,10 @@
 # election-watch-discord
 
-**A self-hosted Discord bot for US election night.** It posts live results for the races your
-server cares about, race calls from the outlets you trust, turnout, and prediction-market swings.
-Every member also gets a private race browser for odds, polls and a per-state voting FAQ. It is
-built for the **November 3, 2026 midterms** and is meant to be forked and customized.
+**A self-hosted Discord bot for US election night.** Point it at a channel and it posts live
+results for the races your server cares about, race calls from the outlets you trust, turnout and
+big prediction-market swings. Everyone in the server also gets a private race browser with odds,
+polls and a per-state voting FAQ. It's built for the **November 3, 2026 midterms**, and it's meant
+to be forked and bent to your needs.
 
 ```
 [#election-night]                                      Texas Senate
@@ -20,13 +21,13 @@ Source: tx_sos · Nov 04 03:41 UTC
   Anthropic, DeepSeek, Kimi, Ollama or any other model, at runtime or as a dependency.
 - **Your data stays yours.** It runs on your machine with your Discord token and your MongoDB.
 - **Tested on real election nights.** A replay sandbox reruns 2014–2024 results minute by minute
-  through the real bot, in Discord or offline.
+  through the real bot, in Discord or offline. `make sim` runs a quick one in about 15 seconds.
 
 ---
 
 ## Contents
 [Features](#features) · [Quick start](#quick-start) · [Recommended election-night setup](#recommended-election-night-setup) ·
-[Coverage](#coverage-by-state) · [Limitations](#limitations-read-this) · [Slash commands](#slash-commands) ·
+[Coverage](#coverage-by-state) · [Limitations](#limitations-worth-a-read) · [Slash commands](#slash-commands) ·
 [Race keys](#race-keys) · [Party markers](#party-markers) · [Testing](#testing) ·
 [Extending](#adding-a-data-source) · [How it works](#how-it-works)
 
@@ -36,7 +37,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 |---|---|
 | **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
 | **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
-| **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted as soon as they appear. |
+| **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted as soon as they appear, and a retracted call gets its own post. |
 | **Odds** | Kalshi and Polymarket for every watched race, refreshed in the background. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
 | **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia (refreshed every 30 minutes). |
 | **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI (downloaded hourly), credited with a link in every embed. |
@@ -88,8 +89,8 @@ Source: tx_sos · Nov 04 03:41 UTC
 ## Recommended election-night setup
 
 Out of the box, the bot only reads official state feeds and APIs that are free to use.
-Most people will want the national fallbacks and outlet race calls too. They read news sites'
-public JSON, so they are **off by default**. Enabling them is your decision; check each site's
+You'll probably want the national fallbacks and outlet race calls too. They read news sites'
+public JSON, so they're **off by default**: turning them on is your call, so check each site's
 terms first (Fox's election feed, used by `fox` and `fox_results`, has a `robots.txt` that
 disallows all automated access). For example:
 
@@ -102,15 +103,14 @@ Without that line:
   fallbacks are a second opinion if civicAPI is down.
 - **Race calls:** none are posted (AP and DDHQ need a paid key). civicAPI's free calls are
   opt-in: `/calls outlets:CIVICAPI enabled:on`.
-
 - **Exit polls:** no exit-poll links are posted.
 
 CNN's call feed (`cnn`) is left out above: it asks once per race and blocks bursts, so its
 request budget makes it slow. Fallback sources are only asked about races that no official feed
 answered completely.
 
-On election morning run `python tools/health_check.py` (civicAPI rows must turn from TEST to
-OK once returns arrive) and `/limits` in Discord to see each source's refresh interval.
+On election morning, run `make health` (civicAPI rows should flip from TEST to OK once real
+returns arrive) and `/limits` in Discord to see how often each source is being asked.
 
 ## Coverage by state
 
@@ -156,7 +156,7 @@ Down-ballot races (state legislature, local) come from official state and county
 Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 [docs/results/](docs/results/).
 
-## Limitations (read this)
+## Limitations (worth a read)
 
 - **2026 feeds aren't live yet.** Most states publish their 2026 election-night URLs or IDs
   only on, or just before, election day. The adapters discover them automatically where the
@@ -285,20 +285,20 @@ and register it with `@register`. The rules (contract in
               DiscordPoster ─► embeds in #election-night
 
  every hour ─► early-vote refresher ─► civicAPI pages ─► MongoDB
+ every 60 s ─► race-list refresher  ─► each source's races per state, a few states at a time ─► MongoDB
 
- slash commands ─► MongoDB (settings, results, odds, polls, early vote)
+ slash commands ─► MongoDB only (settings, results, odds, polls, early vote, race lists)
 ```
 
-`/odds`, `/polls` and `/earlyvote` never call a data source, so users repeating a command can't
-make the bot hammer an API. The `/races` browser and race autocomplete read state race lists
-from MongoDB too: a background refresh stores each results source's list per state, about hourly,
-a few states per source a minute. A race nobody watches is queued by the first request and fetched by the next refresh. A
-results source that is not due, backing off or failing answers with its last results for up to
-10 minutes, so the fallbacks aren't asked about races an official feed already answered. How
-often each source is asked is computed from its host's published rate limit; every number is
-configurable ([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)).
+No slash command ever calls a data source, so nobody can make the bot hammer an API by spamming
+a command. Race lists for `/races` and autocomplete are refreshed about hourly per state, a few
+states at a time. Ask about a race nobody watches and it's queued for the next refresh. If a
+results source is slow, backing off or failing, its last answer stands in for up to 10 minutes,
+so the fallbacks aren't asked about races an official feed already covered. How often each
+source gets asked comes from its host's published rate limit, and every number can be changed
+([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)).
 
 ## License
 
-MIT. Data belongs to its publishers. You are responsible for following the terms of any site
-you enable.
+MIT. The data belongs to its publishers, and following the terms of any site you turn on is
+up to you.
