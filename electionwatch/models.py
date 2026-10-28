@@ -88,34 +88,34 @@ class RaceResult:
         # Voted", "Registered Voters"...). Drop them so they neither show up as candidates nor
         # dilute the percentages; keep a registered-voter count for turnout.
         kept = []
-        for c in self.candidates:
-            label = c.name.strip().strip(":*").strip().lower()  # "Overvotes:", "Write-In**"
+        for candidate in self.candidates:
+            label = candidate.name.strip().strip(":*").strip().lower()  # "Overvotes:", "Write-In**"
             if _NOT_A_CANDIDATE.fullmatch(label):
                 if label.startswith("registered") and self.registered_voters is None:
-                    self.registered_voters = c.votes
+                    self.registered_voters = candidate.votes
                 continue
-            c.name = pretty_name(c.name)
-            kept.append(c)
+            candidate.name = pretty_name(candidate.name)
+            kept.append(candidate)
         if len(kept) != len(self.candidates):
-            for c in kept:
-                c.pct = None  # the source's shares included the dropped rows
+            for candidate in kept:
+                candidate.pct = None  # the source's shares included the dropped rows
             self.candidates = kept
-        tot = sum(c.votes for c in self.candidates)
+        total = sum(candidate.votes for candidate in self.candidates)
         if self.total_votes is None:
-            self.total_votes = tot
-        for c in self.candidates:
-            if c.pct is None and tot:
-                c.pct = round(100.0 * c.votes / tot, 2)
+            self.total_votes = total
+        for candidate in self.candidates:
+            if candidate.pct is None and total:
+                candidate.pct = round(100.0 * candidate.votes / total, 2)
         if self.turnout_pct is None and self.registered_voters and self.total_votes:
             self.turnout_pct = round(100.0 * self.total_votes / self.registered_voters, 2)
-        self.candidates.sort(key=lambda c: c.votes, reverse=True)
+        self.candidates.sort(key=lambda candidate: candidate.votes, reverse=True)
         return self
 
     def fingerprint(self) -> str:
         """Changes iff the vote picture changed. Used for "updated_results == true"."""
         core = {
             "k": str(self.key),
-            "c": sorted((c.name, c.votes) for c in self.candidates),
+            "c": sorted((candidate.name, candidate.votes) for candidate in self.candidates),
             "p": self.precincts_reporting,
             "e": None if self.expected_vote_pct is None else round(self.expected_vote_pct, 1),  # as displayed
         }
@@ -188,21 +188,23 @@ class ImportantRace:
     notes: str | None = None
 
 
-def to_doc(obj) -> dict:
+def to_doc(instance) -> dict:
     """dataclass -> Mongo/JSON-safe dict (RaceKey becomes its string form)."""
 
-    def conv(v):
-        if isinstance(v, RaceKey):
-            return str(v)
-        if isinstance(v, Enum):
-            return v.value
-        if isinstance(v, list):
-            return [conv(x) for x in v]
-        if isinstance(v, dict):
-            return {k: conv(x) for k, x in v.items()}
-        return v
+    def json_safe(value):
+        if isinstance(value, RaceKey):
+            return str(value)
+        if isinstance(value, Enum):
+            return value.value
+        if isinstance(value, list):
+            return [json_safe(element) for element in value]
+        if isinstance(value, dict):
+            return {field: json_safe(element) for field, element in value.items()}
+        return value
 
-    return {k: conv(v) for k, v in asdict(obj).items()} | ({"key": str(obj.key)} if hasattr(obj, "key") else {})
+    return {field: json_safe(value) for field, value in asdict(instance).items()} | (
+        {"key": str(instance.key)} if hasattr(instance, "key") else {}
+    )
 
 
 _PARTY_ALIASES = {
@@ -229,8 +231,8 @@ def normalize_party(party: str | None) -> str | None:
     """Canonical party code (REP/DEM/LIB/GRN/IND/...). Adapters should store this form."""
     if not party:
         return None
-    p = party.strip().upper().rstrip(".")
-    return _PARTY_ALIASES.get(p, p)
+    code = party.strip().upper().rstrip(".")
+    return _PARTY_ALIASES.get(code, code)
 
 
 # Ballot statistics some feeds list as if they were candidates. Real ballot options (Nevada's
@@ -272,11 +274,11 @@ def pretty_name(name: str) -> str:
     title-casing mistakes are repaired ("Mcsally" -> "McSally", "Iii" -> "III", "Jr" -> "Jr.")."""
     # U+FFFD = a character the source already lost (OpenElections' 2014 Indiana file has
     # "Andr\ufffd Carson"); drop it rather than post a replacement box.
-    n = " ".join(_demojibake(name).replace("\ufffd", "").split())
+    cleaned = " ".join(_demojibake(name).replace("\ufffd", "").split())
     # "Begich, Nick" -> "Nick Begich" (Alaska and others list surname first); keep
     # "Angus King, Jr." as is.
-    if n.count(",") == 1:
-        last, first = (x.strip() for x in n.split(","))
+    if cleaned.count(",") == 1:
+        last, first = (part.strip() for part in cleaned.split(","))
         if (
             _SURNAME.fullmatch(last)
             and 1 <= len(first.split()) <= 3
@@ -287,12 +289,12 @@ def pretty_name(name: str) -> str:
         ):
             if last.isupper() and not first.isupper():
                 last = last.title()
-            n = f"{first} {last}"
-    caps = n.isupper() and len(n) > 1
+            cleaned = f"{first} {last}"
+    caps = cleaned.isupper() and len(cleaned) > 1
     if caps:
-        n = n.title()
+        cleaned = cleaned.title()
     parts = []
-    for i, word in enumerate(n.split(" ")):
+    for i, word in enumerate(cleaned.split(" ")):
         bare = word.strip(".,").lower()
         if bare in _SUFFIX and i > 0:
             word = _SUFFIX[bare] + ("," if word.endswith(",") else "")
@@ -302,12 +304,12 @@ def pretty_name(name: str) -> str:
             and word.isalpha()
             and not set(bare) & set("aeiouy")
             and (caps or (word.istitle() and bare not in _VOWELLESS_NAMES))
-            and " " in n
+            and " " in cleaned
         ):
             # Vowel-less two-letter first names are initials: "JB PRITZKER" -> "JB Pritzker",
             # and feeds that title-cased them already ("Jd Vance") -> "JD Vance".
             word = word.upper()
         else:
-            word = re.sub(r"\bMc([a-z])", lambda m: "Mc" + m.group(1).upper(), word)
+            word = re.sub(r"\bMc([a-z])", lambda match: "Mc" + match.group(1).upper(), word)
         parts.append(word)
     return " ".join(parts)

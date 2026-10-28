@@ -126,11 +126,15 @@ def parse(text: str) -> RaceKey:
     if long:
         return long
 
-    m = re.fullmatch(r"([A-Za-z]{2})-(\d{1,2}|AL|al)(?:\s+(S|SPECIAL))?", raw, re.I)
-    if m:
-        dist = m.group(2).upper()
+    match = re.fullmatch(r"([A-Za-z]{2})-(\d{1,2}|AL|al)(?:\s+(S|SPECIAL))?", raw, re.I)
+    if match:
+        dist = match.group(2).upper()
         return RaceKey(
-            _state(m.group(1)), Level.HOUSE, "HOUSE", "AL" if dist == "AL" else f"{int(dist):02d}", bool(m.group(3))
+            _state(match.group(1)),
+            Level.HOUSE,
+            "HOUSE",
+            "AL" if dist == "AL" else f"{int(dist):02d}",
+            bool(match.group(3)),
         )
 
     toks = re.split(r"[\s-]+", raw, maxsplit=1)
@@ -144,11 +148,11 @@ def parse(text: str) -> RaceKey:
         return RaceKey(st, Level.SENATE, "SEN", None, _special(rest[1:]))
     if office in STATEWIDE:
         return RaceKey(st, Level.GOVERNOR, office, None, _special(rest[1:]))
-    m = re.fullmatch(r"(SD|HD)-?([A-Z]{1,4}(?:-(?:[A-Z]{1,4}|\d{1,3}[A-Z]?))*|\d{1,3}[A-Z]?)", office)
-    if m:
-        d = m.group(2)
-        d = f"{int(d):02d}" if d.isdigit() else d
-        return RaceKey(st, Level.STATE, m.group(1), d, _special(rest[1:]))
+    match = re.fullmatch(r"(SD|HD)-?([A-Z]{1,4}(?:-(?:[A-Z]{1,4}|\d{1,3}[A-Z]?))*|\d{1,3}[A-Z]?)", office)
+    if match:
+        district = match.group(2)
+        district = f"{int(district):02d}" if district.isdigit() else district
+        return RaceKey(st, Level.STATE, match.group(1), district, _special(rest[1:]))
     if office in ("SD", "HD") and len(rest) >= 2:
         return parse(f"{st} {office}-{rest[1]}" + (" " + " ".join(rest[2:]) if rest[2:] else ""))
     if office == "LOCAL":
@@ -165,9 +169,9 @@ def _parse_long(raw: str) -> RaceKey | None:
         if not low.startswith(name + " "):
             continue
         tail = low[len(name) + 1 :].strip()
-        m = re.fullmatch(r"(?:congressional|house)\s+district\s+(\d{1,2})", tail)
-        if m:
-            return RaceKey(st, Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
+        match = re.fullmatch(r"(?:congressional|house)\s+district\s+(\d{1,2})", tail)
+        if match:
+            return RaceKey(st, Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
         if tail in ("senate", "senate race", "us senate", "u.s. senate"):
             return RaceKey(st, Level.SENATE, "SEN")
         if tail in ("senate special", "special senate"):
@@ -179,33 +183,33 @@ def _parse_long(raw: str) -> RaceKey | None:
     return None
 
 
-def format_key(k: RaceKey) -> str:
-    sp = " S" if k.special else ""
-    if k.level is Level.HOUSE:
-        return f"{k.state}-{k.district}{sp}"
-    if k.level is Level.STATE:
-        return f"{k.state} {k.office}-{k.district}{sp}"
-    if k.level is Level.LOCAL:
-        return f"{k.state} LOCAL {k.district}"
-    return f"{k.state} {k.office}{sp}"
+def format_key(key: RaceKey) -> str:
+    suffix = " S" if key.special else ""
+    if key.level is Level.HOUSE:
+        return f"{key.state}-{key.district}{suffix}"
+    if key.level is Level.STATE:
+        return f"{key.state} {key.office}-{key.district}{suffix}"
+    if key.level is Level.LOCAL:
+        return f"{key.state} LOCAL {key.district}"
+    return f"{key.state} {key.office}{suffix}"
 
 
-def describe(k: RaceKey) -> str:
+def describe(key: RaceKey) -> str:
     """Human name: 'North Carolina Congressional District 1', 'Texas Senate'."""
-    st = ALL_JURISDICTIONS[k.state]
-    sp = " (Special)" if k.special else ""
-    if k.level is Level.HOUSE and k.state in TERRITORIES:
-        title = "Resident Commissioner" if k.state == "PR" else "Delegate to Congress"
-        return f"{st} {title}{sp}"
-    if k.level is Level.HOUSE:
-        if k.district == "AL":
-            return f"{st} At-Large Congressional District{sp}"
-        return f"{st} Congressional District {int(k.district)}{sp}"
-    if k.level is Level.SENATE:
-        return f"{st} Senate{sp}"
-    if k.level is Level.GOVERNOR:
-        return f"{st} {STATEWIDE.get(k.office, k.office)}{sp}"
-    if k.level is Level.STATE:
-        ch = "State Senate" if k.office == "SD" else "State House"
-        return f"{st} {ch} District {k.district.lstrip('0') or '0'}{sp}"
-    return f"{st} local: {k.district.replace('-', ' ')}"
+    state_name = ALL_JURISDICTIONS[key.state]
+    suffix = " (Special)" if key.special else ""
+    if key.level is Level.HOUSE and key.state in TERRITORIES:
+        title = "Resident Commissioner" if key.state == "PR" else "Delegate to Congress"
+        return f"{state_name} {title}{suffix}"
+    if key.level is Level.HOUSE:
+        if key.district == "AL":
+            return f"{state_name} At-Large Congressional District{suffix}"
+        return f"{state_name} Congressional District {int(key.district)}{suffix}"
+    if key.level is Level.SENATE:
+        return f"{state_name} Senate{suffix}"
+    if key.level is Level.GOVERNOR:
+        return f"{state_name} {STATEWIDE.get(key.office, key.office)}{suffix}"
+    if key.level is Level.STATE:
+        chamber = "State Senate" if key.office == "SD" else "State House"
+        return f"{state_name} {chamber} District {key.district.lstrip('0') or '0'}{suffix}"
+    return f"{state_name} local: {key.district.replace('-', ' ')}"

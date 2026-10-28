@@ -21,7 +21,7 @@ def detect_swing(
     """
     if len(history) < 2:
         return None
-    latest = max(history, key=lambda s: s.ts)
+    latest = max(history, key=lambda snapshot: snapshot.ts)
     cutoff = latest.ts - window
     best: tuple[float, OddsSnapshot, OddsSnapshot] | None = None
     for earlier in history:
