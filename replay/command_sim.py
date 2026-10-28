@@ -1475,8 +1475,10 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
     lat = latency_table(res)
     tk = [s for _, s in res.ticks]
     st = night.stalls or [0.0]
-    worst = max(v["max"] for v in lat.values()) + max(st)
-    c.ok(worst <= DEADLINE_FLAG_S, f"worst case (slowest callback {worst - max(st):.2f}s + loop blocked "
+    # The 3 s deadline is for the first response (message or defer); a deferred command has
+    # 15 minutes for its followup, so the worst case is the slowest *ack* + the longest stall.
+    worst = max(v["ack_max"] or v["max"] for v in lat.values()) + max(st)
+    c.ok(worst <= DEADLINE_FLAG_S, f"worst case (slowest ack {worst - max(st):.2f}s + loop blocked "
                                    f"{max(st):.2f}s by a tick) = {worst:.2f}s > {DEADLINE_FLAG_S}s")
     res.extra["stall"] = {"p50": pct(st, 50), "p95": pct(st, 95), "max": max(st),
                           "tick_p50": pct(tk, 50), "tick_p95": pct(tk, 95), "tick_max": max(tk)}
