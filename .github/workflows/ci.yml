@@ -34,7 +34,7 @@ jobs:
     env:
       EW_TEST_MONGO_URI: mongodb://127.0.0.1:27017
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: actions/setup-python@v5
