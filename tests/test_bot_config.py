@@ -1,7 +1,7 @@
 import yaml
 
 from electionwatch.__main__ import validate_env
-from electionwatch.config import load_env, load_races, parse_env_line
+from electionwatch.config import DEFAULT_RACES_FILE, load_env, load_races, parse_env_line
 
 
 def test_env_files_accept_colon_and_equals_without_overriding(monkeypatch, tmp_path):
@@ -31,6 +31,12 @@ def test_validate_env_reports_names_not_values():
         "DEV_GUILD_ID"
     ]
     assert validate_env({"DISCORD_TOKEN": "not-printed", "MONGODB_URI": "not-printed", "DEV_GUILD_ID": "123"}) == []
+
+
+def test_the_shipped_races_file_loads_and_lists_races():
+    # The other tests use tests/fixtures/races.yaml; this one checks the file the bot ships
+    # with, so a typo like "important:important:" (no default races at all) fails here.
+    assert load_races(DEFAULT_RACES_FILE)
 
 
 def test_load_races_validates_and_canonicalizes(tmp_path):
