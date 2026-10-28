@@ -290,7 +290,9 @@ class RateBook:
             self._held.pop(name, None)
             self._cost[name] = self._running.pop(name)
             family = self._family_of(name)
-            if family:
+            if family and self._cost[name]:
+                # A part answered from a cache made no request; it says nothing about what
+                # the next new part will cost, so keep the last real cost.
                 self._family[family] = self._cost[name]
             now = self.clock()
             self._last[name] = now

@@ -147,10 +147,10 @@ async def test_the_first_sweep_is_gradual_and_in_priority_order():
     clock, store, book, lists = await setup(national, guilds=guilds)
     lists.want("MT")
     await lists.refresh()
-    assert national.asked == ["MT", "TX", "GA"]              # demanded, then watched (2: default)
+    assert national.asked == ["MT", "GA", "PA"]              # demanded, then watched
     clock.t += 60
     await lists.refresh()
-    assert national.asked[3:] == ["PA", "AK", "AL"]          # watched, then the rest
+    assert national.asked[3:] == ["TX", "AK", "AL"]          # watched (2: default race), then the rest
     ticks = 2
     while len(set(national.asked)) < len(ALL_JURISDICTIONS):
         clock.t += 60
@@ -242,13 +242,17 @@ async def test_a_failing_source_keeps_its_lists_and_does_not_touch_another_sourc
     clock.t += 60
     await lists.refresh()
     assert await lists.stored("TX") == before                  # both stored lists survive
-    # A failing source backs off (1 minute, then 2, 4, ...) instead of being asked every
-    # minute, and the failed state is retried after the back-off, not an hour later.
+    # The national source went on with other states after TX failed; the official one (TX
+    # only) failed on everything it tried and backs off as a whole.
+    assert national.asked[-STATES_PER_TICK:][0] == "TX" and len(set(national.asked)) > 3
+    # A failed state backs off (1 minute, then 2, 4, ...) instead of being asked every
+    # minute, and is retried after the back-off, not an hour later.
     asked = len(national.asked)
     await lists.refresh()
-    assert len(national.asked) == asked and official.asked.count("TX") == 2
+    assert "TX" not in national.asked[asked:] and official.asked.count("TX") == 2
     clock.t += 60
     national.fail = set()
+    asked = len(national.asked)
     await lists.refresh()
     assert national.asked[asked] == "TX" and official.asked.count("TX") == 3
     clock.t += 60                                              # official: 2 minutes now
@@ -385,3 +389,101 @@ def test_an_operator_interval_for_race_lists_covers_every_state():
     assert book.interval(budget_name("national", "TX"), KIND) == 600
     assert RateBook(intervals={"racelists": 900}).interval(budget_name("x", "OH"), KIND) == 900
     assert RateBook(intervals={"national": 120}).interval(budget_name("national", "OH"), KIND) == 120
+
+
+# --------------------------------------------------------------------------- review regressions
+async def test_one_state_that_keeps_failing_does_not_stop_the_sweep():
+    # civicAPI answering 400 for one jurisdiction must not keep every other state unlisted.
+    national = National()
+    national.fail = {"AK"}                                     # first in the never-listed order
+    clock, store, book, lists = await setup(national)
+    for _ in range(45):
+        await lists.refresh()
+        clock.t += 60
+    stored = await store.cached_idents(CACHE)
+    assert len(stored) == len(ALL_JURISDICTIONS) - 1           # everything but AK
+    assert cache_ident("AK", "national") not in stored
+    # AK backs off on its own (1, 2, 4, 8, 15... minutes) instead of being asked every minute.
+    assert 3 <= national.asked.count("AK") <= 7
+    assert (await lists.stored("AK"))[1]                       # still loading, not "no races"
+
+
+async def test_a_host_that_is_down_is_not_asked_about_every_state_each_minute():
+    national = National()
+    national.fail = set(ALL_JURISDICTIONS)
+    clock, store, book, lists = await setup(national)
+    for _ in range(60):
+        await lists.refresh()
+        clock.t += 60
+    assert len(national.asked) <= 20                           # source back-off: 1, 2, 4, 8, 15 min
+
+
+async def test_a_first_empty_answer_is_retried_soon_and_still_shows_loading():
+    # cnn_results and al_counties answer [] when their feed errors or is not live yet.
+    national = National()
+    national.empty = {"OH"}
+    clock, store, book, lists = await setup(national)
+    lists.want("OH")
+    await lists.refresh()
+    assert (await lists.stored("OH")) == ({}, True)            # not frozen as "no races"
+    national.empty = set()                                     # the feed comes up
+    for _ in range(10):
+        clock.t += 60
+        lists.want("OH")
+        await lists.refresh()
+    found, loading = await lists.stored("OH")
+    assert "OH SEN" in found and not loading                   # within minutes, not an hour
+
+
+async def test_a_state_with_genuinely_no_races_stops_loading_after_a_few_tries():
+    national = National()
+    national.empty = {"OH"}
+    clock, store, book, lists = await setup(national)
+    for _ in range(40):
+        lists.want("OH")
+        await lists.refresh()
+        clock.t += 60
+    assert await lists.stored("OH") == ({}, False)
+    assert national.asked.count("OH") == 3
+
+
+def test_a_part_without_requests_keeps_its_siblings_cost():
+    clock = Clock()
+    book = RateBook({"cnn.io": Limit(60, 3600)}, clock=clock.seconds)   # 30 an hour
+    with book.track(budget_name("national", "TX"), KIND):
+        book.record(HOST)
+        book.record(HOST)
+    with book.track("cnn:results", "results"):
+        for _ in range(28):
+            book.record(HOST)
+    assert not book.due(budget_name("national", "AL"), KIND)
+    with book.track(budget_name("national", "OH"), KIND):
+        pass                                                   # answered from a cache
+    assert not book.due(budget_name("national", "AL"), KIND)
+
+
+async def test_the_newest_request_goes_first_and_age_order_still_applies():
+    national = National()
+    clock, store, book, lists = await setup(national, limits={"cnn.io": Limit(10_000, 60)})
+    for state in ALL_JURISDICTIONS:                            # every state asked for once
+        lists.want(state)
+    while await lists.refresh():
+        clock.t += 60
+    clock.t += FLOORS[KIND] + 60                               # all stale, oldest first...
+    lists.want("TX")                                           # ...but TX was just asked for
+    before = len(national.asked)
+    await lists.refresh()
+    asked = national.asked[before:]
+    assert asked[0] == "TX"
+    oldest = [state for state in sorted(national.asked[:STATES_PER_TICK]) if state != "TX"]
+    assert asked[1:] == oldest[:STATES_PER_TICK - 1]          # then the oldest lists
+
+
+def test_demand_keeps_requests_in_the_order_they_were_last_made():
+    clock = Clock()
+    demand = Demand(clock=clock.seconds)
+    for state in ("TX", "OH", "PA", "GA"):
+        demand.add(KIND, state)
+        clock.t += 1
+    demand.add(KIND, "OH")
+    assert demand.items(KIND) == ["TX", "PA", "GA", "OH"]

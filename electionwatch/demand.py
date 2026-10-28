@@ -34,10 +34,12 @@ class Demand:
         asked = self._live(kind)
         if ident not in asked and len(asked) >= self.limit:
             return False
+        asked.pop(ident, None)            # keep the list in the order requests were last made
         asked[ident] = self.clock()
         return True
 
     def items(self, kind: str) -> list[str]:
+        """Live requests, oldest first (by when each was last made)."""
         return list(self._live(kind))
 
     def _live(self, kind: str) -> dict[str, float]:

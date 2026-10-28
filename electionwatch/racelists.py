@@ -7,9 +7,10 @@ those entries (RaceLists.stored).
 
 Which states a source is asked about, in this order:
 
-  1. states users opened in /races or typed in autocomplete (electionwatch/demand.py, kind
-     "racelists"), so someone looking at a state that is still loading gets it first;
-  2. the states of the races any server watches;
+  1. states someone opened in /races or typed in autocomplete since their list was stored
+     (or that have no list yet), newest request first: that person is looking at it now;
+  2. the other requested states (electionwatch/demand.py, kind "racelists", kept for a day)
+     and the states of the races any server watches, oldest list first;
   3. every other state the source covers, never-listed states first, then the oldest list,
      so browsing works out of the box.
 
@@ -21,6 +22,12 @@ the hourly check can hold it back. On top of that a refresh lists at most STATES
 states per source: a new install fills in a national source's 56 states over about twenty
 minutes instead of sending them all at once, and a restart skips lists the database still has
 fresh.
+
+A state that fails backs off on its own (1, 2, 4, 8, then 15 minutes) and the source moves on
+to the next state; only a source failing on every state it tries backs off as a whole. A
+first answer of "no races" is not stored straight away: several adapters answer that when
+their feed is down or not live yet, so it is asked again in 5 and then 15 minutes, and only
+the third empty answer is stored (the state keeps showing "loading" until then).
 """
 from __future__ import annotations
 
@@ -43,6 +50,8 @@ STATES_PER_TICK = 3       # states listed per source per refresh
 #: down often answers "no races" rather than failing, and race lists don't vanish overnight.
 KEEP_ON_EMPTY = timedelta(days=1)
 READ_TIMEOUT = 2.0        # autocomplete must answer within Discord's 3 s deadline
+FAILURES_PER_TICK = 2     # a source stops for this refresh after this many failed states
+EMPTY_RETRIES = (timedelta(minutes=5), timedelta(minutes=15))   # before an empty answer is stored
 
 
 def budget_name(source: str, state: str) -> str:
@@ -114,6 +123,10 @@ class RaceLists:
         self.timeout = timeout
         self._lock = asyncio.Lock()
         self._backoff: dict[str, tuple[int, datetime]] = {}   # source -> (failures, skip until)
+        self._failures: dict[str, int] = {}       # budget entry (source and state) -> failures in a row
+        self._empties: dict[str, int] = {}        # budget entry -> empty answers with nothing stored
+        self._hold: dict[str, datetime] = {}      # budget entry -> not before
+        self._wanted: dict[str, datetime] = {}    # state -> when someone last looked at it
         self._stale_before: datetime | None = None             # set by force()
 
     def _now(self) -> datetime:
@@ -135,7 +148,10 @@ class RaceLists:
     # ------------------------------------------------------------------ commands
     def want(self, state: str) -> None:
         """Someone is looking at this state: list it before the states nobody looks at."""
-        if self.demand is not None and state in ALL_JURISDICTIONS:
+        if state not in ALL_JURISDICTIONS:
+            return
+        self._wanted[state] = self._now()
+        if self.demand is not None:
             self.demand.add(KIND, state)
 
     async def stored(self, state: str) -> tuple[dict[str, tuple[RaceKey, str]], bool]:
@@ -181,7 +197,8 @@ class RaceLists:
         """/refresh: treat every stored list as stale (still a few states per source a minute,
         and still within each host's hourly allowance)."""
         self._stale_before = self._now()
-        self._backoff.clear()
+        for held in (self._backoff, self._failures, self._empties, self._hold):
+            held.clear()
         if self.rates is not None:
             self.rates.force({KIND})
 
@@ -200,8 +217,8 @@ class RaceLists:
                 return 0
             now = self._now()
             stored = {ident: _utc(at) for ident, at in (await self.store.cached_idents(CACHE)).items()}
-            demanded = [state for state in self.demand.items(KIND) if state in ALL_JURISDICTIONS] \
-                if self.demand is not None else []
+            asked = self.demand.items(KIND) if self.demand is not None else list(self._wanted)
+            demanded = [state for state in asked if state in ALL_JURISDICTIONS]
             watched = await self._watched_states()
             counts = await asyncio.gather(
                 *(self._refresh_source(source, now, stored, demanded, watched) for source in sources),
@@ -243,28 +260,41 @@ class RaceLists:
             return True
         return (now - at).total_seconds() >= self._max_age(name)
 
+    def _order(self, source, name: str, stored: dict[str, datetime], demanded: list[str],
+               watched: list[str]) -> list[str]:
+        covered = set(source.states)
+
+        def at(state: str) -> datetime | None:
+            return stored.get(cache_ident(state, name))
+
+        def age(state: str) -> tuple:
+            when = at(state)
+            return (0, 0.0, state) if when is None else (1, when.timestamp(), state)
+
+        # Someone is looking at these now: newest request first.
+        waiting = [state for state in demanded if state in covered and state in self._wanted
+                   and (at(state) is None or self._wanted[state] > at(state))]
+        waiting.sort(key=lambda state: self._wanted[state], reverse=True)
+        known = {state for state in [*demanded, *watched] if state in covered} - set(waiting)
+        rest = covered - known - set(waiting)
+        return waiting + sorted(known, key=lambda state: age(state)[1:]) + sorted(rest, key=age)
+
     async def _refresh_source(self, source, now: datetime, stored: dict[str, datetime],
                               demanded: list[str], watched: list[str]) -> int:
         name = getattr(source, "name", repr(source))
         failures, until = self._backoff.get(name, (0, None))
         if until is not None and now < until:
             return 0
-        covered = set(source.states)
-        first = [state for state in demanded if state in covered]
-        first += [state for state in watched if state in covered and state not in first]
-
-        def age(state: str) -> tuple:
-            at = stored.get(cache_ident(state, name))
-            return (0, 0.0, state) if at is None else (1, at.timestamp(), state)
-
-        order = first + sorted(covered - set(first), key=age)
-        done = 0
-        for state in order:
-            if done >= STATES_PER_TICK:
+        done = failed = 0
+        for state in self._order(source, name, stored, demanded, watched):
+            if done + failed >= STATES_PER_TICK or failed >= FAILURES_PER_TICK:
                 break
             entry = budget_name(name, state)
             at = stored.get(cache_ident(state, name))
             if not self._stale(at, entry, now):
+                continue
+            hold = self._hold.get(entry)
+            if hold is not None and now < hold:
                 continue
             # due() and track() with no await in between: see RateBook.track.
             if self.rates is not None and not self.rates.due(entry, KIND):
@@ -275,20 +305,27 @@ class RaceLists:
                     races = await asyncio.wait_for(source.list_races(state, self.http), self.timeout)
                 text = dump_list(races)
             except Exception as exc:
-                # Back off like the poller does (1, 2, 4, 8, then 15 minutes), then try this
-                # state again; the stored list stays as it was.
-                failures += 1
-                wait = timedelta(minutes=min(2 ** (failures - 1), 15))
-                self._backoff[name] = (failures, now + wait)
-                if self.rates is not None:
-                    # Not a whole interval: a state still loading should not wait an hour.
-                    self.rates.retry_in(entry, wait.total_seconds())
+                # This state backs off on its own (1, 2, 4, 8, then 15 minutes) and the source
+                # goes on with the next one: one jurisdiction the source can't answer must not
+                # keep every other state unlisted. The stored list stays as it was.
+                failed += 1
+                count = self._failures[entry] = self._failures.get(entry, 0) + 1
+                self._retry(entry, now, timedelta(minutes=min(2 ** (count - 1), 15)))
                 logger.warning("Could not list %s races from %s: %s", state, name, type(exc).__name__)
-                return done
-            if failures:
-                self._backoff.pop(name, None)
-                failures = 0
+                continue
+            self._failures.pop(entry, None)
+            self._hold.pop(entry, None)
             done += 1
+            if not races and at is None:
+                # Nothing stored yet and "no races": often a feed that is down or not live yet
+                # (some adapters answer [] instead of failing). Ask again soon; store it only
+                # when it keeps saying so.
+                count = self._empties[entry] = self._empties.get(entry, 0) + 1
+                if count <= len(EMPTY_RETRIES):
+                    self._retry(entry, now, EMPTY_RETRIES[count - 1])
+                    continue
+            if races:
+                self._empties.pop(entry, None)
             if not races and at is not None and now - at < KEEP_ON_EMPTY and await self._has_races(state, name):
                 logger.info("%s listed no %s races; keeping the stored list", name, state)
                 continue
@@ -297,7 +334,21 @@ class RaceLists:
             except Exception:
                 logger.exception("Could not store the %s race list from %s", state, name)
                 return done
+            self._empties.pop(entry, None)
+        if failed and not done:
+            # Every state it tried failed: the host is probably down. Back off the whole
+            # source like the poller does, so it isn't asked about two states every minute.
+            failures += 1
+            self._backoff[name] = (failures, now + timedelta(minutes=min(2 ** (failures - 1), 15)))
+        elif done:
+            self._backoff.pop(name, None)
         return done
+
+    def _retry(self, entry: str, now: datetime, wait: timedelta) -> None:
+        """Try this (source, state) again after `wait`, not a whole refresh interval."""
+        self._hold[entry] = now + wait
+        if self.rates is not None:
+            self.rates.retry_in(entry, wait.total_seconds())
 
     async def _has_races(self, state: str, name: str) -> bool:
         try:
