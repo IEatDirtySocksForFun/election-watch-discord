@@ -1,4 +1,9 @@
-"""Polling orchestration: fetch, persist, apply per-guild rules, and build Posts."""
+"""Polling orchestration: fetch, persist, apply per-guild rules, and build Posts.
+
+Each tick asks every enabled source that is due under its request budget
+(electionwatch/ratelimit.py): results, calls, exit polls and odds for the watched races, polls
+every 30 minutes, plus the races users asked about (electionwatch/demand.py). Everything is
+stored in MongoDB, which is what the data commands (/odds, /polls, /earlyvote) read."""
 from __future__ import annotations
 
 import asyncio

@@ -70,3 +70,32 @@ python -m replay.run --year 2020 --mode interval --interval 15 --max-hours 8
   repeated call posts). Exit code 1 if a check fails, 2 if the poller or the data is missing.
 - Test it without data: `pytest -q tests/test_replay.py` uses the 4-snapshot fixture timeline; its
   end-to-end test is skipped until `electionwatch.poller` exists.
+
+## Command simulations
+
+```sh
+python -m replay.command_sim --years 2014,2016,2018,2020,2022,2024 --races top
+python -m replay.command_sim --years 2024 --races all --scenarios latency,latencymongo \
+    --mongo-uri mongodb://127.0.0.1:27017 --mongod-bin "$(command -v mongod)"
+python -m replay.command_sim --list
+```
+
+A replay night runs through the real poller of a real (never started) `ElectionBot`; at scripted
+times the real slash-command callbacks run with fake interactions (admins, members, a delegated
+admin role). Seventeen scenarios check the effect on the posts: pause/resume, posting modes, watch
+changes, call outlets, turnout and exit polls, odds alerts, a channel change, non-admins trying
+every admin command, read-only commands under load (memory and MongoDB), two servers, MongoDB
+errors and a mongod restart, a 30-minute results outage (the source's last answer stands in for
+10 minutes, then fallbacks), the admin role, invalid input and posting changes while paused.
+Request budgets and cooldowns run on the replay's clock. Output: `replay/out/sims/<stamp>/`.
+
+## Live checks
+
+- `python tools/health_check.py`: asks every results adapter for each state it covers and prints
+  OK / EMPTY / UNAVAILABLE / ERROR / TIMEOUT (civicAPI: TEST until real returns arrive).
+- `python tools/live_command_check.py --guild <id> --channel <id>`: syncs the commands to a test
+  server and posts every embed, view and text the commands can produce into a thread, so Discord
+  itself validates the payloads. Ephemeral delivery is proven at payload level by
+  `tests/test_interaction_payloads.py`.
+- `python -m replay.discord_live --year 2022 ... --guild <id> --channel <id>`: a whole replay night
+  posted into a real channel.

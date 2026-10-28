@@ -37,12 +37,13 @@ Source: tx_sos · Nov 04 03:41 UTC
 | **Results** | Official state and county election-night feeds for 40 states + DC, backed by [civicAPI](https://civicapi.org) for every state (on by default), plus optional national fallbacks from CBS, NBC, Fox, ABC and CNN. Shows the top 5 candidates, party markers, expected vote, precincts and turnout. |
 | **Posting rule** | Per server: every 5 minutes if numbers changed (default), every *N* minutes if changed, or on every change. An update is never re-posted when it would look identical. |
 | **Race calls** | From the outlets you choose: AP, DDHQ, CNN, NBC, CBS, Fox, ABC, and civicAPI's own decision desk (free, opt-in). Posted the moment they appear, with retractions. |
-| **Odds** | Kalshi and Polymarket for every watched race. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
-| **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia. |
-| **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI, credited with a link in every embed. |
+| **Odds** | Kalshi and Polymarket for every watched race, refreshed in the background. `/odds` shows them privately; optional alerts fire on big swings (default: 50 points in 60 minutes, adjustable). |
+| **Polls** | `/polls` shows the latest 5 public polls for a race, internal and partisan polls tagged, merged from VoteHub, 270toWin and Wikipedia (refreshed every 30 minutes). |
+| **Early vote** | `/earlyvote [state] [breakdown:party·method·age·county]` privately shows ballots cast before Election Day (mail returned + in person, requests, party, age, top counties, and the same point in the last comparable election) for the 46 states [civicAPI](https://civicapi.org/early-vote) tracks; no state = every state. Optional daily summary for watched states (`/earlyvote_posts on`, off by default). Data from civicAPI (downloaded hourly), credited with a link in every embed. |
 | **Race browser** | `/races` is a private browser with Congressional, Senate, State and Local tabs and a state picker. Each race has Odds and Polls buttons, and it remembers your last view. |
 | **Voting FAQ** | `/faq <state>` covers poll-closing times, what each state counts first and last, mail deadlines, recount thresholds and typical call times. All 50 states + DC are covered, each with official sources. |
-| **Per-server settings** | Stored in MongoDB: channel, watched races, posting mode, outlets, alert thresholds and an admin role. |
+| **Per-server settings** | Stored in MongoDB: channel, watched races, posting mode, outlets, alert thresholds, an admin role and command limits. |
+| **Polite to its sources** | `/odds`, `/polls` and `/earlyvote` never call a data source: they read what the background refresh stored in MongoDB. Each source host gets at most half of its published rate limit per hour, shared evenly by the sources that use it; users can't make the bot hammer an API by repeating a command. |
 
 ## Quick start
 
@@ -74,6 +75,7 @@ Source: tx_sos · Nov 04 03:41 UTC
    | `EW_DISABLED_SOURCES` | | turn off default sources |
    | `EW_SOURCE_STATES` | | limit a source to some states: `fox_results=TX,TN;cbs_results=AL` |
    | `AP_API_KEY`, `DDHQ_API_KEY` | | paid race-call feeds; the adapters are skipped without a key |
+   | `EW_RATE_SAFETY`, `EW_RATE_LIMITS`, `EW_INTERVALS`, `EW_USER_COOLDOWN`, … | | refresh rates and command limits; computed by default ([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)) |
 
 5. **Run.**
    ```sh
@@ -88,7 +90,8 @@ Source: tx_sos · Nov 04 03:41 UTC
 Out of the box, the bot only reads official state feeds and APIs that are free to use.
 Most people will want the national fallbacks and outlet race calls too. They read news sites'
 public JSON, so they are **off by default**. Enabling them is your decision; check each site's
-terms first. For example:
+terms first (Fox's election feed, used by `fox` and `fox_results`, has a `robots.txt` that
+disallows all automated access). For example:
 
 ```sh
 EW_ENABLED_SOURCES=cbs_results,fox_results,nbc,cbs,fox,abc,cnn_exit_polls,270towin,wikipedia
@@ -100,9 +103,14 @@ Without that line:
 - **Race calls:** none are posted (AP and DDHQ need a paid key). civicAPI's free calls are
   opt-in: `/calls outlets:CIVICAPI enabled:on`.
 
-CNN's call feed (`cnn`) is left out above: it asks once per race per minute and blocks quickly.
-Fallback sources are only asked about races that no official feed answered completely.
 - **Exit polls:** no exit-poll links are posted.
+
+CNN's call feed (`cnn`) is left out above: it asks once per race and blocks bursts, so its
+request budget makes it slow. Fallback sources are only asked about races that no official feed
+answered completely.
+
+On election morning run `python tools/health_check.py` (civicAPI rows must turn from TEST to
+OK once returns arrive) and `/limits` in Discord to see each source's refresh interval.
 
 ## Coverage by state
 
@@ -116,7 +124,7 @@ Status as of 2026-10-27, checked with `tools/health_check.py` against the 2024 g
 | **Official county feeds only** (partial state) | TX (Harris, Tarrant, Bexar, Travis, Fort Bend + 15 more Clarity counties: about 49% of the 2024 vote; backup for the state site), MI (Ottawa), WI (Dane, opt-in), NJ (14 counties), MO (St. Louis Co.), NY (NYC, opt-in), TN (Shelby), AL (Madison) |
 | **No official feed reachable**: civicAPI + national fallbacks | KY, MA, ME, MS*, NH, NV, OK, WY |
 | **civicAPI** (free API, no key, on by default; every state, federal + statewide + legislature + local) | all 50 + DC; fills every gap above |
-| **Known problems right now** | AK: the state site's TLS certificate chain fails verification. TX: results.texas-election.com sometimes returns a Cloudflare challenge. |
+| **Known problems right now** | TX: results.texas-election.com sometimes returns a Cloudflare challenge (the county feeds and civicAPI cover it). AK's incomplete certificate chain is handled by shipping the missing public intermediate (`electionwatch/data/certs/`). |
 
 \* MS publishes certified results only, days after the election.
 
@@ -172,6 +180,10 @@ Per-state details are in [docs/sources-results.md](docs/sources-results.md) and
 - **Territories:** race keys exist (`PR-AL`, `GU GOV`, …), but no territory has a results feed yet.
 - **Multi-seat races:** posts show the top 5 candidates. In a race with more seats than that,
   the winners below 5th place aren't shown.
+- **Refresh rates follow the sources' limits.** Results and calls refresh every minute unless a
+  host's budget needs longer: the county feeds on Clarity, shared by eight adapters, refresh
+  about every 2 minutes on election night; polls every 30 minutes, early vote hourly. `/limits`
+  shows the live numbers; `EW_RATE_SAFETY=1` or `EW_RATE_LIMITS` trades politeness for speed.
 - **Discord rate limits:** one channel accepts about 5 messages every 5 seconds. A server
   watching dozens of races in "every update" mode will see posts queue up at peak. The default
   5-minute mode, or a few channels/servers, avoids that.
@@ -233,7 +245,7 @@ Edit `electionwatch/data/parties.yaml` to change any marker.
 ## Testing with past elections
 
 ```sh
-pytest -q                                          # 700+ unit tests, no network
+pytest -q                                          # 2,100+ tests, no network
 python tools/health_check.py                       # which sources answer right now
 python tools/fetch_history.py --years 2022,2024    # results by state -> ~/Downloads/election-test-data
 python tools/build_timelines.py --years 2022       # synthesize election nights from county results
@@ -241,6 +253,7 @@ python -m replay.run --year 2022 --races "PA SEN,PA-07" --speed max      # offli
 python -m replay.discord_live --year 2022 --races "$(…)" --post top-per-state \
     --speed 10 --guild <id> --channel <id> --thread "2022 replay"         # into a real channel
 python -m replay.report_html --year 2022 --races "$(…)" --out night.html  # one page per run
+python -m replay.command_sim --years 2022,2024 --races top   # slash commands changed mid-night
 ```
 
 The replay drives the real poller minute by minute with a fake clock. Races with NYT
@@ -258,30 +271,38 @@ and register it with `@register`. The rules (contract in
 - Parsing is a pure function, tested against a trimmed real response in `tests/fixtures/<adapter>/`
   (with a README giving the URL and date).
 - Never raise on one bad race. Raise `SourceUnavailable` when the whole feed is down.
-- API keys come from the environment. Scrapers set `scrape = True, enabled_by_default = False`,
-  send a descriptive User-Agent and poll at most once a minute.
+- API keys come from the environment. Scrapers set `scrape = True, enabled_by_default = False`
+  and send a descriptive User-Agent.
+- Don't schedule requests yourself: the poller asks a source only when its host's request
+  budget allows. If the host publishes a rate limit, add it to `HOST_LIMITS` in
+  [`ratelimit.py`](electionwatch/ratelimit.py) (unlisted hosts get one request a second).
 
 ## How it works
 
 ```
- every 60 s ─► Poller.tick()
+ every 60 s ─► Poller.tick()        each source only when due: its interval and its host's
+                │                   hourly allowance (half the published limit) allow it
                 ├─ results adapters (concurrently) ─► MongoDB: latest + history, change detection
                 ├─ call / exit-poll adapters        ─► new calls only
-                └─ odds adapters                    ─► swing detection
+                ├─ odds adapters                    ─► MongoDB odds history, swing detection
+                └─ poll adapters                    ─► MongoDB (every 30 min)
                           │
             per server: posting rule, outlets, thresholds
                           ▼
               DiscordPoster ─► embeds in #election-night
- every 60 s ─► the same tick refreshes odds and polls; early vote has its own hourly refresh
-                each source only when its request budget allows (half its published limit)
- slash commands ─► MongoDB only: odds, polls, early vote and results are never fetched for a user
+
+ every hour ─► early-vote refresher ─► civicAPI pages ─► MongoDB
+
+ slash commands ─► MongoDB (settings, results, odds, polls, early vote)
 ```
 
-Commands never call a data source: `/odds`, `/polls` and `/earlyvote` read what the background
-refresh stored, so users repeating a command cannot hammer an API. A race nobody watches is
-queued by the first request and fetched by the next refresh. How often each source is asked is
-computed from its host's published rate limit; every number is configurable
-([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)).
+`/odds`, `/polls` and `/earlyvote` never call a data source, so users repeating a command can't
+make the bot hammer an API. (The `/races` browser asks the results sources for a state's list of
+races, cached for 5 minutes per state.) A race nobody watches is queued by the first request and fetched by the next refresh. A
+results source that is not due, backing off or failing answers with its last results for up to
+10 minutes, so the fallbacks aren't asked about races an official feed already answered. How
+often each source is asked is computed from its host's published rate limit; every number is
+configurable ([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)).
 
 ## License
 

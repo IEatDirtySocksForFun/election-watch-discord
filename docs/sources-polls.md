@@ -105,8 +105,11 @@ Housekeeping
   here. `source` is always the adapter name.
 - Nothing reads an API key; `env` is empty for all three adapters.
 - HTML sources identify themselves with
-  `election-watch-discord/0.1 (polling bot; +https://github.com/election-watch-discord)`
-  and are polled through the shared poller, which runs at most once a minute.
+  `election-watch-discord/0.1 (polling bot; +https://github.com/IEatDirtySocksForFun/election-watch-discord)`
+  (Wikimedia requires contact information in the User-Agent).
+- The poller refreshes polls for watched races, and races users asked about, every 30 minutes
+  (longer if a host's request budget needs it) and stores them in MongoDB; `/polls` reads only
+  the stored polls.
 - The `YEAR = 2026` constants in `two70win.py` and `wikipedia.py` pin the
   adapters to the Nov 3 2026 midterms; change them together with the template's
   election year.

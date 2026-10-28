@@ -19,9 +19,10 @@ civicapi.org web app calls (they are not in the API docs), verified 2026-10-27:
 Categories: ``requested`` (mail ballots requested), ``returned`` (mail ballots returned),
 ``inperson`` (in-person early votes) and ``grace`` (Illinois grace-period voting). Like the
 civicapi.org page, "voted" means returned + in person; requests are not votes. States without
-party registration report every ballot as "Unspecified". Data is updated about once a day, so
-responses are cached for 15 minutes (12 hours for past elections) and requests are spaced at
-least a second apart, one at a time.
+party registration report every ballot as "Unspecified". Data is updated about once a day. The
+bot downloads every page the commands can show into MongoDB about once an hour (on civicAPI's
+request budget, electionwatch/ratelimit.py), one request at a time at least a second apart;
+past elections' pages are kept 12 hours. The commands read only the stored pages.
 """
 from __future__ import annotations
 

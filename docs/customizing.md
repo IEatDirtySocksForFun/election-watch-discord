@@ -113,5 +113,6 @@ or timing looks across a real election night.
 
 - No LLM or AI calls in the product, and no model SDKs as dependencies.
 - No secrets in the repo; everything sensitive comes from the environment.
-- Scrapers off by default, descriptive User-Agent, at most one request per minute per site.
+- Scrapers off by default, descriptive User-Agent.
 - Commands read the database only; sources are called by the background refresh, on budget.
+- No source gets past a bot check; a blocked host is a closed door.

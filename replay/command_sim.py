@@ -25,7 +25,7 @@ Pseudo-commands: !readonly (the read-only battery, run concurrently with poller 
 !store_down minutes=N, !source_down minutes=N, !mongod_stop, !mongod_start.
 
 No network, no Discord (unless --live), no LLM. Outputs go to --out-dir (default
-replay/out/sims/<stamp>/).
+replay/out/sims/<stamp>/, which git ignores).
 """
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ from replay.timeline import load_year
 
 log = logging.getLogger("replay.command_sim")
 ET = ZoneInfo("America/New_York")
-LOGS = Path("replay/out/sims")
+LOGS = Path(__file__).resolve().parent / "out" / "sims"
 GUILD, CHANNEL = 1, 100
 DEADLINE_FLAG_S = 2.5          # Discord's interaction deadline is 3 s; flag anything above this
 

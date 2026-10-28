@@ -1,4 +1,7 @@
-"""Data access, caching, and deterministic embeds for the public odds/polls commands."""
+"""Deterministic embeds for the public /odds and /polls commands, read from the database.
+
+The poller's background refresh stores odds snapshots and each poll source's polls; nothing
+here calls a source (see CommandData)."""
 from __future__ import annotations
 
 import logging
