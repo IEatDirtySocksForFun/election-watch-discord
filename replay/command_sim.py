@@ -29,9 +29,9 @@ No network, no Discord (unless --live), no LLM. Outputs go to --out-dir (default
 replay/out/sims/<stamp>/, which git ignores).
 
 `--quick` needs no downloaded history data: it builds the hand-made night of `quick_timelines()` in
-memory (five Senate races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs the scenarios
-that need neither MongoDB nor a mongod. Use it to check a change in a few seconds; the real timelines
-from tools/fetch_history.py make `--years` and `--races` meaningful.
+memory (five Senate races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs a dozen
+scenarios that work on it, none of which need MongoDB or a mongod. Use it to check a change in a few
+seconds; the real timelines from tools/fetch_history.py make `--years` and `--races` meaningful.
 """
 from __future__ import annotations
 

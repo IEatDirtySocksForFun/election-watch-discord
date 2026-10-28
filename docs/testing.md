@@ -126,10 +126,11 @@ errors and a mongod restart, a 30-minute results outage (the source's last answe
 Request budgets and cooldowns run on the replay's clock. Output: `replay/out/sims/<stamp>/`.
 
 `--quick` (what `make sim` runs) skips the history data entirely: it builds a small hand-made night
-in memory (five Senate races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs the
-twelve scenarios that need neither MongoDB nor a mongod. `make sim-full YEARS=2022,2024` runs the
-full matrix on the timelines from `tools/fetch_history.py`; the three MongoDB scenarios need a
-server (see the command above) and the restart test needs a mongod binary.
+in memory (five Senate races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs twelve
+scenarios chosen to work on it (the MongoDB, mongod, `watch` and `latency` ones are left out).
+`make sim-full YEARS=2022,2024` runs the full matrix on the timelines from
+`tools/fetch_history.py`; the three MongoDB scenarios need a server (see the command above) and the
+restart test needs a mongod binary.
 
 ## Live checks
 

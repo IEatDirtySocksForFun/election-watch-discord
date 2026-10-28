@@ -23,7 +23,8 @@ Tests are grouped by area, one file per area or source:
 - **Results adapters** — `test_results_<source>.py`, one per state, county or national feed
   (`pa`, `ga`, `tx`, `clarity`, `enhanced_voting`, `ap`, `cnn`, ...), plus
   `test_results_common.py` and `test_results_fetch.py` for the shared fetch and parse paths.
-- **Race calls** — `test_calls_*.py` (AP, CNN, Fox, NBC, ABC, CBS, DDHQ, VoteHub, civicAPI).
+- **Race calls** — `test_calls_*.py` (AP, CNN, Fox, NBC, ABC, CBS, civicAPI), with
+  `test_calls_skeletons.py` covering DDHQ, VoteHub and NYT.
 - **Polls, odds, exit polls, early vote** — `test_polls_*.py`, `test_odds_kalshi.py`,
   `test_odds_polymarket.py`, `test_exitpolls.py`, `test_early_vote_source.py`.
 - **The bot itself** — `test_bot_commands.py`, `test_bot_logic.py`, `test_bot_navigator.py`,
@@ -89,8 +90,9 @@ python -m replay.command_sim --quick --scenarios posting,nonadmin
 ```
 
 `--quick` needs no downloaded history: it builds a small hand-made night in memory (five Senate
-races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs the scenarios that need neither
-MongoDB nor a mongod. That is also what `make sim` runs.
+races, a snapshot every two minutes from 8 PM to 1 AM ET) and runs twelve scenarios chosen to work
+on it — everything except the MongoDB, mongod, `watch` and `latency` ones. That is also what
+`make sim` runs.
 
 The full matrix uses real timelines from `tools/fetch_history.py` and takes much longer:
 
