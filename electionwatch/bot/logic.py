@@ -161,10 +161,11 @@ def _span(seconds: float) -> str:
     return f"{seconds / 3600:.1f} h".replace(".0 h", " h")
 
 
-def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
+def limits_text(gs: GuildSettings | None, rates, cooldowns, live_max_age: float | None = None) -> str:
     """/limits: this server's command limits, then refresh intervals and request budgets.
     Only sources slowed below their kind's floor (or set by the operator) are listed one by
-    one; the full list would not fit one message with ~70 adapters."""
+    one; the full list would not fit one message with ~70 adapters. `live_max_age` is set when
+    commands fetch from the sources themselves (EW_COMMAND_DATA=live)."""
     from electionwatch.ratelimit import FLOORS
 
     def every(kind: str) -> float:
@@ -173,7 +174,8 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
     lines = []
     if cooldowns is not None:
         server = gs or GuildSettings(0)
-        user = cooldowns.user_seconds(every("odds"), server.user_cooldown_seconds)
+        odds_every = every("odds") if live_max_age is None else min(every("odds"), live_max_age)
+        user = cooldowns.user_seconds(odds_every, server.user_cooldown_seconds)
         hourly = server.user_commands_per_hour if server.user_commands_per_hour is not None else cooldowns.user_hourly
         set_user = server.user_cooldown_seconds is not None or cooldowns.user_cooldown is not None
         set_refresh = server.refresh_cooldown_seconds is not None or cooldowns.refresh_cooldown is not None
@@ -185,7 +187,13 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
             "  per user per hour: " + (f"{hourly:g}" if hourly else "no cap"),
             "  /refresh: once every " + _span(refresh) + ("" if set_refresh else " (longer for slower data)"),
         ]
-    lines.append("Data refresh (in the background; commands read the database only):")
+    if live_max_age is None:
+        lines.append("Data refresh (in the background; commands read the database only):")
+    else:
+        lines.append(
+            f"Data refresh (in the background; commands also fetch from the source when an answer "
+            f"is over {_span(live_max_age)} old, within the same budgets):"
+        )
     rows = rates.status() if rates is not None else []
     for kind in FLOORS:
         # Race lists have a budget entry per source and state: show one line per source (its
