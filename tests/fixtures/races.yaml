@@ -1,0 +1,14 @@
+# Important races: what the bot posts to the channel. Server admins can override this
+# per server with /watch add|remove|list; this file is the default for new servers.
+#
+# Key format (see electionwatch/racekeys.py):
+#   NC-01            North Carolina Congressional District 1   (AK-AL = at-large)
+#   TX SEN           Texas US Senate race     (OH SEN S = special election)
+#   GA GOV, AZ AG    statewide offices: GOV LTGOV AG SOS TREAS AUD COMP SUPT AGCOM INSCOM LANDCOM RRC
+#   TX SD-05         Texas State Senate District 5;  TX HD-121 = State House District 121
+#   TX LOCAL harris-county-judge   local race (slug understood by the results adapter)
+# Long names work too: "Texas Senate", "North Carolina Congressional District 1".
+election_date: 2026-11-03
+important:
+  - key: TX SEN
+    label: Texas Senate
