@@ -37,7 +37,7 @@ def is_admin(member, guild_settings: GuildSettings) -> bool:
 def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str:
     action = action.lower()
     if action == "list":
-        races = gs.important or [str(item.key) for item in _default_races()]
+        races = gs.important or [str(default_race.key) for default_race in _default_races()]
         text = "Watched races: " + (", ".join(races) if races else "none")
         return text if len(text) <= 1900 else text[:1900].rsplit(", ", 1)[0] + f", … ({len(races)} total)"
     if action not in {"add", "remove"}:
@@ -45,7 +45,7 @@ def change_watch(gs: GuildSettings, action: str, race: str | None = None) -> str
     if not race:
         raise ValueError("race is required")
     key = _race_key(race)
-    current = gs.important or [str(item.key) for item in _default_races()]
+    current = gs.important or [str(default_race.key) for default_race in _default_races()]
     if action == "remove" and key not in current:
         # Nothing to do: don't claim a removal or materialize the default list.
         return f"{key} is not watched"
@@ -177,7 +177,7 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
         hourly = server.user_commands_per_hour if server.user_commands_per_hour is not None else cooldowns.user_hourly
         set_user = server.user_cooldown_seconds is not None or cooldowns.user_cooldown is not None
         set_refresh = server.refresh_cooldown_seconds is not None or cooldowns.refresh_cooldown is not None
-        refresh = cooldowns.refresh_seconds(min(every(k) for k in FLOORS), server.refresh_cooldown_seconds)
+        refresh = cooldowns.refresh_seconds(min(every(kind) for kind in FLOORS), server.refresh_cooldown_seconds)
         lines += [
             "Command limits in this server:",
             "  same race/state again: "
@@ -202,11 +202,11 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
         )
         for row in slowed:
             budget = ", ".join(f"{host} {used}/{allow:g} per h" for host, (used, allow) in row["hosts"].items())
-            n = row["requests_per_refresh"]
+            requests = row["requests_per_refresh"]
             lines.append(
                 f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
                 + (" (set by operator)" if row["overridden"] else "")
-                + (f"; {n} request{'s' if n != 1 else ''} per refresh" if n else "")
+                + (f"; {requests} request{'s' if requests != 1 else ''} per refresh" if requests else "")
                 + (f"; {budget}" if budget else "")
             )
     if rates is not None:
@@ -282,8 +282,8 @@ def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "# … (trunc
 FAQ_LIMIT = 2000 - len("```yaml\n\n```") - 8
 
 
-def _yaml_lines(data) -> list[str]:
-    return yaml.safe_dump(data, sort_keys=False).strip().splitlines()
+def _yaml_lines(payload) -> list[str]:
+    return yaml.safe_dump(payload, sort_keys=False).strip().splitlines()
 
 
 def _first_fit(*candidates: list[str]) -> str:
@@ -295,7 +295,7 @@ def _first_fit(*candidates: list[str]) -> str:
 
 
 def _outlet_names(outlets) -> dict:
-    return {code: rec.get("name", code) if isinstance(rec, dict) else rec for code, rec in outlets.items()}
+    return {code: record.get("name", code) if isinstance(record, dict) else record for code, record in outlets.items()}
 
 
 def faq_text(states, outlets, state: str | None = None) -> str:
@@ -304,7 +304,7 @@ def faq_text(states, outlets, state: str | None = None) -> str:
     The result is valid YAML (it is shown in a ```yaml block): outlet details are shortened
     to fit one message rather than being cut off in the middle of a record.
     """
-    data = states
+    state_data = states
     if state is None:
         # All 51 states never fit in one message: point at what is installed instead of
         # dumping a truncated YAML blob.
@@ -320,8 +320,12 @@ def faq_text(states, outlets, state: str | None = None) -> str:
         if not outlets:
             return _first_fit(head)
         brief = {
-            code: {k: v for k, v in rec.items() if k != "notes"} if isinstance(rec, dict) else rec
-            for code, rec in outlets.items()
+            code: (
+                {field_name: value for field_name, value in record.items() if field_name != "notes"}
+                if isinstance(record, dict)
+                else record
+            )
+            for code, record in outlets.items()
         }
         return _first_fit(head + _yaml_lines({"Outlets": outlets}), head + _yaml_lines({"Outlets": brief}))
     code = state.strip().upper()
@@ -330,12 +334,12 @@ def faq_text(states, outlets, state: str | None = None) -> str:
     if code not in STATES:
         raise ValueError("unknown state")
     if isinstance(states, dict):
-        data = states.get(code) or states.get(STATES[code])
-        if data is None:
+        state_data = states.get(code) or states.get(STATES[code])
+        if state_data is None:
             return _clip_lines(
                 [f"No FAQ data for {STATES[code]}", ""] + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
             )
-        body = _yaml_lines({code: data})
+        body = _yaml_lines({code: state_data})
     else:
         body = _yaml_lines({"states": [entry for entry in states if getattr(entry, "state", None) == code]})
     # Every state record plus all ten outlet records never fits: fall back to outlet names,

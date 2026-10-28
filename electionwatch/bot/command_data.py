@@ -42,10 +42,10 @@ def latest_odds(snapshots: list[OddsSnapshot]) -> list[OddsSnapshot]:
             latest[ident] = snapshot
     return sorted(
         latest.values(),
-        key=lambda item: (
-            _MARKET_ORDER.get(item.market.casefold(), 99),
-            item.market,
-            item.outcome,
+        key=lambda snapshot: (
+            _MARKET_ORDER.get(snapshot.market.casefold(), 99),
+            snapshot.market,
+            snapshot.outcome,
         ),
     )
 
@@ -80,16 +80,16 @@ def format_odds(
             markets.append(snapshot.market)
     for market in markets:
         lines = [
-            _outcome_text(item, (moves or {}).get((item.market, item.outcome)))
-            for item in snapshots
-            if item.market == market
+            _outcome_text(snapshot, (moves or {}).get((snapshot.market, snapshot.outcome)))
+            for snapshot in snapshots
+            if snapshot.market == market
         ]
         embed.add_field(
             name=clip(_market_name(market), MAX_FIELD_NAME),
             value=clip("\n".join(lines), MAX_FIELD_VALUE),
             inline=False,
         )
-    updated = max(_utc(item.ts) for item in snapshots)
+    updated = max(_utc(snapshot.ts) for snapshot in snapshots)
     embed.set_footer(text=clip(f"Last update: {updated:%Y-%m-%d %H:%M} UTC", MAX_FOOTER))
     return embed
 
@@ -109,10 +109,10 @@ def format_odds_overview(items: list[tuple[RaceKey, list[OddsSnapshot]]]) -> dis
                 markets.append(snapshot.market)
         parts = []
         for market in markets:
-            outcomes = " / ".join(_outcome_text(item) for item in snapshots if item.market == market)
+            outcomes = " / ".join(_outcome_text(snapshot) for snapshot in snapshots if snapshot.market == market)
             parts.append(f"{_market_name(market)}: {outcomes}")
         lines.append(f"**{key}** · " + " · ".join(parts))
-        updates.extend(_utc(item.ts) for item in snapshots)
+        updates.extend(_utc(snapshot.ts) for snapshot in snapshots)
     embed = discord.Embed(
         title="Watched race odds",
         description=clip("\n".join(lines) if lines else "No races are being watched.", MAX_DESCRIPTION),
@@ -136,7 +136,7 @@ def poll_completeness(poll: Poll) -> int:
         poll.results,
     )
     return sum(value is not None and value != "" and value != [] for value in fields) + sum(
-        result.party is not None for result in poll.results
+        poll_result.party is not None for poll_result in poll.results
     )
 
 
@@ -158,19 +158,19 @@ def merge_polls(polls: list[Poll]) -> list[Poll]:
 
 
 def _names(poll: Poll) -> set[str]:
-    return {n.strip().casefold() for n in (poll.pollster, poll.sponsor) if n and n.strip()}
+    return {name.strip().casefold() for name in (poll.pollster, poll.sponsor) if name and name.strip()}
 
 
 def _numbers(poll: Poll) -> tuple[float, ...]:
-    return tuple(sorted(round(r.pct, 1) for r in poll.results))
+    return tuple(sorted(round(poll_result.pct, 1) for poll_result in poll.results))
 
 
-def _same_poll(a: Poll, b: Poll) -> bool:
+def _same_poll(left: Poll, right: Poll) -> bool:
     return (
-        str(a.key) == str(b.key)
-        and bool(_names(a) & _names(b))
-        and _numbers(a) == _numbers(b)
-        and abs((a.end_date - b.end_date).days) <= 7
+        str(left.key) == str(right.key)
+        and bool(_names(left) & _names(right))
+        and _numbers(left) == _numbers(right)
+        and abs((left.end_date - right.end_date).days) <= 7
     )
 
 
@@ -221,8 +221,9 @@ def format_polls(
             details.append(f"Sponsor: {poll.sponsor}")
         results = (
             " · ".join(
-                f"{_PARTY_MARKERS.get(normalize_party(result.party) or '', '⚪')} {result.name} {result.pct:.1f}%"
-                for result in poll.results
+                f"{_PARTY_MARKERS.get(normalize_party(poll_result.party) or '', '⚪')} "
+                f"{poll_result.name} {poll_result.pct:.1f}%"
+                for poll_result in poll.results
             )
             or "No candidate results supplied"
         )
@@ -320,9 +321,9 @@ class CommandData:
                 except Exception:
                     logger.exception("Could not read odds history for %s", snapshot.key)
                     continue
-                earlier = [item for item in history if _utc(item.ts) < _utc(snapshot.ts)]
-                if earlier:
-                    baseline = min(earlier, key=lambda item: _utc(item.ts))
+                older = [old_snapshot for old_snapshot in history if _utc(old_snapshot.ts) < _utc(snapshot.ts)]
+                if older:
+                    baseline = min(older, key=lambda old_snapshot: _utc(old_snapshot.ts))
                     moves.setdefault((snapshot.market, snapshot.outcome), {})[hours] = (
                         snapshot.prob - baseline.prob
                     ) * 100

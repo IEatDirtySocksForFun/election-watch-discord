@@ -97,7 +97,7 @@ class RaceNavigator(discord.ui.View):
         for key, label in self._known_races():
             if key.state == self.state:
                 found.setdefault(str(key), (key, label))
-        self.races = sorted(found.values(), key=lambda item: str(item[0]))
+        self.races = sorted(found.values(), key=lambda race_entry: str(race_entry[0]))
         visible = self._visible()
         if self.selected_race not in {str(key) for key, _ in visible}:
             self.selected_race = str(visible[0][0]) if visible else None
