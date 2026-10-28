@@ -119,3 +119,55 @@ def test_finalize_drops_ballot_statistics_and_keeps_real_options():
     r = RaceResult(parse("NV SEN"), rows, "t", NOW).finalize()
     assert [c.name for c in r.candidates] == ["A", "B", "None Of These Candidates", "Write-ins"]
     assert r.registered_voters == 400 and r.total_votes == 108 and r.candidates[0].pct == 55.56
+
+
+@pytest.mark.parametrize("raw,shown", [
+    ("Jd Vance", "JD Vance"), ("JD VANCE", "JD Vance"), ("Tj Cox", "TJ Cox"),
+    ("Ng", "Ng"), ("Ed Case", "Ed Case"), ("Al Green", "Al Green"),
+])
+def test_two_letter_initials_are_upper_case(raw, shown):
+    from electionwatch.models import pretty_name
+
+    assert pretty_name(raw) == shown
+
+
+@pytest.mark.parametrize("label", ["Not Qualified", "NOT QUALIFIED", "Not Qualified 3", "Unqualified Write ins"])
+def test_unqualified_rows_are_not_candidates(label):
+    from datetime import datetime, timezone
+
+    from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
+
+    result = RaceResult(RaceKey("AZ", Level.SENATE, "SEN"),
+                        [CandidateResult("Mark Kelly", "DEM", 100), CandidateResult(label, None, 7)],
+                        "test", datetime(2022, 11, 9, tzinfo=timezone.utc)).finalize()
+    assert [c.name for c in result.candidates] == ["Mark Kelly"]
+
+
+@pytest.mark.parametrize("label", ["Cast Votes", "Blanks", "Voids", "BVS Subtotal", "Totals", "Overvotes:",
+                                   "Early Voting Ballots Cast", "Federal Ballots", "Invalid Votes",
+                                   "Rejected Write-Ins", "Scattered Votes", "Special Votes", "Contest Totals",
+                                   "Scatterings", "Blank Write-In", "Federal Votes", "State Ballots",
+                                   "Undervotes-Voids", "Write-In: Scattered"])
+def test_more_ballot_statistics_are_not_candidates(label):
+    test_unqualified_rows_are_not_candidates(label)
+
+
+@pytest.mark.parametrize("label", ["Write-ins", "Total Write-ins", "All Others", "Others", "Write-In**",
+                                   "None Of These Candidates", "Yes", "No", "Ted Totals"])
+def test_write_in_totals_and_choices_stay(label):
+    from datetime import datetime, timezone
+
+    from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
+
+    result = RaceResult(RaceKey("AZ", Level.SENATE, "SEN"), [CandidateResult(label, None, 7)],
+                        "test", datetime(2022, 11, 9, tzinfo=timezone.utc)).finalize()
+    assert len(result.candidates) == 1
+
+
+@pytest.mark.parametrize("raw,shown", [("Chrysta CastaÃ±eda", "Chrysta Castañeda"),
+                                       ("Chrysta Casta√±eda", "Chrysta Castañeda"),
+                                       ("Chrysta Castañeda", "Chrysta Castañeda")])
+def test_mojibake_is_repaired(raw, shown):
+    from electionwatch.models import pretty_name
+
+    assert pretty_name(raw) == shown

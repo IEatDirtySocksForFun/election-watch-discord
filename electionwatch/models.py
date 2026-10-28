@@ -86,7 +86,7 @@ class RaceResult:
         # dilute the percentages; keep a registered-voter count for turnout.
         kept = []
         for c in self.candidates:
-            label = c.name.strip().lower()
+            label = c.name.strip().strip(":*").strip().lower()   # "Overvotes:", "Write-In**"
             if _NOT_A_CANDIDATE.fullmatch(label):
                 if label.startswith("registered") and self.registered_voters is None:
                     self.registered_voters = c.votes
@@ -223,12 +223,34 @@ def normalize_party(party: str | None) -> str | None:
 # "None of These Candidates") and counted write-ins are kept.
 _NOT_A_CANDIDATE = re.compile(
     r"(times? )?(blank|over|under)( ?voted| ?votes?| ballots?)?|blank/void|void|spoiled( ballots)?"
-    r"|(total )?ballots cast|registered voters|total( votes)?( cast)?|unqualified write-?ins?|scattering"
+    r"|(total )?ballots cast|registered voters|total( votes)?( cast)?|unqualified write[- ]?ins?|scattering"
+    r"|not qualified( \d+)?|blanks?|voids?|cast votes|invalid( votes| ballots)?|rejected write[- ]?ins?"
+    r"|((absentee|early|election day|mail)( voting)? )?ballots cast|federal ballots|special votes"
+    r"|(bvs |contest )?sub-?totals?|(contest )?totals?|scatter(ed|ings?)( votes)?|write[- ]?ins?: scattered"
+    r"|blank write[- ]?ins?|(federal|state) (votes|ballots)|(under|over)votes?[- /]voids?"
     r"|undervotes?|overvotes?|times cast"
 )
 _CHOICES = ("yes", "no", "for", "against")
+_VOWELLESS_NAMES = {"ng"}   # real two-letter names a feed may have title-cased correctly
 _SURNAME = re.compile(r"[A-Za-z][A-Za-z'\-]+")
 _SUFFIX = {"ii": "II", "iii": "III", "iv": "IV", "jr": "Jr.", "sr": "Sr."}
+
+
+_MOJIBAKE = re.compile("[ÃÂ√‚]")
+
+
+def _demojibake(name: str) -> str:
+    """Undo UTF-8 read as cp1252/Mac Roman ("CastaÃ±eda", "Casta√±eda" -> "Castañeda")."""
+    if not _MOJIBAKE.search(name):
+        return name
+    for encoding in ("cp1252", "mac_roman"):
+        try:
+            fixed = name.encode(encoding).decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            continue
+        if fixed != name:
+            return fixed
+    return name
 
 
 def pretty_name(name: str) -> str:
@@ -236,7 +258,7 @@ def pretty_name(name: str) -> str:
     title-casing mistakes are repaired ("Mcsally" -> "McSally", "Iii" -> "III", "Jr" -> "Jr.")."""
     # U+FFFD = a character the source already lost (OpenElections' 2014 Indiana file has
     # "Andr\ufffd Carson"); drop it rather than post a replacement box.
-    n = " ".join(name.replace("\ufffd", "").split())
+    n = " ".join(_demojibake(name).replace("\ufffd", "").split())
     # "Begich, Nick" -> "Nick Begich" (Alaska and others list surname first); keep
     # "Angus King, Jr." as is.
     if n.count(",") == 1:
@@ -255,8 +277,11 @@ def pretty_name(name: str) -> str:
         bare = word.strip(".,").lower()
         if bare in _SUFFIX and i > 0:
             word = _SUFFIX[bare] + ("," if word.endswith(",") else "")
-        elif caps and i == 0 and len(word) == 2 and word.isalpha() and not set(bare) & set("aeiouy"):
-            word = word.upper()           # "JB PRITZKER" -> "JB Pritzker" (case was lost anyway)
+        elif (i == 0 and len(word) == 2 and word.isalpha() and not set(bare) & set("aeiouy")
+              and (caps or (word.istitle() and bare not in _VOWELLESS_NAMES)) and " " in n):
+            # Vowel-less two-letter first names are initials: "JB PRITZKER" -> "JB Pritzker",
+            # and feeds that title-cased them already ("Jd Vance") -> "JD Vance".
+            word = word.upper()
         else:
             word = re.sub(r"\bMc([a-z])", lambda m: "Mc" + m.group(1).upper(), word)
         parts.append(word)
