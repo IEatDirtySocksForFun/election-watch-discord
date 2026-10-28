@@ -5,7 +5,7 @@ from __future__ import annotations
 import yaml
 
 from electionwatch.models import ImportantRace, Level, to_doc
-from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
+from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse_typed
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
 
 OUTLETS = {"AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT", "CIVICAPI"}
@@ -231,7 +231,7 @@ def settings_dump(gs: GuildSettings) -> str:
 def _race_key(race: str) -> str:
     if len(race.strip()) > MAX_RACE_TEXT:
         raise ValueError(f"race is too long ({MAX_RACE_TEXT} characters at most)")
-    return str(parse(race))
+    return str(parse_typed(race))  # "pa 08", "pensylvania 8" and "PA-08" are all PA-08
 
 
 def change_favorite(us: UserSettings, action: str, race: str) -> str:
