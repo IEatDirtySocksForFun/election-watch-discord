@@ -50,7 +50,7 @@ from electionwatch.models import (  # noqa: E402
     CandidateResult, ExitPoll, Level, OddsSnapshot, Poll, PollResult, RaceCall, RaceKey, RaceResult,
 )
 from electionwatch.poller import format_call, format_exit_poll, format_result  # noqa: E402
-from electionwatch.racekeys import STATES, TERRITORIES  # noqa: E402
+from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES  # noqa: E402
 from electionwatch.settings import GuildSettings, PostMode, UserSettings  # noqa: E402
 from electionwatch.store.memory import MemoryStore  # noqa: E402
 
@@ -70,7 +70,7 @@ class FakeResults:
     """A results source whose list_races() returns many, long-named races of every level."""
 
     name = "live_check_results"
-    states = set(STATES)
+    states = set(STATES) | set(TERRITORIES)
 
     def available(self) -> bool:
         return True
@@ -78,12 +78,12 @@ class FakeResults:
     async def list_races(self, state, http):
         from electionwatch.sources.results._common import local_key
 
-        races = [(RaceKey(state, Level.SENATE, "SEN"), f"{STATES[state]} U.S. Senate"),
-                 (RaceKey(state, Level.SENATE, "SEN", special=True), f"{STATES[state]} U.S. Senate (special)"),
-                 (RaceKey(state, Level.GOVERNOR, "GOV"), f"{STATES[state]} Governor"),
-                 (RaceKey(state, Level.GOVERNOR, "AG"), f"{STATES[state]} Attorney General")]
+        races = [(RaceKey(state, Level.SENATE, "SEN"), f"{ALL_JURISDICTIONS[state]} U.S. Senate"),
+                 (RaceKey(state, Level.SENATE, "SEN", special=True), f"{ALL_JURISDICTIONS[state]} U.S. Senate (special)"),
+                 (RaceKey(state, Level.GOVERNOR, "GOV"), f"{ALL_JURISDICTIONS[state]} Governor"),
+                 (RaceKey(state, Level.GOVERNOR, "AG"), f"{ALL_JURISDICTIONS[state]} Attorney General")]
         races += [(RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"),
-                   f"{STATES[state]} Congressional District {n} – {LONG} vs {LONG}")
+                   f"{ALL_JURISDICTIONS[state]} Congressional District {n} – {LONG} vs {LONG}")
                   for n in range(1, 39)]
         races += [(RaceKey(state, Level.STATE, "HD", f"{n:03d}"), f"State House District {n}")
                   for n in range(1, 31)]
@@ -280,6 +280,50 @@ async def build_payloads(bot: CheckBot):
                 view.selected_race = None
                 view._build_controls()
                 yield f"navigator {state} {level} race select", {"embed": await view.embed(), "view": view}
+
+    # Paging, territories and the favorites tab (added after the first live check).
+    view = RaceNavigator(bot, 1, UserSettings(1, home_state="TX", default_level="congressional"))
+    await view.refresh()
+    view.selected_race = None
+    for page in range(2):
+        view.page = page
+        view._build_controls()
+        yield f"navigator TX congressional page {page + 1}", {"embed": await view.embed(), "view": view}
+    for territory in ("PR", "GU"):
+        view = RaceNavigator(bot, 1, UserSettings(1, home_state=territory, default_level="senate"))
+        await view.refresh()
+        yield f"navigator {territory}", {"embed": await view.embed(), "view": view}
+    favorites = ["PA SEN", "PA-07", "GA GOV", "TX SEN", "AK-AL"] + [f"CA-{n:02d}" for n in range(1, 31)]
+    for label, favs in (("favorites tab", favorites), ("favorites tab empty", [])):
+        view = RaceNavigator(bot, 1, UserSettings(1, default_level="favorites", favorites=favs))
+        await view.refresh()
+        view.selected_race = None
+        view._build_controls()
+        yield f"navigator {label}", {"embed": await view.embed(), "view": view}
+
+    # civicAPI result and call, from the saved real responses.
+    from electionwatch.sources.calls.civicapi import parse_call, parse_race
+
+    fixtures = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "civicapi"
+    race = json.loads((fixtures / "race_tx_sen_2024.json").read_text())
+    yield "civicapi result", {"embed": render_embed(format_result(parse_race(race, 107793, tx_sen, NOW)))}
+    call = parse_call(race | {"called_at": "2024-11-06T02:10:00.000Z"}, 107793, tx_sen)
+    yield "civicapi call", {"embed": render_embed(format_call(call))}
+
+    # /earlyvote against the live civicAPI (the client spaces its requests itself).
+    from electionwatch.bot.early_vote import early_vote_embed
+    from electionwatch.sources.early_vote import EarlyVoteClient
+
+    async with httpx.AsyncClient(headers={"User-Agent": "election-watch-discord/0.1 (+https://github.com/IEatDirtySocksForFun/election-watch-discord)"}) as http:
+        ev = EarlyVoteClient(http)
+        for state, breakdown in ((None, None), ("GA", None), ("NC", "party"), ("NC", "county"),
+                                 ("GA", "age"), ("TX", "method"), ("NY", None), ("IL", None)):
+            try:
+                embed = await early_vote_embed(ev, state, breakdown)
+            except Exception as exc:  # noqa: BLE001 - recorded, the run goes on
+                yield f"earlyvote {state} {breakdown} ERROR {type(exc).__name__}", {"content": f"error: {exc}"[:1900]}
+                continue
+            yield f"earlyvote {state or 'overview'} {breakdown or ''}".strip(), {"embed": embed}
 
 
 # --------------------------------------------------------------------------- main
