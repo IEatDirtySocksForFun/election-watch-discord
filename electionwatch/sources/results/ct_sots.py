@@ -35,39 +35,44 @@ def _norm(name: str) -> str:
 
 
 def _district_number(text: str) -> str:
-    m = re.search(r"\b(\d+)\b", text or "")
-    return f"{int(m.group(1)):02d}" if m else "00"
+    match = re.search(r"\b(\d+)\b", text or "")
+    return f"{int(match.group(1)):02d}" if match else "00"
 
 
 def race_key(office: str, district: str | None = None) -> RaceKey:
-    o = _norm(office)
-    d = _norm(district or "")
-    special = c.is_special(o) or c.is_special(d)
-    if o == "PRESIDENT":
+    office_name = _norm(office)
+    district_text = _norm(district or "")
+    special = c.is_special(office_name) or c.is_special(district_text)
+    if office_name == "PRESIDENT":
         return c.local_key("CT", "us-president")
-    if o in ("UNITED STATES SENATOR", "U.S. SENATOR", "US SENATOR"):
+    if office_name in ("UNITED STATES SENATOR", "U.S. SENATOR", "US SENATOR"):
         return RaceKey("CT", Level.SENATE, "SEN", None, special)
-    if o in ("REPRESENTATIVE IN CONGRESS", "U.S. REPRESENTATIVE", "US REPRESENTATIVE", "UNITED STATES REPRESENTATIVE"):
-        return RaceKey("CT", Level.HOUSE, "HOUSE", _district_number(d), special)
-    if o == "GOVERNOR":
+    if office_name in (
+        "REPRESENTATIVE IN CONGRESS",
+        "U.S. REPRESENTATIVE",
+        "US REPRESENTATIVE",
+        "UNITED STATES REPRESENTATIVE",
+    ):
+        return RaceKey("CT", Level.HOUSE, "HOUSE", _district_number(district_text), special)
+    if office_name == "GOVERNOR":
         return RaceKey("CT", Level.GOVERNOR, "GOV", None, special)
-    if o in ("LIEUTENANT GOVERNOR", "LT. GOVERNOR"):
+    if office_name in ("LIEUTENANT GOVERNOR", "LT. GOVERNOR"):
         return RaceKey("CT", Level.GOVERNOR, "LTGOV", None, special)
-    if o == "ATTORNEY GENERAL":
+    if office_name == "ATTORNEY GENERAL":
         return RaceKey("CT", Level.GOVERNOR, "AG", None, special)
-    if o == "SECRETARY OF STATE":
+    if office_name == "SECRETARY OF STATE":
         return RaceKey("CT", Level.GOVERNOR, "SOS", None, special)
-    if o in ("TREASURER", "STATE TREASURER"):
+    if office_name in ("TREASURER", "STATE TREASURER"):
         return RaceKey("CT", Level.GOVERNOR, "TREAS", None, special)
-    if o in ("COMPTROLLER", "STATE COMPTROLLER"):
+    if office_name in ("COMPTROLLER", "STATE COMPTROLLER"):
         return RaceKey("CT", Level.GOVERNOR, "COMP", None, special)
-    if o == "STATE SENATOR":
-        return RaceKey("CT", Level.STATE, "SD", _district_number(d), special)
-    if o in ("STATE REPRESENTATIVE", "REPRESENTATIVE"):
-        return RaceKey("CT", Level.STATE, "HD", _district_number(d), special)
-    m = re.match(r"^CONSTITUTIONAL\s+AMENDMENT\s+(\d+)", o)
-    if m:
-        return c.local_key("CT", f"constitutional-amendment-{int(m.group(1))}")
+    if office_name == "STATE SENATOR":
+        return RaceKey("CT", Level.STATE, "SD", _district_number(district_text), special)
+    if office_name in ("STATE REPRESENTATIVE", "REPRESENTATIVE"):
+        return RaceKey("CT", Level.STATE, "HD", _district_number(district_text), special)
+    match = re.match(r"^CONSTITUTIONAL\s+AMENDMENT\s+(\d+)", office_name)
+    if match:
+        return c.local_key("CT", f"constitutional-amendment-{int(match.group(1))}")
     return c.local_key("CT", f"{office} {district}".strip() if district else office)
 
 
@@ -110,9 +115,9 @@ def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None)
             row.get("votes")
         )
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for (cid, office, district), info in by_contest.items():
+    for (cid, office, district), contest_info in by_contest.items():
         title = f"{office} {district}".strip() if district else office
         key = race_key(office, district)
         if str(key) in seen:
@@ -132,11 +137,11 @@ def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None)
                 )
             )
             if updated is None:
-                updated = c.parse_updated_at(info.get("date"))
+                updated = c.parse_updated_at(contest_info.get("date"))
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -144,11 +149,11 @@ def parse_ct(rows: list[dict], *, fetched_at: datetime, date: str | None = None)
                 fetched_at,
                 source=CtSots.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 async def _search_csv(client: httpx.AsyncClient, date: str) -> str:
@@ -167,7 +172,7 @@ class CtSots(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ct_keys = [k for k in keys if k.state == "CT"]
+        ct_keys = [key for key in keys if key.state == "CT"]
         if not ct_keys:
             return []
         text = await _search_csv(client, c.election_date())
@@ -179,4 +184,7 @@ class CtSots(ResultsSource):
             return []
         text = await _search_csv(client, c.election_date())
         rows = list(csv.DictReader(text.splitlines()))
-        return [(r.key, r.title or str(r.key)) for r in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())]
+        return [
+            (result.key, result.title or str(result.key))
+            for result in parse_ct(rows, fetched_at=c.utcnow(), date=c.election_date())
+        ]

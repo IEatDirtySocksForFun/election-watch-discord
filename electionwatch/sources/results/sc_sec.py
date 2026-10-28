@@ -76,23 +76,23 @@ _STATEWIDE = {
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    if n in _STATEWIDE:
-        return RaceKey("SC", Level.GOVERNOR, _STATEWIDE[n])
-    if n in ("PRESIDENT AND VICE PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
+    office_name = _norm(name)
+    if office_name in _STATEWIDE:
+        return RaceKey("SC", Level.GOVERNOR, _STATEWIDE[office_name])
+    if office_name in ("PRESIDENT AND VICE PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
         return c.local_key("SC", "us-president")
-    if n in ("U.S. SENATE", "UNITED STATES SENATE"):
+    if office_name in ("U.S. SENATE", "UNITED STATES SENATE"):
         return RaceKey("SC", Level.SENATE, "SEN")
-    m = _HOUSE.match(n)
-    if m:
-        return RaceKey("SC", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    m = _SENATE.match(n)
-    if m:
-        return RaceKey("SC", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _HD.match(n)
-    if m:
-        return RaceKey("SC", Level.STATE, "HD", f"{int(m.group(1)):02d}")
-    return c.local_key("SC", n)
+    match = _HOUSE.match(office_name)
+    if match:
+        return RaceKey("SC", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    match = _SENATE.match(office_name)
+    if match:
+        return RaceKey("SC", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _HD.match(office_name)
+    if match:
+        return RaceKey("SC", Level.STATE, "HD", f"{int(match.group(1)):02d}")
+    return c.local_key("SC", office_name)
 
 
 def _choice(raw: str, party: str | None) -> tuple[str, bool]:
@@ -109,7 +109,7 @@ def parse_sc(payload, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one SC Clarity summary.json document."""
     if not isinstance(payload, list):
         return []
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for contest in payload:
         title = re.sub(r"\s+", " ", str(contest.get("C") or "")).strip()
@@ -143,7 +143,7 @@ def parse_sc(payload, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -151,12 +151,12 @@ def parse_sc(payload, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=ScSec.name,
                 url=HUMAN,
-                total_votes=c.to_int(contest.get("T")) or sum(x.votes for x in cands),
+                total_votes=c.to_int(contest.get("T")) or sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(contest.get("PR")) or None,
                 precincts_total=c.to_int(contest.get("TP")) or None,
             )
         )
-    return out
+    return results
 
 
 def summary_url(election_id: str, version: str) -> str:
@@ -213,7 +213,7 @@ class ScSec(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        sc_keys = [k for k in keys if k.state == "SC"]
+        sc_keys = [key for key in keys if key.state == "SC"]
         if not sc_keys:
             return []
         election_id = await resolve_election_id(client, c.election_date())
@@ -233,4 +233,4 @@ class ScSec(ResultsSource):
             payload = await fetch_summary(client, election_id)
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in parse_sc(payload, fetched_at=c.utcnow())]
+        return [(result.key, result.title or str(result.key)) for result in parse_sc(payload, fetched_at=c.utcnow())]

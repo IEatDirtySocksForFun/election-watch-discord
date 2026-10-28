@@ -99,10 +99,10 @@ _STATE_HOUSE = re.compile(
 
 def _district_of(name: str) -> str | None:
     """'... DISTRICT 16' / '... D16' / '..., 16th District' -> '16'."""
-    m = re.search(r"(?:DISTRICT|DIST\.?|D)\s*(\d+)", name, re.I)
-    if not m:
-        m = re.search(r"\b(\d+)(?:st|nd|rd|th)\b", name, re.I)
-    return f"{int(m.group(1)):02d}" if m else None
+    match = re.search(r"(?:DISTRICT|DIST\.?|D)\s*(\d+)", name, re.I)
+    if not match:
+        match = re.search(r"\b(\d+)(?:st|nd|rd|th)\b", name, re.I)
+    return f"{int(match.group(1)):02d}" if match else None
 
 
 def _norm(name: str) -> str:
@@ -110,28 +110,30 @@ def _norm(name: str) -> str:
 
 
 def race_key(state: str, name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in ("U.S. SENATE", "US SENATE"):
+    contest_name = _norm(name)
+    special = c.is_special(contest_name)
+    if contest_name in ("U.S. SENATE", "US SENATE"):
         return RaceKey(state, Level.SENATE, "SEN", None, special)
-    if n in _ABBREV:
-        office = _ABBREV[n]
+    if contest_name in _ABBREV:
+        office = _ABBREV[contest_name]
         level = Level.SENATE if office == "SEN" else Level.GOVERNOR
         return RaceKey(state, level, office, None, special)
-    m = _CONGRESS.match(n) or re.match(r"^(?:U\.S\.|US )?HOUSE[, ]*(?:DISTRICT|DIST\.?|D)\s*(\d+)$", n)
-    if m:
-        return RaceKey(state, Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    if "HOUSE OF REPRESENTATIVES" in n or "CONGRESSIONAL DISTRICT" in n:
-        dist = c.district_from(n)
+    match = _CONGRESS.match(contest_name) or re.match(
+        r"^(?:U\.S\.|US )?HOUSE[, ]*(?:DISTRICT|DIST\.?|D)\s*(\d+)$", contest_name
+    )
+    if match:
+        return RaceKey(state, Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    if "HOUSE OF REPRESENTATIVES" in contest_name or "CONGRESSIONAL DISTRICT" in contest_name:
+        dist = c.district_from(contest_name)
         if dist:
             return RaceKey(state, Level.HOUSE, "HOUSE", dist, special)
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey(state, Level.STATE, "SD", _district_of(n) or "00", special)
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey(state, Level.STATE, "HD", _district_of(n) or "00", special)
-    return c.local_key(state, n)
+    match = _STATE_SENATE.match(contest_name)
+    if match:
+        return RaceKey(state, Level.STATE, "SD", _district_of(contest_name) or "00", special)
+    match = _STATE_HOUSE.match(contest_name)
+    if match:
+        return RaceKey(state, Level.STATE, "HD", _district_of(contest_name) or "00", special)
+    return c.local_key(state, contest_name)
 
 
 _ZONES = {
@@ -160,10 +162,10 @@ def parse_settings(settings) -> datetime | None:
         return None
     text = str(raw).strip()
     tz = None
-    m = re.search(r"\s+([A-Z]{2,5})$", text)
-    if m:
-        tz = _ZONES.get(m.group(1))
-        text = text[: m.start()]
+    match = re.search(r"\s+([A-Z]{2,5})$", text)
+    if match:
+        tz = _ZONES.get(match.group(1))
+        text = text[: match.start()]
     return c.parse_updated_at(text, tz=tz)
 
 
@@ -181,7 +183,7 @@ def parse_clarity(
         else ((summary or {}).get("Contests") or (summary or {}).get("contests") or [])
     )
     updated = parse_settings(settings)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for con in contests:
         if not isinstance(con, dict):
@@ -218,7 +220,7 @@ def parse_clarity(
         total = con.get("T")
         if isinstance(total, list):
             total = total[0] if total else None
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 name,
@@ -226,13 +228,13 @@ def parse_clarity(
                 fetched_at,
                 source=Clarity.name,
                 url=HUMAN,
-                total_votes=c.to_int(total) or sum(x.votes for x in cands),
+                total_votes=c.to_int(total) or sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(con.get("PR")) or None,
                 precincts_total=c.to_int(con.get("TP")) or None,
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 def feeds(date: str) -> list[dict]:
@@ -245,14 +247,14 @@ def feeds(date: str) -> list[dict]:
             raise SourceUnavailable("CLARITY_FEEDS is not valid JSON") from exc
         if not isinstance(entries, list):
             raise SourceUnavailable("CLARITY_FEEDS must be a JSON list")
-        out = []
+        configured = []
         for entry in entries:
             if not isinstance(entry, dict) or not entry.get("state") or not entry.get("election_id"):
                 raise SourceUnavailable("CLARITY_FEEDS entries need state and election_id")
             if entry.get("date") and entry["date"] != date:
                 continue
-            out.append(entry)
-        return out
+            configured.append(entry)
+        return configured
     return list(ELECTIONS.get(date, []))
 
 
@@ -277,7 +279,7 @@ def scope(entry: dict, results: list[RaceResult]) -> list[RaceResult]:
     statewide result (this adapter registers ahead of the state's own adapter)."""
     if not entry.get("jurisdiction"):
         return results
-    return [r for r in results if r.key.level is Level.LOCAL]
+    return [result for result in results if result.key.level is Level.LOCAL]
 
 
 def configured_states() -> frozenset[str]:
@@ -318,9 +320,9 @@ class Clarity(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        wanted = {k.state for k in keys}
+        wanted = {key.state for key in keys}
         date = c.election_date()
-        selected = [f for f in feeds(date) if str(f["state"]).upper() in wanted]
+        selected = [feed for feed in feeds(date) if str(feed["state"]).upper() in wanted]
         if not selected:
             raise SourceUnavailable(f"clarity: no feed configured for {sorted(wanted)} on {date}; set CLARITY_FEEDS")
         results: list[RaceResult] = []
@@ -348,7 +350,7 @@ class Clarity(ResultsSource):
             except SourceUnavailable:
                 continue
             return [
-                (r.key, r.title or str(r.key))
-                for r in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))
+                (result.key, result.title or str(result.key))
+                for result in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))
             ]
         return []

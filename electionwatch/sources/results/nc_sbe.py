@@ -63,23 +63,23 @@ def _bare(name: str) -> str:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _bare(name)
-    special = "UNEXPIRED" in n or "SPECIAL" in n
-    n = re.sub(r"\s*\((?:UNEXPIRED|SPECIAL)\)\s*$", "", n).strip()
-    if n in ("US SENATE", "US SENATOR", "UNITED STATES SENATE"):
+    office_name = _bare(name)
+    special = "UNEXPIRED" in office_name or "SPECIAL" in office_name
+    office_name = re.sub(r"\s*\((?:UNEXPIRED|SPECIAL)\)\s*$", "", office_name).strip()
+    if office_name in ("US SENATE", "US SENATOR", "UNITED STATES SENATE"):
         return RaceKey("NC", Level.SENATE, "SEN", None, special)
-    m = re.match(r"^US HOUSE OF REPRESENTATIVES DISTRICT (\d+)$", n)
-    if m:
-        return RaceKey("NC", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    if n in _STATEWIDE:
-        return RaceKey("NC", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = re.match(r"^NC STATE SENATE DISTRICT (\d+)$", n)
-    if m:
-        return RaceKey("NC", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^NC HOUSE OF REPRESENTATIVES DISTRICT (\d+)$", n)
-    if m:
-        return RaceKey("NC", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
-    return c.local_key("NC", n)
+    match = re.match(r"^US HOUSE OF REPRESENTATIVES DISTRICT (\d+)$", office_name)
+    if match:
+        return RaceKey("NC", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    if office_name in _STATEWIDE:
+        return RaceKey("NC", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    match = re.match(r"^NC STATE SENATE DISTRICT (\d+)$", office_name)
+    if match:
+        return RaceKey("NC", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^NC HOUSE OF REPRESENTATIVES DISTRICT (\d+)$", office_name)
+    if match:
+        return RaceKey("NC", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
+    return c.local_key("NC", office_name)
 
 
 def _rows(text: str) -> list[dict]:
@@ -93,7 +93,7 @@ def _rows(text: str) -> list[dict]:
         rows = json.loads(raw)
     except ValueError as exc:
         raise SourceUnavailable("NC: ENR data file is not the expected JSON array") from exc
-    return [r for r in rows if isinstance(r, dict)]
+    return [row for row in rows if isinstance(row, dict)]
 
 
 def parse_nc(
@@ -105,22 +105,24 @@ def parse_nc(
 ) -> list[RaceResult]:
     """Pure parse of contest.txt + results_0.txt (+ county.txt for turnout)."""
     county_rows = county_rows or []
-    statewide = next((r for r in county_rows if str(r.get("cid")) == "0"), None)
+    statewide = next((record for record in county_rows if str(record.get("cid")) == "0"), None)
     registered = c.to_int((statewide or {}).get("rtl")) or None
     turnout = c.to_pct((statewide or {}).get("bpt"))
     updated = c.parse_updated_at((statewide or {}).get("imp"), tz="America/New_York")
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     # contest.txt is the source of truth for which contests exist; results rows repeat the name.
-    ordered = [_bare(r.get("cnm", "")) for r in contest_rows if str(r.get("cid")) == "0"]
+    ordered = [_bare(record.get("cnm", "")) for record in contest_rows if str(record.get("cid")) == "0"]
     by_contest: dict[str, list[dict]] = {}
     for row in result_rows:
         if str(row.get("cid")) != "0":
             continue
         by_contest.setdefault(_bare(row.get("cnm", "")), []).append(row)
 
-    names = list(dict.fromkeys([n for n in ordered if n])) + [n for n in by_contest if n and n not in ordered]
+    names = list(dict.fromkeys([contest_name for contest_name in ordered if contest_name])) + [
+        contest_name for contest_name in by_contest if contest_name and contest_name not in ordered
+    ]
     for name in names:
         rows = by_contest.get(name)
         if not rows:
@@ -147,7 +149,7 @@ def parse_nc(
             continue
         seen.add(str(key))
         first = rows[0]
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 name,
@@ -155,7 +157,7 @@ def parse_nc(
                 fetched_at,
                 source=NcSbe.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(first.get("prt")) or None,
                 precincts_total=c.to_int(first.get("ptl")) or None,
                 registered_voters=registered,
@@ -163,7 +165,7 @@ def parse_nc(
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 async def _folder(client: httpx.AsyncClient, date: str) -> str:
@@ -172,11 +174,11 @@ async def _folder(client: httpx.AsyncClient, date: str) -> str:
         return pinned
     rows = _rows(await c.get_text(client, f"{BASE}/elections.txt"))
     target = c.us_date(date)
-    match = next((r for r in rows if r.get("edt") == target), None)
+    match = next((row for row in rows if row.get("edt") == target), None)
     if not match:
         raise SourceUnavailable(f"NC: elections.txt has no election dated {target}")
-    y, m, d = (int(x) for x in date.split("-"))
-    return f"{y:04d}{m:02d}{d:02d}"
+    year, month, day = (int(part) for part in date.split("-"))
+    return f"{year:04d}{month:02d}{day:02d}"
 
 
 async def _data(client: httpx.AsyncClient, folder: str, name: str) -> list[dict]:
@@ -190,7 +192,7 @@ class NcSbe(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "NC" for k in keys):
+        if not any(key.state == "NC" for key in keys):
             return []
         folder = await _folder(client, c.election_date())
         contests = await _data(client, folder, "contest.txt")
@@ -200,11 +202,15 @@ class NcSbe(ResultsSource):
         except SourceUnavailable:
             county = []
         parsed = parse_nc(contests, results, county, fetched_at=c.utcnow())
-        return c.select(parsed, [k for k in keys if k.state == "NC"])
+        return c.select(parsed, [key for key in keys if key.state == "NC"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "NC":
             return []
         folder = await _folder(client, c.election_date())
         contests = await _data(client, folder, "contest.txt")
-        return [(race_key(r["cnm"]), _bare(r["cnm"])) for r in contests if str(r.get("cid")) == "0" and r.get("cnm")]
+        return [
+            (race_key(contest["cnm"]), _bare(contest["cnm"]))
+            for contest in contests
+            if str(contest.get("cid")) == "0" and contest.get("cnm")
+        ]

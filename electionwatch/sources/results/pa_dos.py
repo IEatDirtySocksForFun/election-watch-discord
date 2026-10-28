@@ -77,9 +77,9 @@ _ORD = re.compile(r"^(\d+)(?:st|nd|rd|th)\b", re.I)
 
 
 def _district_number(group: dict) -> str | None:
-    m = _ORD.match(str(group.get("District") or ""))
-    if m:
-        return f"{int(m.group(1)):02d}"
+    match = _ORD.match(str(group.get("District") or ""))
+    if match:
+        return f"{int(match.group(1)):02d}"
     did = str(group.get("DistrictId") or "")
     return f"{int(did):02d}" if did.isdigit() else None
 
@@ -120,10 +120,10 @@ def _decode(payload) -> dict:
 
 def parse_pa(payload, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one GetOfficeData response (any office)."""
-    doc = _decode(payload)
+    decoded = _decode(payload)
     results: list[RaceResult] = []
     seen: set[str] = set()
-    for office, groups in (doc.get("Election") or {}).items():
+    for office, groups in (decoded.get("Election") or {}).items():
         for group in groups if isinstance(groups, list) else [groups]:
             if not isinstance(group, dict):
                 continue
@@ -162,7 +162,7 @@ def parse_pa(payload, *, fetched_at: datetime) -> list[RaceResult]:
                             fetched_at,
                             source=PaDos.name,
                             url=HUMAN,
-                            total_votes=sum(x.votes for x in cands),
+                            total_votes=sum(candidate.votes for candidate in cands),
                         )
                     )
     return results
@@ -170,15 +170,15 @@ def parse_pa(payload, *, fetched_at: datetime) -> list[RaceResult]:
 
 def latest_rows(payload) -> list[dict]:
     """Rows from GetLatestElection, which is a JSON string of a JSON list."""
-    obj = payload
-    while isinstance(obj, str):
+    decoded = payload
+    while isinstance(decoded, str):
         try:
-            obj = json.loads(obj)
+            decoded = json.loads(decoded)
         except ValueError:
             return []
-    if isinstance(obj, list):
-        return [r for r in obj if isinstance(r, dict)]
-    return [obj] if isinstance(obj, dict) else []
+    if isinstance(decoded, list):
+        return [row for row in decoded if isinstance(row, dict)]
+    return [decoded] if isinstance(decoded, dict) else []
 
 
 async def _resolve(client: httpx.AsyncClient, date: str) -> dict:
@@ -199,9 +199,9 @@ async def _office(client: httpx.AsyncClient, office_id: int, election: dict) -> 
         f"&electiontype={election['election_type']}"
     )
     for active in ("1", "0"):
-        doc = _decode(await c.get_json(client, f"{API}/GetOfficeData?{params}&isactive={active}"))
-        if doc.get("Election"):
-            return doc
+        office_data = _decode(await c.get_json(client, f"{API}/GetOfficeData?{params}&isactive={active}"))
+        if office_data.get("Election"):
+            return office_data
     return None
 
 
@@ -212,24 +212,24 @@ class PaDos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        pa_keys = [k for k in keys if k.state == "PA"]
+        pa_keys = [key for key in keys if key.state == "PA"]
         if not pa_keys:
             return []
         election = await _resolve(client, c.election_date())
         results: list[RaceResult] = []
         for office_id in OFFICES.values():
-            doc = await _office(client, office_id, election)
-            if doc:
-                results.extend(parse_pa(doc, fetched_at=c.utcnow()))
+            office_data = await _office(client, office_id, election)
+            if office_data:
+                results.extend(parse_pa(office_data, fetched_at=c.utcnow()))
         return c.select(results, pa_keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "PA":
             return []
         election = await _resolve(client, c.election_date())
-        out: list[tuple[RaceKey, str]] = []
+        found: list[tuple[RaceKey, str]] = []
         for office_id in OFFICES.values():
-            doc = await _office(client, office_id, election)
-            for r in parse_pa(doc, fetched_at=c.utcnow()) if doc else []:
-                out.append((r.key, r.title or str(r.key)))
-        return out
+            office_data = await _office(client, office_id, election)
+            for result in parse_pa(office_data, fetched_at=c.utcnow()) if office_data else []:
+                found.append((result.key, result.title or str(result.key)))
+        return found

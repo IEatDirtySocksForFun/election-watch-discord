@@ -80,14 +80,14 @@ _STATE_HOUSE = re.compile(
 
 
 def _norm(name: str) -> str:
-    n = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
-    n = re.sub(r"\s+-\s+", " ", n)
-    return re.sub(r"[,.]", "", n)
+    cleaned = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
+    cleaned = re.sub(r"\s+-\s+", " ", cleaned)
+    return re.sub(r"[,.]", "", cleaned)
 
 
-def _drop_trailing_municipality(n: str) -> str:
+def _drop_trailing_municipality(name: str) -> str:
     """'BARTLETT ALDERMAN - POSITION 4 BARTLETT' -> 'BARTLETT ALDERMAN - POSITION 4'."""
-    words = n.split()
+    words = name.split()
     while len(words) > 2 and words[-1] == words[0]:
         words.pop()
     return " ".join(words)
@@ -95,22 +95,22 @@ def _drop_trailing_municipality(n: str) -> str:
 
 def shared_key(name: str) -> RaceKey | None:
     """Key for a contest on every Tennessee ballot, or None for a purely local one."""
-    n = _norm(name)
-    if n in _PRESIDENT:
+    office_name = _norm(name)
+    if office_name in _PRESIDENT:
         return c.local_key("TN", "president-vice-president")
-    if n in _SENATE:
+    if office_name in _SENATE:
         return RaceKey("TN", Level.SENATE, "SEN")
-    m = _HOUSE.match(n)
-    if m:
-        return RaceKey("TN", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    if n in _STATEWIDE:
-        return RaceKey("TN", Level.GOVERNOR, _STATEWIDE[n])
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("TN", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey("TN", Level.STATE, "HD", f"{int(m.group(1)):02d}")
+    match = _HOUSE.match(office_name)
+    if match:
+        return RaceKey("TN", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    if office_name in _STATEWIDE:
+        return RaceKey("TN", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = _STATE_SENATE.match(office_name)
+    if match:
+        return RaceKey("TN", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _STATE_HOUSE.match(office_name)
+    if match:
+        return RaceKey("TN", Level.STATE, "HD", f"{int(match.group(1)):02d}")
     return None
 
 
@@ -149,14 +149,14 @@ def feeds(date: str) -> list[dict]:
             raise SourceUnavailable("TN_COUNTY_FEEDS is not valid JSON") from exc
         if not isinstance(entries, list):
             raise SourceUnavailable("TN_COUNTY_FEEDS must be a JSON list")
-        out = []
+        configured = []
         for entry in entries:
             if not isinstance(entry, dict) or not entry.get("county") or not entry.get("slug"):
                 raise SourceUnavailable("TN_COUNTY_FEEDS entries need county and slug")
             if entry.get("date") and entry["date"] != date:
                 continue
-            out.append({"county": str(entry["county"]), "slug": str(entry["slug"])})
-        return out
+            configured.append({"county": str(entry["county"]), "slug": str(entry["slug"])})
+        return configured
     return [{"county": county, "slug": slug} for county, slug in ELECTIONS.get(date, {}).items() if slug]
 
 
@@ -191,13 +191,13 @@ class TnCounties(ResultsSource):
             # `_county.merge` always pluralises; a single configured county should not
             # read "(partial: 1 counties)".
             merged = [
-                replace(r, title=(r.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
-                for r in merged
+                replace(result, title=(result.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
+                for result in merged
             ]
         return merged
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        tn_keys = [k for k in keys if k.state == "TN"]
+        tn_keys = [key for key in keys if key.state == "TN"]
         if not tn_keys:
             return []
         return c.select(await self._all(client, c.election_date()), tn_keys)
@@ -209,4 +209,4 @@ class TnCounties(ResultsSource):
             results = await self._all(client, c.election_date())
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in results]
+        return [(result.key, result.title or str(result.key)) for result in results]

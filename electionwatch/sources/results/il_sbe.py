@@ -80,24 +80,24 @@ def _upper(text: str) -> str:
 
 def race_key(office: str) -> RaceKey:
     """Map an Illinois office heading to a RaceKey."""
-    n = _upper(office)
-    special = c.is_special(n)
-    if n == "UNITED STATES SENATOR":
+    office_name = _upper(office)
+    special = c.is_special(office_name)
+    if office_name == "UNITED STATES SENATOR":
         return RaceKey("IL", Level.SENATE, "SEN", None, special)
-    if n in _STATEWIDE:
-        return RaceKey("IL", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    if n.startswith("PRESIDENTIAL ELECTORS") or n == "PRESIDENT":
+    if office_name in _STATEWIDE:
+        return RaceKey("IL", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    if office_name.startswith("PRESIDENTIAL ELECTORS") or office_name == "PRESIDENT":
         return c.local_key("IL", "us-president")
-    m = _DISTRICT.match(n)
-    if m:
-        num = f"{int(m.group(1)):02d}"
-        kind = m.group(2)
+    match = _DISTRICT.match(office_name)
+    if match:
+        num = f"{int(match.group(1)):02d}"
+        kind = match.group(2)
         if kind == "CONGRESS":
             return RaceKey("IL", Level.HOUSE, "HOUSE", num, special)
         if kind == "SENATE":
             return RaceKey("IL", Level.STATE, "SD", num, special)
         return RaceKey("IL", Level.STATE, "HD", num, special)
-    return c.local_key("IL", n)
+    return c.local_key("IL", office_name)
 
 
 def election_label(html: str) -> str | None:
@@ -112,20 +112,20 @@ def election_label(html: str) -> str | None:
 def categories(html: str) -> list[str]:
     """Category page URLs (Senate / District All) linked from a results page."""
     tree = HTMLParser(html or "")
-    out: list[str] = []
-    for a in tree.css("a"):
-        href = a.attributes.get("href") or ""
+    links: list[str] = []
+    for anchor in tree.css("a"):
+        href = anchor.attributes.get("href") or ""
         if "OfficeType=" not in href:
             continue
-        label = a.text(strip=True)
-        if label in CATEGORIES and href not in out:
-            out.append(href)
-    return out
+        label = anchor.text(strip=True)
+        if label in CATEGORIES and href not in links:
+            links.append(href)
+    return links
 
 
 def parse_il(html: str, *, fetched_at: datetime, url: str | None = None) -> list[RaceResult]:
     """Pure parse of one SBE Vote Totals page."""
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for name, body in _BLOCK.findall(html or ""):
         office = _upper(name)
@@ -152,7 +152,7 @@ def parse_il(html: str, *, fetched_at: datetime, url: str | None = None) -> list
         if str(key) in seen:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 office,
@@ -160,10 +160,10 @@ def parse_il(html: str, *, fetched_at: datetime, url: str | None = None) -> list
                 fetched_at,
                 source=IlSbe.name,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
             )
         )
-    return out
+    return results
 
 
 def page_url(date: str) -> str:
@@ -202,15 +202,15 @@ async def _pages(client: httpx.AsyncClient, date: str) -> list[tuple[str, str]]:
 
 
 async def _all_races(client: httpx.AsyncClient, date: str, fetched_at: datetime) -> list[RaceResult]:
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for html, url in await _pages(client, date):
-        for r in parse_il(html, fetched_at=fetched_at, url=url):
-            if str(r.key) in seen:
+        for result in parse_il(html, fetched_at=fetched_at, url=url):
+            if str(result.key) in seen:
                 continue
-            seen.add(str(r.key))
-            out.append(r)
-    return out
+            seen.add(str(result.key))
+            results.append(result)
+    return results
 
 
 @register
@@ -220,7 +220,7 @@ class IlSbe(ResultsSource):
     scrape = True
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        il_keys = [k for k in keys if k.state == "IL"]
+        il_keys = [key for key in keys if key.state == "IL"]
         if not il_keys:
             return []
         return c.select(await _all_races(client, c.election_date(), c.utcnow()), il_keys)
@@ -228,4 +228,7 @@ class IlSbe(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "IL":
             return []
-        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [
+            (result.key, result.title or str(result.key))
+            for result in await _all_races(client, c.election_date(), c.utcnow())
+        ]

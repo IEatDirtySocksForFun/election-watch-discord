@@ -71,25 +71,25 @@ def utcnow() -> datetime:
 
 def iso_date(value: str) -> str:
     """'11/03/2026' or '11/3/2026' -> '2026-11-03'."""
-    m = re.fullmatch(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*", value or "")
-    if not m:
+    match = re.fullmatch(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*", value or "")
+    if not match:
         raise ValueError(f"not a US date: {value!r}")
-    return f"{int(m.group(3)):04d}-{int(m.group(1)):02d}-{int(m.group(2)):02d}"
+    return f"{int(match.group(3)):04d}-{int(match.group(1)):02d}-{int(match.group(2)):02d}"
 
 
 def us_date(iso: str) -> str:
     """'2026-11-03' -> '11/03/2026' (the form the state sites take in a query string)."""
-    d = date.fromisoformat(iso)
-    return f"{d.month:02d}/{d.day:02d}/{d.year:04d}"
+    election_day = date.fromisoformat(iso)
+    return f"{election_day.month:02d}/{election_day.day:02d}/{election_day.year:04d}"
 
 
 def norm_party(value: str | None) -> str | None:
     if value is None:
         return None
-    p = re.sub(r"[^A-Za-z]", "", str(value)).upper()
-    if not p:
+    letters = re.sub(r"[^A-Za-z]", "", str(value)).upper()
+    if not letters:
         return None
-    return _PARTY_MAP.get(p, p)
+    return _PARTY_MAP.get(letters, letters)
 
 
 def to_int(value) -> int:
@@ -118,20 +118,20 @@ def to_pct(value, *, fraction: bool = False) -> float | None:
 
 
 def slug(text: str) -> str:
-    s = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
-    return re.sub(r"-{2,}", "-", s) or "race"
+    slug_text = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    return re.sub(r"-{2,}", "-", slug_text) or "race"
 
 
 def is_special(name: str) -> bool:
-    n = (name or "").upper()
-    return "SPECIAL" in n or "UNEXPIRED" in n
+    upper_name = (name or "").upper()
+    return "SPECIAL" in upper_name or "UNEXPIRED" in upper_name
 
 
 def strip_incumbent(name: str) -> tuple[str, bool]:
     """'TED CRUZ (I)' -> ('TED CRUZ', True)."""
-    m = re.search(r"\s*\((?:I|INC\.?|INCUMBENT)\)\s*$", name or "", re.I)
-    if m:
-        return name[: m.start()].strip(), True
+    match = re.search(r"\s*\((?:I|INC\.?|INCUMBENT)\)\s*$", name or "", re.I)
+    if match:
+        return name[: match.start()].strip(), True
     return (name or "").strip(), False
 
 
@@ -171,8 +171,8 @@ def make_result(
 
 
 def select(results: list[RaceResult], keys: list[RaceKey]) -> list[RaceResult]:
-    wanted = {str(k) for k in keys}
-    return [r for r in results if str(r.key) in wanted]
+    wanted = {str(race_key) for race_key in keys}
+    return [result for result in results if str(result.key) in wanted]
 
 
 def _decode_payload(resp: httpx.Response) -> object:
@@ -226,7 +226,7 @@ def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | N
         return None
     raw = str(text).strip()
     raw = re.sub(r"^(?:" + "|".join(_WEEKDAYS) + r")\,?\s+", "", raw, flags=re.I)
-    raw = re.sub(r"\s+([ap])\.?m\.?\s*$", lambda m: f" {m.group(1).upper()}M", raw, flags=re.I)
+    raw = re.sub(r"\s+([ap])\.?m\.?\s*$", lambda match: f" {match.group(1).upper()}M", raw, flags=re.I)
     formats = (
         "%m/%d/%Y %I:%M:%S %p",
         "%m/%d/%Y %H:%M:%S",
@@ -256,12 +256,12 @@ def parse_updated_at(text: str | None, *, tz: str | None = None) -> datetime | N
 
 def district_from(text: str) -> str | None:
     """'District 01' / '1st Congressional District' / 'D16' -> '01' / '01' / '16'."""
-    m = re.search(r"(?:DISTRICT|DIST\.?|D)\s*[-# ]?\s*(\d{1,3})", text or "", re.I)
-    if m:
-        return f"{int(m.group(1)):02d}"
-    m = re.search(r"\b(\d{1,3})(?:st|nd|rd|th)\s+CONGRESSIONAL", text or "", re.I)
-    if m:
-        return f"{int(m.group(1)):02d}"
+    match = re.search(r"(?:DISTRICT|DIST\.?|D)\s*[-# ]?\s*(\d{1,3})", text or "", re.I)
+    if match:
+        return f"{int(match.group(1)):02d}"
+    match = re.search(r"\b(\d{1,3})(?:st|nd|rd|th)\s+CONGRESSIONAL", text or "", re.I)
+    if match:
+        return f"{int(match.group(1)):02d}"
     return None
 
 

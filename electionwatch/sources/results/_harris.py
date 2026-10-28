@@ -47,8 +47,8 @@ _CAND = re.compile(r"^(.*?)\s*\(([A-Za-z]{1,4})\)\s*$")
 
 def election_code(iso_date: str) -> str:
     """'2026-11-03' -> '1126' (month + two-digit year, the county's own election code)."""
-    d = date.fromisoformat(iso_date)
-    return f"{d.month:02d}{d.year % 100:02d}"
+    election_day = date.fromisoformat(iso_date)
+    return f"{election_day.month:02d}{election_day.year % 100:02d}"
 
 
 def results_url(code: str) -> str:
@@ -67,10 +67,10 @@ def payload_date(payload) -> str | None:
 def split_candidate(raw: str) -> tuple[str, str | None]:
     """'TED CRUZ (REP)' -> ('TED CRUZ', 'REP'); 'Analisa Roche (W)' -> (..., 'WRI')."""
     text = re.sub(r"\s+", " ", str(raw or "")).strip()
-    m = _CAND.match(text)
-    if not m:
+    match = _CAND.match(text)
+    if not match:
         return text, None
-    return m.group(1).strip(), c.norm_party(m.group(2))
+    return match.group(1).strip(), c.norm_party(match.group(2))
 
 
 def parse_updated(payload) -> datetime | None:
@@ -95,7 +95,7 @@ def parse_contests(
     if not isinstance(payload, dict):
         return []
     updated = parse_updated(payload)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for con in payload.get("contests") or []:
         if not isinstance(con, dict):
@@ -117,7 +117,7 @@ def parse_contests(
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -125,10 +125,10 @@ def parse_contests(
                 fetched_at,
                 source=source,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=c.to_int(con.get("pr")) or None,
                 precincts_total=c.to_int(con.get("tp")) or None,
                 source_updated_at=updated,
             )
         )
-    return out
+    return results

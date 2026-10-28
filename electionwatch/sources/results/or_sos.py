@@ -106,36 +106,36 @@ def _district(*values: str | None) -> str | None:
         text = _norm(value)
         if not text:
             continue
-        m = _ORDINAL_DISTRICT.search(text)
-        if m:
-            return f"{int(m.group(1)):02d}"
-        d = c.district_from(text)
-        if d:
-            return d
+        match = _ORDINAL_DISTRICT.search(text)
+        if match:
+            return f"{int(match.group(1)):02d}"
+        district = c.district_from(text)
+        if district:
+            return district
     return None
 
 
 def race_key(race_name: str, area_num: str | None = None) -> RaceKey:
     """Map an Oregon contest name (+ its AreaNum, e.g. 'HD 01') to a RaceKey."""
-    n = _norm(race_name).upper()
-    special = c.is_special(n)
-    if n in ("US SENATOR", "US SENATE", "UNITED STATES SENATOR"):
+    office_name = _norm(race_name).upper()
+    special = c.is_special(office_name)
+    if office_name in ("US SENATOR", "US SENATE", "UNITED STATES SENATOR"):
         return RaceKey("OR", Level.SENATE, "SEN", None, special)
-    if n.startswith(("US REPRESENTATIVE", "US HOUSE", "CONGRESSIONAL")):
+    if office_name.startswith(("US REPRESENTATIVE", "US HOUSE", "CONGRESSIONAL")):
         return RaceKey("OR", Level.HOUSE, "HOUSE", _district(area_num, race_name) or "00", special)
-    if n.startswith("GOVERNOR"):
+    if office_name.startswith("GOVERNOR"):
         return RaceKey("OR", Level.GOVERNOR, "GOV", None, special)
     for prefix, code in _STATEWIDE.items():
-        if n.startswith(prefix):
+        if office_name.startswith(prefix):
             return RaceKey("OR", Level.GOVERNOR, code, None, special)
-    if n.startswith(("STATE REPRESENTATIVE", "STATE HOUSE")):
+    if office_name.startswith(("STATE REPRESENTATIVE", "STATE HOUSE")):
         return RaceKey("OR", Level.STATE, "HD", _district(area_num, race_name) or "00", special)
-    if n.startswith(("STATE SENATOR", "STATE SENATE")):
+    if office_name.startswith(("STATE SENATOR", "STATE SENATE")):
         return RaceKey("OR", Level.STATE, "SD", _district(area_num, race_name) or "00", special)
-    m = _MEASURE.match(n)
-    if m:
-        return RaceKey("OR", Level.LOCAL, "LOCAL", f"measure-{int(m.group(1))}")
-    return c.local_key("OR", n)
+    match = _MEASURE.match(office_name)
+    if match:
+        return RaceKey("OR", Level.LOCAL, "LOCAL", f"measure-{int(match.group(1))}")
+    return c.local_key("OR", office_name)
 
 
 def parse_or(payload, *, fetched_at) -> list[RaceResult]:
@@ -148,7 +148,7 @@ def parse_or(payload, *, fetched_at) -> list[RaceResult]:
         if not isinstance(row, dict) or not _norm(row.get("RaceName")):
             continue
         groups.setdefault(c.to_int(row.get("RaceID")), []).append(row)
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     for race_id, race_rows in groups.items():
         first = race_rows[0]
         race_name = _norm(first.get("RaceName"))
@@ -170,7 +170,7 @@ def parse_or(payload, *, fetched_at) -> list[RaceResult]:
             continue
         reporting = c.to_int(first.get("PrecinctsReporting")) + c.to_int(first.get("PrecinctsPartial"))
         total = c.to_int(first.get("TotalPrecincts")) or None
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 race_name,
@@ -178,12 +178,12 @@ def parse_or(payload, *, fetched_at) -> list[RaceResult]:
                 fetched_at,
                 source=OrSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=reporting,
                 precincts_total=total,
             )
         )
-    return out
+    return results
 
 
 @register
@@ -208,16 +208,16 @@ class OrSos(ResultsSource):
         return pages
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "OR" for k in keys):
+        if not any(key.state == "OR" for key in keys):
             return []
-        results = [r for page in await self._pages(client) for r in page]
-        return c.select(results, [k for k in keys if k.state == "OR"])
+        results = [result for page in await self._pages(client) for result in page]
+        return c.select(results, [key for key in keys if key.state == "OR"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "OR":
             return []
         seen: dict[str, tuple[RaceKey, str]] = {}
         for page in await self._pages(client):
-            for r in page:
-                seen.setdefault(str(r.key), (r.key, r.title or str(r.key)))
+            for result in page:
+                seen.setdefault(str(result.key), (result.key, result.title or str(result.key)))
         return list(seen.values())

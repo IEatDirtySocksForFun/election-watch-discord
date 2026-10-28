@@ -78,48 +78,48 @@ def _upper(text: str) -> str:
 
 def race_key(office: str) -> RaceKey:
     """Map an archive heading ('District 1 Senator') to a RaceKey."""
-    n = _upper(office)
-    special = c.is_special(n)
-    m = re.match(r"^DISTRICT (\d{1,2}) US REPRESENTATIVE$", n)
-    if m:
-        return RaceKey("ID", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^DISTRICT (\d{1,2}) SENATOR$", n)
-    if m:
-        return RaceKey("ID", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^DISTRICT (\d{1,2}) REPRESENTATIVE ([AB])$", n)
-    if m:
-        return RaceKey("ID", Level.STATE, "HD", f"{int(m.group(1)):02d}{m.group(2)}", special)
-    if n in ("PRESIDENT", "PRESIDENT AND VICE PRESIDENT", "PRESIDENTIAL ELECTORS"):
+    office_name = _upper(office)
+    special = c.is_special(office_name)
+    match = re.match(r"^DISTRICT (\d{1,2}) US REPRESENTATIVE$", office_name)
+    if match:
+        return RaceKey("ID", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^DISTRICT (\d{1,2}) SENATOR$", office_name)
+    if match:
+        return RaceKey("ID", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^DISTRICT (\d{1,2}) REPRESENTATIVE ([AB])$", office_name)
+    if match:
+        return RaceKey("ID", Level.STATE, "HD", f"{int(match.group(1)):02d}{match.group(2)}", special)
+    if office_name in ("PRESIDENT", "PRESIDENT AND VICE PRESIDENT", "PRESIDENTIAL ELECTORS"):
         return c.local_key("ID", "us-president")
-    if n in _STATEWIDE:
-        return RaceKey("ID", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    if n == "UNITED STATES SENATOR":
+    if office_name in _STATEWIDE:
+        return RaceKey("ID", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    if office_name == "UNITED STATES SENATOR":
         return RaceKey("ID", Level.SENATE, "SEN", None, special)
-    return c.local_key("ID", n)
+    return c.local_key("ID", office_name)
 
 
 def parse_id(html: str, *, fetched_at: datetime, url: str | None = None) -> list[RaceResult]:
     """Pure parse of one archive page (headings + reactable JSON)."""
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     heads = list(_HEADING.finditer(html or ""))
-    for i, m in enumerate(heads):
-        heading = _text(m.group(2))
+    for i, match in enumerate(heads):
+        heading = _text(match.group(2))
         stop = heads[i + 1].start() if i + 1 < len(heads) else len(html)
-        data = None
-        for blob in _SCRIPT.finditer(html, m.end(), stop):
+        contest = None
+        for blob in _SCRIPT.finditer(html, match.end(), stop):
             try:
                 payload = json.loads(blob.group(1))
-                data = payload["x"]["tag"]["attribs"]["data"]
+                contest = payload["x"]["tag"]["attribs"]["data"]
             except (ValueError, KeyError, TypeError):
                 continue
-            if isinstance(data, dict) and data.get("ContestantName"):
+            if isinstance(contest, dict) and contest.get("ContestantName"):
                 break
-            data = None
-        if not data:
+            contest = None
+        if not contest:
             continue
         cands: list[CandidateResult] = []
-        for name, votes in zip(data.get("ContestantName") or [], data.get("TotalVotes") or []):
+        for name, votes in zip(contest.get("ContestantName") or [], contest.get("TotalVotes") or []):
             label = (name or "").strip()
             if not label or "write-in" in label.lower():
                 continue
@@ -135,7 +135,7 @@ def parse_id(html: str, *, fetched_at: datetime, url: str | None = None) -> list
         if str(key) in seen:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 heading,
@@ -143,10 +143,10 @@ def parse_id(html: str, *, fetched_at: datetime, url: str | None = None) -> list
                 fetched_at,
                 source=IdSos.name,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
             )
         )
-    return out
+    return results
 
 
 def archive_index(date_iso: str) -> str | None:
@@ -160,29 +160,29 @@ def archive_index(date_iso: str) -> str | None:
 
 def page_links(html: str, base_url: str) -> list[tuple[str, str]]:
     """(filename, absolute URL) for the results pages linked from an archive index."""
-    out: list[tuple[str, str]] = []
+    links: list[tuple[str, str]] = []
     seen: set[str] = set()
-    for a in HTMLParser(html or "").css("a"):
-        href = (a.attributes.get("href") or "").strip()
+    for anchor in HTMLParser(html or "").css("a"):
+        href = (anchor.attributes.get("href") or "").strip()
         if not href.endswith(".html"):
             continue
         name = href.rsplit("/", 1)[-1]
         if name in SKIP_PAGES or name in seen:
             continue
         seen.add(name)
-        out.append((name, urljoin(base_url, href)))
-    return out
+        links.append((name, urljoin(base_url, href)))
+    return links
 
 
 def _needed_files(keys: list[RaceKey]) -> set[str] | None:
     """Archive pages that can hold the requested races (None = no restriction)."""
     need: set[str] = set()
-    for k in keys:
-        if k.level is Level.HOUSE:
+    for key in keys:
+        if key.level is Level.HOUSE:
             need.add("congressional.html")
-        elif k.level is Level.STATE:
+        elif key.level is Level.STATE:
             need.add("legislative.html")
-        elif k.level in (Level.SENATE, Level.GOVERNOR):
+        elif key.level in (Level.SENATE, Level.GOVERNOR):
             return None  # statewide offices: depends on the year's page names
     return need or None
 
@@ -205,18 +205,18 @@ async def _all_races(
     client: httpx.AsyncClient, date_iso: str, fetched_at: datetime, keys: list[RaceKey] | None = None
 ) -> list[RaceResult]:
     wanted = _needed_files(keys) if keys else None
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for name, url in await _pages(client, date_iso):
         if wanted is not None and name not in wanted:
             continue
         html = await c.get_text(client, url)
-        for r in parse_id(html, fetched_at=fetched_at, url=url):
-            if str(r.key) in seen:
+        for result in parse_id(html, fetched_at=fetched_at, url=url):
+            if str(result.key) in seen:
                 continue
-            seen.add(str(r.key))
-            out.append(r)
-    return out
+            seen.add(str(result.key))
+            results.append(result)
+    return results
 
 
 @register
@@ -226,7 +226,7 @@ class IdSos(ResultsSource):
     scrape = True
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        id_keys = [k for k in keys if k.state == "ID"]
+        id_keys = [key for key in keys if key.state == "ID"]
         if not id_keys:
             return []
         date_iso = c.election_date()
@@ -235,4 +235,7 @@ class IdSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "ID":
             return []
-        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [
+            (result.key, result.title or str(result.key))
+            for result in await _all_races(client, c.election_date(), c.utcnow())
+        ]

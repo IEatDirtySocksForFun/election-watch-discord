@@ -101,40 +101,40 @@ def _clean(text: str | None) -> str:
 
 def _bare(name: str) -> str:
     """'For United States Senator - 6  Year Term' -> 'UNITED STATES SENATOR'."""
-    n = _clean(name).upper()
-    n = re.sub(r"^FOR\s+", "", n)
-    return re.split(r"\s+-\s+", n)[0].strip()
+    office_name = _clean(name).upper()
+    office_name = re.sub(r"^FOR\s+", "", office_name)
+    return re.split(r"\s+-\s+", office_name)[0].strip()
 
 
 def race_key(name: str) -> RaceKey:
-    n = _clean(name).upper()
-    bare = _bare(n)
-    special = c.is_special(n)
+    office_name = _clean(name).upper()
+    bare = _bare(office_name)
+    special = c.is_special(office_name)
     if _SENATE.match(bare):
         return RaceKey("NE", Level.SENATE, "SEN", None, special)
     if bare in _STATEWIDE:
         return RaceKey("NE", Level.GOVERNOR, _STATEWIDE[bare], None, special)
     if _HOUSE.match(bare):
-        return RaceKey("NE", Level.HOUSE, "HOUSE", c.district_from(n) or "AL", special)
+        return RaceKey("NE", Level.HOUSE, "HOUSE", c.district_from(office_name) or "AL", special)
     if _LEGISLATURE.match(bare):
-        return RaceKey("NE", Level.STATE, "SD", c.district_from(n) or "00", special)
+        return RaceKey("NE", Level.STATE, "SD", c.district_from(office_name) or "00", special)
     # Keep the readable label ("Member of the State Board of Education - District 05"),
     # minus the site's "For " prefix, as the local slug.
-    return c.local_key("NE", re.sub(r"^FOR\s+", "", n).strip() or n)
+    return c.local_key("NE", re.sub(r"^FOR\s+", "", office_name).strip() or office_name)
 
 
 def _precincts(block) -> tuple[int | None, int | None]:
     node = block.css_first("div.precinct-fully")
-    m = _PRECINCT_FULL.search(_clean(node.text() if node else ""))
-    if not m:
+    match = _PRECINCT_FULL.search(_clean(node.text() if node else ""))
+    if not match:
         return None, None
-    return c.to_int(m.group(1)) or None, c.to_int(m.group(2)) or None
+    return c.to_int(match.group(1)) or None, c.to_int(match.group(2)) or None
 
 
 def parse_ne_page(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one resultsSW.aspx page."""
     tree = HTMLParser(html or "")
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for block in tree.css("div.wrapper-inside"):
         title_node = block.css_first("div.display-results-box-a h1")
@@ -168,7 +168,7 @@ def parse_ne_page(html: str, *, fetched_at: datetime) -> list[RaceResult]:
         total_node = block.css_first("div.display-results-box-total h2")
         total = c.to_int(_clean(total_node.text() if total_node else ""))
         reporting, precinct_total = _precincts(block)
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -176,12 +176,12 @@ def parse_ne_page(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=NeSos.name,
                 url=HUMAN,
-                total_votes=total or sum(x.votes for x in cands),
+                total_votes=total or sum(candidate.votes for candidate in cands),
                 precincts_reporting=reporting,
                 precincts_total=precinct_total,
             )
         )
-    return out
+    return results
 
 
 async def _page(client: httpx.AsyncClient, family: str) -> str:
@@ -203,7 +203,7 @@ async def _page(client: httpx.AsyncClient, family: str) -> str:
 
 def _families(wanted: list[RaceKey]) -> list[str]:
     families: list[str] = []
-    levels = {k.level for k in wanted}
+    levels = {key.level for key in wanted}
     if Level.SENATE in levels or Level.GOVERNOR in levels:
         families.append("SW")
     if Level.HOUSE in levels:
@@ -225,7 +225,7 @@ class NeSos(ResultsSource):
     enabled_by_default = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        wanted = [k for k in keys if k.state == "NE"]
+        wanted = [key for key in keys if key.state == "NE"]
         if not wanted:
             return []
         results: list[RaceResult] = []

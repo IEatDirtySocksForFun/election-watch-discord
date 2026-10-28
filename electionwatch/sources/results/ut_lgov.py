@@ -77,9 +77,9 @@ _PARTIES = {
 
 def _norm(name: str) -> str:
     """'U.S. House 1 ' / 'State House 59  (Multi-County)' -> 'US HOUSE 1' / 'STATE HOUSE 59'."""
-    n = re.sub(r"\s+", " ", str(name or "")).strip()
-    n = re.sub(r"\s*\((?:multi-county|2 year term)[^)]*\)\s*$", "", n, flags=re.I)
-    return n.replace("U.S.", "US").upper()
+    cleaned = re.sub(r"\s+", " ", str(name or "")).strip()
+    cleaned = re.sub(r"\s*\((?:multi-county|2 year term)[^)]*\)\s*$", "", cleaned, flags=re.I)
+    return cleaned.replace("U.S.", "US").upper()
 
 
 def _party(value: str | None) -> str | None:
@@ -90,23 +90,23 @@ def _party(value: str | None) -> str | None:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    if n in ("US PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
+    office_name = _norm(name)
+    if office_name in ("US PRESIDENT", "PRESIDENT OF THE UNITED STATES"):
         return c.local_key("UT", "us-president")
-    if n in ("US SENATE", "US SENATOR"):
+    if office_name in ("US SENATE", "US SENATOR"):
         return RaceKey("UT", Level.SENATE, "SEN")
-    m = re.match(r"^US HOUSE\s*(\d+)$", n)
-    if m:
-        return RaceKey("UT", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    if n in _STATEWIDE:
-        return RaceKey("UT", Level.GOVERNOR, _STATEWIDE[n])
-    m = re.match(r"^STATE SENATE\s*(\d+)$", n)
-    if m:
-        return RaceKey("UT", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = re.match(r"^STATE HOUSE\s*(\d+)$", n)
-    if m:
-        return RaceKey("UT", Level.STATE, "HD", f"{int(m.group(1)):02d}")
-    return c.local_key("UT", n)
+    match = re.match(r"^US HOUSE\s*(\d+)$", office_name)
+    if match:
+        return RaceKey("UT", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    if office_name in _STATEWIDE:
+        return RaceKey("UT", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = re.match(r"^STATE SENATE\s*(\d+)$", office_name)
+    if match:
+        return RaceKey("UT", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = re.match(r"^STATE HOUSE\s*(\d+)$", office_name)
+    if match:
+        return RaceKey("UT", Level.STATE, "HD", f"{int(match.group(1)):02d}")
+    return c.local_key("UT", office_name)
 
 
 def parse_ut(payload, *, fetched_at: datetime) -> list[RaceResult]:
@@ -114,17 +114,17 @@ def parse_ut(payload, *, fetched_at: datetime) -> list[RaceResult]:
     if not isinstance(payload, dict):
         return []
     items = (payload.get("results") or {}).get("ballotItems") or []
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for item in items:
-        title = re.sub(r"\s+", " ", str(item.get("name") or "")).strip()
+    for ballot_item in items:
+        title = re.sub(r"\s+", " ", str(ballot_item.get("name") or "")).strip()
         if not title:
             continue
         key = race_key(title)
         if str(key) in seen:
             continue
         cands = []
-        for option in item.get("ballotOptions") or []:
+        for option in ballot_item.get("ballotOptions") or []:
             cand_name, incumbent = c.strip_incumbent(str(option.get("name") or "").strip())
             if not cand_name:
                 continue
@@ -140,7 +140,7 @@ def parse_ut(payload, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -148,20 +148,20 @@ def parse_ut(payload, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=UtLgov.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
-                precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
-                precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
+                total_votes=sum(candidate.votes for candidate in cands),
+                precincts_reporting=c.to_int(ballot_item.get("precinctsReporting")) or None,
+                precincts_total=c.to_int(ballot_item.get("precinctsParticipating")) or None,
             )
         )
-    return out
+    return results
 
 
 def export_slug(date: str) -> str:
     slug = ELECTIONS.get(date)
     if slug:
         return slug
-    y, m, d = (int(x) for x in date.split("-"))
-    return f"general{m:02d}{d:02d}{y:04d}"
+    year, month, day = (int(part) for part in date.split("-"))
+    return f"general{month:02d}{day:02d}{year:04d}"
 
 
 def export_url(date: str) -> str:
@@ -175,7 +175,7 @@ class UtLgov(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ut_keys = [k for k in keys if k.state == "UT"]
+        ut_keys = [key for key in keys if key.state == "UT"]
         if not ut_keys:
             return []
         url = export_url(c.election_date())
@@ -195,4 +195,4 @@ class UtLgov(ResultsSource):
             payload = await c.get_json(client, export_url(c.election_date()))
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in parse_ut(payload, fetched_at=c.utcnow())]
+        return [(result.key, result.title or str(result.key)) for result in parse_ut(payload, fetched_at=c.utcnow())]

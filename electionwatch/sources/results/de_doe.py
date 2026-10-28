@@ -42,39 +42,39 @@ def _norm(name: str) -> str:
 
 
 def race_key(office: str) -> RaceKey:
-    n = _norm(office)
-    special = c.is_special(n)
-    if n in ("PRESIDENT AND VICE PRESIDENT", "PRESIDENT"):
+    office_name = _norm(office)
+    special = c.is_special(office_name)
+    if office_name in ("PRESIDENT AND VICE PRESIDENT", "PRESIDENT"):
         return c.local_key("DE", "us-president")
-    if n in ("U.S. SENATOR", "UNITED STATES SENATOR", "US SENATOR"):
+    if office_name in ("U.S. SENATOR", "UNITED STATES SENATOR", "US SENATOR"):
         return RaceKey("DE", Level.SENATE, "SEN", None, special)
-    if n in (
+    if office_name in (
         "U.S. REPRESENTATIVE IN CONGRESS",
         "US REPRESENTATIVE",
         "UNITED STATES REPRESENTATIVE",
         "U.S. REPRESENTATIVE",
     ):
         return RaceKey("DE", Level.HOUSE, "HOUSE", "AL", special)
-    if n == "GOVERNOR":
+    if office_name == "GOVERNOR":
         return RaceKey("DE", Level.GOVERNOR, "GOV", None, special)
-    if n in ("LIEUTENANT GOVERNOR", "LT. GOVERNOR"):
+    if office_name in ("LIEUTENANT GOVERNOR", "LT. GOVERNOR"):
         return RaceKey("DE", Level.GOVERNOR, "LTGOV", None, special)
-    if n in ("INSURANCE COMMISSIONER", "COMMISSIONER OF INSURANCE"):
+    if office_name in ("INSURANCE COMMISSIONER", "COMMISSIONER OF INSURANCE"):
         return RaceKey("DE", Level.GOVERNOR, "INSCOM", None, special)
-    if n in ("ATTORNEY GENERAL", "AG"):
+    if office_name in ("ATTORNEY GENERAL", "AG"):
         return RaceKey("DE", Level.GOVERNOR, "AG", None, special)
-    if n in ("SECRETARY OF STATE", "SOS"):
+    if office_name in ("SECRETARY OF STATE", "SOS"):
         return RaceKey("DE", Level.GOVERNOR, "SOS", None, special)
-    if n in ("TREASURER", "STATE TREASURER"):
+    if office_name in ("TREASURER", "STATE TREASURER"):
         return RaceKey("DE", Level.GOVERNOR, "TREAS", None, special)
-    if n in ("AUDITOR OF ACCOUNTS", "STATE AUDITOR", "AUDITOR"):
+    if office_name in ("AUDITOR OF ACCOUNTS", "STATE AUDITOR", "AUDITOR"):
         return RaceKey("DE", Level.GOVERNOR, "AUD", None, special)
-    m = re.search(r"STATE SENATOR DISTRICT\s+(\d+)", n)
-    if m:
-        return RaceKey("DE", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.search(r"STATE REPRESENTATIVE DISTRICT\s+(\d+)", n)
-    if m:
-        return RaceKey("DE", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
+    match = re.search(r"STATE SENATOR DISTRICT\s+(\d+)", office_name)
+    if match:
+        return RaceKey("DE", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.search(r"STATE REPRESENTATIVE DISTRICT\s+(\d+)", office_name)
+    if match:
+        return RaceKey("DE", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
     return c.local_key("DE", office)
 
 
@@ -85,8 +85,8 @@ def _candidate_name(raw: str) -> str:
 
 def _party(raw: str) -> str | None:
     # "Democratic Party" / "Republican Party" -> DEM / REP via norm_party.
-    p = re.sub(r"\s+Party\s*$", "", (raw or "").strip(), flags=re.I)
-    return c.norm_party(p)
+    party_text = re.sub(r"\s+Party\s*$", "", (raw or "").strip(), flags=re.I)
+    return c.norm_party(party_text)
 
 
 def _updated(raw: str) -> datetime | None:
@@ -94,9 +94,9 @@ def _updated(raw: str) -> datetime | None:
         return None
     text = str(raw).strip()
     # ISO 8601 from the CSV, e.g. "2024-11-12T12:59:37.000".
-    m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?Z?", text)
-    if m:
-        return datetime.fromisoformat(f"{m.group(1)}T{m.group(2)}").replace(tzinfo=timezone.utc)
+    match = re.fullmatch(r"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?Z?", text)
+    if match:
+        return datetime.fromisoformat(f"{match.group(1)}T{match.group(2)}").replace(tzinfo=timezone.utc)
     return c.parse_updated_at(text)
 
 
@@ -109,7 +109,7 @@ def parse_de(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
             continue
         by_office.setdefault(office, []).append(row)
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for office, crow in by_office.items():
         key = race_key(office)
@@ -130,7 +130,7 @@ def parse_de(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 office,
@@ -138,11 +138,11 @@ def parse_de(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=DeDoe.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 def csv_url(date: str) -> str:
@@ -176,7 +176,7 @@ class DeDoe(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        de_keys = [k for k in keys if k.state == "DE"]
+        de_keys = [key for key in keys if key.state == "DE"]
         if not de_keys:
             return []
         rows = await fetch_rows(client, c.election_date())
@@ -187,7 +187,7 @@ class DeDoe(ResultsSource):
             return []
         rows = await fetch_rows(client, c.election_date())
         seen: set[str] = set()
-        out: list[tuple[RaceKey, str]] = []
+        races: list[tuple[RaceKey, str]] = []
         for row in rows:
             office = (row.get("office") or "").strip()
             if not office:
@@ -196,5 +196,5 @@ class DeDoe(ResultsSource):
             if str(key) in seen:
                 continue
             seen.add(str(key))
-            out.append((key, office))
-        return out
+            races.append((key, office))
+        return races

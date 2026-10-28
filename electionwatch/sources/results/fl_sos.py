@@ -58,7 +58,7 @@ def _candidate_name(last: str, first: str, middle: str, race_code: str) -> tuple
     middle = (middle or "").strip()
     if race_code == "PRE" and middle == "/":
         return f"{first.upper()} / {last.upper()}", False
-    parts = [p for p in (first, middle, last) if p and p != "/"]
+    parts = [part for part in (first, middle, last) if part and part != "/"]
     name = " ".join(parts).upper()
     name, incumbent = c.strip_incumbent(name)
     return name, incumbent
@@ -138,7 +138,7 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
             race["precincts"] += c.to_int(row.get("Precincts"))
             race["precincts_reporting"] += c.to_int(row.get("PrecinctsReporting"))
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for race in races.values():
         key = race_key(race["code"], race["name"], race["j1"])
@@ -165,7 +165,7 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         title = race["name"]
         if race["code"] in ("USR", "STS", "STR"):
             title = f"{title} District {int(race['j1']):d}"
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -173,19 +173,19 @@ def parse_fl(text: str, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=FlSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=race["precincts_reporting"] or None,
                 precincts_total=race["precincts"] or None,
             )
         )
-    return out
+    return results
 
 
 async def _fetch(client: httpx.AsyncClient, date: str) -> str:
     election_date = ELECTIONS.get(date)
     if not election_date:
         raise SourceUnavailable(f"FL: no extract configured for {date}")
-    data = {
+    form_data = {
         "ElectionDate": election_date,
         "OfficialResults": "Y",
         "PartyRaces": "N",
@@ -193,7 +193,7 @@ async def _fetch(client: httpx.AsyncClient, date: str) -> str:
         "FormsButton2": "Download",
     }
     try:
-        resp = await client.post(API, data=data)
+        resp = await client.post(API, data=form_data)
     except httpx.HTTPError as exc:
         raise SourceUnavailable(f"POST {API} failed: {exc}") from exc
     if resp.status_code >= 400:
@@ -208,7 +208,7 @@ class FlSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        fl_keys = [k for k in keys if k.state == "FL"]
+        fl_keys = [key for key in keys if key.state == "FL"]
         if not fl_keys:
             return []
         text = await _fetch(client, c.election_date())
@@ -219,4 +219,4 @@ class FlSos(ResultsSource):
         if state != "FL":
             return []
         text = await _fetch(client, c.election_date())
-        return [(r.key, r.title or str(r.key)) for r in parse_fl(text, fetched_at=c.utcnow())]
+        return [(result.key, result.title or str(result.key)) for result in parse_fl(text, fetched_at=c.utcnow())]

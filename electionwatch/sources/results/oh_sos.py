@@ -66,34 +66,34 @@ def _norm(name: str) -> str:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
+    office_name = _norm(name)
+    special = c.is_special(office_name)
     # "U.S. Senator - Unexpired Term Ending 01/03/2029" is the race, the suffix is the term.
-    base = re.split(r"\s+-\s+", n)[0].strip()
+    base = re.split(r"\s+-\s+", office_name)[0].strip()
     if base in _SENATE_NAMES:
         return RaceKey("OH", Level.SENATE, "SEN", None, special)
     if base in _STATEWIDE:
         return RaceKey("OH", Level.GOVERNOR, _STATEWIDE[base], None, special)
-    if _HOUSE.match(n):
-        return RaceKey("OH", Level.HOUSE, "HOUSE", c.district_from(n) or "AL", special)
-    if _SENATE.match(n):
-        return RaceKey("OH", Level.STATE, "SD", c.district_from(n) or "00", special)
-    if _REP.match(n):
-        return RaceKey("OH", Level.STATE, "HD", c.district_from(n) or "00", special)
-    return c.local_key("OH", n)
+    if _HOUSE.match(office_name):
+        return RaceKey("OH", Level.HOUSE, "HOUSE", c.district_from(office_name) or "AL", special)
+    if _SENATE.match(office_name):
+        return RaceKey("OH", Level.STATE, "SD", c.district_from(office_name) or "00", special)
+    if _REP.match(office_name):
+        return RaceKey("OH", Level.STATE, "HD", c.district_from(office_name) or "00", special)
+    return c.local_key("OH", office_name)
 
 
 def _stat(stats, label: str) -> str | None:
-    for item in (stats or {}).get("allStatistics") or []:
-        if isinstance(item, dict) and str(item.get("name") or "").strip().lower() == label.lower():
-            return str(item.get("value") or "").strip()
+    for stat in (stats or {}).get("allStatistics") or []:
+        if isinstance(stat, dict) and str(stat.get("name") or "").strip().lower() == label.lower():
+            return str(stat.get("value") or "").strip()
     return None
 
 
 def _precincts(detail: dict, rows: list[dict]) -> tuple[int | None, int | None]:
     """Reported/total precincts, falling back to Ohio's statewide statistics block."""
-    reporting = sum(c.to_int(r.get("reportedPrecincts")) for r in rows)
-    total = sum(c.to_int(r.get("totalPrecincts")) for r in rows)
+    reporting = sum(c.to_int(row.get("reportedPrecincts")) for row in rows)
+    total = sum(c.to_int(row.get("totalPrecincts")) for row in rows)
     if total:
         return reporting, total
     stats = detail.get("contestStatistics")
@@ -105,14 +105,14 @@ def _precincts(detail: dict, rows: list[dict]) -> tuple[int | None, int | None]:
 
 def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of getContestList + the GetContestDetailsObject payloads."""
-    order = {str(g.get("displayName")): i for i, g in enumerate(_groupings(contest_list or []))}
-    out: list[RaceResult] = []
+    order = {str(grouping.get("displayName")): i for i, grouping in enumerate(_groupings(contest_list or []))}
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for detail in details or []:
         if not isinstance(detail, dict):
             continue
         title = str(detail.get("contestDisplayName") or detail.get("contestName") or "").strip()
-        rows = [r for r in detail.get("contestList") or [] if isinstance(r, dict)]
+        rows = [record for record in detail.get("contestList") or [] if isinstance(record, dict)]
         if not title or not rows:
             continue
         key = race_key(title)
@@ -138,7 +138,7 @@ def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]
             continue
         seen.add(str(key))
         reporting, total = _precincts(detail, rows)
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -146,19 +146,19 @@ def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]
                 fetched_at,
                 source=OhSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=reporting or None,
                 precincts_total=total or None,
             )
         )
 
     # The site lists statewide offices first; keep that order rather than dict order.
-    out.sort(key=lambda result: order.get(str(result.title), len(order)))
-    return out
+    results.sort(key=lambda result: order.get(str(result.title), len(order)))
+    return results
 
 
 async def _details(client: httpx.AsyncClient, groupings: list[dict]) -> list[dict]:
-    out = []
+    detail_pages = []
     for grouping in groupings:
         url = str(
             httpx.URL(
@@ -171,15 +171,15 @@ async def _details(client: httpx.AsyncClient, groupings: list[dict]) -> list[dic
                 },
             )
         )
-        out.append(await c.get_json(client, url))
-    return out
+        detail_pages.append(await c.get_json(client, url))
+    return detail_pages
 
 
 async def _contest_list(client: httpx.AsyncClient) -> list[dict]:
     payload = await c.get_json(client, f"{BASE}/getContestList")
     if not isinstance(payload, list):
         raise SourceUnavailable("OH: getContestList did not return a JSON list")
-    return [x for x in payload if isinstance(x, dict)]
+    return [contest for contest in payload if isinstance(contest, dict)]
 
 
 def _groupings(contest_list: list[dict]) -> list[dict]:
@@ -198,14 +198,15 @@ class OhSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        wanted = [k for k in keys if k.state == "OH"]
+        wanted = [key for key in keys if key.state == "OH"]
         if not wanted:
             return []
         contest_list = await _contest_list(client)
         selected = [
-            g
-            for g in _groupings(contest_list)
-            if str(race_key(str(g.get("displayName") or g.get("contestName") or ""))) in {str(k) for k in wanted}
+            grouping
+            for grouping in _groupings(contest_list)
+            if str(race_key(str(grouping.get("displayName") or grouping.get("contestName") or "")))
+            in {str(key) for key in wanted}
         ]
         if not selected:
             return []

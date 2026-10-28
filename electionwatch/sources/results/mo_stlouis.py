@@ -69,23 +69,23 @@ def _norm(name: str) -> str:
 
 def shared_key(name: str) -> RaceKey | None:
     """Key for a statewide race/measure, or None for a county-local contest."""
-    n = _norm(name)
-    if n in _SENATE:
+    office_name = _norm(name)
+    if office_name in _SENATE:
         return RaceKey("MO", Level.SENATE, "SEN")
-    m = _HOUSE.match(n)
-    if m:
-        return RaceKey("MO", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    if n in _STATEWIDE:
-        return RaceKey("MO", Level.GOVERNOR, _STATEWIDE[n])
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("MO", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey("MO", Level.STATE, "HD", f"{int(m.group(1)):02d}")
-    m = _STATE_MEASURE.match(n)
-    if m:
-        return c.local_key("MO", m.group(1).lower().replace(".", ""))
+    match = _HOUSE.match(office_name)
+    if match:
+        return RaceKey("MO", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    if office_name in _STATEWIDE:
+        return RaceKey("MO", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = _STATE_SENATE.match(office_name)
+    if match:
+        return RaceKey("MO", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _STATE_HOUSE.match(office_name)
+    if match:
+        return RaceKey("MO", Level.STATE, "HD", f"{int(match.group(1)):02d}")
+    match = _STATE_MEASURE.match(office_name)
+    if match:
+        return c.local_key("MO", match.group(1).lower().replace(".", ""))
     return None
 
 
@@ -139,26 +139,26 @@ def parse_csv(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         if precinct:
             precincts.setdefault(ident, set()).add(precinct)
 
-    out: list[RaceResult] = []
+    parsed: list[RaceResult] = []
     for ident, cands in tally.items():
-        results = [
+        candidates = [
             CandidateResult(name=name, party=party, votes=votes, pct=None, incumbent=inc)
             for name, (party, votes, inc) in cands.items()
         ]
-        out.append(
+        parsed.append(
             c.make_result(
                 race_key(titles[ident]),
                 titles[ident],
-                results,
+                candidates,
                 fetched_at,
                 source=MoStLouis.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in results),
+                total_votes=sum(candidate.votes for candidate in candidates),
                 precincts_reporting=len(precincts.get(ident, ())) or None,
                 precincts_total=None,
             )
         )
-    return out
+    return parsed
 
 
 async def _download(client: httpx.AsyncClient, date: str) -> str:
@@ -185,7 +185,7 @@ class MoStLouis(ResultsSource):
     enabled_by_default = True
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "MO" for k in keys):
+        if not any(key.state == "MO" for key in keys):
             return []
         text = await _download(client, c.election_date())
         results = parse_csv(text, fetched_at=c.utcnow())
@@ -195,10 +195,10 @@ class MoStLouis(ResultsSource):
         if state != "MO":
             return []
         text = await _download(client, c.election_date())
-        out: list[tuple[RaceKey, str]] = []
+        races: list[tuple[RaceKey, str]] = []
         seen: set[str] = set()
-        for r in parse_csv(text, fetched_at=c.utcnow()):
-            if str(r.key) not in seen:
-                seen.add(str(r.key))
-                out.append((r.key, r.title or str(r.key)))
-        return out
+        for result in parse_csv(text, fetched_at=c.utcnow()):
+            if str(result.key) not in seen:
+                seen.add(str(result.key))
+                races.append((result.key, result.title or str(result.key)))
+        return races

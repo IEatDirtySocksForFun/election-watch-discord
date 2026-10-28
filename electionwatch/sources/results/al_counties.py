@@ -81,30 +81,30 @@ def _norm(name: str) -> str:
 
 def shared_key(name: str) -> RaceKey | None:
     """Key for a federal/statewide/legislative contest, or None."""
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in _SENATE:
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name in _SENATE:
         return RaceKey("AL", Level.SENATE, "SEN", None, special)
-    m = _HOUSE.match(n) or _HOUSE_ALT.match(n)
-    if m:
-        return RaceKey("AL", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    if n in _STATEWIDE:
-        return RaceKey("AL", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("AL", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey("AL", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
+    match = _HOUSE.match(office_name) or _HOUSE_ALT.match(office_name)
+    if match:
+        return RaceKey("AL", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    if office_name in _STATEWIDE:
+        return RaceKey("AL", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    match = _STATE_SENATE.match(office_name)
+    if match:
+        return RaceKey("AL", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = _STATE_HOUSE.match(office_name)
+    if match:
+        return RaceKey("AL", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
     return None
 
 
 def race_key(county_slug: str, name: str) -> RaceKey | None:
     """Every contest gets a key except straight-party voting; the rest are AL LOCAL."""
-    n = _norm(name)
-    if n in _SKIP:
+    office_name = _norm(name)
+    if office_name in _SKIP:
         return None
-    return shared_key(n) or c.local_key("AL", f"{county_slug}-{n}")
+    return shared_key(office_name) or c.local_key("AL", f"{county_slug}-{office_name}")
 
 
 def parse_al_county(summary, settings=None, *, county: str, fetched_at: datetime) -> list[RaceResult]:
@@ -118,26 +118,26 @@ def parse_al_county(summary, settings=None, *, county: str, fetched_at: datetime
         fetched_at=fetched_at,
         updated=parse_settings(settings),
     )
-    out = []
-    for r in results:
-        cands = [x for x in r.candidates if _norm(x.name) not in ("WRITE-IN", "WRITE IN")]
+    filtered = []
+    for result in results:
+        cands = [candidate for candidate in result.candidates if _norm(candidate.name) not in ("WRITE-IN", "WRITE IN")]
         if not cands:
             continue
-        if len(cands) != len(r.candidates):
-            r = c.make_result(
-                r.key,
-                r.title or "",
+        if len(cands) != len(result.candidates):
+            result = c.make_result(
+                result.key,
+                result.title or "",
                 cands,
-                r.fetched_at,
-                source=r.source,
-                url=r.url,
-                total_votes=sum(x.votes for x in cands),
-                precincts_reporting=r.precincts_reporting,
-                precincts_total=r.precincts_total,
-                source_updated_at=r.source_updated_at,
+                result.fetched_at,
+                source=result.source,
+                url=result.url,
+                total_votes=sum(candidate.votes for candidate in cands),
+                precincts_reporting=result.precincts_reporting,
+                precincts_total=result.precincts_total,
+                source_updated_at=result.source_updated_at,
             )
-        out.append(r)
-    return out
+        filtered.append(result)
+    return filtered
 
 
 def counties(date: str) -> list[dict]:
@@ -147,9 +147,9 @@ def counties(date: str) -> list[dict]:
     if override is None:
         return [{"county": name, "election_id": pins.get(name)} for name in COUNTIES]
     return [
-        {"county": str(e["county"]), "election_id": e["election_id"]}
-        for e in override
-        if not e.get("date") or e["date"] == date
+        {"county": str(entry["county"]), "election_id": entry["election_id"]}
+        for entry in override
+        if not entry.get("date") or entry["date"] == date
     ]
 
 
@@ -163,7 +163,10 @@ async def _one(client: httpx.AsyncClient, entry: dict, date: str, fetched_at: da
 
 
 def _singular(results: list[RaceResult]) -> list[RaceResult]:
-    return [replace(r, title=(r.title or "").replace("(partial: 1 counties)", "(partial: 1 county)")) for r in results]
+    return [
+        replace(result, title=(result.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
+        for result in results
+    ]
 
 
 @register
@@ -190,7 +193,7 @@ class AlCounties(ResultsSource):
         return _singular(_county.merge(collected, source=self.name, url=HUMAN))
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        al = [k for k in keys if k.state == "AL"]
+        al = [key for key in keys if key.state == "AL"]
         if not al:
             return []
         return c.select(await self._all(client), al)
@@ -202,4 +205,4 @@ class AlCounties(ResultsSource):
             results = await self._all(client)
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in results]
+        return [(result.key, result.title or str(result.key)) for result in results]

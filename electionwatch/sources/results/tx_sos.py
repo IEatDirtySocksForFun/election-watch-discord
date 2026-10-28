@@ -68,34 +68,34 @@ def _norm(name: str) -> str:
 
 def race_key(name: str) -> RaceKey:
     """Map a Texas SOS contest name to a RaceKey (always returns one; unknown -> LOCAL)."""
-    n = _norm(name)
-    if n in ("U. S. SENATOR", "US SENATOR", "UNITED STATES SENATOR"):
+    office_name = _norm(name)
+    if office_name in ("U. S. SENATOR", "US SENATOR", "UNITED STATES SENATOR"):
         return RaceKey("TX", Level.SENATE, "SEN")
-    m = re.match(r"^U\. S\. REPRESENTATIVE DISTRICT (\d+)$", n)
-    if m:
-        return RaceKey("TX", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    if n in _STATEWIDE:
-        return RaceKey("TX", Level.GOVERNOR, _STATEWIDE[n])
-    m = re.match(r"^STATE SENATOR, DISTRICT (\d+)( - UNEXPIRED TERM)?$", n)
-    if m:
-        return RaceKey("TX", Level.STATE, "SD", f"{int(m.group(1)):02d}", bool(m.group(2)))
-    m = re.match(r"^STATE REPRESENTATIVE DISTRICT (\d+)( - UNEXPIRED TERM)?$", n)
-    if m:
-        return RaceKey("TX", Level.STATE, "HD", f"{int(m.group(1)):02d}", bool(m.group(2)))
+    match = re.match(r"^U\. S\. REPRESENTATIVE DISTRICT (\d+)$", office_name)
+    if match:
+        return RaceKey("TX", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    if office_name in _STATEWIDE:
+        return RaceKey("TX", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = re.match(r"^STATE SENATOR, DISTRICT (\d+)( - UNEXPIRED TERM)?$", office_name)
+    if match:
+        return RaceKey("TX", Level.STATE, "SD", f"{int(match.group(1)):02d}", bool(match.group(2)))
+    match = re.match(r"^STATE REPRESENTATIVE DISTRICT (\d+)( - UNEXPIRED TERM)?$", office_name)
+    if match:
+        return RaceKey("TX", Level.STATE, "HD", f"{int(match.group(1)):02d}", bool(match.group(2)))
     for pattern, fmt in _DISTRICT_LOCAL:
-        m = pattern.match(n)
-        if m:
-            return c.local_key("TX", fmt.format(m.group(1).lstrip("0") or "0"))
-    return c.local_key("TX", n)
+        match = pattern.match(office_name)
+        if match:
+            return c.local_key("TX", fmt.format(match.group(1).lstrip("0") or "0"))
+    return c.local_key("TX", office_name)
 
 
 def _candidates(race: dict) -> list[CandidateResult]:
-    out = []
+    candidates = []
     for cand in race.get("Candidates") or []:
         name, incumbent = c.strip_incumbent(str(cand.get("N") or "").strip())
         if not name:
             continue
-        out.append(
+        candidates.append(
             CandidateResult(
                 name=name,
                 party=c.norm_party(cand.get("P")),
@@ -106,7 +106,7 @@ def _candidates(race: dict) -> list[CandidateResult]:
                 winner=False,
             )
         )
-    return out
+    return candidates
 
 
 def parse_tx(
@@ -141,7 +141,7 @@ def parse_tx(
             cands = _candidates(race)
             if not cands:
                 continue
-            total = c.to_int(race.get("T")) or sum(x.votes for x in cands)
+            total = c.to_int(race.get("T")) or sum(candidate.votes for candidate in cands)
             # Home.json's precinct counts are statewide: a district race would show the
             # whole state's reporting (and expected-vote %) as its own.
             statewide = key.level in (Level.SENATE, Level.GOVERNOR) or fname == "StateWideQ"
@@ -179,8 +179,8 @@ async def _resolve(client: httpx.AsyncClient, date: str) -> dict:
     constants = await c.get_json(client, f"{BASE}/ElectionConstants_{const_ver}.json")
     year = date[:4]
     for et, entries in ((constants or {}).get("electionInfo", {}).get(year) or {}).items():
-        for election_id, info in (entries or {}).items():
-            name = str((info or {}).get("N") or "").upper()
+        for election_id, election_info in (entries or {}).items():
+            name = str((election_info or {}).get("N") or "").upper()
             if et == "G" or "GENERAL" in name:
                 per = await c.get_json(client, f"{BASE}/election/{election_id}/version.json")
                 version = str((per or {}).get("___versionNo") or "").strip()
@@ -206,7 +206,7 @@ class TxSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "TX" for k in keys):
+        if not any(key.state == "TX" for key in keys):
             return []
         date = c.election_date()
         election = await _resolve(client, date)
@@ -218,18 +218,18 @@ class TxSos(ResultsSource):
         if not any(payloads.values()):
             raise SourceUnavailable(f"TX: no result files for election {eid} v{ver}")
         results = parse_tx(payloads, home, fetched_at=c.utcnow())
-        return c.select(results, [k for k in keys if k.state == "TX"])
+        return c.select(results, [key for key in keys if key.state == "TX"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "TX":
             return []
         date = c.election_date()
         election = await _resolve(client, date)
-        doc = await _optional_json(client, _data_url(election["election_id"], election["version"], "Race.json"))
-        out: list[tuple[RaceKey, str]] = []
-        for office_type in (doc or {}).get("OfficeTypes") or []:
+        race_data = await _optional_json(client, _data_url(election["election_id"], election["version"], "Race.json"))
+        found: list[tuple[RaceKey, str]] = []
+        for office_type in (race_data or {}).get("OfficeTypes") or []:
             for race in office_type.get("Races") or []:
                 title = str(race.get("N") or "").strip()
                 if title:
-                    out.append((race_key(title), title))
-        return out
+                    found.append((race_key(title), title))
+        return found

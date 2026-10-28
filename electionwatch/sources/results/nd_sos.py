@@ -90,30 +90,30 @@ def _norm(text: str) -> str:
 
 def _district(text: str) -> str | None:
     """'State Representative District 04a' -> '04A'."""
-    m = _DISTRICT.search(text or "")
-    if not m:
+    match = _DISTRICT.search(text or "")
+    if not match:
         return None
-    return f"{int(m.group(1)):02d}" + (m.group(2) or "").upper()
+    return f"{int(match.group(1)):02d}" + (match.group(2) or "").upper()
 
 
 def race_key(title: str) -> RaceKey:
     """Map a North Dakota contest heading to a RaceKey."""
-    n = _norm(title)
-    special = c.is_special(n)
-    if n.startswith("PRESIDENT") or "VICE-PRESIDENT" in n:
+    office_name = _norm(title)
+    special = c.is_special(office_name)
+    if office_name.startswith("PRESIDENT") or "VICE-PRESIDENT" in office_name:
         return RaceKey("ND", Level.LOCAL, "LOCAL", "us-president")
-    if n.startswith("UNITED STATES SENATOR"):
+    if office_name.startswith("UNITED STATES SENATOR"):
         return RaceKey("ND", Level.SENATE, "SEN", None, special)
-    if "REPRESENTATIVE IN CONGRESS" in n:
+    if "REPRESENTATIVE IN CONGRESS" in office_name:
         return RaceKey("ND", Level.HOUSE, "HOUSE", "AL", special)  # one at-large seat
     for prefix, office in _STATEWIDE:
-        if n.startswith(prefix):
+        if office_name.startswith(prefix):
             return RaceKey("ND", Level.GOVERNOR, office, None, special)
-    if n.startswith("STATE SENATOR"):
-        return RaceKey("ND", Level.STATE, "SD", _district(n) or "00", special)
-    if n.startswith("STATE REPRESENTATIVE"):
-        return RaceKey("ND", Level.STATE, "HD", _district(n) or "00", special)
-    return c.local_key("ND", n)
+    if office_name.startswith("STATE SENATOR"):
+        return RaceKey("ND", Level.STATE, "SD", _district(office_name) or "00", special)
+    if office_name.startswith("STATE REPRESENTATIVE"):
+        return RaceKey("ND", Level.STATE, "HD", _district(office_name) or "00", special)
+    return c.local_key("ND", office_name)
 
 
 def _party(node) -> str | None:
@@ -127,10 +127,10 @@ def _party(node) -> str | None:
 
 def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one resultsSW.aspx contest page."""
-    doc = HTMLParser(html or "")
-    out: list[RaceResult] = []
+    page = HTMLParser(html or "")
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for contest in doc.css("div.wrapper-inside.wrapper-border"):
+    for contest in page.css("div.wrapper-inside.wrapper-border"):
         heading = contest.css_first("h1")
         title = re.sub(r"\s+", " ", (heading.text() if heading is not None else "").strip())
         if not title:
@@ -139,9 +139,9 @@ def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
         if str(key) in seen:
             continue
         reporting = total = None
-        m = _PRECINCTS.search(contest.text(separator=" ", strip=True))
-        if m:
-            reporting, total = c.to_int(m.group(1)), c.to_int(m.group(2))
+        match = _PRECINCTS.search(contest.text(separator=" ", strip=True))
+        if match:
+            reporting, total = c.to_int(match.group(1)), c.to_int(match.group(2))
         cands: list[CandidateResult] = []
         for row in contest.css("div.section.group"):
             name_node = row.css_first("div.display-results-box-d h2")
@@ -166,7 +166,7 @@ def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -178,7 +178,7 @@ def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 precincts_total=total,
             )
         )
-    return out
+    return results
 
 
 @register
@@ -189,7 +189,7 @@ class NdSos(ResultsSource):
     enabled_by_default = True  # the state's own official results site
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "ND" for k in keys):
+        if not any(key.state == "ND" for key in keys):
             return []
         results: list[RaceResult] = []
         pages = 0
@@ -202,7 +202,7 @@ class NdSos(ResultsSource):
             results.extend(parse_nd(html, fetched_at=c.utcnow()))
         if not pages:
             raise SourceUnavailable(f"ND: no results page fetched ({URL.format('SW')})")
-        return c.select(results, [k for k in keys if k.state == "ND"])
+        return c.select(results, [key for key in keys if key.state == "ND"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "ND":
@@ -213,6 +213,6 @@ class NdSos(ResultsSource):
                 html = await c.get_text(client, URL.format(page))
             except SourceUnavailable:
                 continue
-            for r in parse_nd(html, fetched_at=c.utcnow()):
-                seen.setdefault(str(r.key), (r.key, r.title or str(r.key)))
+            for result in parse_nd(html, fetched_at=c.utcnow()):
+                seen.setdefault(str(result.key), (result.key, result.title or str(result.key)))
         return list(seen.values())

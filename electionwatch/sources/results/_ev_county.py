@@ -94,19 +94,19 @@ def parse_items(
     if not isinstance(payload, dict):
         return []
     items = (payload.get("results") or {}).get("ballotItems") or []
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for item in items:
-        if not isinstance(item, dict):
+    for contest in items:
+        if not isinstance(contest, dict):
             continue
-        title = clean_title(item.get("name"))
+        title = clean_title(contest.get("name"))
         if not title:
             continue
         key = key_fn(title)
         if str(key) in seen:  # the same office can appear per district
             continue
         cands: list[CandidateResult] = []
-        for option in item.get("ballotOptions") or []:
+        for option in contest.get("ballotOptions") or []:
             if not isinstance(option, dict):
                 continue
             party_code = party(option.get("politicalParty"))
@@ -126,7 +126,7 @@ def parse_items(
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -134,9 +134,9 @@ def parse_items(
                 fetched_at,
                 source=source,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
-                precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
-                precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
+                total_votes=sum(candidate.votes for candidate in cands),
+                precincts_reporting=c.to_int(contest.get("precinctsReporting")) or None,
+                precincts_total=c.to_int(contest.get("precinctsParticipating")) or None,
             )
         )
-    return out
+    return results

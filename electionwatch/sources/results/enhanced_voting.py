@@ -52,8 +52,8 @@ def export_url(state: str, slug: str) -> str:
 
 def race_key(state: str, name: str) -> RaceKey:
     """Map an Enhanced Voting contest name to a RaceKey for the given state."""
-    n = (name or "").upper()
-    c.is_special(n)
+    office_name = (name or "").upper()
+    c.is_special(office_name)
     # Georgia parser already handles President/US House/State House/etc.
     # but its race_key hardcodes "GA"; rebuild with the requested state.
     key = ga_race_key(name)
@@ -75,20 +75,20 @@ def feeds(date: str, state: str | None = None) -> list[dict]:
             raise SourceUnavailable("ENHANCED_VOTING_FEEDS is not valid JSON") from exc
         if not isinstance(entries, list):
             raise SourceUnavailable("ENHANCED_VOTING_FEEDS must be a JSON list")
-        out = []
+        configured = []
         for entry in entries:
             if not isinstance(entry, dict) or not entry.get("state") or not entry.get("slug"):
                 raise SourceUnavailable("ENHANCED_VOTING_FEEDS entries need state and slug")
             if entry.get("date") and entry["date"] != date:
                 continue
-            out.append(entry)
-        return out
+            configured.append(entry)
+        return configured
 
-    out = []
+    configured = []
     for entry in ELECTIONS.get(date, []):
         if state is None or entry["state"].upper() == state.upper():
-            out.append(entry)
-    return out
+            configured.append(entry)
+    return configured
 
 
 async def _fetch_export(
@@ -116,7 +116,7 @@ class EnhancedVoting(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        wanted = {k.state for k in keys}
+        wanted = {key.state for key in keys}
         date = c.election_date()
         results: list[RaceResult] = []
         for entry in feeds(date):
@@ -125,19 +125,19 @@ class EnhancedVoting(ResultsSource):
                 continue
             payload = await _fetch_export(client, st, entry.get("slug"), date)
             # Re-map Georgia keys to the requested state (usually the same).
-            for r in parse_ga(payload, fetched_at=c.utcnow()):
+            for result in parse_ga(payload, fetched_at=c.utcnow()):
                 results.append(
                     c.make_result(
-                        race_key(st, r.title or ""),
-                        r.title or "",
-                        r.candidates,
-                        r.fetched_at,
+                        race_key(st, result.title or ""),
+                        result.title or "",
+                        result.candidates,
+                        result.fetched_at,
                         source=EnhancedVoting.name,
                         url=f"{HUMAN}/{st.lower()}/elections/{entry.get('slug') or date[:4] + 'NovGen'}",
-                        total_votes=r.total_votes,
-                        precincts_reporting=r.precincts_reporting,
-                        precincts_total=r.precincts_total,
-                        source_updated_at=r.source_updated_at,
+                        total_votes=result.total_votes,
+                        precincts_reporting=result.precincts_reporting,
+                        precincts_total=result.precincts_total,
+                        source_updated_at=result.source_updated_at,
                     )
                 )
         return c.select(results, keys)
@@ -148,6 +148,7 @@ class EnhancedVoting(ResultsSource):
             st = entry["state"].upper()
             payload = await _fetch_export(client, st, entry.get("slug"), date)
             return [
-                (race_key(st, r.title or ""), r.title or str(r.key)) for r in parse_ga(payload, fetched_at=c.utcnow())
+                (race_key(st, result.title or ""), result.title or str(result.key))
+                for result in parse_ga(payload, fetched_at=c.utcnow())
             ]
         return []

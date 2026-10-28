@@ -75,24 +75,24 @@ def _norm(name: str) -> str:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in ("PRESIDENT OF THE UNITED STATES", "PRESIDENT OF THE US", "US PRESIDENT"):
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name in ("PRESIDENT OF THE UNITED STATES", "PRESIDENT OF THE US", "US PRESIDENT"):
         return c.local_key("GA", "president-of-the-united-states")
-    if n.startswith("US SENATE"):
+    if office_name.startswith("US SENATE"):
         return RaceKey("GA", Level.SENATE, "SEN", None, special)
-    m = re.match(r"^US HOUSE(?: OF REPRESENTATIVES)?\s*[-]?\s*(?:DISTRICT|DIST)\s*[-]?\s*(\d+)$", n)
-    if m:
-        return RaceKey("GA", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    if n in _STATEWIDE:
-        return RaceKey("GA", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = re.match(r"^STATE SENATE\s*[-]?\s*(?:DISTRICT|DIST)?\s*[-]?\s*(\d+)$", n)
-    if m:
-        return RaceKey("GA", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE HOUSE(?: OF REPRESENTATIVES)?\s*[-]?\s*(?:DISTRICT|DIST)\s*[-]?\s*(\d+)$", n)
-    if m:
-        return RaceKey("GA", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
-    return c.local_key("GA", n)
+    match = re.match(r"^US HOUSE(?: OF REPRESENTATIVES)?\s*[-]?\s*(?:DISTRICT|DIST)\s*[-]?\s*(\d+)$", office_name)
+    if match:
+        return RaceKey("GA", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    if office_name in _STATEWIDE:
+        return RaceKey("GA", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    match = re.match(r"^STATE SENATE\s*[-]?\s*(?:DISTRICT|DIST)?\s*[-]?\s*(\d+)$", office_name)
+    if match:
+        return RaceKey("GA", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE HOUSE(?: OF REPRESENTATIVES)?\s*[-]?\s*(?:DISTRICT|DIST)\s*[-]?\s*(\d+)$", office_name)
+    if match:
+        return RaceKey("GA", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
+    return c.local_key("GA", office_name)
 
 
 def _clean_name(raw: str) -> tuple[str, bool]:
@@ -114,17 +114,17 @@ def parse_ga(payload, *, fetched_at: datetime) -> list[RaceResult]:
     if not isinstance(payload, dict):
         return []
     items = (payload.get("results") or {}).get("ballotItems") or []
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for item in items:
-        title = _english(item.get("name"))
+    for contest in items:
+        title = _english(contest.get("name"))
         if not title:
             continue
         key = race_key(title)
         if str(key) in seen:
             continue
         cands = []
-        for option in item.get("ballotOptions") or []:
+        for option in contest.get("ballotOptions") or []:
             name, incumbent = _clean_name(option.get("name"))
             if not name:
                 continue
@@ -140,7 +140,7 @@ def parse_ga(payload, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -148,12 +148,12 @@ def parse_ga(payload, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=GaSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
-                precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
-                precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
+                total_votes=sum(candidate.votes for candidate in cands),
+                precincts_reporting=c.to_int(contest.get("precinctsReporting")) or None,
+                precincts_total=c.to_int(contest.get("precinctsParticipating")) or None,
             )
         )
-    return out
+    return results
 
 
 def export_url(date: str) -> str:
@@ -170,7 +170,7 @@ class GaSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ga_keys = [k for k in keys if k.state == "GA"]
+        ga_keys = [key for key in keys if key.state == "GA"]
         if not ga_keys:
             return []
         url = export_url(c.election_date())
@@ -190,4 +190,4 @@ class GaSos(ResultsSource):
             payload = await c.get_json(client, export_url(c.election_date()))
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in parse_ga(payload, fetched_at=c.utcnow())]
+        return [(result.key, result.title or str(result.key)) for result in parse_ga(payload, fetched_at=c.utcnow())]

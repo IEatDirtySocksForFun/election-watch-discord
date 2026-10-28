@@ -194,13 +194,13 @@ _SHARED_LOCAL = (
 
 
 def _norm(name: str) -> str:
-    n = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
-    n = re.sub(r"\bU\.\s*S\.?(?=\s)", "U.S.", n)  # "U. S. Representative" -> "U.S. ..."
+    cleaned = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
+    cleaned = re.sub(r"\bU\.\s*S\.?(?=\s)", "U.S.", cleaned)  # "U. S. Representative" -> "U.S. ..."
     # Fort Bend repeats the district: "United States Representative, District 7 District 7".
-    n = re.sub(r"\b(DISTRICT (\d+)) DISTRICT \2$", r"\1", n)
+    cleaned = re.sub(r"\b(DISTRICT (\d+)) DISTRICT \2$", r"\1", cleaned)
     # Tarrant writes "Justice, Supreme Court, Place 2, (Unexpired Term)".
-    n = re.sub(r",?\s*\(UNEXPIRED TERM\)$", ", UNEXPIRED TERM", n)
-    return re.sub(r"\s+-\s+", " ", n)  # "Place 2 - Unexpired Term"
+    cleaned = re.sub(r",?\s*\(UNEXPIRED TERM\)$", ", UNEXPIRED TERM", cleaned)
+    return re.sub(r"\s+-\s+", " ", cleaned)  # "Place 2 - Unexpired Term"
 
 
 def _id(part: str) -> str:
@@ -208,29 +208,29 @@ def _id(part: str) -> str:
 
 
 def _expand(name: str) -> str:
-    return re.sub(r"[A-Z]+", lambda m: _ABBREV.get(m.group(0), m.group(0)), name)
+    return re.sub(r"[A-Z]+", lambda match: _ABBREV.get(match.group(0), match.group(0)), name)
 
 
 def shared_key(name: str) -> RaceKey | None:
     """Key for a contest every county publishes, or None for a purely local one."""
-    n = _expand(_norm(name))
-    if n in _SENATE:
+    office_name = _expand(_norm(name))
+    if office_name in _SENATE:
         return RaceKey("TX", Level.SENATE, "SEN")
-    m = _HOUSE.match(n)
-    if m:
-        return RaceKey("TX", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    if n in _STATEWIDE:
-        return RaceKey("TX", Level.GOVERNOR, _STATEWIDE[n])
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("TX", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _STATE_HOUSE.match(n)
-    if m:
-        return RaceKey("TX", Level.STATE, "HD", f"{int(m.group(1)):02d}")
+    match = _HOUSE.match(office_name)
+    if match:
+        return RaceKey("TX", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    if office_name in _STATEWIDE:
+        return RaceKey("TX", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = _STATE_SENATE.match(office_name)
+    if match:
+        return RaceKey("TX", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _STATE_HOUSE.match(office_name)
+    if match:
+        return RaceKey("TX", Level.STATE, "HD", f"{int(match.group(1)):02d}")
     for pattern, build in _SHARED_LOCAL:
-        m = pattern.match(n)
-        if m:
-            return c.local_key("TX", build(m))
+        match = pattern.match(office_name)
+        if match:
+            return c.local_key("TX", build(match))
     return None
 
 
@@ -266,22 +266,22 @@ def counties(date: str) -> list[dict]:
     """Configured counties for an election date, with optional pinned election ids."""
     override = _county.county_feeds_from_env("TX_COUNTY_FEEDS")
     pins = ELECTIONS.get(date, {})
-    configured = {str(k).lower(): v for k, v in COUNTIES.items()}
+    configured = {str(county_name).lower(): county_entry for county_name, county_entry in COUNTIES.items()}
     if override is None:
         return [{"county": name, "slug": slug, "election_id": pins.get(name)} for name, slug in COUNTIES.items()]
-    out = []
+    feeds = []
     for entry in override:
         county = str(entry["county"])
         if entry.get("date") and entry["date"] != date:
             continue
-        out.append(
+        feeds.append(
             {
                 "county": county,
                 "slug": configured.get(county.lower(), county.lower()),
                 "election_id": entry["election_id"],
             }
         )
-    return out
+    return feeds
 
 
 def harris_entries(date: str) -> list[dict]:
@@ -339,7 +339,7 @@ class TxCounties(ResultsSource):
     enabled_by_default = True
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "TX" for k in keys):
+        if not any(key.state == "TX" for key in keys):
             return []
         date = c.election_date()
         fetched_at = c.utcnow()
@@ -360,15 +360,15 @@ class TxCounties(ResultsSource):
             return []
         date = c.election_date()
         fetched_at = c.utcnow()
-        out: list[tuple[RaceKey, str]] = []
+        found: list[tuple[RaceKey, str]] = []
         seen: set[str] = set()
         for entry in all_entries(date):
             try:
                 results = await _one(client, entry, date, fetched_at)
             except SourceUnavailable:
                 continue
-            for r in results:
-                if str(r.key) not in seen:
-                    seen.add(str(r.key))
-                    out.append((r.key, r.title or str(r.key)))
-        return out
+            for result in results:
+                if str(result.key) not in seen:
+                    seen.add(str(result.key))
+                    found.append((result.key, result.title or str(result.key)))
+        return found

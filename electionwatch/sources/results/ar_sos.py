@@ -90,38 +90,38 @@ def _party(value) -> str | None:
 
 def race_key(contest: str) -> RaceKey:
     """Map a Tally-ENR contest name to a RaceKey."""
-    n = _upper(contest)
-    special = c.is_special(n)
-    if n == "U.S. PRESIDENT":
+    office_name = _upper(contest)
+    special = c.is_special(office_name)
+    if office_name == "U.S. PRESIDENT":
         return c.local_key("AR", "us-president")
-    if n in ("U.S. SENATE", "U.S. SENATOR"):
+    if office_name in ("U.S. SENATE", "U.S. SENATOR"):
         return RaceKey("AR", Level.SENATE, "SEN", None, special)
-    if n in _STATEWIDE:
-        return RaceKey("AR", Level.GOVERNOR, _STATEWIDE[n], None, special)
-    m = re.match(r"^U\.S\. CONGRESS(?:IONAL)? DISTRICT\s+(\d{1,2})$", n)
-    if m:
-        return RaceKey("AR", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE SENATE(?:OR)? DISTRICT\s+(\d{1,3})$", n)
-    if m:
-        return RaceKey("AR", Level.STATE, "SD", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^STATE REPRESENTATIVE DISTRICT\s+(\d{1,3})$", n)
-    if m:
-        return RaceKey("AR", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
-    return c.local_key("AR", n)
+    if office_name in _STATEWIDE:
+        return RaceKey("AR", Level.GOVERNOR, _STATEWIDE[office_name], None, special)
+    match = re.match(r"^U\.S\. CONGRESS(?:IONAL)? DISTRICT\s+(\d{1,2})$", office_name)
+    if match:
+        return RaceKey("AR", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE SENATE(?:OR)? DISTRICT\s+(\d{1,3})$", office_name)
+    if match:
+        return RaceKey("AR", Level.STATE, "SD", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^STATE REPRESENTATIVE DISTRICT\s+(\d{1,3})$", office_name)
+    if match:
+        return RaceKey("AR", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
+    return c.local_key("AR", office_name)
 
 
 def election_links(html: str) -> list[tuple[str, str]]:
     """(label, tally-enr election id) for every election the SOS page links."""
-    out: list[tuple[str, str]] = []
-    for a in HTMLParser(html or "").css("a"):
-        href = htmllib.unescape(a.attributes.get("href") or "")
+    links: list[tuple[str, str]] = []
+    for anchor in HTMLParser(html or "").css("a"):
+        href = htmllib.unescape(anchor.attributes.get("href") or "")
         if "tally-enr.com" not in href or "#election=" not in href:
             continue
         eid = href.split("#election=", 1)[1].split("&", 1)[0].strip("/")
-        label = re.sub(r"\s+", " ", a.text()).strip()
+        label = re.sub(r"\s+", " ", anchor.text()).strip()
         if eid and label:
-            out.append((label, eid))
-    return out
+            links.append((label, eid))
+    return links
 
 
 def find_election(html: str, date: str) -> str:
@@ -138,20 +138,20 @@ def find_election(html: str, date: str) -> str:
     raise SourceUnavailable(f"AR: the SOS page does not list {prefix!r} yet - the results are not published")
 
 
-def parse_ar(data: dict, *, fetched_at: datetime, url: str | None = None) -> list[RaceResult]:
+def parse_ar(payload: dict, *, fetched_at: datetime, url: str | None = None) -> list[RaceResult]:
     """Pure parse of a Tally-ENR FullDataFile.json."""
-    contests = data.get("ContestData") or []
+    contests = payload.get("ContestData") or []
     if contests and "ContestName" not in contests[0]:
         raise SourceUnavailable(
             "AR: this election's FullDataFile.json has no contest names (the 2026+ "
             "UUID format resolves them through an authenticated API) - Arkansas "
             "cannot be mapped for this election"
         )
-    turnout = data.get("Turnout") or {}
+    turnout = payload.get("Turnout") or {}
     registered = c.to_int(turnout.get("RegisteredVoters"))
     turnout_pct = c.to_pct(turnout.get("VotePercent"))
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     for contest in contests:
         name = (contest.get("ContestName") or "").strip()
         if not name:
@@ -170,8 +170,8 @@ def parse_ar(data: dict, *, fetched_at: datetime, url: str | None = None) -> lis
             )
         if not cands:
             continue
-        votes = c.to_int(contest.get("TotalVotes")) or sum(x.votes for x in cands)
-        out.append(
+        votes = c.to_int(contest.get("TotalVotes")) or sum(candidate.votes for candidate in cands)
+        results.append(
             c.make_result(
                 race_key(name),
                 name,
@@ -186,7 +186,7 @@ def parse_ar(data: dict, *, fetched_at: datetime, url: str | None = None) -> lis
                 turnout_pct=turnout_pct,
             )
         )
-    return out
+    return results
 
 
 async def _election_id(client: httpx.AsyncClient, date: str) -> str:
@@ -200,10 +200,10 @@ async def _election_id(client: httpx.AsyncClient, date: str) -> str:
 async def _all_races(client: httpx.AsyncClient, date: str, fetched_at: datetime) -> list[RaceResult]:
     eid = await _election_id(client, date)
     url = FILE.format(eid=eid)
-    data = await c.get_json(client, url)
-    if not isinstance(data, dict):
+    payload = await c.get_json(client, url)
+    if not isinstance(payload, dict):
         raise SourceUnavailable(f"AR: unexpected payload from {url}")
-    return parse_ar(data, fetched_at=fetched_at, url=url)
+    return parse_ar(payload, fetched_at=fetched_at, url=url)
 
 
 @register
@@ -212,7 +212,7 @@ class ArSos(ResultsSource):
     states = frozenset({"AR"})
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ar_keys = [k for k in keys if k.state == "AR"]
+        ar_keys = [key for key in keys if key.state == "AR"]
         if not ar_keys:
             return []
         return c.select(await _all_races(client, c.election_date(), c.utcnow()), ar_keys)
@@ -220,4 +220,7 @@ class ArSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "AR":
             return []
-        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [
+            (result.key, result.title or str(result.key))
+            for result in await _all_races(client, c.election_date(), c.utcnow())
+        ]

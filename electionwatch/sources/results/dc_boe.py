@@ -55,85 +55,87 @@ _WORD_TO_DIGIT = {
 
 
 def _ward_digit(tok: str) -> str:
-    t = tok.strip().upper()
-    if t in _WORD_TO_DIGIT:
-        return _WORD_TO_DIGIT[t]
-    return str(int(t))
+    token = tok.strip().upper()
+    if token in _WORD_TO_DIGIT:
+        return _WORD_TO_DIGIT[token]
+    return str(int(token))
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    special = c.is_special(n)
-    if n in (
+    office_name = _norm(name)
+    special = c.is_special(office_name)
+    if office_name in (
         "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES",
         "PRESIDENT AND VICE PRESIDENT",
         "US PRESIDENT",
     ):
         return c.local_key("DC", "us-president")
-    if n == "UNITED STATES SENATOR":
+    if office_name == "UNITED STATES SENATOR":
         # DC's "U.S. Senator" contest is the shadow senator; map to LOCAL.
         return c.local_key("DC", "shadow-senator")
-    if n == "UNITED STATES REPRESENTATIVE":
+    if office_name == "UNITED STATES REPRESENTATIVE":
         return c.local_key("DC", "shadow-representative")
-    if n == "DELEGATE TO THE HOUSE OF REPRESENTATIVES FROM THE DISTRICT OF COLUMBIA":
+    if office_name == "DELEGATE TO THE HOUSE OF REPRESENTATIVES FROM THE DISTRICT OF COLUMBIA":
         return RaceKey("DC", Level.HOUSE, "HOUSE", "AL", special)
-    if n in ("MAYOR OF THE DISTRICT OF COLUMBIA", "MAYOR"):
+    if office_name in ("MAYOR OF THE DISTRICT OF COLUMBIA", "MAYOR"):
         return RaceKey("DC", Level.GOVERNOR, "GOV", None, special)
-    if n in ("ATTORNEY GENERAL FOR THE DISTRICT OF COLUMBIA", "ATTORNEY GENERAL"):
+    if office_name in ("ATTORNEY GENERAL FOR THE DISTRICT OF COLUMBIA", "ATTORNEY GENERAL"):
         return RaceKey("DC", Level.GOVERNOR, "AG", None, special)
-    if n in ("CHAIRMAN OF THE COUNCIL", "CHAIRMAN OF THE COUNCIL OF THE DISTRICT OF COLUMBIA"):
+    if office_name in ("CHAIRMAN OF THE COUNCIL", "CHAIRMAN OF THE COUNCIL OF THE DISTRICT OF COLUMBIA"):
         return RaceKey("DC", Level.GOVERNOR, "COUNCILCHAIR", None, special)
-    if n == "AT-LARGE MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA":
+    if office_name == "AT-LARGE MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA":
         return c.local_key("DC", "council-at-large")
-    m = re.search(r"^WARD\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN)\s+MEMBER\s+OF\s+THE\s+COUNCIL", n)
-    if m:
-        return c.local_key("DC", f"council-ward-{_ward_digit(m.group(1))}")
-    if n == "AT-LARGE MEMBER OF THE STATE BOARD OF EDUCATION":
-        return c.local_key("DC", "sboe-at-large")
-    m = re.search(
-        r"^WARD\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN)\s+MEMBER\s+OF\s+THE\s+STATE\s+BOARD\s+OF\s+EDUCATION",
-        n,
+    match = re.search(
+        r"^WARD\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN)\s+MEMBER\s+OF\s+THE\s+COUNCIL", office_name
     )
-    if m:
-        return c.local_key("DC", f"sboe-ward-{_ward_digit(m.group(1))}")
-    m = re.match(r"^(INITIATIVE\s+\d+|REFERRAL\s+\d+|CHARTER\s+AMENDMENT\s+\w+)", n)
-    if m:
-        return c.local_key("DC", c.slug(m.group(1)))
-    m = re.match(r"^ANC-([0-9A-Z]+)", n)
-    if m:
-        return c.local_key("DC", f"anc-{m.group(1).lower()}")
+    if match:
+        return c.local_key("DC", f"council-ward-{_ward_digit(match.group(1))}")
+    if office_name == "AT-LARGE MEMBER OF THE STATE BOARD OF EDUCATION":
+        return c.local_key("DC", "sboe-at-large")
+    match = re.search(
+        r"^WARD\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN)\s+MEMBER\s+OF\s+THE\s+STATE\s+BOARD\s+OF\s+EDUCATION",
+        office_name,
+    )
+    if match:
+        return c.local_key("DC", f"sboe-ward-{_ward_digit(match.group(1))}")
+    match = re.match(r"^(INITIATIVE\s+\d+|REFERRAL\s+\d+|CHARTER\s+AMENDMENT\s+\w+)", office_name)
+    if match:
+        return c.local_key("DC", c.slug(match.group(1)))
+    match = re.match(r"^ANC-([0-9A-Z]+)", office_name)
+    if match:
+        return c.local_key("DC", f"anc-{match.group(1).lower()}")
     return c.local_key("DC", name)
 
 
 def _clean_candidate(raw: str) -> tuple[str, str | None]:
     """'DEM Kamala D. Harris - Tim Walz' -> ('Kamala D. Harris - Tim Walz', 'DEM')."""
     text = (raw or "").strip()
-    m = re.match(r"^(DEM|REP|IND|LIB|GRN|STG|NPN)\s+(.+)$", text, re.I)
-    if m:
-        return m.group(2).strip(), m.group(1).upper()
+    match = re.match(r"^(DEM|REP|IND|LIB|GRN|STG|NPN)\s+(.+)$", text, re.I)
+    if match:
+        return match.group(2).strip(), match.group(1).upper()
     return text, None
 
 
 def _skip_choice(candidate: str | None, party: str | None) -> bool:
-    n = (candidate or "").upper()
-    p = (party or "").upper()
-    return n in ("OVER VOTES", "UNDER VOTES") or n.startswith("WRITE-IN") or p == "CITYWIDE"
+    upper_name = (candidate or "").upper()
+    upper_party = (party or "").upper()
+    return upper_name in ("OVER VOTES", "UNDER VOTES") or upper_name.startswith("WRITE-IN") or upper_party == "CITYWIDE"
 
 
 def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of the DCBOE XML export."""
     registered = 0
     ballots = 0
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
 
     for contest in root.findall(".//ContestDataExportViewModel"):
         title = contest.findtext("ContestName", "").strip()
-        n = _norm(title)
-        if n == "REGISTERED VOTERS - TOTAL":
+        office_name = _norm(title)
+        if office_name == "REGISTERED VOTERS - TOTAL":
             registered = c.to_int(contest.findtext(".//Votes"))
             continue
-        if n == "BALLOTS CAST - TOTAL":
+        if office_name == "BALLOTS CAST - TOTAL":
             ballots = c.to_int(contest.findtext(".//Votes"))
             continue
 
@@ -158,7 +160,7 @@ def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -166,7 +168,7 @@ def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=DcBoe.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 registered_voters=registered or None,
                 turnout_pct=c.to_pct(ballots / registered * 100) if registered else None,
             )
@@ -174,10 +176,10 @@ def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
 
     # Apply turnout to every race now that we have the totals.
     if registered and ballots:
-        for r in out:
-            r.registered_voters = registered
-            r.turnout_pct = round(100.0 * ballots / registered, 2)
-    return out
+        for result in results:
+            result.registered_voters = registered
+            result.turnout_pct = round(100.0 * ballots / registered, 2)
+    return results
 
 
 async def _election_url(client: httpx.AsyncClient, date: str) -> str:
@@ -197,8 +199,8 @@ async def _election_url(client: httpx.AsyncClient, date: str) -> str:
 
 async def _xml_url(client: httpx.AsyncClient, date: str) -> str:
     info_url = await _election_url(client, date)
-    info = json.loads(await c.get_text(client, info_url))
-    xml = info.get("XmlLink")
+    election_info = json.loads(await c.get_text(client, info_url))
+    xml = election_info.get("XmlLink")
     if not xml:
         raise SourceUnavailable(f"DC: no XML link in election info ({info_url})")
     return xml
@@ -211,7 +213,7 @@ class DcBoe(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        dc_keys = [k for k in keys if k.state == "DC"]
+        dc_keys = [key for key in keys if key.state == "DC"]
         if not dc_keys:
             return []
         xml = await _xml_url(client, c.election_date())
@@ -225,5 +227,6 @@ class DcBoe(ResultsSource):
         xml = await _xml_url(client, c.election_date())
         text = await c.get_text(client, xml)
         return [
-            (r.key, r.title or str(r.key)) for r in parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=c.utcnow())
+            (result.key, result.title or str(result.key))
+            for result in parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=c.utcnow())
         ]

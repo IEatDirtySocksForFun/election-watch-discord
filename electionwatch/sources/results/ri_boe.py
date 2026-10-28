@@ -89,26 +89,26 @@ def _party(value: str | None) -> str | None:
 
 
 def race_key(name: str) -> RaceKey:
-    n = _norm(name)
-    if n.startswith("PRESIDENTIAL ELECTORS"):
+    office_name = _norm(name)
+    if office_name.startswith("PRESIDENTIAL ELECTORS"):
         return c.local_key("RI", "us-president")
-    if n in ("SENATOR IN CONGRESS", "US SENATOR", "UNITED STATES SENATOR"):
+    if office_name in ("SENATOR IN CONGRESS", "US SENATOR", "UNITED STATES SENATOR"):
         return RaceKey("RI", Level.SENATE, "SEN")
-    m = _CONGRESS.match(n)
-    if m:
-        return RaceKey("RI", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}")
-    if n in _STATEWIDE:
-        return RaceKey("RI", Level.GOVERNOR, _STATEWIDE[n])
-    m = _GA_SEN.match(n)
-    if m:
-        return RaceKey("RI", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _GA_REP.match(n)
-    if m:
-        return RaceKey("RI", Level.STATE, "HD", f"{int(m.group(1)):02d}")
-    m = _QUESTION.match(n)
-    if m:
-        return c.local_key("RI", f"ballot-question-{int(m.group(1))} {m.group(2)}")
-    return c.local_key("RI", n)
+    match = _CONGRESS.match(office_name)
+    if match:
+        return RaceKey("RI", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
+    if office_name in _STATEWIDE:
+        return RaceKey("RI", Level.GOVERNOR, _STATEWIDE[office_name])
+    match = _GA_SEN.match(office_name)
+    if match:
+        return RaceKey("RI", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _GA_REP.match(office_name)
+    if match:
+        return RaceKey("RI", Level.STATE, "HD", f"{int(match.group(1)):02d}")
+    match = _QUESTION.match(office_name)
+    if match:
+        return c.local_key("RI", f"ballot-question-{int(match.group(1))} {match.group(2)}")
+    return c.local_key("RI", office_name)
 
 
 def _clean_name(raw: str, party_code: str | None) -> str:
@@ -126,13 +126,13 @@ def parse_ri(docs, *, fetched_at: datetime) -> list[RaceResult]:
     if not isinstance(docs, (list, tuple)):
         return []
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
-    for doc in docs:
-        if not isinstance(doc, dict):
+    for document in docs:
+        if not isinstance(document, dict):
             continue
-        updated = c.parse_updated_at(doc.get("last_updated"), tz="America/New_York")
-        for contest in doc.get("contests") or []:
+        updated = c.parse_updated_at(document.get("last_updated"), tz="America/New_York")
+        for contest in document.get("contests") or []:
             title = re.sub(r"\s+", " ", str(contest.get("name") or "")).strip()
             if not title:
                 continue
@@ -155,7 +155,7 @@ def parse_ri(docs, *, fetched_at: datetime) -> list[RaceResult]:
             if not cands:
                 continue
             seen.add(str(key))
-            out.append(
+            results.append(
                 c.make_result(
                     key,
                     title,
@@ -163,13 +163,13 @@ def parse_ri(docs, *, fetched_at: datetime) -> list[RaceResult]:
                     fetched_at,
                     source=RiBoe.name,
                     url=HUMAN,
-                    total_votes=c.to_int(contest.get("total_votes")) or sum(x.votes for x in cands),
+                    total_votes=c.to_int(contest.get("total_votes")) or sum(candidate.votes for candidate in cands),
                     precincts_reporting=c.to_int(contest.get("precincts_reporting")) or None,
                     precincts_total=c.to_int(contest.get("precinct_count")) or None,
                     source_updated_at=updated,
                 )
             )
-    return out
+    return results
 
 
 def election_base(date: str) -> str:
@@ -181,7 +181,7 @@ async def fetch_docs(client: httpx.AsyncClient, date: str) -> list[dict]:
     docs: list[dict] = []
     for name in FILES:
         try:
-            doc = await c.get_json(client, f"{base}/{name}")
+            document = await c.get_json(client, f"{base}/{name}")
         except SourceUnavailable:
             if name == "statewide.json":
                 raise SourceUnavailable(
@@ -189,7 +189,7 @@ async def fetch_docs(client: httpx.AsyncClient, date: str) -> list[dict]:
                     f"posts the general-election JSON on election night"
                 ) from None
             continue  # general-assembly files appear later in the night
-        docs.append(doc)
+        docs.append(document)
     if not docs:
         raise SourceUnavailable(f"ri_boe: no result documents under {base}")
     return docs
@@ -202,7 +202,7 @@ class RiBoe(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ri_keys = [k for k in keys if k.state == "RI"]
+        ri_keys = [key for key in keys if key.state == "RI"]
         if not ri_keys:
             return []
         docs = await fetch_docs(client, c.election_date())
@@ -215,4 +215,4 @@ class RiBoe(ResultsSource):
             docs = await fetch_docs(client, c.election_date())
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key)) for r in parse_ri(docs, fetched_at=c.utcnow())]
+        return [(result.key, result.title or str(result.key)) for result in parse_ri(docs, fetched_at=c.utcnow())]
