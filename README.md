@@ -18,9 +18,7 @@ Source: tx_sos · Nov 04 03:41 UTC
 
 <sub>What a results post looks like (made-up numbers).</sub>
 
-- **No AI inside.** It's plain, predictable Python. It never calls OpenAI, Anthropic, DeepSeek,
-  Kimi, Ollama or any other model.
-- **Runs on your machine.** Your Discord token, your database, nobody else's servers.
+- **Local** Your Discord token, your database. Either pull bits and pieces or plug it into a bot.
 - **Tested on real election nights.** A replay sandbox reruns the 2014–2024 nights minute by
   minute through the real bot. `make sim` runs a short one in about 15 seconds.
 
