@@ -28,19 +28,19 @@ def results():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_senate_maps_to_canonical_key(results):
-    r = by_key(results)["TX SEN"]
-    assert r.source == "tx_sos"
-    assert r.key.level is Level.SENATE
-    assert r.title.strip() == "U. S. SENATOR"
-    assert [c.name for c in r.candidates][:2] == ["Ted Cruz", "Colin Allred"]
+    race_result = by_key(results)["TX SEN"]
+    assert race_result.source == "tx_sos"
+    assert race_result.key.level is Level.SENATE
+    assert race_result.title.strip() == "U. S. SENATOR"
+    assert [candidate.name for candidate in race_result.candidates][:2] == ["Ted Cruz", "Colin Allred"]
     # Texas publishes no winner flag in these files.
-    assert all(c.winner is False for c in r.candidates)
-    assert r.url == "https://results.texas-election.com/races"
-    assert r.fetched_at == AT
+    assert all(candidate.winner is False for candidate in race_result.candidates)
+    assert race_result.url == "https://results.texas-election.com/races"
+    assert race_result.fetched_at == AT
 
 
 def test_house_districts_are_zero_padded(results):
@@ -58,7 +58,7 @@ def test_statewide_offices_and_incumbent_flag(results):
     assert top.name == "Christi Craddick"  # "(I)" stripped into the flag
     assert top.incumbent is True
     assert top.party == "REP"
-    assert rrc.candidates == sorted(rrc.candidates, key=lambda c: c.votes, reverse=True)
+    assert rrc.candidates == sorted(rrc.candidates, key=lambda candidate: candidate.votes, reverse=True)
 
 
 def test_state_legislature_and_local_slugs(results):
@@ -71,11 +71,11 @@ def test_state_legislature_and_local_slugs(results):
 
 
 def test_statewide_reporting_block_is_applied(results):
-    r = by_key(results)["TX SEN"]
-    assert (r.precincts_reporting, r.precincts_total) == (9885, 9885)
-    assert r.expected_vote_pct == 100.0
-    assert r.source_updated_at == datetime(2024, 11, 26, 18, 57, 43, tzinfo=timezone.utc)
-    assert r.total_votes == sum(c.votes for c in r.candidates)
+    race_result = by_key(results)["TX SEN"]
+    assert (race_result.precincts_reporting, race_result.precincts_total) == (9885, 9885)
+    assert race_result.expected_vote_pct == 100.0
+    assert race_result.source_updated_at == datetime(2024, 11, 26, 18, 57, 43, tzinfo=timezone.utc)
+    assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
 
 
 def test_race_key_mapping_cases():

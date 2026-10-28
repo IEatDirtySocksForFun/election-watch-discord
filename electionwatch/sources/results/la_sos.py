@@ -118,45 +118,45 @@ def _norm(text: str) -> str:
 
 def _district(text: str) -> str | None:
     """'3rd Congressional District' / '92nd Representative District' -> '03' / '92'."""
-    m = _DISTRICT_TAIL.search(_norm(text))
-    if m:
-        return f"{int(m.group(1)):02d}"
+    match = _DISTRICT_TAIL.search(_norm(text))
+    if match:
+        return f"{int(match.group(1)):02d}"
     return c.district_from(text)
 
 
 def race_key(name: str, level_code: str | None = None) -> RaceKey:
     """Map a Louisiana contest title (SpecificTitle) to a RaceKey."""
-    n = _norm(name)
-    special = c.is_special(n)
-    n = re.sub(r"\s*\((?:SPECIAL|UNEXPIRED)\)\s*$", "", n)
+    contest_name = _norm(name)
+    special = c.is_special(contest_name)
+    contest_name = re.sub(r"\s*\((?:SPECIAL|UNEXPIRED)\)\s*$", "", contest_name)
     # "U. S. Senator" / "U.S. Senator"
-    if re.match(r"^U\.?\s?S\.?\s+SENATOR", n):
+    if re.match(r"^U\.?\s?S\.?\s+SENATOR", contest_name):
         return RaceKey("LA", Level.SENATE, "SEN", None, special)
-    if re.match(r"^U\.?\s?S\.?\s+REPRESENTATIVE", n):
-        return RaceKey("LA", Level.HOUSE, "HOUSE", _district(n) or "00", special)
+    if re.match(r"^U\.?\s?S\.?\s+REPRESENTATIVE", contest_name):
+        return RaceKey("LA", Level.HOUSE, "HOUSE", _district(contest_name) or "00", special)
     for title, office in _OFFICES:
-        if n.startswith(title):
+        if contest_name.startswith(title):
             return RaceKey("LA", Level.GOVERNOR, office, None, special)
-    if n.startswith("STATE SENATOR"):
-        return RaceKey("LA", Level.STATE, "SD", _district(n) or "00", special)
-    if n.startswith("STATE REPRESENTATIVE"):
-        return RaceKey("LA", Level.STATE, "HD", _district(n) or "00", special)
+    if contest_name.startswith("STATE SENATOR"):
+        return RaceKey("LA", Level.STATE, "SD", _district(contest_name) or "00", special)
+    if contest_name.startswith("STATE REPRESENTATIVE"):
+        return RaceKey("LA", Level.STATE, "HD", _district(contest_name) or "00", special)
     level = _LEVELS.get(str(level_code or ""))
     if level is Level.HOUSE:
-        return RaceKey("LA", Level.HOUSE, "HOUSE", _district(n) or "00", special)
+        return RaceKey("LA", Level.HOUSE, "HOUSE", _district(contest_name) or "00", special)
     if level is Level.STATE:
-        office = "SD" if "SENAT" in n else "HD"
-        return RaceKey("LA", Level.STATE, office, _district(n) or "00", special)
-    return c.local_key("LA", n)
+        office = "SD" if "SENAT" in contest_name else "HD"
+        return RaceKey("LA", Level.STATE, office, _district(contest_name) or "00", special)
+    return c.local_key("LA", contest_name)
 
 
 def split_candidate(desc: str) -> tuple[str, str | None]:
     """'Bill Cassidy (REP)' -> ('Bill Cassidy', 'REP'); electors carry the party as text."""
     text = re.sub(r"\s+", " ", (desc or "").strip())
-    m = re.search(r"\(([A-Za-z]{2,8})\)\s*$", text)
-    if m:
-        code = m.group(1).upper()
-        return text[: m.start()].strip(), _PARTY_CODE.get(code, c.norm_party(code))
+    match = re.search(r"\(([A-Za-z]{2,8})\)\s*$", text)
+    if match:
+        code = match.group(1).upper()
+        return text[: match.start()].strip(), _PARTY_CODE.get(code, c.norm_party(code))
     upper = text.upper()
     for word, party in _PARTY_WORDS.items():
         if upper.endswith(" " + word):
@@ -184,7 +184,7 @@ def _rows(payload, key: str = "Race") -> tuple[dict, list[dict]]:
     races = payload.get("Races") if isinstance(payload, dict) else None
     if not isinstance(races, dict):
         raise SourceUnavailable("LA: results blob is not the expected {'Races': {...}} JSON")
-    return races, [r for r in (races.get(key) or []) if isinstance(r, dict)]
+    return races, [row for row in (races.get(key) or []) if isinstance(row, dict)]
 
 
 def parse_la(
@@ -197,9 +197,9 @@ def parse_la(
     race_doc, races = _rows(races_payload)
     vote_doc, votes = _rows(votes_payload)
     updated = _updated(vote_doc)
-    counts = {str(v.get("ID")): v for v in votes if v.get("ID") is not None}
+    counts = {str(vote_row.get("ID")): vote_row for vote_row in votes if vote_row.get("ID") is not None}
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for race in races:
         name = str(race.get("SpecificTitle") or race.get("GeneralTitle") or "").strip()
@@ -209,7 +209,9 @@ def parse_la(
         if str(key) in seen:
             continue
         tally = counts.get(str(race.get("ID")), {})
-        vote_by_choice = {str(v.get("ID")): v for v in (tally.get("Choice") or []) if isinstance(v, dict)}
+        vote_by_choice = {
+            str(vote_row.get("ID")): vote_row for vote_row in (tally.get("Choice") or []) if isinstance(vote_row, dict)
+        }
         cands: list[CandidateResult] = []
         for choice in race.get("Choice") or []:
             if not isinstance(choice, dict):
@@ -229,7 +231,7 @@ def parse_la(
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 name,
@@ -244,7 +246,7 @@ def parse_la(
                 source_updated_at=updated,
             )
         )
-    return out
+    return results
 
 
 def _blob_url(name: str) -> str:
@@ -281,11 +283,11 @@ class LaSos(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "LA" for k in keys):
+        if not any(key.state == "LA" for key in keys):
             return []
         folder = await _folder(client, c.election_date())
         parsed = parse_la(await _races(client, folder), await _votes(client, folder), fetched_at=c.utcnow())
-        return c.select(parsed, [k for k in keys if k.state == "LA"])
+        return c.select(parsed, [key for key in keys if key.state == "LA"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "LA":
@@ -293,7 +295,10 @@ class LaSos(ResultsSource):
         folder = await _folder(client, c.election_date())
         _, races = _rows(await _races(client, folder))
         return [
-            (race_key(str(r.get("SpecificTitle") or ""), r.get("OfficeLevel")), str(r.get("SpecificTitle") or ""))
-            for r in races
-            if str(r.get("SpecificTitle") or "").strip()
+            (
+                race_key(str(race_row.get("SpecificTitle") or ""), race_row.get("OfficeLevel")),
+                str(race_row.get("SpecificTitle") or ""),
+            )
+            for race_row in races
+            if str(race_row.get("SpecificTitle") or "").strip()
         ]

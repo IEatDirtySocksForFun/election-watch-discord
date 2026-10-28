@@ -99,37 +99,37 @@ def top_race_per_state(timelines: dict) -> list[str]:
     """Each state's headline race: Senate (regular before special), else Governor, else its
     first House seat, else anything statewide."""
     by_state: dict[str, list[str]] = {}
-    for k in timelines:
-        by_state.setdefault(parse(k).state, []).append(k)
+    for race_key in timelines:
+        by_state.setdefault(parse(race_key).state, []).append(race_key)
 
-    def rank(k: str):
-        key = parse(k)
+    def rank(race_key: str):
+        key = parse(race_key)
         order = {Level.SENATE: 0, Level.GOVERNOR: 1, Level.HOUSE: 2}.get(key.level, 3)
-        return (order, key.special, key.office != "GOV", k)
+        return (order, key.special, key.office != "GOV", race_key)
 
-    return [min(ks, key=rank) for _, ks in sorted(by_state.items())]
+    return [min(race_keys, key=rank) for _, race_keys in sorted(by_state.items())]
 
 
 def post_subset(timelines: dict, spec: str) -> list[str]:
-    out = []
-    for item in (s.strip() for s in spec.split(",") if s.strip()):
-        if item.lower() == "top-per-state":
-            out += top_race_per_state(timelines)
-        elif item.lower() == "senate":
-            out += [k for k in timelines if parse(k).level is Level.SENATE]
-        elif item in timelines:
-            out.append(item)
-    return sorted(set(out), key=out.index)
+    picked = []
+    for spec_part in (part.strip() for part in spec.split(",") if part.strip()):
+        if spec_part.lower() == "top-per-state":
+            picked += top_race_per_state(timelines)
+        elif spec_part.lower() == "senate":
+            picked += [race_key for race_key in timelines if parse(race_key).level is Level.SENATE]
+        elif spec_part in timelines:
+            picked.append(spec_part)
+    return sorted(set(picked), key=picked.index)
 
 
-async def run(a) -> None:
-    races = [r.strip() for r in a.races.split(",") if r.strip()]
-    timelines = load_year(Path(a.data).expanduser(), a.year, races)
-    posting = post_subset(timelines, a.post)
-    start_ts = min(v[0].ts for v in timelines.values())
+async def run(args) -> None:
+    races = [race.strip() for race in args.races.split(",") if race.strip()]
+    timelines = load_year(Path(args.data).expanduser(), args.year, races)
+    posting = post_subset(timelines, args.post)
+    start_ts = min(series[0].ts for series in timelines.values())
     clock = FakeClock(start_ts.replace(second=0, microsecond=0) - timedelta(minutes=1))
     src = ReplaySource(timelines, clock)
-    end = min(src.span()[1] + timedelta(minutes=30), clock() + timedelta(hours=a.max_hours))
+    end = min(src.span()[1] + timedelta(minutes=30), clock() + timedelta(hours=args.max_hours))
     sources = {
         "results": [src],
         "calls": [ScriptedCallSource(default_calls(src), clock)],
@@ -137,7 +137,9 @@ async def run(a) -> None:
         "exitpolls": [],
     }
     store = MemoryStore()
-    await store.save_guild(GuildSettings(guild_id=a.guild, channel_id=a.channel, important=posting, odds_alerts=True))
+    await store.save_guild(
+        GuildSettings(guild_id=args.guild, channel_id=args.channel, important=posting, odds_alerts=True)
+    )
     await store.save_guild(
         GuildSettings(guild_id=HIDDEN_GUILD, channel_id=0, important=sorted(timelines), odds_alerts=True)
     )
@@ -148,7 +150,7 @@ async def run(a) -> None:
     @client.event
     async def on_ready():
         try:
-            await night(client, a, timelines, posting, clock, end, sources, store, src)
+            await night(client, args, timelines, posting, clock, end, sources, store, src)
         finally:
             done.set()
 

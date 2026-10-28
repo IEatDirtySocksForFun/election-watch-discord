@@ -63,7 +63,7 @@ async def test_fetch_exit_polls_returns_a_link_per_race_on_election_night(monkey
     transport = httpx.MockTransport(lambda request: httpx.Response(404))
     async with httpx.AsyncClient(transport=transport) as client:
         polls = await CNNExitPollSource().fetch_exit_polls([RaceKey("TX", Level.SENATE, "SEN")], client)
-    assert [(p.outlet, p.summary) for p in polls] == [("CNN", None)]
+    assert [(poll.outlet, poll.summary) for poll in polls] == [("CNN", None)]
     assert polls[0].url.startswith("https://www.cnn.com/election/2026/exit-polls/")
 
 

@@ -62,7 +62,7 @@ async def test_fetch_filters_to_requested_keys():
     route = respx.get(url).mock(return_value=httpx.Response(200, text=_load("2024-tx-senate.html")))
     async with httpx.AsyncClient() as client:
         results = await ABCResultsSource().fetch([TX_SEN], client)
-    assert [r.key for r in results] == [TX_SEN]
+    assert [race_result.key for race_result in results] == [TX_SEN]
     assert route.called
 
 

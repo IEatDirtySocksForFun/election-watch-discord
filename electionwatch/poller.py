@@ -41,40 +41,40 @@ def _party_marker(party: str | None) -> str:
         return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
 
 
-def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
+def format_result(race_result: RaceResult, *, turnout: bool = False) -> Post:
     """Render a compact, source-neutral race result."""
     lines = []
-    leaders = sorted(result.candidates, key=lambda c: c.votes, reverse=True)[:TOP_CANDIDATES]
+    leaders = sorted(race_result.candidates, key=lambda candidate: candidate.votes, reverse=True)[:TOP_CANDIDATES]
     for candidate in leaders:
         pct = f" · {candidate.pct:.1f}%" if candidate.pct is not None else ""
         party = f" ({candidate.party})" if candidate.party else ""
         winner = " ✓" if candidate.winner else ""
         lines.append(f"{_party_marker(candidate.party)} {candidate.name}{party} {candidate.votes:,}{pct}{winner}")
     reporting = []
-    if result.expected_vote_pct is not None:
-        reporting.append(f"{result.expected_vote_pct:.1f}".removesuffix(".0") + "% expected vote")
-    if result.precincts_reporting is not None:
-        precincts = f"{result.precincts_reporting:,}"
-        if result.precincts_total is not None:
-            precincts += f"/{result.precincts_total:,}"
+    if race_result.expected_vote_pct is not None:
+        reporting.append(f"{race_result.expected_vote_pct:.1f}".removesuffix(".0") + "% expected vote")
+    if race_result.precincts_reporting is not None:
+        precincts = f"{race_result.precincts_reporting:,}"
+        if race_result.precincts_total is not None:
+            precincts += f"/{race_result.precincts_total:,}"
         reporting.append(f"{precincts} precincts")
     if reporting:
         lines.append(" · ".join(reporting))
     if turnout:
         numbers = []
-        if result.turnout_pct is not None:
-            numbers.append(f"{result.turnout_pct:g}%")
-        if result.total_votes is not None and result.registered_voters is not None:
-            numbers.append(f"{result.total_votes:,}/{result.registered_voters:,} ballots")
+        if race_result.turnout_pct is not None:
+            numbers.append(f"{race_result.turnout_pct:g}%")
+        if race_result.total_votes is not None and race_result.registered_voters is not None:
+            numbers.append(f"{race_result.total_votes:,}/{race_result.registered_voters:,} ballots")
         if numbers:
             lines.append("Turnout: " + " · ".join(numbers))
     return Post(
         "results",
-        str(result.key),
-        result.title or describe(result.key),
+        str(race_result.key),
+        race_result.title or describe(race_result.key),
         lines,
-        url=result.url,
-        footer=f"Source: {result.source}",
+        url=race_result.url,
+        footer=f"Source: {race_result.source}",
     )
 
 
@@ -110,14 +110,14 @@ def format_exit_poll(poll: ExitPoll) -> Post:
     return Post("exitpoll", str(poll.key), f"Exit poll · {describe(poll.key)}", lines, url=poll.url)
 
 
-def is_partial(result: RaceResult) -> bool:
+def is_partial(race_result: RaceResult) -> bool:
     """County-merge adapters flag a partial-state tally in the title: "(partial: N counties)"."""
-    return "(partial:" in (result.title or "")
+    return "(partial:" in (race_result.title or "")
 
 
 def best_result(answers: list[RaceResult]) -> RaceResult | None:
     """First complete answer in priority order, else the first partial one."""
-    return next((r for r in answers if not is_partial(r)), answers[0] if answers else None)
+    return next((answer for answer in answers if not is_partial(answer)), answers[0] if answers else None)
 
 
 #: Which kind of source each fetch method belongs to (ratelimit.FLOORS, EW_INTERVALS).
@@ -140,10 +140,10 @@ def polls_ident(source: str, key) -> str:
 
 
 def dump_polls(polls: list[Poll]) -> str:
-    def conv(value):
+    def json_value(value):
         return value.isoformat() if hasattr(value, "isoformat") else value
 
-    return json.dumps([{k: conv(v) for k, v in to_doc(poll).items()} for poll in polls])
+    return json.dumps([{field: json_value(value) for field, value in to_doc(poll).items()} for poll in polls])
 
 
 def load_polls(text: str) -> list[Poll]:
@@ -153,14 +153,14 @@ def load_polls(text: str) -> list[Poll]:
     from electionwatch.racekeys import parse
 
     polls = []
-    for item in json.loads(text):
-        item = dict(item)
-        item["key"] = parse(item["key"])
-        item["results"] = [PollResult(**result) for result in item["results"]]
+    for record in json.loads(text):
+        record = dict(record)
+        record["key"] = parse(record["key"])
+        record["results"] = [PollResult(**poll_result) for poll_result in record["results"]]
         for field in ("end_date", "start_date"):
-            if item.get(field):
-                item[field] = date.fromisoformat(item[field])
-        polls.append(Poll(**item))
+            if record.get(field):
+                record[field] = date.fromisoformat(record[field])
+        polls.append(Poll(**record))
     return polls
 
 
@@ -211,7 +211,7 @@ class Poller:
         self._lock = asyncio.Lock()  # /refresh and the minute loop never overlap
 
     def _watched(self, guild: GuildSettings) -> set[str]:
-        return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
+        return set(guild.important) if guild.important else {str(race.key) for race in self.default_races}
 
     @staticmethod
     def _enabled(source) -> bool:
@@ -234,7 +234,7 @@ class Poller:
         if at is None or self.clock() - at > ANSWER_REUSE:
             return []
         asked = {str(key) for key in keys}
-        return [r for r in answers if str(r.key) in asked]
+        return [record for record in answers if str(record.key) in asked]
 
     async def _fetch(self, source, method: str, keys: list):
         """Fetch with a per-source back-off: after a failure the source is skipped for 1, 2, 4,
@@ -286,16 +286,16 @@ class Poller:
             return keys
         from electionwatch.racekeys import parse
 
-        out, seen = list(keys), {str(key) for key in keys}
+        demanded, seen = list(keys), {str(key) for key in keys}
         for text in self.demand.items(kind):
             if text in seen:
                 continue
             try:
-                out.append(parse(text))
+                demanded.append(parse(text))
             except ValueError:
                 continue
             seen.add(text)
-        return out
+        return demanded
 
     async def _tick(self) -> None:
         now = self.clock()
@@ -329,22 +329,22 @@ class Poller:
         await self._odds(now, guilds, self._demanded("odds", outlet_keys))
         await self._polls(now, self._demanded("polls", keys))
 
-    def _canonical_batch(self, source, items: list) -> list:
+    def _canonical_batch(self, source, results: list) -> list:
         """Apply the special-election alias to one source's answers, unless the source flags
         specials itself (it answered for a special key, now or earlier): then its plain-key
         answers are the *regular* race (CA SEN vs CA SEN S in 2024, GA 2020, OK 2022). Aliasing
         those made the regular and the special call alternate as "new" every tick."""
         name = getattr(source, "name", repr(source))
-        if any(getattr(item.key, "special", False) for item in items):
+        if any(getattr(race_result.key, "special", False) for race_result in results):
             self._flags_specials.add(name)
         if name in self._flags_specials:
-            return list(items)
-        return [self._canonical(item) for item in items]
+            return list(results)
+        return [self._canonical(race_result) for race_result in results]
 
-    def _canonical(self, item):
-        """item with its key replaced by the watched special race it stands for, if any."""
-        special = getattr(self, "_aliases", {}).get(item.key)
-        return replace(item, key=special) if special is not None else item
+    def _canonical(self, race_result):
+        """The result with its key replaced by the watched special race it stands for, if any."""
+        special = getattr(self, "_aliases", {}).get(race_result.key)
+        return replace(race_result, key=special) if special is not None else race_result
 
     async def _results(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         by_race: dict[str, list[RaceResult]] = defaultdict(list)
@@ -354,10 +354,10 @@ class Poller:
         # answered completely: that keeps a big watch list from pulling every race from them
         # every minute. A guild that picked a fallback by name with /settings gets it for all.
         pinned = {name for guild in guilds for name in guild.results_sources}
-        primary = [s for s in enabled if not getattr(s, "fallback", False) or s.name in pinned]
-        fallback = [s for s in enabled if getattr(s, "fallback", False) and s.name not in pinned]
+        primary = [source for source in enabled if not getattr(source, "fallback", False) or source.name in pinned]
+        fallback = [source for source in enabled if getattr(source, "fallback", False) and source.name not in pinned]
         await self._gather_results(primary, keys, by_race)
-        complete = {race for race, answers in by_race.items() if any(not is_partial(r) for r in answers)}
+        complete = {race for race, answers in by_race.items() if any(not is_partial(answer) for answer in answers)}
         missing = [key for key in keys if str(key) not in complete]
         if missing:
             await self._gather_results(fallback, missing, by_race)
@@ -367,11 +367,11 @@ class Poller:
         # a partial-state county tally for the same race.
         for race, answers in by_race.items():
             selected[race] = best_result(answers)
-        for race, result in selected.items():
+        for race, race_result in selected.items():
             try:
                 # The store's change time is compared with mark_posted() times, which are on
                 # the poller's clock; adapters stamp fetched_at with the wall clock mid-tick.
-                await self.store.upsert_result(replace(result, fetched_at=now))
+                await self.store.upsert_result(replace(race_result, fetched_at=now))
             except Exception:
                 logger.exception("Could not store results for %s", race)
 
@@ -380,15 +380,17 @@ class Poller:
             allowed = set(guild.results_sources)
             for race in watched:
                 candidates = by_race.get(race, [])
-                result = best_result([item for item in candidates if not allowed or item.source in allowed])
-                if result is None:
+                race_result = best_result([answer for answer in candidates if not allowed or answer.source in allowed])
+                if race_result is None:
                     continue
                 try:
                     last = await self.store.last_posted(guild.guild_id, "results", race)
-                    changed_at = await self.store.result_changed_at(result.key)
+                    changed_at = await self.store.result_changed_at(race_result.key)
                     updated = changed_at is not None and (last is None or changed_at > last)
                     if post_due(guild, last, now, updated):
-                        await self._post(guild, "results", race, format_result(result, turnout=guild.post_turnout), now)
+                        await self._post(
+                            guild, "results", race, format_result(race_result, turnout=guild.post_turnout), now
+                        )
                 except Exception:
                     logger.exception("Could not process results for guild %s", guild.guild_id)
 
@@ -409,10 +411,10 @@ class Poller:
                 logger.error("Results source %s failed", source.name, exc_info=fetched)
                 fetched = self.last_answers(source, "fetch", source_keys)
             asked = {str(key) for key in source_keys}
-            for result in fetched:
-                race = str(result.key)
+            for race_result in fetched:
+                race = str(race_result.key)
                 if race in asked:
-                    by_race[race].append(result)
+                    by_race[race].append(race_result)
 
     async def _calls(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         for source in self.sources.get("calls", []):

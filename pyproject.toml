@@ -3,7 +3,7 @@ name = "election-watch-discord"
 version = "0.1.0"
 description = "Template Discord bot that tracks US election results, race calls, turnout and prediction-market swings"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = { file = "LICENSE" }
 dependencies = [
   "discord.py>=2.4,<3",
   "pymongo>=4.10,<5",       # includes the native asyncio client (AsyncMongoClient)

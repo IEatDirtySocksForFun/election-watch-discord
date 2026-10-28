@@ -96,9 +96,9 @@ def _norm(name: str) -> str:
 
 def _house_district(name: str) -> str | None:
     """'... CD 6' / '3rd Congressional District' / '- 2ND CONGRESSIONAL' -> '06' / '03' / '02'."""
-    m = re.search(r"\bCD\s*[-# ]?\s*(\d+)", name)
-    if m:
-        return f"{int(m.group(1)):02d}"
+    match = re.search(r"\bCD\s*[-# ]?\s*(\d+)", name)
+    if match:
+        return f"{int(match.group(1)):02d}"
     return c.district_from(name)
 
 
@@ -108,23 +108,23 @@ def _is_president(name: str) -> bool:
 
 def shared_key(name: str) -> RaceKey | None:
     """Key for a contest every county publishes, or None for a purely local one."""
-    n = _norm(name)
-    if n in _SENATE:
+    office_name = _norm(name)
+    if office_name in _SENATE:
         return RaceKey("NJ", Level.SENATE, "SEN")
-    if "HOUSE OF REPRESENTATIVES" in n or "CONGRESSIONAL DISTRICT" in n:
-        district = _house_district(n)
+    if "HOUSE OF REPRESENTATIVES" in office_name or "CONGRESSIONAL DISTRICT" in office_name:
+        district = _house_district(office_name)
         # "United States House of Representatives" with no district: the county spans several
         # districts, so the votes cannot be attributed - keep it county-local.
         return RaceKey("NJ", Level.HOUSE, "HOUSE", district) if district else None
-    if n == "GOVERNOR" or n.startswith("GOVERNOR "):
+    if office_name == "GOVERNOR" or office_name.startswith("GOVERNOR "):
         return RaceKey("NJ", Level.GOVERNOR, "GOV")
-    m = _STATE_SENATE.match(n)
-    if m:
-        return RaceKey("NJ", Level.STATE, "SD", f"{int(m.group(1)):02d}")
-    m = _GENERAL_ASSEMBLY.match(n)
-    if m:
-        return RaceKey("NJ", Level.STATE, "HD", f"{int(m.group(1)):02d}")
-    if _is_president(n):
+    match = _STATE_SENATE.match(office_name)
+    if match:
+        return RaceKey("NJ", Level.STATE, "SD", f"{int(match.group(1)):02d}")
+    match = _GENERAL_ASSEMBLY.match(office_name)
+    if match:
+        return RaceKey("NJ", Level.STATE, "HD", f"{int(match.group(1)):02d}")
+    if _is_president(office_name):
         return c.local_key("NJ", "president-vice-president")
     return None
 
@@ -161,22 +161,22 @@ def counties(date: str) -> list[dict]:
     """Configured counties for an election date, with optional pinned election ids."""
     override = _county.county_feeds_from_env("NJ_COUNTY_FEEDS")
     pins = ELECTIONS.get(date, {})
-    configured = {str(k).lower(): v for k, v in COUNTIES.items()}
+    configured = {str(county_name).lower(): county_entry for county_name, county_entry in COUNTIES.items()}
     if override is None:
         return [{"county": name, "slug": slug, "election_id": pins.get(name)} for name, slug in COUNTIES.items()]
-    out = []
+    feeds = []
     for entry in override:
         county = str(entry["county"])
         if entry.get("date") and entry["date"] != date:
             continue
-        out.append(
+        feeds.append(
             {
                 "county": county,
                 "slug": configured.get(county.lower(), county.lower()),
                 "election_id": entry["election_id"],
             }
         )
-    return out
+    return feeds
 
 
 async def _one(
@@ -201,7 +201,7 @@ class NjCounties(ResultsSource):
     enabled_by_default = True
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "NJ" for k in keys):
+        if not any(key.state == "NJ" for key in keys):
             return []
         date = c.election_date()
         fetched_at = c.utcnow()
@@ -226,15 +226,15 @@ class NjCounties(ResultsSource):
             return []
         date = c.election_date()
         fetched_at = c.utcnow()
-        out: list[tuple[RaceKey, str]] = []
+        found: list[tuple[RaceKey, str]] = []
         seen: set[str] = set()
         for entry in counties(date):
             try:
                 results = await _one(client, entry, date, fetched_at)
             except SourceUnavailable:
                 continue
-            for r in results:
-                if str(r.key) not in seen:
-                    seen.add(str(r.key))
-                    out.append((r.key, r.title or str(r.key)))
-        return out
+            for race_result in results:
+                if str(race_result.key) not in seen:
+                    seen.add(str(race_result.key))
+                    found.append((race_result.key, race_result.title or str(race_result.key)))
+        return found

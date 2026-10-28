@@ -81,30 +81,30 @@ def _upper(text: str) -> str:
 
 def race_key(title: str) -> RaceKey:
     """Map an Alaska contest title to a RaceKey."""
-    n = _upper(title)
-    special = c.is_special(n)
-    if n.startswith("U.S. PRESIDENT") or n.startswith("US PRESIDENT"):
+    office_name = _upper(title)
+    special = c.is_special(office_name)
+    if office_name.startswith("U.S. PRESIDENT") or office_name.startswith("US PRESIDENT"):
         return c.local_key("AK", "us-president")
-    if re.match(r"^U\.?S\.? SENATOR", n):
+    if re.match(r"^U\.?S\.? SENATOR", office_name):
         return RaceKey("AK", Level.SENATE, "SEN", None, special)
-    if n in ("U.S. REPRESENTATIVE", "US REPRESENTATIVE", "UNITED STATES REPRESENTATIVE"):
+    if office_name in ("U.S. REPRESENTATIVE", "US REPRESENTATIVE", "UNITED STATES REPRESENTATIVE"):
         return RaceKey("AK", Level.HOUSE, "HOUSE", "AL", special)
-    m = re.match(r"^U\.?S\.? REPRESENTATIVE\s+(?:DISTRICT|DIST\.?)\s*0?(\d+)$", n)
-    if m:
-        return RaceKey("AK", Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
-    m = re.match(r"^(?:STATE\s+)?SENATE\s+DISTRICT\s+([A-T])$", n)
-    if m:
-        return RaceKey("AK", Level.STATE, "SD", m.group(1), special)
-    m = re.match(r"^(?:STATE\s+)?HOUSE\s+DISTRICT\s+0?(\d{1,2})$", n)
-    if m:
-        return RaceKey("AK", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
+    match = re.match(r"^U\.?S\.? REPRESENTATIVE\s+(?:DISTRICT|DIST\.?)\s*0?(\d+)$", office_name)
+    if match:
+        return RaceKey("AK", Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}", special)
+    match = re.match(r"^(?:STATE\s+)?SENATE\s+DISTRICT\s+([A-T])$", office_name)
+    if match:
+        return RaceKey("AK", Level.STATE, "SD", match.group(1), special)
+    match = re.match(r"^(?:STATE\s+)?HOUSE\s+DISTRICT\s+0?(\d{1,2})$", office_name)
+    if match:
+        return RaceKey("AK", Level.STATE, "HD", f"{int(match.group(1)):02d}", special)
     for name, code in _STATEWIDE.items():
-        if n == name:
+        if office_name == name:
             return RaceKey("AK", Level.GOVERNOR, code, None, special)
     # "GOVERNOR / LT. GOVERNOR" is a single ticket race.
-    if n.startswith("GOVERNOR"):
+    if office_name.startswith("GOVERNOR"):
         return RaceKey("AK", Level.GOVERNOR, "GOV", None, special)
-    return c.local_key("AK", n)
+    return c.local_key("AK", office_name)
 
 
 def parse_ak(text: str, *, fetched_at: datetime, url: str | None = None) -> list[RaceResult]:
@@ -128,21 +128,21 @@ def parse_ak(text: str, *, fetched_at: datetime, url: str | None = None) -> list
             }
         cand["votes"] += votes
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for title, bucket in contests.items():
         key = race_key(title)
         if str(key) in seen:
             continue
         cands = [
-            CandidateResult(name=v["name"], party=v["party"], votes=v["votes"])
-            for v in bucket["cands"].values()
-            if v["name"]
+            CandidateResult(name=candidate["name"], party=candidate["party"], votes=candidate["votes"])
+            for candidate in bucket["cands"].values()
+            if candidate["name"]
         ]
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -150,10 +150,10 @@ def parse_ak(text: str, *, fetched_at: datetime, url: str | None = None) -> list
                 fetched_at,
                 source=AkDoe.name,
                 url=url,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
             )
         )
-    return out
+    return results
 
 
 def csv_url(date: str) -> str:
@@ -204,7 +204,7 @@ class AkDoe(ResultsSource):
     scrape = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        ak_keys = [k for k in keys if k.state == "AK"]
+        ak_keys = [key for key in keys if key.state == "AK"]
         if not ak_keys:
             return []
         text = await get_text(client, csv_url(c.election_date()))
@@ -214,4 +214,7 @@ class AkDoe(ResultsSource):
         if state != "AK":
             return []
         text = await get_text(client, csv_url(c.election_date()))
-        return [(r.key, r.title or str(r.key)) for r in parse_ak(text, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ak(text, fetched_at=c.utcnow())
+        ]

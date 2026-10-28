@@ -51,7 +51,7 @@ def condense_exit_poll(payload: dict) -> str | None:
         lines = []
         for name, groups in list(demos.items())[:3]:
             if isinstance(groups, dict):
-                parts = [f"{k} {v}" for k, v in list(groups.items())[:2]]
+                parts = [f"{answer} {share}" for answer, share in list(groups.items())[:2]]
                 lines.append(f"{name}: {', '.join(parts)}")
         return " | ".join(lines) if lines else None
 
@@ -65,7 +65,9 @@ def condense_exit_poll(payload: dict) -> str | None:
             for row in rows[:2]:
                 if isinstance(row, dict):
                     label = row.get("label") or row.get("group") or ""
-                    vals = [f"{k}={v}" for k, v in row.items() if k not in ("label", "group")][:2]
+                    vals = [f"{answer}={share}" for answer, share in row.items() if answer not in ("label", "group")][
+                        :2
+                    ]
                     parts.append(f"{label} {' '.join(vals)}".strip())
             if parts:
                 lines.append(f"{name}: {', '.join(parts)}")

@@ -14,16 +14,16 @@ def parse(name):
 
 
 def by_key(name):
-    return {format_key(r.key): r for r in parse(name)}
+    return {format_key(race_result.key): race_result for race_result in parse(name)}
 
 
 def test_header_carries_date_turnout_and_timestamp():
-    info = page_info((FIX / "2024_general_fed.html").read_text(encoding="utf-8"))
-    assert info["date"] == "2024-11-05"
-    assert info["ballots_cast"] == 612423
-    assert info["registered_voters"] == 799849
+    overview = page_info((FIX / "2024_general_fed.html").read_text(encoding="utf-8"))
+    assert overview["date"] == "2024-11-05"
+    assert overview["ballots_cast"] == 612423
+    assert overview["registered_voters"] == 799849
     # "Results last updated: 12/19/2024 1:25:20 PM MT" -> 20:25:20 UTC
-    assert info["updated_at"] == datetime(2024, 12, 19, 20, 25, 20, tzinfo=timezone.utc)
+    assert overview["updated_at"] == datetime(2024, 12, 19, 20, 25, 20, tzinfo=timezone.utc)
 
 
 def test_senate_and_congressional_districts():
@@ -31,7 +31,7 @@ def test_senate_and_congressional_districts():
     assert set(got) == {"MT SEN", "MT-01", "MT-02"}
     senate = got["MT SEN"]
     assert senate.key.level is Level.SENATE
-    assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
+    assert [(candidate.name, candidate.party, candidate.votes) for candidate in senate.candidates] == [
         ("Tim Sheehy", "REP", 319682),
         ("Jon Tester", "DEM", 276305),
         ("Sid Daoud", "LIB", 7272),
@@ -72,9 +72,9 @@ def test_legislative_districts():
 def test_column_header_row_is_skipped():
     # Every contest starts with an empty header row; no candidate may be named "".
     for name in ("2024_general_fed.html", "2024_general_state.html", "2024_general_house.html"):
-        for result in parse(name):
-            assert all(c.name.strip() for c in result.candidates)
-            assert result.candidates, result.key
+        for race_result in parse(name):
+            assert all(candidate.name.strip() for candidate in race_result.candidates)
+            assert race_result.candidates, race_result.key
 
 
 def test_non_partisan_judges_and_retention_questions():
@@ -85,7 +85,7 @@ def test_non_partisan_judges_and_retention_questions():
 
     court = by_key("2024_general_district_court.html")
     retention = court["MT LOCAL retain-judge-mike-menahan"]
-    assert [c.name for c in retention.candidates] == ["Yes", "No"]
+    assert [candidate.name for candidate in retention.candidates] == ["Yes", "No"]
     assert retention.candidates[0].party is None
     assert "MT LOCAL district-court-judge-district-2-dept-1" in court
 
@@ -93,7 +93,7 @@ def test_non_partisan_judges_and_retention_questions():
 def test_ballot_issue_gets_compact_slug():
     got = by_key("2024_general_ballot_issues.html")
     ci = got["MT LOCAL ci-126"]
-    assert [c.name for c in ci.candidates] == ["No", "Yes"]
+    assert [candidate.name for candidate in ci.candidates] == ["No", "Yes"]
     assert ci.title.startswith("CI-126 A CONSTITUTIONAL AMENDMENT")
 
 
@@ -104,9 +104,9 @@ def test_public_service_commission_districts_stay_distinct():
 
 def test_2026_general_shell_has_no_contests_yet():
     html = (FIX / "2026_general_shell.html").read_text(encoding="utf-8")
-    info = page_info(html)
-    assert info["date"] == "2026-11-03"
-    assert info["ballots_cast"] == 0
+    overview = page_info(html)
+    assert overview["date"] == "2026-11-03"
+    assert overview["ballots_cast"] == 0
     assert parse_mt(html, fetched_at=AT) == []
 
 

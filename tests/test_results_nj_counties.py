@@ -23,7 +23,7 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def parsed(name, county, settings=None):
@@ -45,7 +45,7 @@ def test_2024_senate_is_one_race_across_counties():
     sen = got["NJ SEN"]
     assert sen.key.level is Level.SENATE
     assert sen.title == "U.S. Senate (partial: 2 counties)"
-    cands = {c.name: c.votes for c in sen.candidates}
+    cands = {candidate.name: candidate.votes for candidate in sen.candidates}
     assert cands["Andy Kim"] == 105685 + 25186
     assert cands["Curtis Bashaw"] == 46932 + 25441  # first county seen wins the display name
     assert sen.total_votes == 156581 + 52226
@@ -70,7 +70,7 @@ def test_house_districts_are_parsed_from_three_naming_styles():
 def test_president_is_a_shared_local_race_not_a_county_one():
     got = by_key(merged_2024())
     assert "NJ LOCAL president-vice-president" in got
-    assert not any(k.startswith("NJ LOCAL mercer-president") for k in got)
+    assert not any(race_key.startswith("NJ LOCAL mercer-president") for race_key in got)
 
 
 def test_county_local_races_are_namespaced():
@@ -115,7 +115,7 @@ def test_placeholder_candidates_are_dropped():
         county="Cumberland",
         fetched_at=AT,
     )
-    assert [c.name for c in results[0].candidates] == ["Jane DOE"]
+    assert [candidate.name for candidate in results[0].candidates] == ["Jane DOE"]
 
 
 def test_listing_finds_the_2026_general_and_skips_the_special_school_election():
@@ -156,10 +156,10 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
         return httpx.Response(404)  # no electionsettings.json
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             return await nj_counties.NjCounties().fetch(
                 [race_key_parse("NJ SEN"), race_key_parse("NJ-02"), race_key_parse("NJ LOCAL cumberland-county-clerk")],
-                c,
+                client,
             )
 
     got = by_key(asyncio.run(go()))
@@ -177,8 +177,8 @@ def test_fetch_explains_missing_elections(monkeypatch):
         return httpx.Response(200, json=[])  # county lists no elections
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            await nj_counties.NjCounties().fetch([race_key_parse("NJ SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            await nj_counties.NjCounties().fetch([race_key_parse("NJ SEN")], client)
 
     with pytest.raises(SourceUnavailable) as err:
         asyncio.run(go())

@@ -13,7 +13,7 @@ def _load():
 
 def test_parse_senate_and_house_calls():
     calls = parse_cbs_races(_load())
-    by_key = {c.key: c for c in calls}
+    by_key = {call.key: call for call in calls}
 
     tx_sen = by_key[RaceKey("TX", Level.SENATE, "SEN")]
     assert tx_sen.winner == "Ted Cruz"

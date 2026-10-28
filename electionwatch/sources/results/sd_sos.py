@@ -91,48 +91,48 @@ def _area(text: str) -> str:
 
 
 def _district(text: str) -> str | None:
-    m = re.search(r"(\d{1,3})", text or "")
-    return f"{int(m.group(1)):02d}" if m else None
+    match = re.search(r"(\d{1,3})", text or "")
+    return f"{int(match.group(1)):02d}" if match else None
 
 
 def race_key(title: str, area: str = "") -> RaceKey:
     """Map a South Dakota contest heading (+ its AreaNum) to a RaceKey."""
-    n = _norm(title)
-    special = c.is_special(n)
-    if n in _STATEWIDE:
-        office = _STATEWIDE[n]
+    office_name = _norm(title)
+    special = c.is_special(office_name)
+    if office_name in _STATEWIDE:
+        office = _STATEWIDE[office_name]
         if office == "SEN":
             return RaceKey("SD", Level.SENATE, "SEN", None, special)
         if office == "HOUSE":
             return RaceKey("SD", Level.HOUSE, "HOUSE", "AL", special)
         return RaceKey("SD", Level.GOVERNOR, office, None, special)
-    if n in ("STATE SENATOR", "STATE SENATE"):
+    if office_name in ("STATE SENATOR", "STATE SENATE"):
         return RaceKey("SD", Level.STATE, "SD", _district(area) or "00", special)
-    if n in ("STATE REPRESENTATIVE", "STATE REPRESENTATIVE DISTRICT", "STATE HOUSE"):
+    if office_name in ("STATE REPRESENTATIVE", "STATE REPRESENTATIVE DISTRICT", "STATE HOUSE"):
         return RaceKey("SD", Level.STATE, "HD", _district(area) or "00", special)
-    m = _MEASURE.match(n)
-    if m:
-        slug = c.slug(f"{m.group(1)} {m.group(2)}")
+    match = _MEASURE.match(office_name)
+    if match:
+        slug = c.slug(f"{match.group(1)} {match.group(2)}")
     else:
         # Local contests repeat one heading in every city: keep the area in the slug.
-        slug = c.slug(f"{n} {area}" if area and _norm(area) not in n else n)
+        slug = c.slug(f"{office_name} {area}" if area and _norm(area) not in office_name else office_name)
     return RaceKey("SD", Level.LOCAL, "LOCAL", slug)
 
 
 def _precincts(value: str) -> tuple[int | None, int | None]:
-    m = _PRECINCTS.match(value or "")
-    if not m:
+    match = _PRECINCTS.match(value or "")
+    if not match:
         return None, None
-    return c.to_int(m.group(1)) or None, c.to_int(m.group(2)) or None
+    return c.to_int(match.group(1)) or None, c.to_int(match.group(2)) or None
 
 
 def media_info(html: str) -> dict:
     """Election date, turnout and last-updated stamp out of ResultsMedia.aspx."""
-    doc = HTMLParser(html or "")
+    page = HTMLParser(html or "")
     values: dict[str, str] = {}
-    for node in doc.css("input[id^=hid]"):
+    for node in page.css("input[id^=hid]"):
         values[node.attributes.get("id", "")] = (node.attributes.get("value") or "").strip()
-    text = re.sub(r"\s+", " ", doc.text(separator=" ", strip=True))
+    text = re.sub(r"\s+", " ", page.text(separator=" ", strip=True))
     updated = _UPDATED.search(text)
     raw_date = values.get("hidElectionDate", "")
     try:
@@ -163,8 +163,8 @@ def parse_sd(
 ) -> list[RaceResult]:
     """Pure parse of the media CSVs (+ the media page for turnout and the timestamp)."""
     texts = [csv_texts] if isinstance(csv_texts, str) else list(csv_texts)
-    info = media_info(media_html) if media_html else {}
-    out: list[RaceResult] = []
+    media_details = media_info(media_html) if media_html else {}
+    results: list[RaceResult] = []
     seen: set[str] = set()
     groups: dict[tuple[str, str], list[dict]] = {}
     order: list[tuple[str, str]] = []
@@ -202,7 +202,7 @@ def parse_sd(
         seen.add(str(key))
         reporting, total = _precincts(rows[0].get("PrecinctsReporting") or "")
         title = name if not area or _norm(area) in _norm(name) else f"{name} ({area})"
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 title,
@@ -210,19 +210,19 @@ def parse_sd(
                 fetched_at,
                 source=SdSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
                 precincts_reporting=reporting,
                 precincts_total=total,
-                registered_voters=info.get("registered_voters"),
+                registered_voters=media_details.get("registered_voters"),
                 turnout_pct=(
-                    round(100.0 * info["ballots_cast"] / info["registered_voters"], 2)
-                    if info.get("ballots_cast") and info.get("registered_voters")
+                    round(100.0 * media_details["ballots_cast"] / media_details["registered_voters"], 2)
+                    if media_details.get("ballots_cast") and media_details.get("registered_voters")
                     else None
                 ),
-                source_updated_at=info.get("updated_at"),
+                source_updated_at=media_details.get("updated_at"),
             )
         )
-    return out
+    return results
 
 
 def _eid() -> str | None:
@@ -240,15 +240,15 @@ class SdSos(ResultsSource):
     scrape = False  # the media feed is plain CSV
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "SD" for k in keys):
+        if not any(key.state == "SD" for key in keys):
             return []
         eid = _eid()
         media = await c.get_text(client, _with_eid(MEDIA, eid))
-        info = media_info(media)
+        media_details = media_info(media)
         wanted_date = c.election_date()
-        if info.get("date") and info["date"] != wanted_date and not eid:
+        if media_details.get("date") and media_details["date"] != wanted_date and not eid:
             raise SourceUnavailable(
-                f"SD: the site is reporting the {info['date']} election, not {wanted_date}; "
+                f"SD: the site is reporting the {media_details['date']} election, not {wanted_date}; "
                 f"set SD_EID to pin an archived election"
             )
         texts: list[str] = []
@@ -261,7 +261,7 @@ class SdSos(ResultsSource):
         if errors == len(PAGES):
             raise SourceUnavailable(f"SD: no media CSV fetched ({CSV_URL.format('SWR', 'CTY')})")
         parsed = parse_sd(texts, media, fetched_at=c.utcnow())
-        return c.select(parsed, [k for k in keys if k.state == "SD"])
+        return c.select(parsed, [key for key in keys if key.state == "SD"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "SD":
@@ -274,4 +274,7 @@ class SdSos(ResultsSource):
                 texts.append(await c.get_text(client, _with_eid(CSV_URL.format(kind, mapping), eid)))
             except SourceUnavailable:
                 continue
-        return [(r.key, r.title or str(r.key)) for r in parse_sd(texts, media, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_sd(texts, media, fetched_at=c.utcnow())
+        ]

@@ -37,24 +37,24 @@ def test_candidate_party_map_comes_from_the_primary_sections():
 def test_parses_general_election_tables_only():
     polls = _polls()
     assert len(polls) > 20
-    assert all(str(p.key) == "NC SEN" for p in polls)
-    assert all(p.source == "wikipedia" and p.url for p in polls)
-    assert all(len(p.results) >= 2 and p.end_date for p in polls)
+    assert all(str(poll.key) == "NC SEN" for poll in polls)
+    assert all(poll.source == "wikipedia" and poll.url for poll in polls)
+    assert all(len(poll.results) >= 2 and poll.end_date for poll in polls)
     # aggregate ("Source of poll aggregation") and predictions tables are not polls
-    pollsters = {p.pollster for p in polls}
+    pollsters = {poll.pollster for poll in polls}
     assert "270toWin" not in pollsters
     assert "Decision Desk HQ" not in pollsters
     # primary-runoff tables live outside the General election section
-    assert all(p.end_date >= date(2025, 7, 1) for p in polls)
+    assert all(poll.end_date >= date(2025, 7, 1) for poll in polls)
 
 
 def test_a_partisan_pollster_is_flagged():
     polls = _polls()
-    harper = next(p for p in polls if p.pollster == "Harper Polling" and p.end_date == date(2026, 10, 20))
+    harper = next(poll for poll in polls if poll.pollster == "Harper Polling" and poll.end_date == date(2026, 10, 20))
     assert harper.partisan == "REP" and harper.internal is True
     assert harper.start_date == date(2026, 10, 18)
     assert (harper.sample_size, harper.population) == (600, "LV")
-    assert [(r.name, r.party, r.pct) for r in harper.results] == [
+    assert [(poll_result.name, poll_result.party, poll_result.pct) for poll_result in harper.results] == [
         ("Michael Whatley", "REP", 39.0),
         ("Roy Cooper", "DEM", 49.0),
     ]
@@ -62,7 +62,7 @@ def test_a_partisan_pollster_is_flagged():
 
 def test_a_bipartisan_poll_pair_is_not_flagged():
     polls = _polls()
-    pair = next(p for p in polls if p.pollster.startswith("Beacon Research"))
+    pair = next(poll for poll in polls if poll.pollster.startswith("Beacon Research"))
     assert pair.partisan is None
     assert pair.pollster == "Beacon Research/ Shaw & Co. Research"
     assert (pair.sample_size, pair.population) == (1005, "RV")
@@ -70,19 +70,22 @@ def test_a_bipartisan_poll_pair_is_not_flagged():
 
 def test_neutral_pollsters_are_not_flagged():
     polls = _polls()
-    acti = next(p for p in polls if p.pollster == "ActiVote")
+    acti = next(poll for poll in polls if poll.pollster == "ActiVote")
     assert acti.partisan is None
-    assert [(r.name, r.pct) for r in acti.results] == [("Michael Whatley", 43.0), ("Roy Cooper", 57.0)]
+    assert [(poll_result.name, poll_result.pct) for poll_result in acti.results] == [
+        ("Michael Whatley", 43.0),
+        ("Roy Cooper", 57.0),
+    ]
 
 
 def test_candidate_parties_come_from_the_column_headers():
     polls = _polls()
-    assert all(r.party in {"REP", "DEM"} for p in polls for r in p.results)
+    assert all(poll_result.party in {"REP", "DEM"} for poll in polls for poll_result in poll.results)
 
 
 def test_newest_first():
     polls = _polls()
-    assert [p.end_date for p in polls] == sorted((p.end_date for p in polls), reverse=True)
+    assert [poll.end_date for poll in polls] == sorted((poll.end_date for poll in polls), reverse=True)
     assert polls[0].pollster == "Quantus Insights"
     assert polls[0].end_date == date(2026, 10, 25)
 

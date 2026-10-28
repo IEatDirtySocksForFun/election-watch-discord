@@ -271,7 +271,11 @@ class FakeResults:
             (RaceKey(state, Level.GOVERNOR, "GOV"), f"{state} Governor"),
         ]
         races += [
-            (RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"), f"{state}-{n:02d} " + "x" * 120) for n in range(1, 31)
+            (
+                RaceKey(state, Level.HOUSE, "HOUSE", f"{district_number:02d}"),
+                f"{state}-{district_number:02d} " + "x" * 120,
+            )
+            for district_number in range(1, 31)
         ]
         # Adapters slug the full contest name into LOCAL keys: these can exceed 100 characters.
         races += [(RaceKey(state, Level.LOCAL, "LOCAL", LONG_SLUG), "Advisory Vote No. 10")]
@@ -308,16 +312,16 @@ class FakePolls:
         return [
             Poll(
                 key,
-                f"Pollster {n}",
+                f"Pollster {index}",
                 [PollResult("Candidate A", "DEM", 47.0), PollResult("Candidate B", "REP", 49.0)],
-                date(2026, 10, 1) + timedelta(days=n),
+                date(2026, 10, 1) + timedelta(days=index),
                 sample_size=800,
                 population="LV",
-                partisan="REP" if n % 3 == 0 else None,
+                partisan="REP" if index % 3 == 0 else None,
                 url="https://example.com/p",
             )
             for key in keys
-            for n in range(12)
+            for index in range(12)
         ]
 
 
@@ -348,7 +352,7 @@ async def harness():
         # As after READY: the logged-in application user.
         bot._connection.user = discord.ClientUser(state=bot._connection, data=_user(APP) | {"bot": True})
         bot._connection._add_guild_from_data(json.loads(json.dumps(GUILD_CREATE)))
-        h = Harness(bot, recorder, odds)
+        test_harness = Harness(bot, recorder, odds)
         # What the background refresh stores; /odds and /polls read only the store.
         await bot.poller._odds(NOW, [], [TX_SEN, RaceKey("CA", Level.SENATE, "SEN")])
         await bot.poller._polls(NOW, [TX_SEN])
@@ -356,9 +360,9 @@ async def harness():
         early_vote_http = mock_http_client()  # /earlyvote reads recorded civicAPI responses
         bot.early_vote = fixture_client(early_vote_http)
         try:
-            yield h
+            yield test_harness
         finally:
-            for view in list(bot._connection._view_store.persistent_views) + h.views():
+            for view in list(bot._connection._view_store.persistent_views) + test_harness.views():
                 view.stop()
             await early_vote_http.aclose()
             await bot.close()
@@ -371,10 +375,10 @@ class Harness:
 
     def views(self) -> list:
         return [
-            item.view
+            entry.view
             for entries in self.bot._connection._view_store._views.values()
-            for item in entries.values()
-            if item.view is not None
+            for entry in entries.values()
+            if entry.view is not None
         ]
 
     async def dispatch(self, payload: dict) -> list[Sent]:
@@ -408,13 +412,13 @@ class Harness:
 def _embed_size(embed: dict) -> int:
     size = len(embed.get("title", "")) + len(embed.get("description", ""))
     size += len(embed.get("footer", {}).get("text", ""))
-    size += sum(len(f["name"]) + len(f["value"]) for f in embed.get("fields", []))
+    size += sum(len(embed_field["name"]) + len(embed_field["value"]) for embed_field in embed.get("fields", []))
     return size
 
 
-def check_message_limits(data: dict) -> None:
-    assert len(data.get("content") or "") <= 2000
-    embeds = data.get("embeds") or []
+def check_message_limits(message_payload: dict) -> None:
+    assert len(message_payload.get("content") or "") <= 2000
+    embeds = message_payload.get("embeds") or []
     assert len(embeds) <= 10
     for embed in embeds:
         assert len(embed.get("title", "")) <= 256
@@ -424,7 +428,7 @@ def check_message_limits(data: dict) -> None:
             assert 1 <= len(field["name"]) <= 256 and 1 <= len(field["value"]) <= 1024
         assert len(embed.get("footer", {}).get("text", "")) <= 2048
         assert _embed_size(embed) <= 6000
-    rows = data.get("components") or []
+    rows = message_payload.get("components") or []
     assert len(rows) <= 5
     for row in rows:
         assert row["type"] == 1 and 1 <= len(row["components"]) <= 5
@@ -445,32 +449,36 @@ def assert_ephemeral_reply(sent: list[Sent]) -> None:
     assert sent, "the interaction was never acknowledged"
     first = sent[0]
     assert (first.method, first.path) == ("POST", CALLBACK)
-    callbacks = [s for s in sent if s.path == CALLBACK]
+    callbacks = [sent_request for sent_request in sent if sent_request.path == CALLBACK]
     assert len(callbacks) == 1, "an interaction can only be acknowledged once"
-    for s in sent:
-        if s.path == CALLBACK:
-            assert s.payload["type"] in (CHANNEL_MESSAGE_WITH_SOURCE, DEFERRED_CHANNEL_MESSAGE), s.payload
-            assert s.payload["data"]["flags"] & EPHEMERAL, s.payload
-            check_message_limits(s.payload["data"])
-        elif s.path == FOLLOWUP:
-            assert s.method == "POST"
-            assert s.payload["flags"] & EPHEMERAL, s.payload
-            check_message_limits(s.payload)
-        elif s.path == ORIGINAL:
-            assert s.method == "PATCH"
-            check_message_limits(s.payload)
+    for sent_request in sent:
+        if sent_request.path == CALLBACK:
+            assert sent_request.payload["type"] in (CHANNEL_MESSAGE_WITH_SOURCE, DEFERRED_CHANNEL_MESSAGE), (
+                sent_request.payload
+            )
+            assert sent_request.payload["data"]["flags"] & EPHEMERAL, sent_request.payload
+            check_message_limits(sent_request.payload["data"])
+        elif sent_request.path == FOLLOWUP:
+            assert sent_request.method == "POST"
+            assert sent_request.payload["flags"] & EPHEMERAL, sent_request.payload
+            check_message_limits(sent_request.payload)
+        elif sent_request.path == ORIGINAL:
+            assert sent_request.method == "PATCH"
+            check_message_limits(sent_request.payload)
         else:  # pragma: no cover - nothing else is expected
-            raise AssertionError(f"unexpected request {s.method} {s.path}")
+            raise AssertionError(f"unexpected request {sent_request.method} {sent_request.path}")
     if first.payload["type"] == DEFERRED_CHANNEL_MESSAGE:
-        assert any(s.path in (FOLLOWUP, ORIGINAL) for s in sent[1:]), "deferred but never answered"
+        assert any(sent_request.path in (FOLLOWUP, ORIGINAL) for sent_request in sent[1:]), (
+            "deferred but never answered"
+        )
 
 
 def text_of(sent: list[Sent]) -> str:
     parts = []
-    for s in sent:
-        data = s.payload.get("data", s.payload) if s.payload else {}
-        parts.append(data.get("content") or "")
-        for embed in data.get("embeds") or []:
+    for sent_request in sent:
+        message_payload = sent_request.payload.get("data", sent_request.payload) if sent_request.payload else {}
+        parts.append(message_payload.get("content") or "")
+        for embed in message_payload.get("embeds") or []:
             parts.append(json.dumps(embed, ensure_ascii=False))
     return "\n".join(parts)
 
@@ -619,7 +627,7 @@ async def test_deferred_commands_answer_with_an_ephemeral_followup(harness):
     for name, options in (("odds", []), ("polls", [opt("race", "TX SEN")]), ("races", [])):
         sent = await harness.dispatch(command_payload(name, options))
         assert sent[0].payload == {"type": DEFERRED_CHANNEL_MESSAGE, "data": {"flags": EPHEMERAL}}
-        assert [(s.method, s.path) for s in sent[1:]] == [("POST", FOLLOWUP)]
+        assert [(sent_request.method, sent_request.path) for sent_request in sent[1:]] == [("POST", FOLLOWUP)]
         assert sent[1].payload["flags"] & EPHEMERAL
 
 
@@ -696,16 +704,18 @@ async def test_race_autocomplete_payload(harness, command, typed):
 
 
 def components(payload: dict) -> list[dict]:
-    data = payload.get("data", payload)
-    return [c for row in data.get("components") or [] for c in row["components"]]
+    message_payload = payload.get("data", payload)
+    return [component for row in message_payload.get("components") or [] for component in row["components"]]
 
 
 def button(payload: dict, label: str) -> dict:
-    return next(c for c in components(payload) if c["type"] == 2 and c.get("label") == label)
+    return next(
+        component for component in components(payload) if component["type"] == 2 and component.get("label") == label
+    )
 
 
 def selects(payload: dict) -> list[dict]:
-    return [c for c in components(payload) if c["type"] == 3]
+    return [component for component in components(payload) if component["type"] == 3]
 
 
 async def test_race_navigator_round_trip_uses_correct_component_responses(harness):
@@ -713,7 +723,7 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert_ephemeral_reply(sent)
     message = sent[-1].payload
     assert message["flags"] & EPHEMERAL
-    assert [c["label"] for c in components(message) if c["type"] == 2][:4] == [
+    assert [component["label"] for component in components(message) if component["type"] == 2][:4] == [
         "Congressional",
         "Senate",
         "State",
@@ -723,16 +733,18 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
 
     # Tab button: deferred update (6, no new message), then the original message is edited.
     sent = await harness.dispatch(component_payload(button(message, "Congressional")["custom_id"], 2))
-    assert [(s.method, s.path) for s in sent] == [("POST", CALLBACK), ("PATCH", ORIGINAL)]
+    assert [(select.method, select.path) for select in sent] == [("POST", CALLBACK), ("PATCH", ORIGINAL)]
     assert sent[0].payload == {"type": DEFERRED_UPDATE_MESSAGE}
     message = sent[1].payload
     check_message_limits(message)
     assert "Texas · Congressional" in text_of(sent) or "TX-01" in text_of(sent)
 
     # State select: deferred update + edit.
-    california = next(s for s in selects(message) if any(o["value"] == "CA" for o in s["options"]))
+    california = next(
+        select for select in selects(message) if any(option["value"] == "CA" for option in select["options"])
+    )
     sent = await harness.dispatch(component_payload(california["custom_id"], 3, ["CA"]))
-    assert [(s.method, s.path) for s in sent] == [("POST", CALLBACK), ("PATCH", ORIGINAL)]
+    assert [(select.method, select.path) for select in sent] == [("POST", CALLBACK), ("PATCH", ORIGINAL)]
     assert sent[0].payload == {"type": DEFERRED_UPDATE_MESSAGE}
     message = sent[1].payload
     assert "California" in text_of(sent)
@@ -741,7 +753,7 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     # Odds / Polls buttons: deferred update, the data arrives as a NEW ephemeral followup.
     for tool in ("Odds", "Polls"):
         sent = await harness.dispatch(component_payload(button(message, tool)["custom_id"], 2))
-        assert [(s.method, s.path) for s in sent] == [("POST", CALLBACK), ("POST", FOLLOWUP)]
+        assert [(select.method, select.path) for select in sent] == [("POST", CALLBACK), ("POST", FOLLOWUP)]
         assert sent[0].payload["type"] == DEFERRED_UPDATE_MESSAGE
         assert sent[1].payload["flags"] & EPHEMERAL
         assert tool in text_of(sent[1:])
@@ -752,7 +764,7 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert len(sent) == 1 and sent[0].payload["type"] == UPDATE_MESSAGE
     message = sent[0].payload
     check_message_limits(message["data"])
-    race_select = next(s for s in selects(message) if s.get("placeholder", "").startswith("Race"))
+    race_select = next(select for select in selects(message) if select.get("placeholder", "").startswith("Race"))
     # More than 25 races: 23 per page plus a "next" option.
     assert len(race_select["options"]) == 24 and race_select["options"][-1]["value"] == "next"
 
@@ -772,11 +784,13 @@ async def test_navigator_selects_a_race_whose_key_exceeds_100_characters(harness
     message = sent[-1].payload
     sent = await harness.dispatch(component_payload(button(message, "Choose race")["custom_id"], 2))
     check_message_limits(sent[0].payload["data"])
-    race_select = next(s for s in selects(sent[0].payload) if s.get("placeholder", "").startswith("Race"))
-    option = next(o for o in race_select["options"] if o["label"] == "Advisory Vote No. 10")
+    race_select = next(
+        select for select in selects(sent[0].payload) if select.get("placeholder", "").startswith("Race")
+    )
+    option = next(option for option in race_select["options"] if option["label"] == "Advisory Vote No. 10")
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
     assert sent[0].payload["type"] == UPDATE_MESSAGE
-    view = next(v for v in harness.views() if v.selected_race)
+    view = next(long_race_key for long_race_key in harness.views() if long_race_key.selected_race)
     assert view.selected_race == f"TX LOCAL {LONG_SLUG}"
 
 
@@ -829,7 +843,7 @@ async def test_command_schema_follows_discord_rules(harness):
     tree = harness.bot.tree
     payloads = [command.to_dict(tree) for command in tree.get_commands()]
     assert 1 <= len(payloads) <= 100
-    assert len({p["name"] for p in payloads}) == len(payloads)
+    assert len({parameter["name"] for parameter in payloads}) == len(payloads)
     for payload in payloads:
         name = payload["name"]
         assert _NAME.match(name) and name == name.lower(), name
@@ -839,7 +853,7 @@ async def test_command_schema_follows_discord_rules(harness):
         assert len(options) <= 25, name
         required = [option.get("required", False) for option in options]
         assert required == sorted(required, reverse=True), f"{name}: required option after optional"
-        assert len({o["name"] for o in options}) == len(options), name
+        assert len({option["name"] for option in options}) == len(options), name
         for option in options:
             _check_option(option, f"/{name} {option['name']}")
         # Command name + description + options' names/descriptions/choices <= 4000 characters.
@@ -847,19 +861,19 @@ async def test_command_schema_follows_discord_rules(harness):
             len(name)
             + len(payload["description"])
             + sum(
-                len(o["name"])
-                + len(o["description"])
-                + sum(len(c["name"]) + len(str(c["value"])) for c in o.get("choices", []))
-                for o in options
+                len(option["name"])
+                + len(option["description"])
+                + sum(len(command["name"]) + len(str(command["value"])) for command in option.get("choices", []))
+                for option in options
             )
         )
         assert total <= 4000, name
-    by_name = {p["name"]: p for p in payloads}
-    channel = next(o for o in by_name["setup"]["options"] if o["name"] == "channel")
+    by_name = {parameter["name"]: parameter for parameter in payloads}
+    channel = next(option for option in by_name["setup"]["options"] if option["name"] == "channel")
     assert channel["type"] == 7 and set(channel["channel_types"]) <= {0, 5}  # text / announcement
-    minutes = next(o for o in by_name["posting"]["options"] if o["name"] == "minutes")
+    minutes = next(option for option in by_name["posting"]["options"] if option["name"] == "minutes")
     assert (minutes["min_value"], minutes["max_value"]) == (1, 1440)
-    count = next(o for o in by_name["polls"]["options"] if o["name"] == "count")
+    count = next(option for option in by_name["polls"]["options"] if option["name"] == "count")
     assert (count["min_value"], count["max_value"]) == (1, 10)
     json.dumps(payloads)
 

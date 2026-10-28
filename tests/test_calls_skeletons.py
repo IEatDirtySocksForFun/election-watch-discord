@@ -24,8 +24,8 @@ def test_parse_skeleton_fixture(outlet, source, parse):
     payload = _load(outlet)
     calls = parse(payload)
     assert len(calls) == 2
-    tx_sen = next(c for c in calls if c.key == RaceKey("TX", Level.SENATE, "SEN"))
-    ca_house = next(c for c in calls if c.key == RaceKey("CA", Level.HOUSE, "HOUSE", "12"))
+    tx_sen = next(call for call in calls if call.key == RaceKey("TX", Level.SENATE, "SEN"))
+    ca_house = next(call for call in calls if call.key == RaceKey("CA", Level.HOUSE, "HOUSE", "12"))
     assert tx_sen.outlet == source.outlet
     assert tx_sen.winner == "Ted Cruz"
     assert tx_sen.party == "REP"

@@ -64,13 +64,13 @@ def source_states(raw: str) -> dict[str, frozenset[str]]:
     Limits a (multi-state) adapter to the listed states, e.g. a national fallback switched
     on only for the states without a complete official feed. Unlisted adapters are
     unchanged; this never enables an adapter by itself (EW_ENABLED_SOURCES does that)."""
-    out: dict[str, frozenset[str]] = {}
+    by_source: dict[str, frozenset[str]] = {}
     for part in raw.split(";"):
         name, sep, states = part.partition("=")
         if not sep or not name.strip():
             continue
-        out[name.strip()] = frozenset(s.strip().upper() for s in states.split(",") if s.strip())
-    return out
+        by_source[name.strip()] = frozenset(code.strip().upper() for code in states.split(",") if code.strip())
+    return by_source
 
 
 async def check() -> int:

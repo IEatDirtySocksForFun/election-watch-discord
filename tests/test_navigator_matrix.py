@@ -87,7 +87,7 @@ class Results(ResultsSource):
         if self.error:
             raise self.error
         if self.races is not None:
-            return [item for item in self.races if item[0].state == state]
+            return [race_entry for race_entry in self.races if race_entry[0].state == state]
         return races_for(state)
 
 
@@ -122,20 +122,29 @@ async def navigator_for(client, settings=None) -> RaceNavigator:
 
 # ----------------------------------------------------------------- component lookup
 def buttons(view) -> dict[str, discord.ui.Button]:
-    return {c.label: c for c in view.children if isinstance(c, discord.ui.Button)}
+    return {control.label: control for control in view.children if isinstance(control, discord.ui.Button)}
 
 
 def state_selects(view) -> list[discord.ui.Select]:
-    return [c for c in view.children if isinstance(c, discord.ui.Select) and c.placeholder.startswith("State:")]
+    return [
+        control
+        for control in view.children
+        if isinstance(control, discord.ui.Select) and control.placeholder.startswith("State:")
+    ]
 
 
 def state_select_for(view, code) -> discord.ui.Select:
-    return next(s for s in state_selects(view) if code in {o.value for o in s.options})
+    return next(select for select in state_selects(view) if code in {option.value for option in select.options})
 
 
 def race_select(view) -> discord.ui.Select | None:
     return next(
-        (c for c in view.children if isinstance(c, discord.ui.Select) and c.placeholder.startswith("Race")), None
+        (
+            control
+            for control in view.children
+            if isinstance(control, discord.ui.Select) and control.placeholder.startswith("Race")
+        ),
+        None,
     )
 
 
@@ -147,19 +156,19 @@ def snapshot(view):
         list(view.races),
         [
             (
-                type(c).__name__,
-                getattr(c, "label", None) or c.placeholder,
-                getattr(c, "style", None),
-                [(o.value, o.default) for o in getattr(c, "options", [])],
+                type(control).__name__,
+                getattr(control, "label", None) or control.placeholder,
+                getattr(control, "style", None),
+                [(option.value, option.default) for option in getattr(control, "options", [])],
             )
-            for c in view.children
+            for control in view.children
         ],
     )
 
 
-async def click(view, item, *, user=OWNER, values=None) -> FakeInteraction:
+async def click(view, control, *, user=OWNER, values=None) -> FakeInteraction:
     interaction = FakeInteraction(view.client, user_id=user, kind="component", values=values)
-    await item.callback(interaction)
+    await control.callback(interaction)
     return interaction
 
 
@@ -202,7 +211,7 @@ async def test_races_command_for_a_user_with_saved_navigation(home, level, expec
     await races_command.callback(interaction)
     view = interaction.assert_ephemeral_flow().view
     assert (view.state, view.level, view.selected_race) == (home, expected_level, expected_race)
-    defaults = [o.value for s in state_selects(view) for o in s.options if o.default]
+    defaults = [option.value for select in state_selects(view) for option in select.options if option.default]
     assert defaults == [home]
 
 
@@ -229,10 +238,10 @@ async def test_every_tab_in_every_state(code, tab):
 async def test_territories_are_reachable_from_the_navigator():
     """Race keys, /odds and /polls accept PR/GU/VI/AS/MP: the navigator offers them too."""
     view = await navigator_for(client_with())
-    offered = {o.value for s in state_selects(view) for o in s.options}
+    offered = {option.value for select in state_selects(view) for option in select.options}
     assert offered == set(STATES) | set(TERRITORIES)
     # 56 codes in selects of at most 25.
-    assert [len(s.options) for s in state_selects(view)] == [25, 25, 6]
+    assert [len(select.options) for select in state_selects(view)] == [25, 25, 6]
     interaction = await click(view, state_select_for(view, "PR"), values=["PR"])
     reply = assert_edited(interaction, ["defer", "edit_original"])
     assert view.state == "PR" and reply.embed.title == "Puerto Rico · Senate"
@@ -241,7 +250,7 @@ async def test_territories_are_reachable_from_the_navigator():
 # ----------------------------------------------------------------- race select sizes
 @pytest.mark.parametrize("count", [0, 1, 25, 60])
 async def test_race_select_sizes(count):
-    races = [(parse(f"TX HD-{n}"), f"Texas House District {n}") for n in range(1, count + 1)]
+    races = [(parse(f"TX HD-{index}"), f"Texas House District {index}") for index in range(1, count + 1)]
     store = MemoryStore()
     view = await navigator_for(
         client_with(Results(races), store=store), UserSettings(OWNER, home_state="TX", default_level="state")
@@ -258,22 +267,22 @@ async def test_race_select_sizes(count):
     assert select is not None and "Odds" not in buttons(view)
     # Option values are list positions (keys can exceed Discord's 100-character limit).
     if count <= 25:
-        offered = [view._race_choices[int(o.value)] for o in select.options]
+        offered = [view._race_choices[int(option.value)] for option in select.options]
         assert len(offered) == count
         return
     # Longer lists are paged: 23 races per page plus previous/next options; every race is reachable.
     seen: list[str] = []
     while True:
-        values = [o.value for o in select.options]
+        values = [option.value for option in select.options]
         assert len(values) <= 25
-        seen += [view._race_choices[int(v)] for v in values if v not in ("prev", "next")]
+        seen += [view._race_choices[int(index)] for index in values if index not in ("prev", "next")]
         if "next" not in values:
             break
         interaction = await click(view, select, values=["next"])
         assert_edited(interaction, ["edit_message"])
         select = race_select(view)
-        assert "prev" in [o.value for o in select.options]
-    assert seen == sorted(str(k) for k, _ in races)
+        assert "prev" in [option.value for option in select.options]
+    assert seen == sorted(str(race_key) for race_key, _ in races)
 
 
 async def test_choosing_a_race_shows_its_result_and_brings_back_the_tools():
@@ -282,7 +291,7 @@ async def test_choosing_a_race_shows_its_result_and_brings_back_the_tools():
     await store.upsert_result(
         RaceResult(key, [CandidateResult("Doe", "DEM", 120), CandidateResult("Roe", "REP", 80)], "test", NOW).finalize()
     )
-    races = [(parse(f"TX HD-{n}"), f"Texas House District {n}") for n in range(1, 8)]
+    races = [(parse(f"TX HD-{index}"), f"Texas House District {index}") for index in range(1, 8)]
     view = await navigator_for(
         client_with(Results(races), store=store), UserSettings(OWNER, home_state="TX", default_level="state")
     )
@@ -311,8 +320,10 @@ async def test_race_tool_buttons_send_an_ephemeral_followup(tool, title):
 
 # ----------------------------------------------------------------- ownership
 def every_control(view):
-    items = [(label, b, None) for label, b in buttons(view).items()]
-    items += [(f"state:{s.options[0].value}", s, [s.options[-1].value]) for s in state_selects(view)]
+    items = [(label, button, None) for label, button in buttons(view).items()]
+    items += [
+        (f"state:{select.options[0].value}", select, [select.options[-1].value]) for select in state_selects(view)
+    ]
     return items
 
 
@@ -324,8 +335,8 @@ async def test_other_users_are_refused_on_every_control_and_nothing_changes():
     controls.append(("race", race_select(view), ["TX SEN"]))
     before = snapshot(view)
     assert len(controls) >= 9
-    for name, item, values in controls:
-        interaction = await click(view, item, user=OTHER, values=values)
+    for name, control, values in controls:
+        interaction = await click(view, control, user=OTHER, values=values)
         assert interaction.kinds == ["send_message"], name
         reply = interaction.assert_ephemeral_flow()
         assert reply.content == "This navigator belongs to another user."
@@ -421,7 +432,7 @@ async def test_favorites_tab_lists_favorites_from_every_state():
     assert_edited(interaction, ["defer", "edit_original"])
     assert view.level == "favorites" and view.selected_race == "PA SEN"  # in the order added
     await click(view, buttons(view)["Choose race"])
-    offered = {view._race_choices[int(o.value)] for o in race_select(view).options}
+    offered = {view._race_choices[int(option.value)] for option in race_select(view).options}
     assert offered == {"PA SEN", "PA-07", "GA GOV"}
     assert (await store.get_user(OWNER)).default_level == "favorites"
     # Picking a state leaves the cross-state tab.

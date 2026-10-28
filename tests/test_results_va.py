@@ -19,7 +19,7 @@ def load(name):
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def parsed(name="2025_general.json"):
@@ -91,8 +91,8 @@ def test_race_key_mapping():
 
 
 def test_titles_keep_the_english_label():
-    for result in parsed():
-        assert result.title and all(ord(ch) < 0x2500 for ch in result.title)
+    for race_result in parsed():
+        assert race_result.title and all(ord(ch) < 0x2500 for ch in race_result.title)
 
 
 def test_empty_payload_is_not_an_error():

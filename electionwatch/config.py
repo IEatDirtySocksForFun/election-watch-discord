@@ -53,9 +53,9 @@ def load_env(environ: Mapping[str, str] | None = None) -> list[Path]:
         if not name.strip() or not path.is_file():
             continue
         for line in path.read_text(encoding="utf-8").splitlines():
-            item = parse_env_line(line)
-            if item and item[0] not in env and item[0] not in target:
-                target[item[0]] = item[1]
+            parsed = parse_env_line(line)
+            if parsed and parsed[0] not in env and parsed[0] not in target:
+                target[parsed[0]] = parsed[1]
         loaded.append(path)
     return loaded
 
@@ -68,8 +68,8 @@ def load_races(path: str | Path | None = None) -> list[ImportantRace]:
     """Load and validate the default important races from YAML."""
     source = Path(path) if path is not None else races_file()
     with source.open(encoding="utf-8") as handle:
-        data = yaml.safe_load(handle) or {}
-    entries = data.get("important", [])
+        config = yaml.safe_load(handle) or {}
+    entries = config.get("important", [])
     if not isinstance(entries, list):
         raise ValueError(f"{source}: 'important' must be a list")
     races: list[ImportantRace] = []

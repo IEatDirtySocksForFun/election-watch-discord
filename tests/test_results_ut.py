@@ -26,7 +26,7 @@ def parse():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_keys_cover_federal_statewide_legislature():
@@ -44,19 +44,19 @@ def test_keys_cover_federal_statewide_legislature():
 
 def test_party_names_normalised():
     got = by_key(parse())
-    parties = {c.party for c in got["UT SEN"].candidates}
+    parties = {candidate.party for candidate in got["UT SEN"].candidates}
     assert {"REP", "DEM", "IAP"} <= parties
     # Measure choices have no party.
-    assert all(c.party is None for c in got["UT LOCAL constitutional-amendment-b"].candidates)
+    assert all(candidate.party is None for candidate in got["UT LOCAL constitutional-amendment-b"].candidates)
 
 
 def test_votes_and_titles():
     sen = by_key(parse())["UT SEN"]
     assert sen.title == "U.S. Senate"
-    curtis = next(c for c in sen.candidates if c.name == "John Curtis")
+    curtis = next(candidate for candidate in sen.candidates if candidate.name == "John Curtis")
     assert curtis.votes == 914700
     assert curtis.party == "REP"
-    assert sen.total_votes == sum(c.votes for c in sen.candidates)
+    assert sen.total_votes == sum(candidate.votes for candidate in sen.candidates)
     gov = by_key(parse())["UT GOV"]
     assert gov.candidates[0].name.startswith("Spencer J. Cox")
 
@@ -90,8 +90,8 @@ def test_fetch_uses_configured_slug(monkeypatch):
         return httpx.Response(200, text=(FIX / "export-general11052024.json").read_text())
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await ut_lgov.UtLgov().fetch([parse_key("UT SEN"), parse_key("UT SD-02")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await ut_lgov.UtLgov().fetch([parse_key("UT SEN"), parse_key("UT SD-02")], client)
 
     assert set(by_key(asyncio.run(go()))) == {"UT SEN", "UT SD-02"}
     assert seen == ["https://app.enhancedvoting.com/cdn/results/Utah/export-general11052024.json"]
@@ -104,8 +104,8 @@ def test_fetch_unavailable_before_export(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await ut_lgov.UtLgov().fetch([parse_key("UT SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await ut_lgov.UtLgov().fetch([parse_key("UT SEN")], client)
 
     with pytest.raises(SourceUnavailable, match="not published yet"):
         asyncio.run(go())

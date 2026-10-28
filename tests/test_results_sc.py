@@ -23,7 +23,7 @@ def parse():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_federal_state_and_local_keys():
@@ -51,11 +51,11 @@ def test_party_prefix_stripped_from_names():
 
 
 def test_votes_percent_winner_and_precincts():
-    p = by_key(parse())["SC LOCAL amendment-1"]
-    assert p.candidates[0].name == "Yes, In Favor of the Question"
-    assert p.candidates[0].votes > p.candidates[1].votes
-    assert p.candidates[0].winner is True
-    assert p.candidates[1].winner is False
+    race_result = by_key(parse())["SC LOCAL amendment-1"]
+    assert race_result.candidates[0].name == "Yes, In Favor of the Question"
+    assert race_result.candidates[0].votes > race_result.candidates[1].votes
+    assert race_result.candidates[0].winner is True
+    assert race_result.candidates[1].winner is False
 
     house = by_key(parse())["SC-01"]
     assert house.total_votes == 390777  # source T, not recomputed from the trimmed slice
@@ -92,8 +92,8 @@ def test_fetch_uses_pinned_id_version_file(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await sc_sec.ScSec().fetch([parse_key("SC-01"), parse_key("SC SD-19")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await sc_sec.ScSec().fetch([parse_key("SC-01"), parse_key("SC SD-19")], client)
 
     assert set(by_key(asyncio.run(go()))) == {"SC-01", "SC SD-19"}
     assert seen == [f"{BASE}/122436/current_ver.txt", f"{BASE}/122436/359624/json/en/summary.json"]
@@ -121,8 +121,8 @@ def test_discovery_reads_election_index(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await sc_sec.ScSec().fetch([parse_key("SC-01")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await sc_sec.ScSec().fetch([parse_key("SC-01")], client)
 
     assert set(by_key(asyncio.run(go()))) == {"SC-01"}
     assert seen[0] == f"{BASE}/elections.json"
@@ -136,8 +136,8 @@ def test_unavailable_when_index_has_no_entry(monkeypatch):
         return httpx.Response(200, json=[])
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await sc_sec.ScSec().fetch([parse_key("SC-01")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await sc_sec.ScSec().fetch([parse_key("SC-01")], client)
 
     with pytest.raises(SourceUnavailable, match="no 2026-11-03 entry"):
         asyncio.run(go())

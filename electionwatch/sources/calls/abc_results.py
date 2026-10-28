@@ -62,7 +62,7 @@ class ABCResultsSource(ResultsSource):
         now = datetime.now(timezone.utc)
         results: list[RaceResult] = []
         seen: set[str] = set()
-        for chamber, key in sorted(pairs, key=lambda p: (p[0], str(p[1]))):
+        for chamber, key in sorted(pairs, key=lambda pair: (pair[0], str(pair[1]))):
             url = self._url(key)
             if url is None or url in seen:
                 continue
@@ -81,7 +81,7 @@ class ABCResultsSource(ResultsSource):
                 continue
 
         requested = set(keys)
-        return [r for r in results if r.key in requested]
+        return [race_result for race_result in results if race_result.key in requested]
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         now = datetime.now(timezone.utc)
@@ -107,9 +107,9 @@ class ABCResultsSource(ResultsSource):
                 continue
             try:
                 races.extend(
-                    (r.key, r.title or str(r.key))
-                    for r in parse_abc_results(resp.text, fetched_at=now)
-                    if r.key.state == state
+                    (race_result.key, race_result.title or str(race_result.key))
+                    for race_result in parse_abc_results(resp.text, fetched_at=now)
+                    if race_result.key.state == state
                 )
             except Exception:
                 continue
@@ -133,9 +133,9 @@ def parse_abc_results(html: str, fetched_at: datetime | None = None) -> list[Rac
     for agg_key, aggregate in (page.get("aggregates") or {}).items():
         for race in aggregate.get("races") or []:
             try:
-                res = _race_result(race, state, agg_key, fetched_at, page_updated)
-                if res is not None:
-                    results.append(res)
+                race_result = _race_result(race, state, agg_key, fetched_at, page_updated)
+                if race_result is not None:
+                    results.append(race_result)
             except Exception:
                 continue
     return results
@@ -159,14 +159,14 @@ def _race_result(
 
     candidates = [
         CandidateResult(
-            name=(c.get("displayName") or c.get("shortDisplayName") or "").strip(),
-            party=normalize_party(c.get("trueParty") or c.get("party")),
-            votes=int(c.get("rawVotes") or 0),
-            pct=c.get("rawPercent"),
-            incumbent=bool(c.get("incumbent")),
+            name=(candidate.get("displayName") or candidate.get("shortDisplayName") or "").strip(),
+            party=normalize_party(candidate.get("trueParty") or candidate.get("party")),
+            votes=int(candidate.get("rawVotes") or 0),
+            pct=candidate.get("rawPercent"),
+            incumbent=bool(candidate.get("incumbent")),
             winner=False,  # ABC flag is a projection, not official.
         )
-        for c in race.get("candidates") or []
+        for candidate in race.get("candidates") or []
     ]
     if not candidates:
         return None
@@ -183,7 +183,7 @@ def _race_result(
         fetched_at=fetched_at,
         source_updated_at=updated,
         expected_vote_pct=reporting.get("doubleValue") or reporting.get("value"),
-        total_votes=sum(c.votes for c in candidates) or None,
+        total_votes=sum(candidate.votes for candidate in candidates) or None,
         url=race.get("countyResultsLink") or race.get("exitPollsLink"),
         title=title,
     ).finalize()

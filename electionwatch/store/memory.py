@@ -34,7 +34,7 @@ class MemoryStore:
         self.guilds[gs.guild_id] = copy.deepcopy(gs)
 
     async def all_guilds(self):
-        return [copy.deepcopy(g) for g in self.guilds.values()]
+        return [copy.deepcopy(guild) for guild in self.guilds.values()]
 
     async def get_user(self, user_id):
         return copy.deepcopy(self.users.get(user_id))
@@ -42,14 +42,14 @@ class MemoryStore:
     async def save_user(self, us: UserSettings):
         self.users[us.user_id] = copy.deepcopy(us)
 
-    async def upsert_result(self, r: RaceResult) -> bool:
-        k, fp = str(r.key), r.fingerprint()
-        changed = self.fps.get(k) != fp
-        self.results[k] = copy.deepcopy(r)
+    async def upsert_result(self, race_result: RaceResult) -> bool:
+        key, fingerprint = str(race_result.key), race_result.fingerprint()
+        changed = self.fps.get(key) != fingerprint
+        self.results[key] = copy.deepcopy(race_result)
         if changed:
-            self.fps[k] = fp
-            self.changed[k] = r.fetched_at
-            self.history.append(copy.deepcopy(r))
+            self.fps[key] = fingerprint
+            self.changed[key] = race_result.fetched_at
+            self.history.append(copy.deepcopy(race_result))
         return changed
 
     async def latest_result(self, key: RaceKey):
@@ -58,42 +58,44 @@ class MemoryStore:
     async def result_changed_at(self, key: RaceKey):
         return self.changed.get(str(key))
 
-    async def record_call(self, c: RaceCall) -> bool:
-        ident = (str(c.key), c.outlet)
+    async def record_call(self, call: RaceCall) -> bool:
+        ident = (str(call.key), call.outlet)
         old = self.calls.get(ident)
-        if old and old.winner == c.winner and old.retracted == c.retracted:
+        if old and old.winner == call.winner and old.retracted == call.retracted:
             return False
-        self.calls[ident] = copy.deepcopy(c)
+        self.calls[ident] = copy.deepcopy(call)
         return True
 
     async def calls_for(self, key: RaceKey):
-        return [copy.deepcopy(c) for (k, _), c in self.calls.items() if k == str(key)]
+        return [copy.deepcopy(call) for (call_key, _), call in self.calls.items() if call_key == str(key)]
 
-    async def add_odds(self, s: OddsSnapshot):
-        s = copy.copy(s)  # OddsSnapshot has no mutable fields; a shallow copy suffices
-        self.odds.append(s)
-        series = self._odds_by[(s.key, s.market, s.outcome)]
-        if series and series[-1].ts > s.ts:
-            bisect.insort(series, s, key=lambda x: x.ts)
+    async def add_odds(self, snapshot: OddsSnapshot):
+        snapshot = copy.copy(snapshot)  # OddsSnapshot has no mutable fields; a shallow copy suffices
+        self.odds.append(snapshot)
+        series = self._odds_by[(snapshot.key, snapshot.market, snapshot.outcome)]
+        if series and series[-1].ts > snapshot.ts:
+            bisect.insort(series, snapshot, key=lambda odds: odds.ts)
         else:
-            series.append(s)
+            series.append(snapshot)
 
     async def odds_since(self, key, market, outcome, since):
         series = self._odds_by.get((key, market, outcome), [])
-        i = bisect.bisect_left(series, since, key=lambda x: x.ts)
-        return [copy.copy(s) for s in series[i:]]
+        i = bisect.bisect_left(series, since, key=lambda odds: odds.ts)
+        return [copy.copy(snapshot) for snapshot in series[i:]]
 
     async def latest_odds(self, key):
-        return [copy.copy(series[-1]) for (k, _, _), series in self._odds_by.items() if k == key and series]
+        return [
+            copy.copy(series[-1]) for (odds_key, _, _), series in self._odds_by.items() if odds_key == key and series
+        ]
 
-    async def put_cached(self, kind, ident, data, at):
-        self.cache[(kind, ident)] = (at, data)
+    async def put_cached(self, kind, ident, payload, at):
+        self.cache[(kind, ident)] = (at, payload)
 
     async def get_cached(self, kind, ident):
         return self.cache.get((kind, ident))
 
     async def cached_idents(self, kind):
-        return {ident: at for (k, ident), (at, _) in self.cache.items() if k == kind}
+        return {ident: at for (cached_kind, ident), (at, _) in self.cache.items() if cached_kind == kind}
 
     async def last_posted(self, guild_id, kind, ref):
         return self.posts.get((guild_id, kind, ref))

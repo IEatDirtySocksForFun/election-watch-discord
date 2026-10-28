@@ -200,9 +200,9 @@ async def invoke(command, interaction: FakeInteraction, **kwargs):
     """Run a command callback; it must answer exactly once and only ephemerally."""
     await command.callback(interaction, **kwargs)
     assert len(interaction.replies) == 1, f"expected exactly one reply, got {interaction.sent}"
-    assert all(item.ephemeral for item in interaction.sent), interaction.sent
-    for item in interaction.replies:
-        assert item.content is None or len(item.content) <= DISCORD_LIMIT
+    assert all(sent_message.ephemeral for sent_message in interaction.sent), interaction.sent
+    for sent_message in interaction.replies:
+        assert sent_message.content is None or len(sent_message.content) <= DISCORD_LIMIT
     return interaction.replies[0]
 
 
@@ -820,7 +820,7 @@ INVALID_KEYS = [
 ]
 
 
-@pytest.mark.parametrize("text, expected", VALID_KEYS, ids=[t for t, _ in VALID_KEYS])
+@pytest.mark.parametrize("text, expected", VALID_KEYS, ids=[case_text for case_text, _ in VALID_KEYS])
 async def test_watch_add_accepts_every_key_format(memory_store, text, expected):
     await memory_store.save_guild(GuildSettings(GUILD_ID, important=["GA GOV"]))
     reply = await invoke(
@@ -830,7 +830,7 @@ async def test_watch_add_accepts_every_key_format(memory_store, text, expected):
     assert (await memory_store.get_guild(GUILD_ID)).important[-1] == expected
 
 
-@pytest.mark.parametrize("text", INVALID_KEYS, ids=[t[:24] for t in INVALID_KEYS])
+@pytest.mark.parametrize("text", INVALID_KEYS, ids=[case_text[:24] for case_text in INVALID_KEYS])
 @pytest.mark.parametrize("action", ["add", "remove"])
 async def test_watch_rejects_invalid_keys_and_saves_nothing(memory_store, text, action):
     await memory_store.save_guild(baseline())
@@ -893,10 +893,10 @@ async def test_watch_remove_a_race_that_is_not_watched_changes_nothing(store):
 
 async def test_watch_list_with_500_races_fits_one_message(memory_store):
     keys = (
-        [f"TX HD-{n:03d}" for n in range(1, 151)]
-        + [f"CA SD-{n:02d}" for n in range(1, 41)]
-        + [f"{code}-{n:02d}" for code in ("CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA") for n in range(1, 39)]
-        + [f"TX LOCAL county-{n}" for n in range(6)]
+        [f"TX HD-{index:03d}" for index in range(1, 151)]
+        + [f"CA SD-{index:02d}" for index in range(1, 41)]
+        + [f"{code}-{index:02d}" for code in ("CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA") for index in range(1, 39)]
+        + [f"TX LOCAL county-{index}" for index in range(6)]
     )
     keys = keys[:500]
     assert len(keys) == 500
@@ -908,7 +908,7 @@ async def test_watch_list_with_500_races_fits_one_message(memory_store):
 
 
 async def test_watch_list_of_long_local_slugs_fits_one_message(memory_store):
-    keys = [f"TX LOCAL {'a' * 90}-{n}" for n in range(60)]
+    keys = [f"TX LOCAL {'a' * 90}-{index}" for index in range(60)]
     await memory_store.save_guild(GuildSettings(GUILD_ID, important=keys))
     reply = await invoke(watch_command, make_interaction(stand_in_client(memory_store), "plain"), action="list")
     assert reply.content.endswith("(60 total)")
@@ -969,15 +969,18 @@ async def test_pause_resume_idempotent_as_manager(store, sequence):
         baseline(),
         GuildSettings(
             GUILD_ID,
-            important=[f"TX HD-{n:03d}" for n in range(1, 151)],
+            important=[f"TX HD-{index:03d}" for index in range(1, 151)],
             paused=True,
             post_mode=PostMode.INTERVAL,
             interval_minutes=1440,
         ),
         GuildSettings(
-            GUILD_ID, important=[f"TX HD-{n:03d}" for n in range(1, 151)] * 4, paused=True, post_mode=PostMode.IMMEDIATE
+            GUILD_ID,
+            important=[f"TX HD-{index:03d}" for index in range(1, 151)] * 4,
+            paused=True,
+            post_mode=PostMode.IMMEDIATE,
         ),
-        GuildSettings(GUILD_ID, important=[f"TX LOCAL {'z' * 90}-{n}" for n in range(500)], paused=True),
+        GuildSettings(GUILD_ID, important=[f"TX LOCAL {'z' * 90}-{index}" for index in range(500)], paused=True),
         GuildSettings(GUILD_ID, call_outlets=sorted(OUTLETS), odds_swing_pts=0.1, odds_window_minutes=1440),
     ],
     ids=["default", "baseline", "150 races", "600 races", "500 long local races", "all outlets"],
@@ -986,23 +989,23 @@ async def test_settings_is_valid_yaml_and_fits_one_message(store, gs):
     await store.save_guild(gs)
     reply = await invoke(settings_command, make_interaction(stand_in_client(store), "plain"))
     assert len(reply.content) <= DISCORD_LIMIT
-    data = yaml_block(reply.content)
-    assert isinstance(data, dict)
+    dumped = yaml_block(reply.content)
+    assert isinstance(dumped, dict)
     # The scalar settings must survive any truncation of the watch list.
-    assert data["guild_id"] == GUILD_ID
-    assert data["post_mode"] == gs.post_mode.value
-    assert data["paused"] is gs.paused
-    assert data["interval_minutes"] == gs.interval_minutes
-    assert data["post_calls"] is gs.post_calls and data["odds_alerts"] is gs.odds_alerts
-    assert data["call_outlets"] == gs.call_outlets
-    shown = data.get("important") or []
+    assert dumped["guild_id"] == GUILD_ID
+    assert dumped["post_mode"] == gs.post_mode.value
+    assert dumped["paused"] is gs.paused
+    assert dumped["interval_minutes"] == gs.interval_minutes
+    assert dumped["post_calls"] is gs.post_calls and dumped["odds_alerts"] is gs.odds_alerts
+    assert dumped["call_outlets"] == gs.call_outlets
+    shown = dumped.get("important") or []
     assert shown == gs.important[: len(shown)]
 
 
 async def test_settings_for_a_guild_never_configured(memory_store):
     reply = await invoke(settings_command, make_interaction(stand_in_client(memory_store), "plain"))
-    data = yaml_block(reply.content)
-    assert data["guild_id"] == GUILD_ID and data["channel_id"] is None and data["post_mode"] == "default"
+    dumped = yaml_block(reply.content)
+    assert dumped["guild_id"] == GUILD_ID and dumped["channel_id"] is None and dumped["post_mode"] == "default"
     assert await memory_store.get_guild(GUILD_ID) is None
 
 
@@ -1032,7 +1035,7 @@ async def test_favorite_add_remove_duplicate(store, role):
     assert await store.get_guild(GUILD_ID) is None
 
 
-@pytest.mark.parametrize("text", INVALID_KEYS + [""], ids=[t[:24] for t in INVALID_KEYS + [""]])
+@pytest.mark.parametrize("text", INVALID_KEYS + [""], ids=[case_text[:24] for case_text in INVALID_KEYS + [""]])
 async def test_favorite_invalid_keys_save_nothing(memory_store, text):
     await memory_store.save_user(UserSettings(501, favorites=["GA GOV"]))
     reply = await invoke(
@@ -1208,10 +1211,10 @@ class _FailingStore(MemoryStore):
 )
 async def test_store_failure_propagates_to_the_tree_error_handler(command, kwargs):
     interaction = make_interaction(stand_in_client(_FailingStore()), "manage", command=command.name)
-    with pytest.raises(ConnectionError) as info:
+    with pytest.raises(ConnectionError) as error_info:
         await command.callback(interaction, **kwargs)
     assert interaction.sent == []  # nothing sent yet, so the handler can respond
-    await handle_app_command_error(interaction, info.value)
+    await handle_app_command_error(interaction, error_info.value)
     assert len(interaction.replies) == 1 and interaction.replies[0].ephemeral
     assert "secret" not in interaction.text
 
@@ -1454,13 +1457,17 @@ async def test_commands_with_a_real_election_bot():
 
 def test_command_parameter_ranges_match_logic_limits():
     """The Discord-side Range bounds must equal the logic-side validation bounds."""
-    params = {p.name: p for p in bot_discord.posting_command.parameters}
+    params = {parameter.name: parameter for parameter in bot_discord.posting_command.parameters}
     assert (params["minutes"].min_value, params["minutes"].max_value) == (1, 1440)
     assert not params["minutes"].required
-    params = {p.name: p for p in bot_discord.odds_alerts_command.parameters}
+    params = {parameter.name: parameter for parameter in bot_discord.odds_alerts_command.parameters}
     assert (params["threshold"].min_value, params["threshold"].max_value) == (0.1, 100.0)
     assert (params["window"].min_value, params["window"].max_value) == (1, 1440)
-    choices = {p.name: [c.value for c in p.choices] for p in bot_discord.posting_command.parameters if p.choices}
+    choices = {
+        parameter.name: [category.value for category in parameter.choices]
+        for parameter in bot_discord.posting_command.parameters
+        if parameter.choices
+    }
     assert choices == {"mode": ["default", "interval", "immediate"]}
     for command in (
         bot_discord.calls_command,
@@ -1468,9 +1475,9 @@ def test_command_parameter_ranges_match_logic_limits():
         bot_discord.turnout_command,
         bot_discord.exitpolls_command,
     ):
-        enabled = next(p for p in command.parameters if p.name == "enabled")
-        assert [c.value for c in enabled.choices] == ["on", "off"]
-    action = next(p for p in bot_discord.watch_command.parameters if p.name == "action")
-    assert [c.value for c in action.choices] == ["add", "remove", "list"]
-    action = next(p for p in bot_discord.favorite_command.parameters if p.name == "action")
-    assert [c.value for c in action.choices] == ["add", "remove"]
+        enabled = next(parameter for parameter in command.parameters if parameter.name == "enabled")
+        assert [category.value for category in enabled.choices] == ["on", "off"]
+    action = next(parameter for parameter in bot_discord.watch_command.parameters if parameter.name == "action")
+    assert [category.value for category in action.choices] == ["add", "remove", "list"]
+    action = next(parameter for parameter in bot_discord.favorite_command.parameters if parameter.name == "action")
+    assert [category.value for category in action.choices] == ["add", "remove"]

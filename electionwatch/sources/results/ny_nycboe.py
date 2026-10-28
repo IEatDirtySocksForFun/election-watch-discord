@@ -73,9 +73,9 @@ def _norm(name: str) -> str:
 
 def _district(name: str, kind: str) -> str | None:
     """'26th Senatorial District' -> '26' (district_from only knows 'Nth District' forms)."""
-    m = re.search(r"(\d{1,3})(?:ST|ND|RD|TH)\s+" + kind, name)
-    if m:
-        return f"{int(m.group(1)):02d}"
+    match = re.search(r"(\d{1,3})(?:ST|ND|RD|TH)\s+" + kind, name)
+    if match:
+        return f"{int(match.group(1)):02d}"
     return c.district_from(name)
 
 
@@ -85,38 +85,38 @@ def _clean_contest(name: str) -> str:
 
 def race_key(name: str) -> RaceKey:
     """Every contest gets a key; NYC city offices become NY LOCAL nyc-<race>."""
-    n = _norm(_clean_contest(name))
-    if "UNITED STATES SENATOR" in n:
+    office_name = _norm(_clean_contest(name))
+    if "UNITED STATES SENATOR" in office_name:
         return RaceKey("NY", Level.SENATE, "SEN")
-    if "REPRESENTATIVE IN CONGRESS" in n or "CONGRESSIONAL DISTRICT" in n:
-        district = _district(n, "CONGRESSIONAL")
+    if "REPRESENTATIVE IN CONGRESS" in office_name or "CONGRESSIONAL DISTRICT" in office_name:
+        district = _district(office_name, "CONGRESSIONAL")
         if district:
             return RaceKey("NY", Level.HOUSE, "HOUSE", district)
     # NY elects governor and lieutenant governor on one ticket: "Governor/Lieutenant Governor".
-    if n.startswith("GOVERNOR") or (n.endswith("GOVERNOR") and "LIEUTENANT" not in n):
+    if office_name.startswith("GOVERNOR") or (office_name.endswith("GOVERNOR") and "LIEUTENANT" not in office_name):
         return RaceKey("NY", Level.GOVERNOR, "GOV")
-    if "LIEUTENANT GOVERNOR" in n:
+    if "LIEUTENANT GOVERNOR" in office_name:
         return RaceKey("NY", Level.GOVERNOR, "LTGOV")
-    if "STATE SENATOR" in n or "SENATORIAL DISTRICT" in n:
-        district = _district(n, "SENATORIAL")
+    if "STATE SENATOR" in office_name or "SENATORIAL DISTRICT" in office_name:
+        district = _district(office_name, "SENATORIAL")
         if district:
             return RaceKey("NY", Level.STATE, "SD", district)
-    if "ASSEMBLY" in n:
-        district = _district(n, "ASSEMBLY")
+    if "ASSEMBLY" in office_name:
+        district = _district(office_name, "ASSEMBLY")
         if district:
             return RaceKey("NY", Level.STATE, "HD", district)
-    if "PRESIDENT" in n:
+    if "PRESIDENT" in office_name:
         return c.local_key("NY", "president-vice-president")
-    return c.local_key("NY", f"nyc-{n}")
+    return c.local_key("NY", f"nyc-{office_name}")
 
 
 def parse_index(html: str, date: str) -> list[dict]:
     """Pure parse of a vote.nyc results index -> [{county, contest, path}] for `date`."""
     stamp = date.replace("-", "")
-    out: list[dict] = []
+    entries: list[dict] = []
     seen: set[str] = set()
-    for m in _LINK.finditer(html or ""):
-        _year, link_date, stage, name = m.groups()
+    for match in _LINK.finditer(html or ""):
+        _year, link_date, stage, name = match.groups()
         if link_date != stamp:
             continue
         if stage and "general" not in stage.lower():
@@ -124,20 +124,20 @@ def parse_index(html: str, date: str) -> list[dict]:
         stem = _STEM.match(name.strip())
         if not stem:
             continue
-        path = m.group(0)
+        path = match.group(0)
         if path in seen:
             continue
         seen.add(path)
-        out.append({"county": stem.group(1), "contest": _clean_contest(stem.group(2)), "path": path})
-    return out
+        entries.append({"county": stem.group(1), "contest": _clean_contest(stem.group(2)), "path": path})
+    return entries
 
 
 def _split_party(label: str) -> tuple[str, str | None]:
     """'Kirsten E. Gillibrand (Democratic)' -> ('Kirsten E. Gillibrand', 'DEM')"""
-    m = re.match(r"^(.*?)\s*\(([^()]+)\)\s*$", label)
-    if not m:
+    match = re.match(r"^(.*?)\s*\(([^()]+)\)\s*$", label)
+    if not match:
         return label.strip(), None
-    name, party = m.group(1).strip(), m.group(2).strip()
+    name, party = match.group(1).strip(), match.group(2).strip()
     if party.lower().replace("-", "") in ("writein", "writein vote"):
         return f"{name} (Write-In)", "WRI"
     return name, c.norm_party(party)
@@ -172,7 +172,7 @@ def parse_recap(text: str, *, county: str, contest: str, fetched_at: datetime) -
             fetched_at,
             source=NyNycBoe.name,
             url=HUMAN,
-            total_votes=sum(x.votes for x in results),
+            total_votes=sum(candidate.votes for candidate in results),
         )
     ]
 
@@ -180,7 +180,7 @@ def parse_recap(text: str, *, county: str, contest: str, fetched_at: datetime) -
 def wanted(entry: dict, keys: list[RaceKey]) -> bool:
     """Does the index entry's contest match one of the subscribed race keys?"""
     key = race_key(entry["contest"])
-    return any(str(k) == str(key) for k in keys)
+    return any(str(wanted_key) == str(key) for wanted_key in keys)
 
 
 def select_entries(entries: list[dict], keys: list[RaceKey]) -> list[dict]:
@@ -192,7 +192,7 @@ def select_entries(entries: list[dict], keys: list[RaceKey]) -> list[dict]:
         grouped.setdefault(str(race_key(entry["contest"])), []).append(entry)
     picked: list[dict] = []
     for group in grouped.values():
-        citywide = [e for e in group if e["county"] == "Citywide"]
+        citywide = [city_entry for city_entry in group if city_entry["county"] == "Citywide"]
         picked.extend(citywide or group)
     return picked
 
@@ -227,7 +227,7 @@ class NyNycBoe(ResultsSource):
     enabled_by_default = False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "NY" for k in keys):
+        if not any(key.state == "NY" for key in keys):
             return []
         date = c.election_date()
         fetched_at = c.utcnow()
@@ -235,7 +235,7 @@ class NyNycBoe(ResultsSource):
         entries = select_entries(parse_index(html, date), keys)
         if not entries:
             raise SourceUnavailable(
-                f"ny_nycboe: no New York City recap files for {date} covering {', '.join(str(k) for k in keys)}"
+                f"ny_nycboe: no New York City recap files for {date} covering {', '.join(str(key) for key in keys)}"
             )
         gate = asyncio.Semaphore(4)
         results: list[RaceResult] = []
@@ -257,11 +257,11 @@ class NyNycBoe(ResultsSource):
             return []
         date = c.election_date()
         html = await _index_html(client, date[:4], str(c.utcnow().year))
-        out: list[tuple[RaceKey, str]] = []
+        found: list[tuple[RaceKey, str]] = []
         seen: set[str] = set()
         for entry in parse_index(html, date):
             key = race_key(entry["contest"])
             if str(key) not in seen:
                 seen.add(str(key))
-                out.append((key, _clean_contest(entry["contest"])))
-        return out
+                found.append((key, _clean_contest(entry["contest"])))
+        return found

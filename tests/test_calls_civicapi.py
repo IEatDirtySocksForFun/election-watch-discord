@@ -82,13 +82,13 @@ def test_race_key_edge_cases(row, expected):
 
 
 def test_parse_a_real_race():
-    result = parse_race(_load("race_tx_sen_2024.json"), 107793, TX_SEN, NOW)
-    assert result.source == "civicapi"
-    assert result.url == "https://civicapi.org/results/elections/107793"
-    assert result.expected_vote_pct == 100
-    cruz = result.candidates[0]
+    race_result = parse_race(_load("race_tx_sen_2024.json"), 107793, TX_SEN, NOW)
+    assert race_result.source == "civicapi"
+    assert race_result.url == "https://civicapi.org/results/elections/107793"
+    assert race_result.expected_vote_pct == 100
+    cruz = race_result.candidates[0]
     assert (cruz.name, cruz.party, cruz.votes, cruz.incumbent, cruz.winner) == ("Ted Cruz", "REP", 5990741, True, False)
-    assert result.total_votes == sum(c.votes for c in result.candidates)
+    assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
 
 
 def test_a_real_call():
@@ -98,7 +98,7 @@ def test_a_real_call():
 
 def test_test_data_is_never_a_result_or_a_call():
     race = _load("race_tx_sen_2026_test.json")
-    assert race["test_data"] is True and any(c["winner"] for c in race["candidates"])
+    assert race["test_data"] is True and any(candidate["winner"] for candidate in race["candidates"])
     assert parse_race(race, 87438, TX_SEN, NOW) is None
     assert parse_call(race, 87438, TX_SEN) is None
 
@@ -120,8 +120,8 @@ async def test_sources_share_one_request_per_race():
         results = await CivicAPIResultsSource(api).fetch([TX_SEN, parse("PA SEN")], client)
         calls = await CivicAPICallSource(api).fetch_calls([TX_SEN], client)
         races = await CivicAPIResultsSource(api).list_races("TX", client)
-    assert [r.key for r in results] == [TX_SEN]
-    assert [(c.outlet, c.winner) for c in calls] == [("CIVICAPI", "Ted Cruz")]
+    assert [race_result.key for race_result in results] == [TX_SEN]
+    assert [(call.outlet, call.winner) for call in calls] == [("CIVICAPI", "Ted Cruz")]
     assert search.call_count == 2  # TX (cached afterwards) and PA
     assert detail.call_count == 1  # results and calls share the cached race
     assert (TX_SEN, "Texas US Senate") in races
@@ -260,11 +260,11 @@ async def test_the_row_with_a_county_breakdown_wins_over_a_shadow_row():
 def test_zero_percent_reporting_with_votes_is_unknown():
     race = _load("race_tx_sen_2024.json") | {"percent_reporting": 0}
     assert parse_race(race, 107793, TX_SEN, NOW).expected_vote_pct is None
-    empty = race | {"candidates": [dict(c, votes=0) for c in race["candidates"]]}
+    empty = race | {"candidates": [dict(candidate, votes=0) for candidate in race["candidates"]]}
     assert parse_race(empty, 107793, TX_SEN, NOW).expected_vote_pct == 0
 
 
 def test_party_names_use_the_party_table():
     race = _load("race_tx_sen_2024.json")
-    parties = {c.name: c.party for c in parse_race(race, 107793, TX_SEN, NOW).candidates}
+    parties = {candidate.name: candidate.party for candidate in parse_race(race, 107793, TX_SEN, NOW).candidates}
     assert parties["Analisa Roche"] == "ASP"  # "American Solidarity"

@@ -32,7 +32,7 @@ class Source:
 
     @classmethod
     def available(cls) -> bool:
-        return all(os.environ.get(v) for v in cls.env)
+        return all(os.environ.get(var_name) for var_name in cls.env)
 
 
 class ResultsSource(Source):
@@ -101,6 +101,6 @@ def load_all() -> dict[str, dict[str, type[Source]]]:
 
     for sub in ("results", "calls", "odds", "exitpolls", "polls"):
         mod = importlib.import_module(f"{pkg.__name__}.{sub}")
-        for info in pkgutil.iter_modules(mod.__path__):
-            importlib.import_module(f"{mod.__name__}.{info.name}")
+        for module_info in pkgutil.iter_modules(mod.__path__):
+            importlib.import_module(f"{mod.__name__}.{module_info.name}")
     return REGISTRY

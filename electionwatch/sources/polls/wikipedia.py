@@ -109,9 +109,9 @@ def article_url(title: str) -> str:
 
 
 def _canon(name: str) -> str:
-    n = norm_space(name).replace("''", "")
-    n = re.sub(r"\s*\([^)]*\)\s*$", "", n)  # drop "(author, born 1960)" disambiguation
-    return n.casefold()
+    cleaned = norm_space(name).replace("''", "")
+    cleaned = re.sub(r"\s*\([^)]*\)\s*$", "", cleaned)  # drop "(author, born 1960)" disambiguation
+    return cleaned.casefold()
 
 
 _H2 = re.compile(r"^==\s*(?!=)(?P<title>.+?)\s*==\s*$", re.M)
@@ -177,7 +177,7 @@ def _children(node):
 
 
 def _row_cells(tr) -> list:
-    return [c for c in _children(tr) if c.tag in ("td", "th")]
+    return [cell for cell in _children(tr) if cell.tag in ("td", "th")]
 
 
 def _parse_table(
@@ -190,22 +190,22 @@ def _parse_table(
     header_cells: list = []
     for i, tr in enumerate(rows):
         cells = _row_cells(tr)
-        if cells and all(c.tag == "th" for c in cells):
+        if cells and all(cell.tag == "th" for cell in cells):
             header_at, header_cells = i, cells
             break
     if header_at is None:
         return []
-    headers = [norm_space(strip_refs(node_text(c))) for c in header_cells]
+    headers = [norm_space(strip_refs(node_text(cell))) for cell in header_cells]
     first = headers[0].casefold()
     if "poll source" not in first:
         return []  # aggregate-polls / predictions / results tables
     if "source of poll" in first:
         return []
 
-    candidate_cols = [i for i, h in enumerate(headers) if not _is_meta(h)]
+    candidate_cols = [i for i, header in enumerate(headers) if not _is_meta(header)]
     if not candidate_cols:
         return []
-    sample_col = next((i for i, h in enumerate(headers) if "sample" in h.casefold()), None)
+    sample_col = next((i for i, header in enumerate(headers) if "sample" in header.casefold()), None)
 
     polls: list[Poll] = []
     for tr in rows[header_at + 1 :]:
@@ -213,7 +213,7 @@ def _parse_table(
         if len(cells) != len(headers):
             continue  # separator row ("Republican primary runoff") or rowspan grouping
         raw_source = node_text(cells[0])
-        markers = {normalize_party(m) for m in re.findall(r"\((R|D)\)", raw_source)}
+        markers = {normalize_party(marker) for marker in re.findall(r"\((R|D)\)", raw_source)}
         # A "(D)"/"(R)" pair means a bipartisan poll pair (e.g. Beacon/Shaw): neither side.
         partisan = markers.pop() if len(markers) == 1 else None
         pollster, trailing = split_party_marker(re.sub(r"\s*\((?:R|D)\)", "", raw_source))
@@ -263,7 +263,7 @@ def parse_wikipedia_polls(html: str, wikitext: str, key: RaceKey, url: str) -> l
     by_name, by_last = candidate_parties(wikitext)
     tree = HTMLParser(html or "")
     nodes = list(tree.root.traverse()) if tree.root is not None else []
-    has_general = any(n.tag == "h2" and norm_space(n.text()).casefold() == "general election" for n in nodes)
+    has_general = any(node.tag == "h2" and norm_space(node.text()).casefold() == "general election" for node in nodes)
     polls: list[Poll] = []
     section: str | None = None
     for node in nodes:
@@ -277,7 +277,7 @@ def parse_wikipedia_polls(html: str, wikitext: str, key: RaceKey, url: str) -> l
         if "wikitable" not in (node.attributes.get("class") or ""):
             continue
         polls.extend(_parse_table(node, key, url, by_name, by_last))
-    polls.sort(key=lambda p: (p.end_date, p.pollster), reverse=True)
+    polls.sort(key=lambda poll: (poll.end_date, poll.pollster), reverse=True)
     return polls
 
 
@@ -311,11 +311,11 @@ class WikipediaPollSource(PollSource):
                     errors += 1
                     log.warning("wikipedia: %s HTTP %s", title, resp.status_code)
                     continue
-                data = resp.json()
-                if "error" in data:
-                    log.info("wikipedia: no article %r (%s)", title, data["error"].get("code"))
+                payload = resp.json()
+                if "error" in payload:
+                    log.info("wikipedia: no article %r (%s)", title, payload["error"].get("code"))
                     continue
-                page = data.get("parse") or {}
+                page = payload.get("parse") or {}
                 resolved = page.get("title") or title
                 polls.extend(
                     parse_wikipedia_polls(

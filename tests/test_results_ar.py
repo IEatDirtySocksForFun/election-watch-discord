@@ -23,14 +23,14 @@ def data(name="2024_general.json"):
 
 
 def by_key(name="2024_general.json"):
-    return {format_key(r.key): r for r in parse_ar(data(name), fetched_at=AT)}
+    return {format_key(race_result.key): race_result for race_result in parse_ar(data(name), fetched_at=AT)}
 
 
 def test_statewide_and_house_races():
     keys = by_key()
     pres = keys["AR LOCAL us-president"]
     assert pres.key.level is Level.LOCAL
-    tops = {c.name: c for c in pres.candidates}
+    tops = {candidate.name: candidate for candidate in pres.candidates}
     assert tops["Donald J. Trump/JD Vance"].votes == 760581
     assert tops["Donald J. Trump/JD Vance"].party == "REP"
     assert tops["Kamala D. Harris/Tim Walz"].party == "DEM"
@@ -43,7 +43,7 @@ def test_statewide_and_house_races():
     house = keys["AR-01"]
     assert house.key.level is Level.HOUSE
     assert house.title == "U.S. Congress District 01"
-    assert {c.name for c in house.candidates} >= {"Congressman Rick Crawford"}
+    assert {candidate.name for candidate in house.candidates} >= {"Congressman Rick Crawford"}
     assert house.candidates[0].pct is not None
 
 
@@ -51,13 +51,15 @@ def test_state_legislature_and_locals():
     keys = by_key()
     assert keys["AR SD-01"].key.level is Level.STATE
     assert keys["AR HD-01"].title == "State Representative District 01"
-    local = [k for k in keys if k.startswith("AR LOCAL j")]
+    local = [race_key for race_key in keys if race_key.startswith("AR LOCAL j")]
     assert local and keys[local[0]].key.office == "LOCAL"
 
 
 def test_unopposed_candidate_party_is_blank():
     keys = by_key()
-    blank = [c for r in keys.values() for c in r.candidates if c.party is None]
+    blank = [
+        candidate for race_result in keys.values() for candidate in race_result.candidates if candidate.party is None
+    ]
     assert blank, "expected at least one unlabelled candidate"
 
 

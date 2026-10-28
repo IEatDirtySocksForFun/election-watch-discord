@@ -11,12 +11,12 @@ AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
 def load():
-    with (FIX / "GE2024.csv").open(newline="", encoding="utf-8-sig") as f:
-        return list(csv.DictReader(f))
+    with (FIX / "GE2024.csv").open(newline="", encoding="utf-8-sig") as fh:
+        return list(csv.DictReader(fh))
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_federal_and_statewide_keys():
@@ -44,17 +44,17 @@ def test_local_keys():
 
 
 def test_senate_votes_and_party():
-    r = by_key(parse_de(load(), fetched_at=AT))["DE SEN"]
-    assert r.key.level is Level.SENATE
-    assert r.candidates[0].name == "Lisa Blunt Rochester"
-    assert r.candidates[0].party == "DEM"
-    assert r.candidates[0].votes == 283298
-    assert r.total_votes == sum(c.votes for c in r.candidates)
+    race_result = by_key(parse_de(load(), fetched_at=AT))["DE SEN"]
+    assert race_result.key.level is Level.SENATE
+    assert race_result.candidates[0].name == "Lisa Blunt Rochester"
+    assert race_result.candidates[0].party == "DEM"
+    assert race_result.candidates[0].votes == 283298
+    assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
 
 
 def test_source_updated_at_from_csv():
-    r = by_key(parse_de(load(), fetched_at=AT))["DE GOV"]
-    assert r.source_updated_at == datetime(2024, 11, 12, 12, 59, 37, tzinfo=timezone.utc)
+    race_result = by_key(parse_de(load(), fetched_at=AT))["DE GOV"]
+    assert race_result.source_updated_at == datetime(2024, 11, 12, 12, 59, 37, tzinfo=timezone.utc)
 
 
 def test_race_key_mapping():
@@ -141,4 +141,4 @@ async def test_fetch_parses_the_year_file(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
     async with httpx.AsyncClient(transport=transport) as client:
         results = await de_doe.DeDoe().fetch([RaceKey("DE", Level.SENATE, "SEN")], client)
-    assert [format_key(r.key) for r in results] == ["DE SEN"]
+    assert [format_key(race_result.key) for race_result in results] == ["DE SEN"]

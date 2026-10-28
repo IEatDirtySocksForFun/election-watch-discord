@@ -18,13 +18,13 @@ def test_party_primary_halves_are_skipped():
 
 
 def test_ballot_question_with_real_counts():
-    (r,) = parse_ks(page("2026_primary_constitutional.html"), fetched_at=AT)
-    assert format_key(r.key) == "KS LOCAL constitutional-amendment"
-    assert r.title == "Constitutional Amendment"
-    assert r.total_votes == 612155  # "Total Votes" row
-    assert r.precincts_reporting == r.precincts_total == 4150
-    assert r.expected_vote_pct == 100.0
-    no, yes = r.candidates
+    (race_result,) = parse_ks(page("2026_primary_constitutional.html"), fetched_at=AT)
+    assert format_key(race_result.key) == "KS LOCAL constitutional-amendment"
+    assert race_result.title == "Constitutional Amendment"
+    assert race_result.total_votes == 612155  # "Total Votes" row
+    assert race_result.precincts_reporting == race_result.precincts_total == 4150
+    assert race_result.expected_vote_pct == 100.0
+    no, yes = race_result.candidates
     assert no.name == 'Constitutional Amendment - "NO"'
     assert (no.votes, no.pct) == (375355, 61.0)
     assert (yes.votes, yes.pct) == (236800, 39.0)
@@ -32,19 +32,19 @@ def test_ballot_question_with_real_counts():
 
 
 def test_last_update_is_converted_to_utc():
-    (r,) = parse_ks(page("2026_primary_constitutional.html"), fetched_at=AT)
+    (race_result,) = parse_ks(page("2026_primary_constitutional.html"), fetched_at=AT)
     # <span id='time-stamp'>08/05/2026 4:25 AM</span> in America/Chicago
-    assert r.source_updated_at == datetime(2026, 8, 5, 9, 25, tzinfo=timezone.utc)
+    assert race_result.source_updated_at == datetime(2026, 8, 5, 9, 25, tzinfo=timezone.utc)
 
 
 def test_general_election_headings_parse():
     """The general-election pages carry the same blocks without the " (D)"/" (R)" suffix."""
     general = page("2026_primary_statewide.html").replace(" (D)</h3>", "</h3>").replace(" (R)</h3>", "</h3>")
-    got = {format_key(r.key): r for r in parse_ks(general, fetched_at=AT)}
+    got = {format_key(race_result.key): race_result for race_result in parse_ks(general, fetched_at=AT)}
     gov = got["KS GOV"]
     assert gov.key.level is Level.GOVERNOR
     assert gov.total_votes == 220451
-    assert [(c.name, c.votes) for c in gov.candidates] == [
+    assert [(candidate.name, candidate.votes) for candidate in gov.candidates] == [
         ("Cindy Holscher", 107077),
         ("Ethan Corson", 85567),
         ("Curt Skoog", 27807),

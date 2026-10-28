@@ -26,7 +26,7 @@ def parsed():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_wv_2024_feed_is_configured():
@@ -63,15 +63,15 @@ def test_votes_parties_winner_and_precincts():
 
     hd100 = got["WV HD-100"]
     assert hd100.precincts_total == 1 and hd100.precincts_reporting == 1
-    assert [c.party for c in hd100.candidates] == ["REP", "DEM"]
+    assert [candidate.party for candidate in hd100.candidates] == ["REP", "DEM"]
 
 
 def test_ballot_measure_and_nonpartisan_judge_are_local():
     got = by_key(parsed())
-    amendment = next(r for k, r in got.items() if "amendment-no-1" in k)
-    assert [c.name for c in amendment.candidates] == ["For", "Against"]
-    assert all(c.party is None for c in amendment.candidates)
-    judge = next(r for k, r in got.items() if "circuit-court-judge" in k)
+    amendment = next(race_result for race_key, race_result in got.items() if "amendment-no-1" in race_key)
+    assert [candidate.name for candidate in amendment.candidates] == ["For", "Against"]
+    assert all(candidate.party is None for candidate in amendment.candidates)
+    judge = next(race_result for race_key, race_result in got.items() if "circuit-court-judge" in race_key)
     assert judge.candidates[0].name == "Michael E. Froble"
     assert judge.precincts_reporting is None  # PR == 0 in the source
 
@@ -91,8 +91,8 @@ def test_fetch_uses_configured_wv_feed(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await clarity.Clarity().fetch([parse_key("WV GOV"), parse_key("WV HD-100")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await clarity.Clarity().fetch([parse_key("WV GOV"), parse_key("WV HD-100")], client)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"WV GOV", "WV HD-100"}
@@ -103,11 +103,11 @@ def test_2026_general_feed_is_not_published_yet(monkeypatch):
     """The 2026 primary feed (id 126209) is live; the general has no Clarity id yet."""
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
     monkeypatch.delenv("CLARITY_FEEDS", raising=False)
-    assert all(f["state"] != "WV" for f in clarity.feeds("2026-11-03"))
+    assert all(feed["state"] != "WV" for feed in clarity.feeds("2026-11-03"))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as c:
-            return await clarity.Clarity().fetch([parse_key("WV GOV")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as client:
+            return await clarity.Clarity().fetch([parse_key("WV GOV")], client)
 
     with pytest.raises(Exception, match="no feed configured"):
         asyncio.run(go())

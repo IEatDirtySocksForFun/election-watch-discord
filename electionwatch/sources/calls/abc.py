@@ -70,7 +70,7 @@ class ABCSource(CallSource):
                 continue
 
         requested = set(keys)
-        return [c for c in calls if c.key in requested]
+        return [call for call in calls if call.key in requested]
 
 
 def parse_abc_state_page(html: str) -> list[RaceCall]:
@@ -100,17 +100,17 @@ def extract_abc_config(html: str) -> dict:
         if pos >= 0:
             body = html[pos + len(marker) :].lstrip()
             try:
-                data, _ = json.JSONDecoder().raw_decode(body)
+                payload, _ = json.JSONDecoder().raw_decode(body)
             except ValueError as exc:
                 raise ValueError(f"abc widget config is not JSON: {exc}") from exc
-            if isinstance(data, dict):
-                return data
+            if isinstance(payload, dict):
+                return payload
     raise ValueError("abc widget config not found")
 
 
 def _race_call(race: dict, state: str, agg_key: str) -> RaceCall | None:
     chamber = (race.get("chamber") or "").lower()
-    winner = next((c for c in race.get("candidates") or [] if c.get("winner")), None)
+    winner = next((candidate for candidate in race.get("candidates") or [] if candidate.get("winner")), None)
     if winner is None:
         return None
     if chamber == "senate":

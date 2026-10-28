@@ -13,7 +13,7 @@ def _load():
 
 def test_parse_state_and_district_calls():
     calls = parse_nbc_results(_load())
-    by_key = {c.key: c for c in calls}
+    by_key = {call.key: call for call in calls}
 
     tx_sen = by_key[RaceKey("TX", Level.SENATE, "SEN")]
     assert tx_sen.winner == "Ted Cruz"
@@ -36,7 +36,7 @@ def test_uncalled_entries_are_skipped():
     payload = _load()
     payload["mapData"]["TX"]["tooltip"]["candidates"] = [{"name": "Ted Cruz", "party": "Rep", "isWinner": False}]
     calls = parse_nbc_results(payload)
-    assert all(c.key != RaceKey("TX", Level.SENATE, "SEN") for c in calls)
+    assert all(call.key != RaceKey("TX", Level.SENATE, "SEN") for call in calls)
 
 
 def test_unknown_office_is_ignored():

@@ -20,7 +20,7 @@ def parse():
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_federal_and_statewide_keys():
@@ -34,7 +34,7 @@ def test_federal_and_statewide_keys():
 def test_party_labels_are_normalised():
     got = by_key(parse())
     # Source sends "(Prefers Democratic Party)" / "(Prefers Republican Party)".
-    assert [c.party for c in got["WA SEN"].candidates] == ["DEM", "REP", None]
+    assert [candidate.party for candidate in got["WA SEN"].candidates] == ["DEM", "REP", None]
     assert got["WA GOV"].candidates[0].party == "DEM"
 
 
@@ -44,7 +44,7 @@ def test_votes_and_percentages():
     assert sen.candidates[0].name == "Maria Cantwell"
     assert sen.candidates[0].votes == 2252577
     assert sen.candidates[0].pct == 59.09  # source field, not recomputed
-    assert sen.total_votes == sum(c.votes for c in sen.candidates)
+    assert sen.total_votes == sum(candidate.votes for candidate in sen.candidates)
     assert got["WA LOCAL initiative-measure-no-2066"].candidates[0].name == "Yes"
 
 
@@ -75,10 +75,10 @@ def test_race_key_mapping():
 
 
 def test_no_precincts_or_winner_flags_in_export():
-    r = by_key(parse())["WA SEN"]
-    assert r.precincts_reporting is None and r.precincts_total is None
-    assert r.expected_vote_pct is None
-    assert not any(c.winner for c in r.candidates)
+    race_result = by_key(parse())["WA SEN"]
+    assert race_result.precincts_reporting is None and race_result.precincts_total is None
+    assert race_result.expected_vote_pct is None
+    assert not any(candidate.winner for candidate in race_result.candidates)
 
 
 def test_empty_and_bad_payloads():
@@ -98,8 +98,8 @@ def test_fetch_reads_date_folder(monkeypatch):
     from electionwatch.racekeys import parse as parse_key
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await wa_sos.WaSos().fetch([parse_key("WA SEN"), parse_key("WA-01")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await wa_sos.WaSos().fetch([parse_key("WA SEN"), parse_key("WA-01")], client)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"WA SEN", "WA-01"}
@@ -115,8 +115,8 @@ def test_fetch_reports_unavailable_before_publication(monkeypatch):
     from electionwatch.racekeys import parse as parse_key
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await wa_sos.WaSos().fetch([parse_key("WA SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await wa_sos.WaSos().fetch([parse_key("WA SEN")], client)
 
     with pytest.raises(SourceUnavailable, match="not published yet"):
         asyncio.run(go())

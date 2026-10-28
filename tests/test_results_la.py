@@ -19,30 +19,30 @@ def parse():
 
 
 def by_key():
-    return {format_key(r.key): r for r in parse()}
+    return {format_key(race_result.key): race_result for race_result in parse()}
 
 
 def test_presidential_electors_party_and_turnout():
-    r = by_key()["LA LOCAL presidential-electors"]
-    assert r.key.level is Level.LOCAL
-    trump = r.candidates[0]
+    race_result = by_key()["LA LOCAL presidential-electors"]
+    assert race_result.key.level is Level.LOCAL
+    trump = race_result.candidates[0]
     assert trump.name == 'Donald J. Trump, "JD" Vance'
     assert trump.party == "REP"
     assert trump.votes == 1208505
     assert trump.winner is True  # Outcome "Elected"
-    assert r.total_votes == 2021164  # VoterCountVoted, not the candidate sum
-    assert r.registered_voters == 3046376
-    assert r.precincts_reporting == r.precincts_total == 3805
-    assert r.expected_vote_pct == 100.0
+    assert race_result.total_votes == 2021164  # VoterCountVoted, not the candidate sum
+    assert race_result.registered_voters == 3046376
+    assert race_result.precincts_reporting == race_result.precincts_total == 3805
+    assert race_result.expected_vote_pct == 100.0
 
 
 def test_us_house_district_and_winner():
-    r = by_key()["LA-01"]
-    assert r.key.level is Level.HOUSE
-    assert r.key.district == "01"
-    assert r.candidates[0].name == "Steve Scalise"
-    assert r.candidates[0].votes == 238842
-    assert r.candidates[0].winner is True
+    race_result = by_key()["LA-01"]
+    assert race_result.key.level is Level.HOUSE
+    assert race_result.key.district == "01"
+    assert race_result.candidates[0].name == "Steve Scalise"
+    assert race_result.candidates[0].votes == 238842
+    assert race_result.candidates[0].winner is True
     assert "LA-03" in by_key()
 
 
@@ -59,7 +59,7 @@ def test_local_races_keep_a_stable_slug():
 
 def test_2026_feed_maps_senate_and_legislative_districts():
     parsed = parse_la(load("2026_general_races.json"), {}, fetched_at=AT)
-    keys = {format_key(r.key): r for r in parsed}
+    keys = {format_key(race_result.key): race_result for race_result in parsed}
     senate = keys["LA SEN"]
     assert senate.candidates[0].name == '"Jamie" Davis'
     assert senate.candidates[0].party == "DEM"

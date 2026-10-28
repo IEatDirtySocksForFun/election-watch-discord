@@ -99,7 +99,7 @@ current_source: contextvars.ContextVar[str | None] = contextvars.ContextVar("cur
 
 def parse_limits(raw: str) -> dict[str, Limit]:
     """ "civicapi.org=600/60,api.votehub.com=1000/3600" -> {host: Limit}. Bad parts are skipped."""
-    out: dict[str, Limit] = {}
+    by_host: dict[str, Limit] = {}
     for part in raw.split(","):
         host, sep, value = part.partition("=")
         count, slash, seconds = value.partition("/")
@@ -108,13 +108,13 @@ def parse_limits(raw: str) -> dict[str, Limit]:
         except ValueError:
             continue
         if sep and host.strip() and limit.requests > 0 and limit.seconds > 0:
-            out[host.strip().lower()] = limit
-    return out
+            by_host[host.strip().lower()] = limit
+    return by_host
 
 
 def parse_seconds(raw: str) -> dict[str, float]:
     """ "odds=120,polymarket=300" -> {name: seconds}. Bad or negative parts are skipped."""
-    out: dict[str, float] = {}
+    seconds_by_name: dict[str, float] = {}
     for part in raw.split(","):
         name, sep, value = part.partition("=")
         try:
@@ -122,8 +122,8 @@ def parse_seconds(raw: str) -> dict[str, float]:
         except ValueError:
             continue
         if sep and name.strip() and seconds >= 0:
-            out[name.strip()] = seconds
-    return out
+            seconds_by_name[name.strip()] = seconds
+    return seconds_by_name
 
 
 class RateBook:
@@ -137,7 +137,7 @@ class RateBook:
         intervals: Mapping[str, float] | None = None,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
-        self.limits = {k.lower(): v for k, v in {**HOST_LIMITS, **(limits or {})}.items()}
+        self.limits = {host.lower(): limit for host, limit in {**HOST_LIMITS, **(limits or {})}.items()}
         self.safety = max(1.0, float(safety))
         self.intervals = dict(intervals or {})
         self.clock = clock
@@ -329,7 +329,7 @@ class RateBook:
 
     def kind_interval(self, kind: str) -> float:
         """The shortest interval among the known sources of a kind (its floor if none yet)."""
-        names = [name for name, k in self._kind.items() if k == kind]
+        names = [name for name, source_kind in self._kind.items() if source_kind == kind]
         if not names:
             override = self.intervals.get(kind)
             return override if override is not None else FLOORS.get(kind, DEFAULT_FLOOR)
@@ -340,7 +340,7 @@ class RateBook:
         """One row per known source, for /limits."""
         rows = []
         demands = self._demands()
-        for name, kind in sorted(self._kind.items(), key=lambda item: (item[1], item[0])):
+        for name, kind in sorted(self._kind.items(), key=lambda source_row: (source_row[1], source_row[0])):
             cost = self._cost.get(name, Counter())
             rows.append(
                 {

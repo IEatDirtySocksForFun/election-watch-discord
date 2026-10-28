@@ -70,7 +70,7 @@ def parse_cnn_race(payload: dict) -> RaceCall | None:
     key = cnn_code_to_key(payload.get("ecKey", ""))
     if key is None:
         return None
-    winner = next((c for c in payload.get("candidates", []) if c.get("winner")), None)
+    winner = next((candidate for candidate in payload.get("candidates", []) if candidate.get("winner")), None)
     if winner is None:
         return None
     party = normalize_party(winner.get("majorParty") or winner.get("partyName") or payload.get("winnerBopPartyId"))

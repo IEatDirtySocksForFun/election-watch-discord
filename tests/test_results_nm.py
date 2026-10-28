@@ -14,7 +14,7 @@ def parse(name):
 
 
 def by_key():
-    return {format_key(r.key): r for r in parse("2026_general_federal.html")}
+    return {format_key(race_result.key): race_result for race_result in parse("2026_general_federal.html")}
 
 
 def test_federal_contests_before_polls_close():
@@ -22,7 +22,7 @@ def test_federal_contests_before_polls_close():
     assert set(got) == {"NM SEN", "NM-01", "NM-02", "NM-03"}
     senate = got["NM SEN"]
     assert senate.key.level is Level.SENATE
-    assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
+    assert [(candidate.name, candidate.party, candidate.votes) for candidate in senate.candidates] == [
         ("Ben R Lujan", "DEM", 0),
         ("Larry E Marker", "REP", 0),
     ]
@@ -41,7 +41,7 @@ def test_house_districts_and_precinct_counts():
 
 
 def test_legislative_districts():
-    got = {format_key(r.key): r for r in parse("2026_general_legislative.html")}
+    got = {format_key(race_result.key): race_result for race_result in parse("2026_general_legislative.html")}
     assert set(got) == {"NM HD-01", "NM HD-02", "NM HD-03"}
     assert got["NM HD-01"].key.level is Level.STATE
     assert got["NM HD-01"].key.office == "HD"

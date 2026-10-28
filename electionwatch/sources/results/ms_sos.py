@@ -72,9 +72,9 @@ _ELECTORS = re.compile(r"^Presidential Electors for (.+?) for President and (.+?
 def _candidate_name(office: str, name: str) -> str:
     """Slates arrive as elector prose; keep the ticket as 'President / Vice President'."""
     if office.upper().startswith("UNITED STATES-PRESIDENT"):
-        m = _ELECTORS.match(name)
-        if m:
-            return f"{m.group(1).strip()} / {m.group(2).strip()}"
+        match = _ELECTORS.match(name)
+        if match:
+            return f"{match.group(1).strip()} / {match.group(2).strip()}"
     return name
 
 
@@ -84,38 +84,38 @@ def _norm(text: str) -> str:
 
 def _office_district(name: str) -> str | None:
     """'US House Of Rep 01-1st Congressional District' -> '01'."""
-    m = re.search(r"\b(?:REP|REPRESENTATIVES?|SENATE|HOUSE)\s*(\d{1,3})\b", name)
-    if not m:
-        m = re.search(r"\bDISTRICT\s*(\d{1,3})\b", name)
-    return f"{int(m.group(1)):02d}" if m else None
+    match = re.search(r"\b(?:REP|REPRESENTATIVES?|SENATE|HOUSE)\s*(\d{1,3})\b", name)
+    if not match:
+        match = re.search(r"\bDISTRICT\s*(\d{1,3})\b", name)
+    return f"{int(match.group(1)):02d}" if match else None
 
 
 def race_key(office: str) -> RaceKey:
     """Map a Mississippi office column to a RaceKey."""
-    n = _norm(office)
-    special = c.is_special(n)
-    if n.startswith("UNITED STATES-PRESIDENT"):
+    office_name = _norm(office)
+    special = c.is_special(office_name)
+    if office_name.startswith("UNITED STATES-PRESIDENT"):
         return RaceKey("MS", Level.LOCAL, "LOCAL", "us-president")
-    if n.startswith("UNITED STATES-SENATE"):
+    if office_name.startswith("UNITED STATES-SENATE"):
         return RaceKey("MS", Level.SENATE, "SEN", None, special)
-    m = re.match(r"^US HOUSE OF REP", n)
-    if m:
-        return RaceKey("MS", Level.HOUSE, "HOUSE", _office_district(n) or "00", special)
-    m = re.match(r"^STATE SENATE", n)
-    if m:
-        return RaceKey("MS", Level.STATE, "SD", _office_district(n) or "00", special)
-    m = re.match(r"^STATE (?:HOUSE|REP)", n)
-    if m:
-        return RaceKey("MS", Level.STATE, "HD", _office_district(n) or "00", special)
+    match = re.match(r"^US HOUSE OF REP", office_name)
+    if match:
+        return RaceKey("MS", Level.HOUSE, "HOUSE", _office_district(office_name) or "00", special)
+    match = re.match(r"^STATE SENATE", office_name)
+    if match:
+        return RaceKey("MS", Level.STATE, "SD", _office_district(office_name) or "00", special)
+    match = re.match(r"^STATE (?:HOUSE|REP)", office_name)
+    if match:
+        return RaceKey("MS", Level.STATE, "HD", _office_district(office_name) or "00", special)
     for title, code in _STATEWIDE:
-        if title in n:
+        if title in office_name:
             return RaceKey("MS", Level.GOVERNOR, code, None, special)
-    return c.local_key("MS", n)
+    return c.local_key("MS", office_name)
 
 
 def parse_ms(text: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of the statewide recap CSV."""
-    rows = [r for r in csv.DictReader(io.StringIO(text or "")) if r.get("Office")]
+    rows = [record for record in csv.DictReader(io.StringIO(text or "")) if record.get("Office")]
     by_office: dict[str, dict[tuple[str, str], int]] = {}
     for row in rows:
         office = str(row.get("Office") or "").strip()
@@ -128,7 +128,7 @@ def parse_ms(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         key = (_candidate_name(office, name), party)
         bucket[key] = max(bucket.get(key, 0), votes)
 
-    out: list[RaceResult] = []
+    results: list[RaceResult] = []
     seen: set[str] = set()
     for office, tally in by_office.items():
         key = race_key(office)
@@ -138,7 +138,7 @@ def parse_ms(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(
+        results.append(
             c.make_result(
                 key,
                 office,
@@ -146,15 +146,15 @@ def parse_ms(text: str, *, fetched_at: datetime) -> list[RaceResult]:
                 fetched_at,
                 source=MsSos.name,
                 url=HUMAN,
-                total_votes=sum(x.votes for x in cands),
+                total_votes=sum(candidate.votes for candidate in cands),
             )
         )
-    return out
+    return results
 
 
 def _csv_name_from_page(html: str) -> str | None:
-    m = _CSV_LINK.search(html or "")
-    return m.group(1).rsplit("/", 1)[-1] if m else None
+    match = _CSV_LINK.search(html or "")
+    return match.group(1).rsplit("/", 1)[-1] if match else None
 
 
 async def _feed(client: httpx.AsyncClient, date: str) -> str:
@@ -178,13 +178,16 @@ class MsSos(ResultsSource):
     scrape = False  # the results themselves are a CSV file; only discovery reads HTML
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
-        if not any(k.state == "MS" for k in keys):
+        if not any(key.state == "MS" for key in keys):
             return []
         text = await c.get_text(client, await _feed(client, c.election_date()))
-        return c.select(parse_ms(text, fetched_at=c.utcnow()), [k for k in keys if k.state == "MS"])
+        return c.select(parse_ms(text, fetched_at=c.utcnow()), [key for key in keys if key.state == "MS"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "MS":
             return []
         text = await c.get_text(client, await _feed(client, c.election_date()))
-        return [(r.key, r.title or str(r.key)) for r in parse_ms(text, fetched_at=c.utcnow())]
+        return [
+            (race_result.key, race_result.title or str(race_result.key))
+            for race_result in parse_ms(text, fetched_at=c.utcnow())
+        ]

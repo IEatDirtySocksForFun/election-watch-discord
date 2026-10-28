@@ -11,12 +11,12 @@ AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
 def load():
-    with (FIX / "2024-general.csv").open(newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+    with (FIX / "2024-general.csv").open(newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def test_federal_keys():
@@ -33,23 +33,23 @@ def test_state_legislature_keys():
 
 
 def test_write_in_candidates_included():
-    r = by_key(parse_ct(load(), fetched_at=AT))["CT LOCAL us-president"]
-    assert any(c.party == "WRI" for c in r.candidates)
+    race_result = by_key(parse_ct(load(), fetched_at=AT))["CT LOCAL us-president"]
+    assert any(candidate.party == "WRI" for candidate in race_result.candidates)
 
 
 def test_president_aggregated_votes():
-    r = by_key(parse_ct(load(), fetched_at=AT))["CT LOCAL us-president"]
-    assert r.key.level is Level.LOCAL
-    assert r.candidates[0].name == "Kamala Harris and Tim Walz"
-    assert r.candidates[0].party == "DEM"
-    assert r.candidates[0].votes == 1748399
-    assert r.total_votes == sum(c.votes for c in r.candidates)
+    race_result = by_key(parse_ct(load(), fetched_at=AT))["CT LOCAL us-president"]
+    assert race_result.key.level is Level.LOCAL
+    assert race_result.candidates[0].name == "Kamala Harris and Tim Walz"
+    assert race_result.candidates[0].party == "DEM"
+    assert race_result.candidates[0].votes == 1748399
+    assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
 
 
 def test_us_house_district_padded():
-    r = by_key(parse_ct(load(), fetched_at=AT))["CT-01"]
-    assert r.key.level is Level.HOUSE
-    assert r.key.district == "01"
+    race_result = by_key(parse_ct(load(), fetched_at=AT))["CT-01"]
+    assert race_result.key.level is Level.HOUSE
+    assert race_result.key.district == "01"
 
 
 def test_race_key_mapping():
@@ -81,4 +81,4 @@ def test_primary_rows_in_the_year_search_do_not_claim_the_general_key():
     ]
     at = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
     (gov,) = parse_ct(rows, fetched_at=at, date="2026-11-03")
-    assert [c.name for c in gov.candidates] == ["General Winner"]
+    assert [candidate.name for candidate in gov.candidates] == ["General Winner"]

@@ -30,16 +30,18 @@ def test_congressional_page():
     assert format_key(race.key) == "ID-01"
     assert race.key.level is Level.HOUSE
     assert race.title == "District 1 US Representative"
-    names = {c.name: c for c in race.candidates}
+    names = {candidate.name: candidate for candidate in race.candidates}
     assert names["Russ Fulcher"].party == "REP"
     assert names["Russ Fulcher"].votes == 331049
     assert names["Kaylee Peterson"].votes == 118656
-    assert race.total_votes == sum(c.votes for c in race.candidates)
+    assert race.total_votes == sum(candidate.votes for candidate in race.candidates)
     assert names["Russ Fulcher"].pct > 70
 
 
 def test_legislative_page_seats():
-    races = {format_key(r.key): r for r in parse_id(load("legislative.html"), fetched_at=AT)}
+    races = {
+        format_key(race_result.key): race_result for race_result in parse_id(load("legislative.html"), fetched_at=AT)
+    }
     senate = races["ID SD-01"]
     assert senate.key.level is Level.STATE
     assert senate.title == "District 1 Senator"
@@ -59,7 +61,7 @@ def test_archive_index_urls():
 
 def test_page_links_from_index():
     links = page_links(load("index.html"), "https://archive.voteidaho.gov/results/2024/general/index.html")
-    names = [n for n, _ in links]
+    names = [name for name, _ in links]
     assert "congressional.html" in names and "legislative.html" in names
     assert not {"county.html", "measures.html", "turnout.html", "xml.html"} & set(names)
     urls = dict(links)
@@ -109,4 +111,4 @@ def test_write_in_rows_are_skipped():
         '"TotalVotes":[1200,7]}}}}}</script>'
     )
     races = parse_id(page, fetched_at=AT)
-    assert [c.name for c in races[0].candidates] == ["Ann Lee"]
+    assert [candidate.name for candidate in races[0].candidates] == ["Ann Lee"]

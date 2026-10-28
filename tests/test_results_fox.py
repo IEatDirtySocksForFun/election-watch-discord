@@ -40,7 +40,8 @@ def test_parse_senate_result():
 
 def test_parse_house_result():
     results = {
-        r.key: r for r in parse_fox_results(_load("2024-tx-house.json"), "TX", Level.HOUSE, 2024, fetched_at=NOW)
+        race_result.key: race_result
+        for race_result in parse_fox_results(_load("2024-tx-house.json"), "TX", Level.HOUSE, 2024, fetched_at=NOW)
     }
     house = results[TX_38]
     assert house.title == "U.S. House District 38"
@@ -66,7 +67,7 @@ async def test_fetch_filters_to_requested_keys():
     route = respx.get(url).mock(return_value=httpx.Response(200, json=_load("2024-tx-senate.json")))
     async with httpx.AsyncClient() as client:
         results = await FOXResultsSource().fetch([TX_SEN], client)
-    assert [r.key for r in results] == [TX_SEN]
+    assert [race_result.key for race_result in results] == [TX_SEN]
     assert route.called
 
 

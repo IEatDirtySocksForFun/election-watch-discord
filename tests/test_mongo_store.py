@@ -74,7 +74,11 @@ class FakeCollection:
     async def aggregate(self, pipeline):
         """The one pipeline MongoStore.latest_odds sends: $match, $sort ts desc, $group $first."""
         match, _sort, group = pipeline
-        docs = sorted((d for d in self.docs if _match(d, match["$match"])), key=lambda d: d["ts"], reverse=True)
+        docs = sorted(
+            (document for document in self.docs if _match(document, match["$match"])),
+            key=lambda document: document["ts"],
+            reverse=True,
+        )
         assert _sort["$sort"] == {"market": 1, "outcome": 1, "ts": -1}
         first: dict = {}
         for doc in docs:
@@ -114,8 +118,8 @@ class FakeDatabase:
         self.name = name
         self.collections: dict[str, FakeCollection] = {}
 
-    def __getattr__(self, item: str) -> FakeCollection:
-        return self.collections.setdefault(item, FakeCollection())
+    def __getattr__(self, collection_name: str) -> FakeCollection:
+        return self.collections.setdefault(collection_name, FakeCollection())
 
 
 class FakeMongoClient:
@@ -271,7 +275,7 @@ async def test_latest_odds_is_the_newest_snapshot_per_market_and_outcome(store):
         await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", prob, NOW + timedelta(minutes=minutes)))
     await store.add_odds(OddsSnapshot(KEY, "polymarket", "REP", 0.7, NOW))
     await store.add_odds(OddsSnapshot(parse("GA SEN"), "kalshi", "REP", 0.1, NOW))
-    latest = {(s.market, s.outcome): s.prob for s in await store.latest_odds(KEY)}
+    latest = {(snapshot.market, snapshot.outcome): snapshot.prob for snapshot in await store.latest_odds(KEY)}
     assert latest == {("kalshi", "REP"): 0.6, ("polymarket", "REP"): 0.7}
     assert await store.latest_odds(parse("NV SEN")) == []
 
@@ -281,8 +285,8 @@ async def test_cached_pages_round_trip_by_kind(store):
     await store.put_cached("polls", "TX SEN|votehub", "[]", NOW)
     await store.put_cached("polls", "TX SEN|votehub", '[{"a": 1}]', NOW + timedelta(minutes=30))
     await store.put_cached("earlyvote", "https://civicapi.org/x", "null", NOW)
-    at, data = await store.get_cached("polls", "TX SEN|votehub")
-    assert (at, data) == (NOW + timedelta(minutes=30), '[{"a": 1}]')
+    at, payload = await store.get_cached("polls", "TX SEN|votehub")
+    assert (at, payload) == (NOW + timedelta(minutes=30), '[{"a": 1}]')
     assert await store.cached_idents("polls") == {"TX SEN|votehub": NOW + timedelta(minutes=30)}
     assert list(await store.cached_idents("earlyvote")) == ["https://civicapi.org/x"]
 

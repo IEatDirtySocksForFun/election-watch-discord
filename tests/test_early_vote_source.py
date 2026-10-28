@@ -42,7 +42,7 @@ class Clock:
 
 
 def _national():
-    return parse_national({c: load(f"us_{c}.json") for c in CATEGORIES})
+    return parse_national({category: load(f"us_{category}.json") for category in CATEGORIES})
 
 
 # --------------------------------------------------------------------------- parsers
@@ -76,7 +76,9 @@ def test_national_matches_the_state_endpoint_total():
 
 def test_counties_demographics_and_capabilities():
     counties = parse_counties(load("nc_inperson.json"))
-    assert counties["Wake"] == sum(v["votes"] for v in load("nc_inperson.json")["regions"]["Wake"].values())
+    assert counties["Wake"] == sum(
+        party_votes["votes"] for party_votes in load("nc_inperson.json")["regions"]["Wake"].values()
+    )
     assert len(counties) == 6
     age = parse_demographics(load("ga_inperson_demographics_age_range.json"))
     assert list(age) == ["Age 18 - 25", "Age 26 - 40", "Age 41 - 65", "Age Over 65"]
@@ -102,7 +104,7 @@ def test_breakdown_tolerates_junk(raw):
 
 
 def test_election_days_and_comparison_dates():
-    assert [election_day(y) for y in (2020, 2022, 2024, 2026)] == [
+    assert [election_day(year) for year in (2020, 2022, 2024, 2026)] == [
         date(2020, 11, 3),
         date(2022, 11, 8),
         date(2024, 11, 5),
@@ -146,8 +148,10 @@ async def test_state_without_data_is_none():
 async def test_answers_are_cached_and_expire():
     clock = Clock()
     routes = {
-        c: respx.get(f"{API}/US/{c}").mock(return_value=httpx.Response(200, json=load(f"us_{c}.json")))
-        for c in CATEGORIES
+        category: respx.get(f"{API}/US/{category}").mock(
+            return_value=httpx.Response(200, json=load(f"us_{category}.json"))
+        )
+        for category in CATEGORIES
     }
     async with httpx.AsyncClient() as http:
         client = EarlyVoteClient(http, clock=clock, sleep=clock.sleep, ttl=600)
@@ -165,8 +169,8 @@ async def test_answers_are_cached_and_expire():
 @respx.mock
 async def test_requests_are_spaced_one_at_a_time_with_a_descriptive_user_agent():
     clock = Clock()
-    for c in CATEGORIES:
-        respx.get(f"{API}/US/{c}").mock(return_value=httpx.Response(200, json=load(f"us_{c}.json")))
+    for category in CATEGORIES:
+        respx.get(f"{API}/US/{category}").mock(return_value=httpx.Response(200, json=load(f"us_{category}.json")))
     async with httpx.AsyncClient() as http:
         client = EarlyVoteClient(http, clock=clock, sleep=clock.sleep, min_interval=1.0)
         await asyncio.gather(client.national(), client.national())  # concurrent callers share the cache
@@ -222,8 +226,10 @@ async def test_failures_raise_source_unavailable_and_are_not_cached(response):
                 await client.state("NC")
             assert mocked.call_count == 2  # the failure was not cached
             mocked.mock(return_value=httpx.Response(200, json=load("us_returned.json")))
-            for c in ("requested", "inperson", "grace"):
-                respx.get(f"{API}/US/{c}").mock(return_value=httpx.Response(200, json=load(f"us_{c}.json")))
+            for category in ("requested", "inperson", "grace"):
+                respx.get(f"{API}/US/{category}").mock(
+                    return_value=httpx.Response(200, json=load(f"us_{category}.json"))
+                )
             assert "NC" in (await client.national()).states
 
 
@@ -244,7 +250,7 @@ async def test_states_with_data_times_out_and_keeps_warming():
 
 
 async def test_states_with_data_is_none_when_civicapi_is_down():
-    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(503))) as http:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(503))) as http:
         assert await EarlyVoteClient(http, min_interval=0).states_with_data(timeout=1) is None
 
 

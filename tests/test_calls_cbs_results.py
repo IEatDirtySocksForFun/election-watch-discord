@@ -23,7 +23,7 @@ def _payload():
 
 
 def test_parse_senate_result():
-    results = {r.key: r for r in parse_cbs_results(_payload(), fetched_at=NOW)}
+    results = {race_result.key: race_result for race_result in parse_cbs_results(_payload(), fetched_at=NOW)}
     sen = results[TX_SEN]
     assert sen.source == "cbs_results"
     assert sen.total_votes == 11291854
@@ -39,7 +39,7 @@ def test_parse_senate_result():
 
 
 def test_parse_house_result():
-    results = {r.key: r for r in parse_cbs_results(_payload(), fetched_at=NOW)}
+    results = {race_result.key: race_result for race_result in parse_cbs_results(_payload(), fetched_at=NOW)}
     house = results[TX_38]
     assert house.title == "U.S. House District 38"
     assert house.candidates[0].votes == 215030
@@ -66,7 +66,7 @@ async def test_fetch_filters_to_requested_keys():
     )
     async with httpx.AsyncClient() as client:
         results = await CBSResultsSource().fetch([TX_SEN], client)
-    assert [r.key for r in results] == [TX_SEN]
+    assert [race_result.key for race_result in results] == [TX_SEN]
     assert route.calls[0].request.url.params["filter.officeCode"] == "S"
     assert route.calls[0].request.url.params["filter.state"] == "TX"
 

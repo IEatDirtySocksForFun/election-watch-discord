@@ -18,7 +18,7 @@ CD10 = "Representative in Congress 10th Congressional District"
 
 
 def by_key(results):
-    return {format_key(r.key): r for r in results}
+    return {format_key(race_result.key): race_result for race_result in results}
 
 
 def recap(name, county, contest):
@@ -39,27 +39,27 @@ def merged():
 def test_senate_totals_come_from_the_total_for_block():
     sen = merged()["NY SEN"]
     assert sen.key.level is Level.SENATE
-    cands = {c.name: (c.party, c.votes) for c in sen.candidates}
+    cands = {candidate.name: (candidate.party, candidate.votes) for candidate in sen.candidates}
     assert cands["Kirsten E. Gillibrand"] == ("DEM", 1919931)
     assert cands["Michael D. Sapraicone"] == ("REP", 734629)
     assert sen.title == "United States Senator (partial: 1 counties)"
 
 
 def test_machine_category_rows_are_not_candidates():
-    names = {c.name for c in merged()["NY SEN"].candidates}
+    names = {candidate.name for candidate in merged()["NY SEN"].candidates}
     assert not names & {"Public Counter", "Absentee / Military", "Affidavit", "Federal"}
 
 
 def test_two_borough_files_add_up_to_one_race():
     cd10 = merged()["NY-10"]
     assert cd10.key.level is Level.HOUSE and cd10.key.district == "10"
-    assert {c.name: c.votes for c in cd10.candidates}["Daniel Goldman"] == 93606 + 112600
+    assert {candidate.name: candidate.votes for candidate in cd10.candidates}["Daniel Goldman"] == 93606 + 112600
     assert cd10.title.endswith("(partial: 2 counties)")
-    assert cd10.total_votes == sum(c.votes for c in cd10.candidates)
+    assert cd10.total_votes == sum(candidate.votes for candidate in cd10.candidates)
 
 
 def test_write_ins_keep_their_marker():
-    cands = {c.name: c.party for c in merged()["NY-10"].candidates}
+    cands = {candidate.name: candidate.party for candidate in merged()["NY-10"].candidates}
     assert cands["ADAM GAZA (Write-In)"] == "WRI"
 
 
@@ -72,7 +72,7 @@ def test_index_parsing_filters_date_and_stage():
       <a href="/sites/default/files/pdf/election_results/2022/20221108General Election/00000800000Citywide United States Senator Citywide Recap.csv">Recap</a>
     """
     entries = ny_nycboe.parse_index(html, "2024-11-05")
-    assert [(e["county"], e["contest"]) for e in entries] == [
+    assert [(entry["county"], entry["contest"]) for entry in entries] == [
         ("Citywide", "United States Senator"),
         ("New York", "Representative in Congress 10th Congressional District"),
     ]
@@ -91,7 +91,7 @@ def test_selection_prefers_citywide_and_matches_keys():
     picked = ny_nycboe.select_entries(entries, [parse("NY SEN")])
     assert len(picked) == 1 and picked[0]["county"] == "Citywide"
     both = ny_nycboe.select_entries(entries, [parse("NY-10")])
-    assert [e["county"] for e in both] == ["New York", "Kings"]
+    assert [entry["county"] for entry in both] == ["New York", "Kings"]
 
 
 def test_it_is_marked_as_a_scrape_and_off_by_default():
@@ -135,8 +135,8 @@ def test_fetch_downloads_only_matching_contests(monkeypatch):
         return httpx.Response(404)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await ny_nycboe.NyNycBoe().fetch([parse("NY SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await ny_nycboe.NyNycBoe().fetch([parse("NY SEN")], client)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"NY SEN"}
@@ -150,8 +150,8 @@ def test_fetch_raises_when_nothing_is_published(monkeypatch):
         return httpx.Response(200, text="<html><body>no results</body></html>")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            await ny_nycboe.NyNycBoe().fetch([parse("NY SEN")], c)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            await ny_nycboe.NyNycBoe().fetch([parse("NY SEN")], client)
 
     with pytest.raises(SourceUnavailable):
         asyncio.run(go())
