@@ -13,6 +13,7 @@ lists its candidates) because the poll columns themselves only name people.
 
 It is a table scrape of a wiki page, so the adapter is disabled by default.
 """
+
 from __future__ import annotations
 
 import logging
@@ -69,9 +70,20 @@ _SECTION_PARTY = {
 
 # Poll-table columns that are not candidates.
 _META_COLUMNS = (
-    "poll source", "source of poll", "date(s)", "dates administered", "date",
-    "sample", "margin", "lead", "spread", "other", "others", "undecided",
-    "unsure", "difference",
+    "poll source",
+    "source of poll",
+    "date(s)",
+    "dates administered",
+    "date",
+    "sample",
+    "margin",
+    "lead",
+    "spread",
+    "other",
+    "others",
+    "undecided",
+    "unsure",
+    "difference",
 )
 
 
@@ -168,8 +180,9 @@ def _row_cells(tr) -> list:
     return [c for c in _children(tr) if c.tag in ("td", "th")]
 
 
-def _parse_table(table, key: RaceKey, url: str,
-                 by_name: dict[str, str], by_last: dict[str, tuple[str, int]]) -> list[Poll]:
+def _parse_table(
+    table, key: RaceKey, url: str, by_name: dict[str, str], by_last: dict[str, tuple[str, int]]
+) -> list[Poll]:
     rows = table.css("tr")
     if not rows:
         return []
@@ -195,7 +208,7 @@ def _parse_table(table, key: RaceKey, url: str,
     sample_col = next((i for i, h in enumerate(headers) if "sample" in h.casefold()), None)
 
     polls: list[Poll] = []
-    for tr in rows[header_at + 1:]:
+    for tr in rows[header_at + 1 :]:
         cells = _row_cells(tr)
         if len(cells) != len(headers):
             continue  # separator row ("Republican primary runoff") or rowspan grouping
@@ -224,9 +237,7 @@ def _parse_table(table, key: RaceKey, url: str,
             if not name:
                 continue
             party = header_marker or _party_for(name, by_name, by_last)
-            results.append(
-                PollResult(name=name, party=normalize_party(party), pct=pct)
-            )
+            results.append(PollResult(name=name, party=normalize_party(party), pct=pct))
         if len(results) < 2:
             continue  # a one-candidate "poll" is a table artefact, not a poll
         polls.append(
@@ -252,9 +263,7 @@ def parse_wikipedia_polls(html: str, wikitext: str, key: RaceKey, url: str) -> l
     by_name, by_last = candidate_parties(wikitext)
     tree = HTMLParser(html or "")
     nodes = list(tree.root.traverse()) if tree.root is not None else []
-    has_general = any(
-        n.tag == "h2" and norm_space(n.text()).casefold() == "general election" for n in nodes
-    )
+    has_general = any(n.tag == "h2" and norm_space(n.text()).casefold() == "general election" for n in nodes)
     polls: list[Poll] = []
     section: str | None = None
     for node in nodes:

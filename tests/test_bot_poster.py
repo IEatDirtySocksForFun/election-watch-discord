@@ -9,7 +9,11 @@ from electionwatch.poster import Post
 
 @pytest.mark.parametrize(
     ("line", "expected"),
-    [("🔴 Republican", discord.Color.red()), ("🔵 Democrat", discord.Color.blue()), ("Other", discord.Color.light_gray())],
+    [
+        ("🔴 Republican", discord.Color.red()),
+        ("🔵 Democrat", discord.Color.blue()),
+        ("Other", discord.Color.light_gray()),
+    ],
 )
 def test_embed_colour_and_content(line, expected):
     embed = render_embed(Post("results", "TX SEN", "Texas Senate", [line], footer="Source: test"))

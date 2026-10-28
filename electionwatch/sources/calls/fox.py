@@ -10,6 +10,7 @@ no documented API, so ``scrape=True`` and disabled by default.
 Senate/Governor payloads carry ``results[].candidate.isWinner``. House payloads
 carry ``races[].district.districtNumber`` and ``races[].results[].isWinner``.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -17,10 +18,10 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
 from ._common import district_key, normalize_party, parse_iso_ts
 
@@ -47,14 +48,9 @@ class FOXSource(CallSource):
         if office is None:
             return None
         level = "state_level_results" if key.level is Level.HOUSE else "county_level_results"
-        return (
-            f"{self.BASE}/{self.YEAR}/3/{self.YEAR}_Generals/"
-            f"{office}/{key.state}/{level}/file.json"
-        )
+        return f"{self.BASE}/{self.YEAR}/3/{self.YEAR}_Generals/{office}/{key.state}/{level}/file.json"
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         calls: list[RaceCall] = []
         seen: set[str] = set()
         for key in keys:
@@ -82,9 +78,7 @@ class FOXSource(CallSource):
         return [c for c in calls if c.key in requested]
 
 
-def parse_fox_state(
-    payload: dict, state: str, level: Level, year: str | int = ""
-) -> list[RaceCall]:
+def parse_fox_state(payload: dict, state: str, level: Level, year: str | int = "") -> list[RaceCall]:
     """Parse one Fox state-level feed into RaceCall rows."""
     called_at = parse_iso_ts(payload.get("last_updated")) or datetime.now(timezone.utc)
     calls: list[RaceCall] = []
@@ -115,11 +109,7 @@ def parse_fox_state(
     winner = _fox_winner(payload.get("results") or [])
     if winner is None:
         return calls
-    key = (
-        RaceKey(state, Level.SENATE, "SEN")
-        if level is Level.SENATE
-        else RaceKey(state, Level.GOVERNOR, "GOV")
-    )
+    key = RaceKey(state, Level.SENATE, "SEN") if level is Level.SENATE else RaceKey(state, Level.GOVERNOR, "GOV")
     calls.append(
         RaceCall(
             key=key,
@@ -138,9 +128,7 @@ def _fox_winner(results: list) -> tuple[str, str | None] | None:
         # Senate/Governor nest isWinner in candidate; House puts it alongside.
         candidate = entry.get("candidate") or {}
         if entry.get("isWinner") or candidate.get("isWinner"):
-            name = " ".join(
-                p for p in (candidate.get("firstName"), candidate.get("lastName")) if p
-            )
+            name = " ".join(p for p in (candidate.get("firstName"), candidate.get("lastName")) if p)
             party = candidate.get("partyCode") or entry.get("partyCode")
             if not party:
                 party = candidate.get("partyName") or entry.get("partyName")
@@ -150,6 +138,4 @@ def _fox_winner(results: list) -> tuple[str, str | None] | None:
 
 def _results_url(key: RaceKey, year: str | int) -> str:
     state = STATES.get(key.state, key.state).lower().replace(" ", "-")
-    return (
-        f"https://www.foxnews.com/elections/{year or '2024'}/general-results/{state}"
-    )
+    return f"https://www.foxnews.com/elections/{year or '2024'}/general-results/{state}"

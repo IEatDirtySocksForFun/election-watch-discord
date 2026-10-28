@@ -5,7 +5,7 @@ import pytest
 
 from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.models import CandidateResult, RaceResult
-from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, parse
+from electionwatch.racekeys import ALL_JURISDICTIONS, parse
 from electionwatch.racelists import RaceLists
 from electionwatch.settings import UserSettings
 from electionwatch.sources.base import ResultsSource
@@ -29,10 +29,8 @@ async def test_navigator_lists_races_and_all_states_within_discord_limits():
     await store.upsert_result(
         RaceResult(key, [CandidateResult("Doe", "DEM", 10, 100.0)], "test", datetime.now(timezone.utc))
     )
-    client = SimpleNamespace(
-        store=store, sources={"results": [ListSource()]}, http_client=object(), poller=None
-    )
-    await RaceLists(store, client.sources, client.http_client).refresh()   # the background refresh
+    client = SimpleNamespace(store=store, sources={"results": [ListSource()]}, http_client=object(), poller=None)
+    await RaceLists(store, client.sources, client.http_client).refresh()  # the background refresh
     view = RaceNavigator(client, 9, UserSettings(9))
     await view.refresh()
 
@@ -78,9 +76,7 @@ async def test_commands_never_call_a_source_and_a_slow_source_cannot_blow_the_de
             return []
 
     store = MemoryStore()
-    client = SimpleNamespace(
-        store=store, sources={"results": [Slow(), Counting()]}, http_client=object(), poller=None
-    )
+    client = SimpleNamespace(store=store, sources={"results": [Slow(), Counting()]}, http_client=object(), poller=None)
     # Before any refresh: nothing stored, nothing asked.
     assert await navigator.list_races(client, "TX") == {}
     assert Counting.hits == 0
@@ -127,7 +123,7 @@ async def test_navigator_clicks_defer_before_reading_race_lists():
         edit_original_response=edit_original_response,
     )
     await view._state_callback(interaction)
-    assert calls == ["defer", "read", "edit"]     # no "list": the click never asks the source
+    assert calls == ["defer", "read", "edit"]  # no "list": the click never asks the source
 
 
 async def test_fallback_local_races_are_hidden_where_an_official_feed_lists_local_races():
@@ -146,11 +142,12 @@ async def test_fallback_local_races_are_hidden_where_an_official_feed_lists_loca
             return [(parse(k), k) for k in self.races if k.startswith(state)]
 
     official = Lister("tx_counties", ["TX LOCAL harris-county-judge"])
-    civic = Lister("civicapi", ["TX LOCAL harris-county-judge-general", "TX SEN", "WY LOCAL laramie-mayor"],
-                   fallback=True)
+    civic = Lister(
+        "civicapi", ["TX LOCAL harris-county-judge-general", "TX SEN", "WY LOCAL laramie-mayor"], fallback=True
+    )
     client = SimpleNamespace(store=MemoryStore(), sources={"results": [civic, official]}, http_client=None)
     await RaceLists(client.store, client.sources, None).refresh()
     tx = set(await navigator.list_races(client, "TX"))
     wy = set(await navigator.list_races(client, "WY"))
-    assert tx == {"TX LOCAL harris-county-judge", "TX SEN"}    # civicAPI's duplicate local race hidden
-    assert wy == {"WY LOCAL laramie-mayor"}                    # no official local feed: civicAPI's stay
+    assert tx == {"TX LOCAL harris-county-judge", "TX SEN"}  # civicAPI's duplicate local race hidden
+    assert wy == {"WY LOCAL laramie-mayor"}  # no official local feed: civicAPI's stay

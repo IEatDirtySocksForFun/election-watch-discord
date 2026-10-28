@@ -10,14 +10,26 @@ from electionwatch.racekeys import format_key, parse
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import mn_sos
 from electionwatch.sources.results.mn_sos import (
-    parse_counties, parse_mn, race_key, folder, decode_bytes,
+    decode_bytes,
+    folder,
+    parse_counties,
+    parse_mn,
+    race_key,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "mn_sos"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
-FILES = ("ussenate.txt", "ushouse.txt", "stsenate.txt", "LegislativeByDistrict.txt",
-         "governor.txt", "auditor.txt", "judicial.txt", "cntyRaceQuestions.txt")
+FILES = (
+    "ussenate.txt",
+    "ushouse.txt",
+    "stsenate.txt",
+    "LegislativeByDistrict.txt",
+    "governor.txt",
+    "auditor.txt",
+    "judicial.txt",
+    "cntyRaceQuestions.txt",
+)
 
 
 def load(name: str) -> str:
@@ -41,12 +53,14 @@ def test_governor_ticket_votes_and_precincts():
     assert gov.key.level is Level.GOVERNOR
     assert gov.title == "Governor & Lt Governor"
     assert [c.name for c in gov.candidates] == [
-        "Lisa Demuth and Ryan Wilson", "Amy Klobuchar and Ben Schierer",
-        "Steven Young and Jane Kirby"]                    # sorted by votes
+        "Lisa Demuth and Ryan Wilson",
+        "Amy Klobuchar and Ben Schierer",
+        "Steven Young and Jane Kirby",
+    ]  # sorted by votes
     assert gov.candidates[0].votes == 20929
     assert gov.candidates[0].party == "REP"
-    assert gov.candidates[1].party == "DEM"               # DFL -> DEM
-    assert gov.total_votes == 68628                       # contest total from the feed
+    assert gov.candidates[1].party == "DEM"  # DFL -> DEM
+    assert gov.total_votes == 68628  # contest total from the feed
     assert (gov.precincts_reporting, gov.precincts_total) == (1517, 4105)
     assert gov.expected_vote_pct == 36.95
     assert gov.url == "https://electionresults.sos.mn.gov/"
@@ -81,8 +95,8 @@ def test_judicial_and_county_races_become_local():
 
 def test_percent_is_taken_from_the_feed_when_present():
     auditor = by_key(parse_all())["MN AUD"]
-    assert auditor.candidates[0].name == "Zack Filipovich"      # write-in row is skipped
-    assert auditor.candidates[0].pct == 30.08                   # 0-100 as published
+    assert auditor.candidates[0].name == "Zack Filipovich"  # write-in row is skipped
+    assert auditor.candidates[0].pct == 30.08  # 0-100 as published
     assert auditor.total_votes == 70151
 
 
@@ -106,12 +120,13 @@ def test_county_table_and_folder():
 
 def test_malformed_and_empty_rows_are_skipped():
     assert parse_mn({"x.txt": "not;a;row\n\n"}, fetched_at=AT) == []
-    assert parse_mn({"x.txt": "WI;;;0102;U.S. Senator;;1001;Someone;;;IND;1;1;5;100;5\n"},
-                    fetched_at=AT) == []                      # wrong state prefix
+    assert (
+        parse_mn({"x.txt": "WI;;;0102;U.S. Senator;;1001;Someone;;;IND;1;1;5;100;5\n"}, fetched_at=AT) == []
+    )  # wrong state prefix
 
 
 def test_decode_bytes_falls_back_from_cp1252():
-    assert decode_bytes(b"MN;;;0104;Jos\xe9") .endswith("José")
+    assert decode_bytes(b"MN;;;0104;Jos\xe9").endswith("José")
 
 
 def test_fetch_reads_the_office_files(monkeypatch):
@@ -171,6 +186,5 @@ def test_list_races_covers_loaded_files(monkeypatch):
 
 
 async def _other_state():
-    async with httpx.AsyncClient(transport=httpx.MockTransport(
-            lambda r: httpx.Response(404))) as c:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as c:
         return await mn_sos.MnSos().list_races("WI", c)

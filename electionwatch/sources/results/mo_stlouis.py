@@ -20,6 +20,7 @@ adapter is one county (~13% of Missouri's 2024 vote), so every result carries th
 St. Louis County is one of the state's larger counties but this is NOT statewide coverage:
 Jackson, St. Charles, Greene, Clay and Boone run other vendors (livevoterturnout.com HTML).
 """
+
 from __future__ import annotations
 
 import csv
@@ -144,14 +145,19 @@ def parse_csv(text: str, *, fetched_at: datetime) -> list[RaceResult]:
             CandidateResult(name=name, party=party, votes=votes, pct=None, incumbent=inc)
             for name, (party, votes, inc) in cands.items()
         ]
-        out.append(c.make_result(
-            race_key(titles[ident]), titles[ident], results, fetched_at,
-            source=MoStLouis.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in results),
-            precincts_reporting=len(precincts.get(ident, ())) or None,
-            precincts_total=None,
-        ))
+        out.append(
+            c.make_result(
+                race_key(titles[ident]),
+                titles[ident],
+                results,
+                fetched_at,
+                source=MoStLouis.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in results),
+                precincts_reporting=len(precincts.get(ident, ())) or None,
+                precincts_total=None,
+            )
+        )
     return out
 
 

@@ -20,6 +20,7 @@ local referenda. Statewide races are summed across counties into one result flag
 " (partial: N counties)"; everything else is namespaced with the county slug, because every
 county has its own Sheriff and its own school boards.
 """
+
 from __future__ import annotations
 
 import re
@@ -71,14 +72,22 @@ ELECTIONS: dict[str, dict[str, str]] = {
 }
 
 _SENATE = {
-    "SENATOR", "SENATE", "SENATE RACE", "UNITED STATES SENATE", "UNITED STATES SENATOR",
-    "US SENATE", "US SENATOR", "U.S. SENATE", "U.S. SENATOR",
+    "SENATOR",
+    "SENATE",
+    "SENATE RACE",
+    "UNITED STATES SENATE",
+    "UNITED STATES SENATOR",
+    "US SENATE",
+    "US SENATOR",
+    "U.S. SENATE",
+    "U.S. SENATOR",
 }
 
 _STATE_SENATE = re.compile(r"^(?:NJ )?STATE SENAT(?:E|OR),?\s*(?:DISTRICT|DIST\.?)\s*(\d+)")
 _GENERAL_ASSEMBLY = re.compile(
     r"^(?:NJ )?(?:GENERAL ASSEMBLY|STATE ASSEMBLY|ASSEMBLY(?:MAN|WOMAN)?),?"
-    r"\s*(?:DISTRICT|DIST\.?)\s*(\d+)")
+    r"\s*(?:DISTRICT|DIST\.?)\s*(\d+)"
+)
 
 
 def _norm(name: str) -> str:
@@ -154,18 +163,19 @@ def counties(date: str) -> list[dict]:
     pins = ELECTIONS.get(date, {})
     configured = {str(k).lower(): v for k, v in COUNTIES.items()}
     if override is None:
-        return [{"county": name, "slug": slug, "election_id": pins.get(name)}
-                for name, slug in COUNTIES.items()]
+        return [{"county": name, "slug": slug, "election_id": pins.get(name)} for name, slug in COUNTIES.items()]
     out = []
     for entry in override:
         county = str(entry["county"])
         if entry.get("date") and entry["date"] != date:
             continue
-        out.append({
-            "county": county,
-            "slug": configured.get(county.lower(), county.lower()),
-            "election_id": entry["election_id"],
-        })
+        out.append(
+            {
+                "county": county,
+                "slug": configured.get(county.lower(), county.lower()),
+                "election_id": entry["election_id"],
+            }
+        )
     return out
 
 
@@ -207,8 +217,8 @@ class NjCounties(ResultsSource):
             raise SourceUnavailable("nj_counties: no New Jersey county feed answered")
         if not collected:
             raise SourceUnavailable(
-                f"nj_counties: no county publishes an election for {date}; "
-                f"pin ids with NJ_COUNTY_FEEDS")
+                f"nj_counties: no county publishes an election for {date}; pin ids with NJ_COUNTY_FEEDS"
+            )
         return c.select(_county.merge(collected, source=self.name, url=HUMAN), keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:

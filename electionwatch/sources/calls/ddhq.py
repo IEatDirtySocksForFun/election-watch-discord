@@ -4,6 +4,7 @@ DDHQ requires an API key (DDHQ_API_KEY). The real endpoint, authentication flow
 and response envelope are client-specific; this module provides a parse function
 against a representative fixture.
 """
+
 from __future__ import annotations
 
 from typing import ClassVar

@@ -5,6 +5,7 @@
 The summary table is static HTML (readable with scripts off); each race's post feed is
 embedded as JSON and drawn when its row is opened.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -17,12 +18,16 @@ from pathlib import Path
 from electionwatch.models import Level
 from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings
-
 from replay.run import CHANNEL, DEFAULT_DATA, GUILD, replay
 from replay.timeline import load_year
 
-LEVELS = {Level.SENATE: "Senate", Level.HOUSE: "House", Level.GOVERNOR: "Governor / statewide",
-          Level.STATE: "Legislature", Level.LOCAL: "Local"}
+LEVELS = {
+    Level.SENATE: "Senate",
+    Level.HOUSE: "House",
+    Level.GOVERNOR: "Governor / statewide",
+    Level.STATE: "Legislature",
+    Level.LOCAL: "Local",
+}
 
 
 def _leader(lines: list[str]) -> tuple[str, str]:
@@ -46,7 +51,13 @@ def build(year: str, timelines, rep) -> str:
         call = next((p for p in posts if p["k"] == "call"), None)
         final = results[-1]["l"] if results else []
         lead, pct = _leader(final)
-        party = "rep" if final[:1] and final[0].startswith("🔴") else "dem" if final[:1] and final[0].startswith("🔵") else "oth"
+        party = (
+            "rep"
+            if final[:1] and final[0].startswith("🔴")
+            else "dem"
+            if final[:1] and final[0].startswith("🔵")
+            else "oth"
+        )
         feeds[str(i)] = posts
         rows.append(
             f'<tr data-i="{i}" data-st="{key.state}" data-lv="{key.level.value}" tabindex="0">'
@@ -54,26 +65,38 @@ def build(year: str, timelines, rep) -> str:
             f'<td class="lv">{LEVELS[key.level]}</td>'
             f'<td><span class="dot {party}"></span>{html.escape(lead)} <span class="num">{html.escape(pct)}</span></td>'
             f'<td class="num">{call["t"] + " UTC" if call else "—"}</td>'
-            f'<td class="num">{len(results)}</td><td class="num">{sum(p["k"] == "odds_swing" for p in posts)}</td></tr>')
+            f'<td class="num">{len(results)}</td><td class="num">{sum(p["k"] == "odds_swing" for p in posts)}</td></tr>'
+        )
     counts = defaultdict(int)
     for _, p in rep.posts:
         counts[p.kind] += 1
     states = sorted({parse(k).state for k in timelines})
     meta = {
-        "races": len(timelines), "states": len(states), "posts": len(rep.posts),
-        "results": counts["results"], "calls": counts["call"], "swings": counts["odds_swing"],
-        "start": f"{rep.start:%b %d %H:%M}", "end": f"{rep.end:%b %d %H:%M}", "ticks": rep.ticks,
-        "ok": rep.ok, "problems": len(rep.problems),
+        "races": len(timelines),
+        "states": len(states),
+        "posts": len(rep.posts),
+        "results": counts["results"],
+        "calls": counts["call"],
+        "swings": counts["odds_swing"],
+        "start": f"{rep.start:%b %d %H:%M}",
+        "end": f"{rep.end:%b %d %H:%M}",
+        "ticks": rep.ticks,
+        "ok": rep.ok,
+        "problems": len(rep.problems),
     }
     opts = "".join(f'<option value="{s}">{s} · {STATES[s]}</option>' for s in states)
     page = TEMPLATE
     for k, v in meta.items():
         page = page.replace("{{" + k + "}}", str(v))
-    return (page.replace("{{year}}", year).replace("{{rows}}", "\n".join(rows))
-            .replace("{{options}}", opts)
-            .replace("{{check}}", "Posting rule held · no duplicate posts" if rep.ok
-                     else f"{len(rep.problems)} rule problems")
-            .replace("{{feeds}}", json.dumps(feeds, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")))
+    return (
+        page.replace("{{year}}", year)
+        .replace("{{rows}}", "\n".join(rows))
+        .replace("{{options}}", opts)
+        .replace(
+            "{{check}}", "Posting rule held · no duplicate posts" if rep.ok else f"{len(rep.problems)} rule problems"
+        )
+        .replace("{{feeds}}", json.dumps(feeds, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"))
+    )
 
 
 TEMPLATE = r"""<title>{{year}} Election Night Replay</title>

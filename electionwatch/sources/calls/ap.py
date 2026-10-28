@@ -4,13 +4,13 @@ Requires an AP Elections API key (AP_API_KEY). The adapter requests live general
 election data by state and office, then parses races where a candidate has been
 marked the winner.
 """
+
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timezone
 from typing import ClassVar
-
-import os
 
 import httpx
 
@@ -30,9 +30,7 @@ class APSource(CallSource):
     YEAR = 2026
     ELECTION_DATE = "2026-11-03"
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         api_key = os.environ.get(self.env[0])
         if not api_key:
             raise SourceUnavailable("AP_API_KEY not set")
@@ -126,9 +124,7 @@ def parse_ap_response(payload: dict) -> list[RaceCall]:
         key = _race_to_key(race)
         if key is None:
             continue
-        winner = next(
-            (c for c in race.get("candidates", []) if c.get("winner") == "X"), None
-        )
+        winner = next((c for c in race.get("candidates", []) if c.get("winner") == "X"), None)
         if winner is None:
             continue
         calls.append(
@@ -137,8 +133,7 @@ def parse_ap_response(payload: dict) -> list[RaceCall]:
                 outlet="AP",
                 winner=f"{winner.get('first', '')} {winner.get('last', '')}".strip(),
                 party=normalize_party(winner.get("party")),
-                called_at=parse_iso_ts(_race_ts(race))
-                or datetime.now(timezone.utc),
+                called_at=parse_iso_ts(_race_ts(race)) or datetime.now(timezone.utc),
                 url=None,
             )
         )

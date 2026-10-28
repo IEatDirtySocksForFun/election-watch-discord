@@ -28,6 +28,7 @@ Contest titles use the same wording as the Clarity counties ("United States
 Representative, District 7"), so `tx_counties.race_key` maps them and the county merges into
 the same partial statewide results. This module is pure; `tx_counties` does the fetching.
 """
+
 from __future__ import annotations
 
 import re
@@ -112,19 +113,22 @@ def parse_contests(
             name, party = split_candidate(raw)
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name, party=party,
-                votes=c.to_int(totals[i] if i < len(totals) else 0)))
+            cands.append(CandidateResult(name=name, party=party, votes=c.to_int(totals[i] if i < len(totals) else 0)))
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=source,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(con.get("pr")) or None,
-            precincts_total=c.to_int(con.get("tp")) or None,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=source,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(con.get("pr")) or None,
+                precincts_total=c.to_int(con.get("tp")) or None,
+                source_updated_at=updated,
+            )
+        )
     return out

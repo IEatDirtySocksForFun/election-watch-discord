@@ -29,6 +29,7 @@ terms but the pages are big (congressional ~8 MB, legislative ~38 MB): fetch()
 only downloads the pages the requested races live on. Idaho House districts elect
 two members from separate positions, so those races use district "01A"/"01B".
 """
+
 from __future__ import annotations
 
 import json
@@ -50,8 +51,7 @@ INDEX = "https://archive.voteidaho.gov/results/{year}/{kind}/index.html"
 KINDS = {3: "primary", 5: "primary", 11: "general"}
 
 #: pages that never hold the offices this bot tracks.
-SKIP_PAGES = {"county.html", "measures.html", "turnout.html", "xml.html",
-              "close-races.html", "index.html"}
+SKIP_PAGES = {"county.html", "measures.html", "turnout.html", "xml.html", "close-races.html", "index.html"}
 
 _STATEWIDE = {
     "GOVERNOR": "GOV",
@@ -119,8 +119,7 @@ def parse_id(html: str, *, fetched_at: datetime, url: str | None = None) -> list
         if not data:
             continue
         cands: list[CandidateResult] = []
-        for name, votes in zip(data.get("ContestantName") or [],
-                              data.get("TotalVotes") or []):
+        for name, votes in zip(data.get("ContestantName") or [], data.get("TotalVotes") or []):
             label = (name or "").strip()
             if not label or "write-in" in label.lower():
                 continue
@@ -136,12 +135,17 @@ def parse_id(html: str, *, fetched_at: datetime, url: str | None = None) -> list
         if str(key) in seen:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, heading, cands, fetched_at,
-            source=IdSos.name,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                heading,
+                cands,
+                fetched_at,
+                source=IdSos.name,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+            )
+        )
     return out
 
 
@@ -179,7 +183,7 @@ def _needed_files(keys: list[RaceKey]) -> set[str] | None:
         elif k.level is Level.STATE:
             need.add("legislative.html")
         elif k.level in (Level.SENATE, Level.GOVERNOR):
-            return None          # statewide offices: depends on the year's page names
+            return None  # statewide offices: depends on the year's page names
     return need or None
 
 
@@ -190,16 +194,16 @@ async def _pages(client: httpx.AsyncClient, date_iso: str) -> list[tuple[str, st
     try:
         page = await c.get_text(client, index)
     except SourceUnavailable as exc:
-        raise SourceUnavailable(
-            f"ID: the SOS archive has nothing for {date_iso} yet ({exc})") from exc
+        raise SourceUnavailable(f"ID: the SOS archive has nothing for {date_iso} yet ({exc})") from exc
     links = page_links(page, index)
     if not links:
         raise SourceUnavailable(f"ID: {index} lists no results pages")
     return links
 
 
-async def _all_races(client: httpx.AsyncClient, date_iso: str, fetched_at: datetime,
-                     keys: list[RaceKey] | None = None) -> list[RaceResult]:
+async def _all_races(
+    client: httpx.AsyncClient, date_iso: str, fetched_at: datetime, keys: list[RaceKey] | None = None
+) -> list[RaceResult]:
     wanted = _needed_files(keys) if keys else None
     out: list[RaceResult] = []
     seen: set[str] = set()
@@ -231,5 +235,4 @@ class IdSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "ID":
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]

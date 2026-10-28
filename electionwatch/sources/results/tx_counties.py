@@ -30,6 +30,7 @@ docs/state-coverage-plan.md. Pin any Clarity county with TX_COUNTY_FEEDS:
 TX_HARRIS_CODE overrides the Harris election code (default: month + 2-digit year, "1126");
 TX_HARRIS_CODE=off drops Harris.
 """
+
 from __future__ import annotations
 
 import os
@@ -80,22 +81,41 @@ COUNTIES: dict[str, str] = {
 #: elections.json; these are the ids verified while writing the fixtures.
 ELECTIONS: dict[str, dict[str, str]] = {
     "2024-11-05": {
-        "Bastrop": "122753", "Bell": "122428", "Comal": "122856", "Denton": "122426",
-        "El_Paso": "122595", "Galveston": "122842", "Gregg": "122313", "Hood": "122858",
-        "Kaufman": "122824", "Lamar": "122497", "Midland": "122496", "Rockwall": "122491",
-        "Rusk": "122760", "Travis": "122432",
+        "Bastrop": "122753",
+        "Bell": "122428",
+        "Comal": "122856",
+        "Denton": "122426",
+        "El_Paso": "122595",
+        "Galveston": "122842",
+        "Gregg": "122313",
+        "Hood": "122858",
+        "Kaufman": "122824",
+        "Lamar": "122497",
+        "Midland": "122496",
+        "Rockwall": "122491",
+        "Rusk": "122760",
+        "Travis": "122432",
         # From the counties' own 2024 results pages (their elections.json lists nothing):
         # tarrantcountytx.gov ".../november-5--2024--general-election-results.html" and
         # fortbendcountytx.gov ".../2024-election-results".
-        "Tarrant": "122489", "Fort_Bend": "122596",
+        "Tarrant": "122489",
+        "Fort_Bend": "122596",
     },
     "2026-11-03": {
-        "Bastrop": "127476", "Denton": "127398", "El_Paso": "127348", "Galveston": "127478",
-        "Hood": "127400", "Kaufman": "127485", "Lamar": "127484", "Rusk": "127574",
+        "Bastrop": "127476",
+        "Denton": "127398",
+        "El_Paso": "127348",
+        "Galveston": "127478",
+        "Hood": "127400",
+        "Kaufman": "127485",
+        "Lamar": "127484",
+        "Rusk": "127574",
         # Linked from tarrantcountytx.gov/en/elections/current-election-information.html,
         # fortbendcountytx.gov ".../2026-election-results" and elections.bexar.gov;
         # all three answered with a zero-vote 2026 general summary on 2026-10-27.
-        "Tarrant": "127297", "Fort_Bend": "127480", "Bexar": "127291",
+        "Tarrant": "127297",
+        "Fort_Bend": "127480",
+        "Bexar": "127291",
     },
 }
 
@@ -105,7 +125,7 @@ _STATEWIDE = {
     "ATTORNEY GENERAL": "AG",
     "COMPTROLLER OF PUBLIC ACCOUNTS": "COMP",
     "COMMISSIONER OF THE GENERAL LAND OFFICE": "LANDCOM",
-    "COMMISSIONER GENERAL LAND OFFICE": "LANDCOM",     # "Comm General Land Office"
+    "COMMISSIONER GENERAL LAND OFFICE": "LANDCOM",  # "Comm General Land Office"
     "COMMISSIONER OF AGRICULTURE": "AGCOM",
     "RAILROAD COMMISSIONER": "RRC",
 }
@@ -116,49 +136,71 @@ _SENATE = {"UNITED STATES SENATOR", "US SENATOR", "U.S. SENATOR", "SENATOR"}
 #: "... 8th Court of Appeals District" in Denton). Expand before matching so the same
 #: statewide contest merges.
 _ABBREV = {
-    "CRT": "COURT", "CT": "COURT", "CNTY": "COUNTY", "CRTY": "COUNTY", "APP": "APPEALS",
-    "CRIM": "CRIMINAL", "DIST": "DISTRICT", "PL": "PLACE", "ST": "STATE", "MUN": "MUNICIPAL",
-    "BOE": "BOARD OF EDUCATION", "COMM": "COMMISSIONER", "UNEXP": "UNEXPIRED TERM",
-    "SUPERME": "SUPREME",          # Hood County's own typo, 2024
+    "CRT": "COURT",
+    "CT": "COURT",
+    "CNTY": "COUNTY",
+    "CRTY": "COUNTY",
+    "APP": "APPEALS",
+    "CRIM": "CRIMINAL",
+    "DIST": "DISTRICT",
+    "PL": "PLACE",
+    "ST": "STATE",
+    "MUN": "MUNICIPAL",
+    "BOE": "BOARD OF EDUCATION",
+    "COMM": "COMMISSIONER",
+    "UNEXP": "UNEXPIRED TERM",
+    "SUPERME": "SUPREME",  # Hood County's own typo, 2024
 }
 
-_HOUSE = re.compile(
-    r"^(?:UNITED STATES|US|U\.S\.) REPRESENTATIVE,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)$")
+_HOUSE = re.compile(r"^(?:UNITED STATES|US|U\.S\.) REPRESENTATIVE,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)$")
 _STATE_SENATE = re.compile(r"^STATE SENATOR,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)")
 _STATE_HOUSE = re.compile(r"^STATE REPRESENTATIVE,?\s*(?:DISTRICT|DIST\.?)\s*(\d+)")
 
 #: Contests on every county's ballot: merged statewide, so no county prefix.
 _SHARED_LOCAL = (
     (re.compile(r"^CHIEF JUSTICE, SUPREME COURT$"), lambda m: "supreme-court-chief-justice"),
-    (re.compile(r"^JUSTICE, SUPREME COURT, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
-     lambda m: f"supreme-court-place-{_id(m.group(1))}"),
-    (re.compile(r"^PRESIDING JUDGE, COURT OF CRIMINAL APPEALS(?:, PLACE \d+)?$"),
-     lambda m: "presiding-judge-court-criminal-appeals"),
-    (re.compile(r"^JUDGE, COURT OF CRIMINAL APPEALS, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
-     lambda m: f"court-criminal-appeals-place-{_id(m.group(1))}"),
-    (re.compile(r"^CHIEF JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS(?: DISTRICT)?$"),
-     lambda m: f"court-of-appeals-{_id(m.group(1))}-chief-justice"),
-    (re.compile(r"^JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS DISTRICT"
-                r"(?:, PLACE (\d+))?$"),
-     lambda m: f"court-of-appeals-{_id(m.group(1))}-place-{_id(m.group(2) or '1')}"),
-    (re.compile(r"^MEMBER, STATE BOARD OF EDUCATION, DISTRICT (\d+)"),
-     lambda m: f"state-board-of-education-{_id(m.group(1))}"),
+    (
+        re.compile(r"^JUSTICE, SUPREME COURT, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
+        lambda m: f"supreme-court-place-{_id(m.group(1))}",
+    ),
+    (
+        re.compile(r"^PRESIDING JUDGE, COURT OF CRIMINAL APPEALS(?:, PLACE \d+)?$"),
+        lambda m: "presiding-judge-court-criminal-appeals",
+    ),
+    (
+        re.compile(r"^JUDGE, COURT OF CRIMINAL APPEALS, PLACE (\d+)(?:,? UNEXPIRED TERM)?$"),
+        lambda m: f"court-criminal-appeals-place-{_id(m.group(1))}",
+    ),
+    (
+        re.compile(r"^CHIEF JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS(?: DISTRICT)?$"),
+        lambda m: f"court-of-appeals-{_id(m.group(1))}-chief-justice",
+    ),
+    (
+        re.compile(
+            r"^JUSTICE, (\d+)(?:ST|ND|RD|TH) COURT OF APPEALS DISTRICT"
+            r"(?:, PLACE (\d+))?$"
+        ),
+        lambda m: f"court-of-appeals-{_id(m.group(1))}-place-{_id(m.group(2) or '1')}",
+    ),
+    (
+        re.compile(r"^MEMBER, STATE BOARD OF EDUCATION, DISTRICT (\d+)"),
+        lambda m: f"state-board-of-education-{_id(m.group(1))}",
+    ),
     (re.compile(r"^PRESIDENT\s*/\s*VICE[- ]PRESIDENT$"), lambda m: "president-vice-president"),
     (re.compile(r"^PRESIDENT (?:AND|&) VICE[- ]PRESIDENT$"), lambda m: "president-vice-president"),
     (re.compile(r"^(?:STATE )?PROPOSITION (\d+)$"), lambda m: f"proposition-{_id(m.group(1))}"),
-    (re.compile(r"^CONSTITUTIONAL AMENDMENT (\d+)$"),
-     lambda m: f"constitutional-amendment-{_id(m.group(1))}"),
+    (re.compile(r"^CONSTITUTIONAL AMENDMENT (\d+)$"), lambda m: f"constitutional-amendment-{_id(m.group(1))}"),
 )
 
 
 def _norm(name: str) -> str:
     n = re.sub(r"\s+", " ", (name or "").replace("\u00a0", " ").strip()).upper()
-    n = re.sub(r"\bU\.\s*S\.?(?=\s)", "U.S.", n)    # "U. S. Representative" -> "U.S. ..."
+    n = re.sub(r"\bU\.\s*S\.?(?=\s)", "U.S.", n)  # "U. S. Representative" -> "U.S. ..."
     # Fort Bend repeats the district: "United States Representative, District 7 District 7".
     n = re.sub(r"\b(DISTRICT (\d+)) DISTRICT \2$", r"\1", n)
     # Tarrant writes "Justice, Supreme Court, Place 2, (Unexpired Term)".
     n = re.sub(r",?\s*\(UNEXPIRED TERM\)$", ", UNEXPIRED TERM", n)
-    return re.sub(r"\s+-\s+", " ", n)              # "Place 2 - Unexpired Term"
+    return re.sub(r"\s+-\s+", " ", n)  # "Place 2 - Unexpired Term"
 
 
 def _id(part: str) -> str:
@@ -226,18 +268,19 @@ def counties(date: str) -> list[dict]:
     pins = ELECTIONS.get(date, {})
     configured = {str(k).lower(): v for k, v in COUNTIES.items()}
     if override is None:
-        return [{"county": name, "slug": slug, "election_id": pins.get(name)}
-                for name, slug in COUNTIES.items()]
+        return [{"county": name, "slug": slug, "election_id": pins.get(name)} for name, slug in COUNTIES.items()]
     out = []
     for entry in override:
         county = str(entry["county"])
         if entry.get("date") and entry["date"] != date:
             continue
-        out.append({
-            "county": county,
-            "slug": configured.get(county.lower(), county.lower()),
-            "election_id": entry["election_id"],
-        })
+        out.append(
+            {
+                "county": county,
+                "slug": configured.get(county.lower(), county.lower()),
+                "election_id": entry["election_id"],
+            }
+        )
     return out
 
 

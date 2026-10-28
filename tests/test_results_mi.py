@@ -12,7 +12,14 @@ from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import mi_county
 from electionwatch.sources.results.clarity import parse_clarity
 from electionwatch.sources.results.mi_county import (
-    COUNTIES, feeds, iso_date, merge_counties, partial_title, pick_election, race_key, rekey,
+    COUNTIES,
+    feeds,
+    iso_date,
+    merge_counties,
+    partial_title,
+    pick_election,
+    race_key,
+    rekey,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "mi_county"
@@ -71,11 +78,22 @@ def test_real_ottawa_summary_maps_to_canonical_races():
 
 
 def test_rekey_moves_the_governor_contest_off_local():
-    parsed = parse_clarity([{"C": "GOVERNOR / LIEUTENANT GOVERNOR",
-                             "CH": ["A. Person"], "P": ["DEM"], "V": [10],
-                             "PCT": [100.0], "TP": 4, "PR": 4}],
-                           state="MI", fetched_at=AT)
-    assert parsed[0].key.level is Level.LOCAL            # shared parser does not know this name
+    parsed = parse_clarity(
+        [
+            {
+                "C": "GOVERNOR / LIEUTENANT GOVERNOR",
+                "CH": ["A. Person"],
+                "P": ["DEM"],
+                "V": [10],
+                "PCT": [100.0],
+                "TP": 4,
+                "PR": 4,
+            }
+        ],
+        state="MI",
+        fetched_at=AT,
+    )
+    assert parsed[0].key.level is Level.LOCAL  # shared parser does not know this name
     assert rekey(parsed)[0].key.level is Level.GOVERNOR  # this adapter does
     assert format_key(rekey(parsed)[0].key) == "MI GOV"
 
@@ -87,11 +105,21 @@ def test_partial_title():
 
 def test_merge_sums_counties_and_recomputes_percentages():
     def one(county_votes):
-        return parse_clarity([{"C": "GOVERNOR AND LIEUTENANT GOVERNOR",
-                               "CH": ["A. Person", "B. Person"],
-                               "P": ["DEM", "REP"], "V": county_votes,
-                               "PCT": [50.0, 50.0], "TP": 10, "PR": 5}],
-                             state="MI", fetched_at=AT)
+        return parse_clarity(
+            [
+                {
+                    "C": "GOVERNOR AND LIEUTENANT GOVERNOR",
+                    "CH": ["A. Person", "B. Person"],
+                    "P": ["DEM", "REP"],
+                    "V": county_votes,
+                    "PCT": [50.0, 50.0],
+                    "TP": 10,
+                    "PR": 5,
+                }
+            ],
+            state="MI",
+            fetched_at=AT,
+        )
 
     by_county = {"Oakland": rekey(one([1000, 500])), "Ottawa": rekey(one([100, 400]))}
     merged = merge_counties(by_county, fetched_at=AT, source="mi_county")
@@ -113,10 +141,15 @@ def test_merge_with_nothing_published_returns_empty():
 def test_feed_configuration(monkeypatch):
     monkeypatch.delenv("MI_CLARITY_FEEDS", raising=False)
     assert [f["county"] for f in feeds("2026-11-03")] == list(COUNTIES)
-    monkeypatch.setenv("MI_CLARITY_FEEDS", json.dumps([
-        {"county": "Ottawa", "election_id": "127391"},
-        {"county": "Kent", "election_id": "1", "date": "2024-11-05"},
-    ]))
+    monkeypatch.setenv(
+        "MI_CLARITY_FEEDS",
+        json.dumps(
+            [
+                {"county": "Ottawa", "election_id": "127391"},
+                {"county": "Kent", "election_id": "1", "date": "2024-11-05"},
+            ]
+        ),
+    )
     assert feeds("2026-11-03") == [{"county": "Ottawa", "election_id": "127391"}]
     monkeypatch.setenv("MI_CLARITY_FEEDS", "{nope")
     with pytest.raises(SourceUnavailable):
@@ -125,8 +158,7 @@ def test_feed_configuration(monkeypatch):
 
 def test_fetch_merges_the_county_feeds(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
-    monkeypatch.setenv("MI_CLARITY_FEEDS", json.dumps(
-        [{"county": "Ottawa"}, {"county": "Oakland"}]))
+    monkeypatch.setenv("MI_CLARITY_FEEDS", json.dumps([{"county": "Ottawa"}, {"county": "Oakland"}]))
 
     def handler(request: httpx.Request) -> httpx.Response:
         path = request.url.path
@@ -136,11 +168,22 @@ def test_fetch_merges_the_county_feeds(monkeypatch):
             return httpx.Response(200, text="445566")
         if path.endswith("summary.json"):
             share = 1000 if "/Ottawa/" in path else 500
-            return httpx.Response(200, json=summary([
-                {"C": "UNITED STATES SENATOR", "CH": ["A. Person", "B. Person"],
-                 "P": ["DEM", "REP"], "V": [share, share // 2], "PCT": [66.7, 33.3],
-                 "TP": 20, "PR": 10},
-            ]))
+            return httpx.Response(
+                200,
+                json=summary(
+                    [
+                        {
+                            "C": "UNITED STATES SENATOR",
+                            "CH": ["A. Person", "B. Person"],
+                            "P": ["DEM", "REP"],
+                            "V": [share, share // 2],
+                            "PCT": [66.7, 33.3],
+                            "TP": 20,
+                            "PR": 10,
+                        },
+                    ]
+                ),
+            )
         if path.endswith("electionsettings.json"):
             return httpx.Response(200, json={"websiteupdatedat": "10/26/2026 11:42:44 AM EDT"})
         return httpx.Response(404)
@@ -162,8 +205,7 @@ def test_fetch_is_unavailable_before_any_county_publishes(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda r: httpx.Response(404))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as c:
             return await mi_county.MiCounty().fetch([parse("MI SEN")], c)
 
     with pytest.raises(SourceUnavailable, match="no county feed published"):
@@ -172,8 +214,7 @@ def test_fetch_is_unavailable_before_any_county_publishes(monkeypatch):
 
 def test_other_states_are_ignored():
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda r: httpx.Response(404))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(404))) as c:
             return await mi_county.MiCounty().fetch([parse("MN SEN")], c)
 
     assert asyncio.run(go()) == []

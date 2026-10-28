@@ -8,6 +8,7 @@ The data lives next to this module:
 Both files are parsed with ``yaml.safe_load`` once and cached.  The returned
 dictionaries are shared: treat them as read-only.
 """
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -50,9 +51,7 @@ STATE_TEXT_KEYS = (
     "ranked_choice",
     "notes",
 )
-REQUIRED_OUTLETS = frozenset(
-    {"AP", "NBC", "CBS", "ABC", "CNN", "FOX", "NYT", "DDHQ", "VOTEHUB", "REUTERS"}
-)
+REQUIRED_OUTLETS = frozenset({"AP", "NBC", "CBS", "ABC", "CNN", "FOX", "NYT", "DDHQ", "VOTEHUB", "REUTERS"})
 REQUIRED_OUTLET_KEYS = ("name", "results_url", "notes")
 
 
@@ -75,9 +74,7 @@ def _text(value: object, where: str, *, allow_empty: bool = False) -> str:
     if not allow_empty and not value.strip():
         raise FAQDataError(f"{where}: must not be empty")
     if len(value) > MAX_FIELD_CHARS:
-        raise FAQDataError(
-            f"{where}: {len(value)} chars exceeds Discord's {MAX_FIELD_CHARS} limit"
-        )
+        raise FAQDataError(f"{where}: {len(value)} chars exceeds Discord's {MAX_FIELD_CHARS} limit")
     return value
 
 

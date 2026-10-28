@@ -22,6 +22,7 @@ Madison's contest names are upper case and the vendor truncates long ones
 truncated "DISTRICT". The "STRAIGHT PARTY VOTING" contest and the aggregated "WRITE-IN"
 rows (an unnamed write-in tally, like the dropped write-in rows in `mn_sos`) are dropped.
 """
+
 from __future__ import annotations
 
 import re
@@ -64,9 +65,11 @@ _STATEWIDE = {
 _SENATE = {"UNITED STATES SENATOR", "US SENATOR", "U.S. SENATOR", "UNITED STATES SENATE"}
 _HOUSE = re.compile(
     r"^(?:UNITED STATES|U\.S\.|US) REPRESENTATIVE,?\s*(\d+)(?:ST|ND|RD|TH)\s+CONGRESSIONAL"
-    r"(?:\s+DISTR?I?C?T?)?$")
+    r"(?:\s+DISTR?I?C?T?)?$"
+)
 _HOUSE_ALT = re.compile(
-    r"^(?:UNITED STATES|U\.S\.|US) REPRESENTATIVE,?\s*(?:CONGRESSIONAL\s+)?DISTRICT\s*(?:NO\.?\s*)?(\d+)$")
+    r"^(?:UNITED STATES|U\.S\.|US) REPRESENTATIVE,?\s*(?:CONGRESSIONAL\s+)?DISTRICT\s*(?:NO\.?\s*)?(\d+)$"
+)
 _STATE_SENATE = re.compile(r"^STATE SENATOR,?\s*DISTRICT\s*(?:NO\.?\s*)?(\d+)$")
 _STATE_HOUSE = re.compile(r"^STATE REPRESENTATIVE,?\s*DISTRICT\s*(?:NO\.?\s*)?(\d+)$")
 _SKIP = {"STRAIGHT PARTY VOTING", "STRAIGHT PARTY"}
@@ -122,10 +125,17 @@ def parse_al_county(summary, settings=None, *, county: str, fetched_at: datetime
             continue
         if len(cands) != len(r.candidates):
             r = c.make_result(
-                r.key, r.title or "", cands, r.fetched_at, source=r.source, url=r.url,
+                r.key,
+                r.title or "",
+                cands,
+                r.fetched_at,
+                source=r.source,
+                url=r.url,
                 total_votes=sum(x.votes for x in cands),
                 precincts_reporting=r.precincts_reporting,
-                precincts_total=r.precincts_total, source_updated_at=r.source_updated_at)
+                precincts_total=r.precincts_total,
+                source_updated_at=r.source_updated_at,
+            )
         out.append(r)
     return out
 
@@ -136,12 +146,14 @@ def counties(date: str) -> list[dict]:
     pins = ELECTIONS.get(date, {})
     if override is None:
         return [{"county": name, "election_id": pins.get(name)} for name in COUNTIES]
-    return [{"county": str(e["county"]), "election_id": e["election_id"]}
-            for e in override if not e.get("date") or e["date"] == date]
+    return [
+        {"county": str(e["county"]), "election_id": e["election_id"]}
+        for e in override
+        if not e.get("date") or e["date"] == date
+    ]
 
 
-async def _one(client: httpx.AsyncClient, entry: dict, date: str,
-               fetched_at: datetime) -> list[RaceResult]:
+async def _one(client: httpx.AsyncClient, entry: dict, date: str, fetched_at: datetime) -> list[RaceResult]:
     county = entry["county"]
     eid = await _county.election_id(client, "AL", county, date, entry.get("election_id"))
     if not eid:
@@ -151,9 +163,7 @@ async def _one(client: httpx.AsyncClient, entry: dict, date: str,
 
 
 def _singular(results: list[RaceResult]) -> list[RaceResult]:
-    return [replace(r, title=(r.title or "").replace("(partial: 1 counties)",
-                                                      "(partial: 1 county)"))
-            for r in results]
+    return [replace(r, title=(r.title or "").replace("(partial: 1 counties)", "(partial: 1 county)")) for r in results]
 
 
 @register
@@ -174,8 +184,9 @@ class AlCounties(ResultsSource):
             except SourceUnavailable as exc:
                 errors.append(str(exc))
         if not collected:
-            raise SourceUnavailable("al_counties: no Alabama county feed answered"
-                                    + (f" ({'; '.join(errors)})" if errors else ""))
+            raise SourceUnavailable(
+                "al_counties: no Alabama county feed answered" + (f" ({'; '.join(errors)})" if errors else "")
+            )
         return _singular(_county.merge(collected, source=self.name, url=HUMAN))
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:

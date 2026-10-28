@@ -2,6 +2,7 @@
 
 Neither is real data: they exist so a replay run exercises the "call" and "odds_swing" paths.
 """
+
 from __future__ import annotations
 
 import math
@@ -11,7 +12,6 @@ from typing import Callable
 
 from electionwatch.models import OddsSnapshot, RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, OddsSource, register
-
 from replay.source import ReplaySource
 
 
@@ -28,6 +28,7 @@ class ScriptedCall:
 @dataclass
 class ScriptedSwing:
     """Force `outcome`'s price from p0 to p1 linearly over [start, start+minutes]."""
+
     key: str
     outcome: str
     start: datetime
@@ -45,8 +46,10 @@ def default_calls(src: ReplaySource, call_at_eevp: float = 95.0, outlet: str = "
         if not final.candidates:
             continue
         lead = max(final.candidates, key=lambda c: c.votes)
-        at = next((s.ts for s in snaps if (s.result.expected_vote_pct or 0) >= call_at_eevp),
-                  snaps[-1].ts + timedelta(minutes=15))
+        at = next(
+            (s.ts for s in snaps if (s.result.expected_vote_pct or 0) >= call_at_eevp),
+            snaps[-1].ts + timedelta(minutes=15),
+        )
         calls.append(ScriptedCall(k, at, lead.name, lead.party, outlet))
     return calls
 
@@ -64,8 +67,11 @@ class ScriptedCallSource(CallSource):
     async def fetch_calls(self, keys, client=None) -> list[RaceCall]:
         want = {str(k): k for k in keys}
         now = self.clock()
-        return [RaceCall(want[c.key], c.outlet, c.winner, c.party, c.at, retracted=c.retracted)
-                for c in self.calls if c.key in want and c.at <= now]
+        return [
+            RaceCall(want[c.key], c.outlet, c.winner, c.party, c.at, retracted=c.retracted)
+            for c in self.calls
+            if c.key in want and c.at <= now
+        ]
 
 
 def implied_prob(margin_pct: float, eevp: float) -> float:
@@ -78,8 +84,13 @@ class ScriptedOddsSource(OddsSource):
     name = "replay_odds"
     enabled_by_default = False
 
-    def __init__(self, results: ReplaySource, clock: Callable[[], datetime],
-                 swings: list[ScriptedSwing] | None = None, market: str = "kalshi") -> None:
+    def __init__(
+        self,
+        results: ReplaySource,
+        clock: Callable[[], datetime],
+        swings: list[ScriptedSwing] | None = None,
+        market: str = "kalshi",
+    ) -> None:
         self.results = results
         self.clock = clock
         self.swings = swings or []
@@ -109,8 +120,10 @@ class ScriptedOddsSource(OddsSource):
                     probs[sw.outcome] = sw.p0 + (sw.p1 - sw.p0) * f
                     other = pb if sw.outcome == pa else pa
                     probs[other] = 1 - probs[sw.outcome]
-            out += [OddsSnapshot(key if isinstance(key, RaceKey) else r.key, self.market, o, round(v, 4), now)
-                    for o, v in probs.items()]
+            out += [
+                OddsSnapshot(key if isinstance(key, RaceKey) else r.key, self.market, o, round(v, 4), now)
+                for o, v in probs.items()
+            ]
         return out
 
 

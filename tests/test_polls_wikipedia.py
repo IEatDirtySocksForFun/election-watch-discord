@@ -1,6 +1,6 @@
 """Wikipedia polling-table adapter, tested against a trimmed real article."""
+
 import asyncio
-import json
 from datetime import date
 from pathlib import Path
 
@@ -22,9 +22,7 @@ def _article():
 
 def _polls(key="NC SEN"):
     html, wikitext = _article()
-    return wikipedia.parse_wikipedia_polls(
-        html, wikitext, parse(key), "https://en.wikipedia.org/wiki/2026_Test"
-    )
+    return wikipedia.parse_wikipedia_polls(html, wikitext, parse(key), "https://en.wikipedia.org/wiki/2026_Test")
 
 
 def test_candidate_party_map_comes_from_the_primary_sections():
@@ -52,10 +50,7 @@ def test_parses_general_election_tables_only():
 
 def test_a_partisan_pollster_is_flagged():
     polls = _polls()
-    harper = next(
-        p for p in polls
-        if p.pollster == "Harper Polling" and p.end_date == date(2026, 10, 20)
-    )
+    harper = next(p for p in polls if p.pollster == "Harper Polling" and p.end_date == date(2026, 10, 20))
     assert harper.partisan == "REP" and harper.internal is True
     assert harper.start_date == date(2026, 10, 18)
     assert (harper.sample_size, harper.population) == (600, "LV")
@@ -92,10 +87,13 @@ def test_newest_first():
     assert polls[0].end_date == date(2026, 10, 25)
 
 
-@pytest.mark.parametrize("race,first", [
-    ("TX SEN", "2026 United States Senate election in Texas"),
-    ("MI GOV", "2026 Michigan gubernatorial election"),
-])
+@pytest.mark.parametrize(
+    "race,first",
+    [
+        ("TX SEN", "2026 United States Senate election in Texas"),
+        ("MI GOV", "2026 Michigan gubernatorial election"),
+    ],
+)
 def test_article_titles(race, first):
     assert wikipedia.article_titles(parse(race))[0] == first
 
@@ -118,11 +116,16 @@ def test_fetch_uses_the_mediawiki_parse_api_and_keeps_the_resolved_title():
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen.append(dict(request.url.params))
-        return httpx.Response(200, json={"parse": {
-            "title": "2026 United States Senate election in North Carolina",
-            "text": html,
-            "wikitext": wikitext,
-        }})
+        return httpx.Response(
+            200,
+            json={
+                "parse": {
+                    "title": "2026 United States Senate election in North Carolina",
+                    "text": html,
+                    "wikitext": wikitext,
+                }
+            },
+        )
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:

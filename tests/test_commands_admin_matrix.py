@@ -66,6 +66,7 @@ Poller interplay (Poller + RecordingPoster + fake sources)
 Real ElectionBot as interaction.client
   [x] the commands work with a real ElectionBot(MemoryStore(), {}, httpx.AsyncClient())
 """
+
 from __future__ import annotations
 
 import copy
@@ -78,6 +79,21 @@ from datetime import datetime, timedelta, timezone
 import httpx
 import pytest
 import yaml
+from fake_interaction_admin import (  # noqa: E402  (tests/ is on sys.path under pytest)
+    ADMIN_ROLE_ID,
+    DISCORD_LIMIT,
+    GUILD_ID,
+    OTHER_ROLE_ID,
+    ROLES,
+    FakeChannel,
+    FakeInteraction,
+    FakeMember,
+    FakeRole,
+    FakeUser,
+    http_exception,
+    make_interaction,
+    stand_in_client,
+)
 
 from electionwatch.bot import discord as bot_discord
 from electionwatch.bot.discord import (
@@ -119,25 +135,9 @@ from electionwatch.sources.base import CallSource, ExitPollSource, ResultsSource
 from electionwatch.store.memory import MemoryStore
 from electionwatch.store.mongo import MongoStore
 
-from fake_interaction_admin import (  # noqa: E402  (tests/ is on sys.path under pytest)
-    ADMIN_ROLE_ID,
-    DISCORD_LIMIT,
-    GUILD_ID,
-    OTHER_ROLE_ID,
-    ROLES,
-    FakeChannel,
-    FakeInteraction,
-    FakeMember,
-    FakeRole,
-    FakeUser,
-    http_exception,
-    make_interaction,
-    stand_in_client,
-)
-
 DEFAULT_KEYS = [str(race.key) for race in load_races()]
 NOW = datetime(2026, 11, 3, 23, 0, tzinfo=timezone.utc)
-_MONGO_DOWN = False   # one reachability probe per session instead of ~1 s per mongo-param test
+_MONGO_DOWN = False  # one reachability probe per session instead of ~1 s per mongo-param test
 
 
 # --------------------------------------------------------------------------- fixtures
@@ -218,7 +218,7 @@ async def user_doc(store, user_id):
 
 def yaml_block(content: str) -> dict:
     assert content.startswith("```yaml\n") and content.endswith("\n```"), content[:40]
-    return yaml.safe_load(content[len("```yaml\n"):-len("\n```")])
+    return yaml.safe_load(content[len("```yaml\n") : -len("\n```")])
 
 
 # --------------------------------------------------------------------------- permission matrix
@@ -228,42 +228,130 @@ REFUSE_DM = "Use this command in a server"
 
 # (id, command, kwargs, admin_only, guild_only, check(guild_settings, user_settings, reply))
 SPECS = [
-    ("setup", setup_command, {"channel": FakeChannel(555)}, True, True,
-     lambda gs, us, r: gs.channel_id == 555 and gs.admin_role_id == ADMIN_ROLE_ID and "<#555>" in r),
-    ("setup+role", setup_command, {"channel": FakeChannel(556), "admin_role": FakeRole(ADMIN_ROLE_ID)},
-     True, True, lambda gs, us, r: gs.channel_id == 556 and f"<@&{ADMIN_ROLE_ID}>" in r),
-    ("watch add", watch_command, {"action": "add", "race": "nc-1"}, True, True,
-     lambda gs, us, r: gs.important == ["TX SEN", "GA GOV", "NC-01"] and r == "Watching NC-01"),
-    ("watch remove", watch_command, {"action": "remove", "race": "Texas Senate"}, True, True,
-     lambda gs, us, r: gs.important == ["GA GOV"] and "Removed TX SEN" in r),
-    ("watch list", watch_command, {"action": "list"}, False, True,
-     lambda gs, us, r: r == "Watched races: TX SEN, GA GOV"),
-    ("posting interval", posting_command, {"mode": "interval", "minutes": 30}, True, True,
-     lambda gs, us, r: gs.post_mode is PostMode.INTERVAL and gs.interval_minutes == 30),
-    ("posting immediate", posting_command, {"mode": "immediate"}, True, True,
-     lambda gs, us, r: gs.post_mode is PostMode.IMMEDIATE),
-    ("posting default", posting_command, {"mode": "default"}, True, True,
-     lambda gs, us, r: gs.post_mode is PostMode.DEFAULT),
-    ("calls on", calls_command, {"outlets": "ap cnn", "enabled": "on"}, True, True,
-     lambda gs, us, r: gs.post_calls and gs.call_outlets == ["AP", "CNN"]),
-    ("calls off", calls_command, {"outlets": "FOX", "enabled": "off"}, True, True,
-     lambda gs, us, r: "FOX" not in gs.call_outlets),
-    ("oddsalerts on", odds_alerts_command, {"enabled": "on", "threshold": 5.0, "window": 30}, True, True,
-     lambda gs, us, r: gs.odds_alerts and gs.odds_swing_pts == 5.0 and gs.odds_window_minutes == 30),
-    ("oddsalerts off", odds_alerts_command, {"enabled": "off"}, True, True,
-     lambda gs, us, r: not gs.odds_alerts),
-    ("turnout off", turnout_command, {"enabled": "off"}, True, True,
-     lambda gs, us, r: gs.post_turnout is False and r == "turnout off"),
-    ("exitpolls on", exitpolls_command, {"enabled": "on"}, True, True,
-     lambda gs, us, r: gs.post_exit_polls is True and r == "exit polls on"),
+    (
+        "setup",
+        setup_command,
+        {"channel": FakeChannel(555)},
+        True,
+        True,
+        lambda gs, us, r: gs.channel_id == 555 and gs.admin_role_id == ADMIN_ROLE_ID and "<#555>" in r,
+    ),
+    (
+        "setup+role",
+        setup_command,
+        {"channel": FakeChannel(556), "admin_role": FakeRole(ADMIN_ROLE_ID)},
+        True,
+        True,
+        lambda gs, us, r: gs.channel_id == 556 and f"<@&{ADMIN_ROLE_ID}>" in r,
+    ),
+    (
+        "watch add",
+        watch_command,
+        {"action": "add", "race": "nc-1"},
+        True,
+        True,
+        lambda gs, us, r: gs.important == ["TX SEN", "GA GOV", "NC-01"] and r == "Watching NC-01",
+    ),
+    (
+        "watch remove",
+        watch_command,
+        {"action": "remove", "race": "Texas Senate"},
+        True,
+        True,
+        lambda gs, us, r: gs.important == ["GA GOV"] and "Removed TX SEN" in r,
+    ),
+    (
+        "watch list",
+        watch_command,
+        {"action": "list"},
+        False,
+        True,
+        lambda gs, us, r: r == "Watched races: TX SEN, GA GOV",
+    ),
+    (
+        "posting interval",
+        posting_command,
+        {"mode": "interval", "minutes": 30},
+        True,
+        True,
+        lambda gs, us, r: gs.post_mode is PostMode.INTERVAL and gs.interval_minutes == 30,
+    ),
+    (
+        "posting immediate",
+        posting_command,
+        {"mode": "immediate"},
+        True,
+        True,
+        lambda gs, us, r: gs.post_mode is PostMode.IMMEDIATE,
+    ),
+    (
+        "posting default",
+        posting_command,
+        {"mode": "default"},
+        True,
+        True,
+        lambda gs, us, r: gs.post_mode is PostMode.DEFAULT,
+    ),
+    (
+        "calls on",
+        calls_command,
+        {"outlets": "ap cnn", "enabled": "on"},
+        True,
+        True,
+        lambda gs, us, r: gs.post_calls and gs.call_outlets == ["AP", "CNN"],
+    ),
+    (
+        "calls off",
+        calls_command,
+        {"outlets": "FOX", "enabled": "off"},
+        True,
+        True,
+        lambda gs, us, r: "FOX" not in gs.call_outlets,
+    ),
+    (
+        "oddsalerts on",
+        odds_alerts_command,
+        {"enabled": "on", "threshold": 5.0, "window": 30},
+        True,
+        True,
+        lambda gs, us, r: gs.odds_alerts and gs.odds_swing_pts == 5.0 and gs.odds_window_minutes == 30,
+    ),
+    ("oddsalerts off", odds_alerts_command, {"enabled": "off"}, True, True, lambda gs, us, r: not gs.odds_alerts),
+    (
+        "turnout off",
+        turnout_command,
+        {"enabled": "off"},
+        True,
+        True,
+        lambda gs, us, r: gs.post_turnout is False and r == "turnout off",
+    ),
+    (
+        "exitpolls on",
+        exitpolls_command,
+        {"enabled": "on"},
+        True,
+        True,
+        lambda gs, us, r: gs.post_exit_polls is True and r == "exit polls on",
+    ),
     ("pause", pause_command, {}, True, True, lambda gs, us, r: gs.paused is True),
     ("resume", resume_command, {}, True, True, lambda gs, us, r: gs.paused is False),
-    ("settings", settings_command, {}, False, True,
-     lambda gs, us, r: yaml_block(r)["guild_id"] == GUILD_ID),
-    ("favorite add", favorite_command, {"action": "add", "race": "tx sen"}, False, False,
-     lambda gs, us, r: us.favorites == ["GA GOV", "TX SEN"] and r == "Favorited TX SEN"),
-    ("favorite remove", favorite_command, {"action": "remove", "race": "GA GOV"}, False, False,
-     lambda gs, us, r: us.favorites == []),
+    ("settings", settings_command, {}, False, True, lambda gs, us, r: yaml_block(r)["guild_id"] == GUILD_ID),
+    (
+        "favorite add",
+        favorite_command,
+        {"action": "add", "race": "tx sen"},
+        False,
+        False,
+        lambda gs, us, r: us.favorites == ["GA GOV", "TX SEN"] and r == "Favorited TX SEN",
+    ),
+    (
+        "favorite remove",
+        favorite_command,
+        {"action": "remove", "race": "GA GOV"},
+        False,
+        False,
+        lambda gs, us, r: us.favorites == [],
+    ),
 ]
 
 
@@ -286,7 +374,7 @@ async def test_permission_matrix(store, spec, role):
         gs = await store.get_guild(GUILD_ID)
         us = await store.get_user(501)
         assert check(gs, us, reply.content), reply.content
-        if not admin_only and guild_only:          # read-only commands
+        if not admin_only and guild_only:  # read-only commands
             assert (await guild_doc(store), await user_doc(store, 501)) == before
     else:
         assert (REFUSE_DM if role == "dm" else REFUSE_PLAIN) in reply.content
@@ -360,15 +448,20 @@ async def test_setup_without_role_then_role_grants_access_to_ordinary_member(sto
     assert REFUSE_PLAIN in reply.content
     assert (await store.get_guild(GUILD_ID)).paused is False
 
-    await invoke(setup_command, make_interaction(client, "manage"), channel=FakeChannel(42),
-                 admin_role=FakeRole(ADMIN_ROLE_ID))
+    await invoke(
+        setup_command, make_interaction(client, "manage"), channel=FakeChannel(42), admin_role=FakeRole(ADMIN_ROLE_ID)
+    )
     assert (await store.get_guild(GUILD_ID)).admin_role_id == ADMIN_ROLE_ID
 
     for command, kwargs in [
-        (pause_command, {}), (resume_command, {}), (turnout_command, {"enabled": "off"}),
-        (exitpolls_command, {"enabled": "off"}), (posting_command, {"mode": "immediate"}),
+        (pause_command, {}),
+        (resume_command, {}),
+        (turnout_command, {"enabled": "off"}),
+        (exitpolls_command, {"enabled": "off"}),
+        (posting_command, {"mode": "immediate"}),
         (calls_command, {"outlets": "AP", "enabled": "on"}),
-        (odds_alerts_command, {"enabled": "on"}), (watch_command, {"action": "add", "race": "NC-01"}),
+        (odds_alerts_command, {"enabled": "on"}),
+        (watch_command, {"action": "add", "race": "NC-01"}),
         (setup_command, {"channel": FakeChannel(43)}),
     ]:
         reply = await invoke(command, make_interaction(client, "role_admin"), **kwargs)
@@ -387,13 +480,15 @@ async def test_setup_without_role_then_role_grants_access_to_ordinary_member(sto
 
 async def test_setup_switching_admin_role(memory_store):
     client = stand_in_client(memory_store)
-    await invoke(setup_command, make_interaction(client, "manage"), channel=FakeChannel(1),
-                 admin_role=FakeRole(OTHER_ROLE_ID))
+    await invoke(
+        setup_command, make_interaction(client, "manage"), channel=FakeChannel(1), admin_role=FakeRole(OTHER_ROLE_ID)
+    )
     # Everybody in make_user("plain") has OTHER_ROLE_ID, so plain now administers.
     reply = await invoke(pause_command, make_interaction(client, "plain"))
     assert reply.content == "Election posts paused."
-    await invoke(setup_command, make_interaction(client, "manage"), channel=FakeChannel(1),
-                 admin_role=FakeRole(ADMIN_ROLE_ID))
+    await invoke(
+        setup_command, make_interaction(client, "manage"), channel=FakeChannel(1), admin_role=FakeRole(ADMIN_ROLE_ID)
+    )
     reply = await invoke(resume_command, make_interaction(client, "plain"))
     assert REFUSE_PLAIN in reply.content
 
@@ -413,8 +508,9 @@ def test_change_setup_logic_rejects_missing_channel():
 @pytest.mark.parametrize("mode", ["default", "interval", "immediate"])
 async def test_posting_every_mode_and_minutes(memory_store, mode, minutes):
     await memory_store.save_guild(GuildSettings(GUILD_ID, interval_minutes=12))
-    reply = await invoke(posting_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         mode=mode, minutes=minutes)
+    reply = await invoke(
+        posting_command, make_interaction(stand_in_client(memory_store), "manage"), mode=mode, minutes=minutes
+    )
     gs = await memory_store.get_guild(GUILD_ID)
     assert gs.post_mode is PostMode(mode)
     if mode == "interval":
@@ -454,8 +550,9 @@ def test_change_posting_is_case_insensitive(mode):
 async def test_posting_command_reports_out_of_range_minutes_and_saves_nothing(memory_store, minutes):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
-    reply = await invoke(posting_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         mode="interval", minutes=minutes)
+    reply = await invoke(
+        posting_command, make_interaction(stand_in_client(memory_store), "manage"), mode="interval", minutes=minutes
+    )
     assert "1440" in reply.content
     assert await guild_doc(memory_store) == before
 
@@ -470,7 +567,7 @@ def test_posting_mode_switching_keeps_interval_sane():
         assert gs.interval_minutes == 30
     change_posting(gs, "interval")
     assert gs.post_mode is PostMode.INTERVAL and gs.interval_minutes == 30
-    change_posting(gs, "default", 99)       # minutes are ignored outside interval mode
+    change_posting(gs, "default", 99)  # minutes are ignored outside interval mode
     assert gs.interval_minutes == 30
     change_posting(gs, "interval", 1)
     change_posting(gs, "interval")
@@ -485,7 +582,7 @@ def test_post_due_follows_each_mode():
     last = NOW - timedelta(minutes=3)
     assert post_due(GuildSettings(1, post_mode=PostMode.IMMEDIATE), last, NOW, True)
     assert not post_due(GuildSettings(1, post_mode=PostMode.IMMEDIATE), last, NOW, False)
-    assert not post_due(GuildSettings(1), last, NOW, True)                # default = 5 min
+    assert not post_due(GuildSettings(1), last, NOW, True)  # default = 5 min
     assert post_due(GuildSettings(1), NOW - timedelta(minutes=5), NOW, True)
     interval = GuildSettings(1, post_mode=PostMode.INTERVAL, interval_minutes=2)
     assert post_due(interval, last, NOW, True)
@@ -503,8 +600,13 @@ def test_post_due_follows_each_mode():
 @pytest.mark.parametrize("enabled", ["on", "off"])
 async def test_oddsalerts_every_choice_and_boundary(memory_store, enabled, threshold, window):
     await memory_store.save_guild(GuildSettings(GUILD_ID, odds_swing_pts=7.0, odds_window_minutes=45))
-    reply = await invoke(odds_alerts_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         enabled=enabled, threshold=threshold, window=window)
+    reply = await invoke(
+        odds_alerts_command,
+        make_interaction(stand_in_client(memory_store), "manage"),
+        enabled=enabled,
+        threshold=threshold,
+        window=window,
+    )
     gs = await memory_store.get_guild(GUILD_ID)
     assert gs.odds_alerts is (enabled == "on")
     assert gs.odds_swing_pts == (7.0 if threshold is None else threshold)
@@ -515,8 +617,19 @@ async def test_oddsalerts_every_choice_and_boundary(memory_store, enabled, thres
 
 @pytest.mark.parametrize(
     "threshold, window",
-    [(0, None), (-1, None), (100.01, None), (math.nan, None), (math.inf, None), (-math.inf, None),
-     (None, 0), (None, -5), (None, 1441), (5.0, 1441), (0, 30)],
+    [
+        (0, None),
+        (-1, None),
+        (100.01, None),
+        (math.nan, None),
+        (math.inf, None),
+        (-math.inf, None),
+        (None, 0),
+        (None, -5),
+        (None, 1441),
+        (5.0, 1441),
+        (0, 30),
+    ],
 )
 def test_change_odds_rejects_out_of_range_atomically(threshold, window):
     gs = GuildSettings(1, odds_alerts=False, odds_swing_pts=7.0, odds_window_minutes=45)
@@ -529,8 +642,13 @@ def test_change_odds_rejects_out_of_range_atomically(threshold, window):
 async def test_oddsalerts_command_reports_out_of_range_and_saves_nothing(memory_store, threshold, window):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
-    await invoke(odds_alerts_command, make_interaction(stand_in_client(memory_store), "manage"),
-                 enabled="on", threshold=threshold, window=window)
+    await invoke(
+        odds_alerts_command,
+        make_interaction(stand_in_client(memory_store), "manage"),
+        enabled="on",
+        threshold=threshold,
+        window=window,
+    )
     assert await guild_doc(memory_store) == before
 
 
@@ -552,16 +670,21 @@ SEPARATOR_CASES = [
 @pytest.mark.parametrize("outlet", sorted(OUTLETS))
 @pytest.mark.parametrize("spelling", [str.upper, str.lower, str.title])
 async def test_calls_each_outlet_singly(memory_store, outlet, spelling):
-    reply = await invoke(calls_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         outlets=spelling(outlet), enabled="on")
+    reply = await invoke(
+        calls_command, make_interaction(stand_in_client(memory_store), "manage"), outlets=spelling(outlet), enabled="on"
+    )
     gs = await memory_store.get_guild(GUILD_ID)
     assert gs.call_outlets == [outlet] and gs.post_calls is True
     assert outlet in reply.content
 
 
 async def test_calls_all_outlets(memory_store):
-    await invoke(calls_command, make_interaction(stand_in_client(memory_store), "manage"),
-                 outlets=" ".join(sorted(OUTLETS, reverse=True)), enabled="on")
+    await invoke(
+        calls_command,
+        make_interaction(stand_in_client(memory_store), "manage"),
+        outlets=" ".join(sorted(OUTLETS, reverse=True)),
+        enabled="on",
+    )
     assert (await memory_store.get_guild(GUILD_ID)).call_outlets == sorted(OUTLETS)
 
 
@@ -576,8 +699,9 @@ def test_change_calls_separators(text, expected):
 async def test_calls_rejects_unknown_or_empty_and_saves_nothing(memory_store, text):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
-    reply = await invoke(calls_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         outlets=text, enabled="on")
+    reply = await invoke(
+        calls_command, make_interaction(stand_in_client(memory_store), "manage"), outlets=text, enabled="on"
+    )
     assert reply.content.startswith("unknown outlets")
     assert await guild_doc(memory_store) == before
 
@@ -603,8 +727,9 @@ def test_calls_off_stops_only_the_named_outlets():
 @pytest.mark.parametrize("enabled", ["on", "off"])
 async def test_calls_on_off_messages_are_ephemeral_and_persist(store, enabled):
     await store.save_guild(GuildSettings(GUILD_ID))
-    reply = await invoke(calls_command, make_interaction(stand_in_client(store), "manage"),
-                         outlets="AP", enabled=enabled)
+    reply = await invoke(
+        calls_command, make_interaction(stand_in_client(store), "manage"), outlets="AP", enabled=enabled
+    )
     gs = await store.get_guild(GUILD_ID)
     assert ("AP" in gs.call_outlets) is (enabled == "on")
     assert "AP" in reply.content
@@ -612,42 +737,95 @@ async def test_calls_on_off_messages_are_ephemeral_and_persist(store, enabled):
 
 # --------------------------------------------------------------------------- /watch
 
-VALID_KEYS = [
-    ("TX SEN", "TX SEN"), ("tx sen", "TX SEN"), ("Tx Sen", "TX SEN"), ("TX-SEN", "TX SEN"),
-    ("  TX SEN  ", "TX SEN"), ("Texas Senate", "TX SEN"), ("texas u.s. senate", "TX SEN"),
-    ("NC-01", "NC-01"), ("NC-1", "NC-01"), ("nc-1", "NC-01"), ("nc-01", "NC-01"),
-    ("North Carolina Congressional District 1", "NC-01"), ("north carolina house district 12", "NC-12"),
-    ("AK-AL", "AK-AL"), ("ak-al", "AK-AL"), ("AK-01", "AK-AL"), ("AK-1", "AK-AL"), ("WY-AL", "WY-AL"),
-    ("PR-01", "PR-AL"), ("MT-01", "MT-01"),
-    ("OH SEN S", "OH SEN S"), ("OH SEN SPECIAL", "OH SEN S"), ("oh sen special", "OH SEN S"),
-    ("Ohio Senate Special", "OH SEN S"), ("NC-01 S", "NC-01 S"), ("FL GOV S", "FL GOV S"),
-    ("GA GOV", "GA GOV"), ("Georgia Governor", "GA GOV"), ("Georgia Governor race", "GA GOV"),
-    ("TX SD-05", "TX SD-05"), ("TX SD 5", "TX SD-05"), ("tx sd5", "TX SD-05"), ("TX HD-121", "TX HD-121"),
-    ("AK SD-A", "AK SD-A"), ("VT HD-CHT-6-7", "VT HD-CHT-6-7"), ("NH HD-12A", "NH HD-12A"),
-    ("TX LOCAL harris-county-judge", "TX LOCAL harris-county-judge"),
-    ("TX LOCAL Harris County Judge", "TX LOCAL harris-county-judge"),
-    ("DC-AL", "DC-AL"), ("DC SEN", "DC SEN"), ("District of Columbia Senate", "DC SEN"),
-    ("NC-99", "NC-99"),     # districts are not range-checked by racekeys.parse (contract)
-] + [(f"{code} {office}", f"{code} {office}") for code in ("TX", "ca") for office in STATEWIDE] \
-  + [(f"{code} SEN", f"{code} SEN") for code in STATES] \
-  + [(f"{code}-AL", f"{code}-AL") for code in TERRITORIES] \
-  + [(f"{code.lower()} gov", f"{code} GOV") for code in TERRITORIES] \
-  + [("Puerto Rico Governor", "PR GOV"), ("Guam Governor", "GU GOV")]
+VALID_KEYS = (
+    [
+        ("TX SEN", "TX SEN"),
+        ("tx sen", "TX SEN"),
+        ("Tx Sen", "TX SEN"),
+        ("TX-SEN", "TX SEN"),
+        ("  TX SEN  ", "TX SEN"),
+        ("Texas Senate", "TX SEN"),
+        ("texas u.s. senate", "TX SEN"),
+        ("NC-01", "NC-01"),
+        ("NC-1", "NC-01"),
+        ("nc-1", "NC-01"),
+        ("nc-01", "NC-01"),
+        ("North Carolina Congressional District 1", "NC-01"),
+        ("north carolina house district 12", "NC-12"),
+        ("AK-AL", "AK-AL"),
+        ("ak-al", "AK-AL"),
+        ("AK-01", "AK-AL"),
+        ("AK-1", "AK-AL"),
+        ("WY-AL", "WY-AL"),
+        ("PR-01", "PR-AL"),
+        ("MT-01", "MT-01"),
+        ("OH SEN S", "OH SEN S"),
+        ("OH SEN SPECIAL", "OH SEN S"),
+        ("oh sen special", "OH SEN S"),
+        ("Ohio Senate Special", "OH SEN S"),
+        ("NC-01 S", "NC-01 S"),
+        ("FL GOV S", "FL GOV S"),
+        ("GA GOV", "GA GOV"),
+        ("Georgia Governor", "GA GOV"),
+        ("Georgia Governor race", "GA GOV"),
+        ("TX SD-05", "TX SD-05"),
+        ("TX SD 5", "TX SD-05"),
+        ("tx sd5", "TX SD-05"),
+        ("TX HD-121", "TX HD-121"),
+        ("AK SD-A", "AK SD-A"),
+        ("VT HD-CHT-6-7", "VT HD-CHT-6-7"),
+        ("NH HD-12A", "NH HD-12A"),
+        ("TX LOCAL harris-county-judge", "TX LOCAL harris-county-judge"),
+        ("TX LOCAL Harris County Judge", "TX LOCAL harris-county-judge"),
+        ("DC-AL", "DC-AL"),
+        ("DC SEN", "DC SEN"),
+        ("District of Columbia Senate", "DC SEN"),
+        ("NC-99", "NC-99"),  # districts are not range-checked by racekeys.parse (contract)
+    ]
+    + [(f"{code} {office}", f"{code} {office}") for code in ("TX", "ca") for office in STATEWIDE]
+    + [(f"{code} SEN", f"{code} SEN") for code in STATES]
+    + [(f"{code}-AL", f"{code}-AL") for code in TERRITORIES]
+    + [(f"{code.lower()} gov", f"{code} GOV") for code in TERRITORIES]
+    + [("Puerto Rico Governor", "PR GOV"), ("Guam Governor", "GU GOV")]
+)
 VALID_KEYS = [(text, expected.replace("ca ", "CA ")) for text, expected in VALID_KEYS]
 
 INVALID_KEYS = [
-    "garbage", "ZZ SEN", "zz-01", "TX", "TX XYZ", "TX SEN EXTRA", "TX SEN S S", "NC-100", "NC-001",
-    "TX LOCAL", "TX SD", "nc 01", "NC 1", "Texas", "Narnia Senate", "ＴＸ SEN", "🇺🇸 SEN", "Техас SEN",
-    "TX​SEN", "A" * 500, "TX SEN " + "x" * 500, "TX LOCAL " + "x" * 500,
-    "TX LOCAL " + "y" * 3000, "TX HD-" + "9" * 500, "\x00", "<@everyone> SEN",
+    "garbage",
+    "ZZ SEN",
+    "zz-01",
+    "TX",
+    "TX XYZ",
+    "TX SEN EXTRA",
+    "TX SEN S S",
+    "NC-100",
+    "NC-001",
+    "TX LOCAL",
+    "TX SD",
+    "nc 01",
+    "NC 1",
+    "Texas",
+    "Narnia Senate",
+    "ＴＸ SEN",
+    "🇺🇸 SEN",
+    "Техас SEN",
+    "TX​SEN",
+    "A" * 500,
+    "TX SEN " + "x" * 500,
+    "TX LOCAL " + "x" * 500,
+    "TX LOCAL " + "y" * 3000,
+    "TX HD-" + "9" * 500,
+    "\x00",
+    "<@everyone> SEN",
 ]
 
 
 @pytest.mark.parametrize("text, expected", VALID_KEYS, ids=[t for t, _ in VALID_KEYS])
 async def test_watch_add_accepts_every_key_format(memory_store, text, expected):
     await memory_store.save_guild(GuildSettings(GUILD_ID, important=["GA GOV"]))
-    reply = await invoke(watch_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         action="add", race=text)
+    reply = await invoke(
+        watch_command, make_interaction(stand_in_client(memory_store), "manage"), action="add", race=text
+    )
     assert reply.content == f"Watching {expected}"
     assert (await memory_store.get_guild(GUILD_ID)).important[-1] == expected
 
@@ -657,8 +835,9 @@ async def test_watch_add_accepts_every_key_format(memory_store, text, expected):
 async def test_watch_rejects_invalid_keys_and_saves_nothing(memory_store, text, action):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
-    reply = await invoke(watch_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         action=action, race=text)
+    reply = await invoke(
+        watch_command, make_interaction(stand_in_client(memory_store), "manage"), action=action, race=text
+    )
     assert not reply.content.startswith(("Watching", "Removed"))
     assert await guild_doc(memory_store) == before
 
@@ -668,8 +847,9 @@ async def test_watch_rejects_invalid_keys_and_saves_nothing(memory_store, text, 
 async def test_watch_add_remove_require_a_race(memory_store, action, race):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
-    reply = await invoke(watch_command, make_interaction(stand_in_client(memory_store), "manage"),
-                         action=action, race=race)
+    reply = await invoke(
+        watch_command, make_interaction(stand_in_client(memory_store), "manage"), action=action, race=race
+    )
     assert reply.content == "race is required"
     assert await guild_doc(memory_store) == before
 
@@ -712,9 +892,12 @@ async def test_watch_remove_a_race_that_is_not_watched_changes_nothing(store):
 
 
 async def test_watch_list_with_500_races_fits_one_message(memory_store):
-    keys = [f"TX HD-{n:03d}" for n in range(1, 151)] + [f"CA SD-{n:02d}" for n in range(1, 41)] \
-        + [f"{code}-{n:02d}" for code in ("CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA") for n in range(1, 39)] \
+    keys = (
+        [f"TX HD-{n:03d}" for n in range(1, 151)]
+        + [f"CA SD-{n:02d}" for n in range(1, 41)]
+        + [f"{code}-{n:02d}" for code in ("CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA") for n in range(1, 39)]
         + [f"TX LOCAL county-{n}" for n in range(6)]
+    )
     keys = keys[:500]
     assert len(keys) == 500
     await memory_store.save_guild(GuildSettings(GUILD_ID, important=keys))
@@ -754,10 +937,18 @@ async def test_turnout_and_exitpolls_on_off(store, command, field, label, sequen
         assert getattr(await store.get_guild(GUILD_ID), field) is (value == "on")
 
 
-@pytest.mark.parametrize("sequence", [
-    ("pause",), ("resume",), ("pause", "pause"), ("resume", "resume"),
-    ("pause", "resume"), ("resume", "pause", "pause"), ("pause", "resume", "resume"),
-])
+@pytest.mark.parametrize(
+    "sequence",
+    [
+        ("pause",),
+        ("resume",),
+        ("pause", "pause"),
+        ("resume", "resume"),
+        ("pause", "resume"),
+        ("resume", "pause", "pause"),
+        ("pause", "resume", "resume"),
+    ],
+)
 async def test_pause_resume_idempotent_as_manager(store, sequence):
     client = stand_in_client(store)
     messages = {"pause": "Election posts paused.", "resume": "Election posts resumed."}
@@ -771,16 +962,26 @@ async def test_pause_resume_idempotent_as_manager(store, sequence):
 # --------------------------------------------------------------------------- /settings
 
 
-@pytest.mark.parametrize("gs", [
-    GuildSettings(GUILD_ID),
-    baseline(),
-    GuildSettings(GUILD_ID, important=[f"TX HD-{n:03d}" for n in range(1, 151)], paused=True,
-                  post_mode=PostMode.INTERVAL, interval_minutes=1440),
-    GuildSettings(GUILD_ID, important=[f"TX HD-{n:03d}" for n in range(1, 151)] * 4, paused=True,
-                  post_mode=PostMode.IMMEDIATE),
-    GuildSettings(GUILD_ID, important=[f"TX LOCAL {'z' * 90}-{n}" for n in range(500)], paused=True),
-    GuildSettings(GUILD_ID, call_outlets=sorted(OUTLETS), odds_swing_pts=0.1, odds_window_minutes=1440),
-], ids=["default", "baseline", "150 races", "600 races", "500 long local races", "all outlets"])
+@pytest.mark.parametrize(
+    "gs",
+    [
+        GuildSettings(GUILD_ID),
+        baseline(),
+        GuildSettings(
+            GUILD_ID,
+            important=[f"TX HD-{n:03d}" for n in range(1, 151)],
+            paused=True,
+            post_mode=PostMode.INTERVAL,
+            interval_minutes=1440,
+        ),
+        GuildSettings(
+            GUILD_ID, important=[f"TX HD-{n:03d}" for n in range(1, 151)] * 4, paused=True, post_mode=PostMode.IMMEDIATE
+        ),
+        GuildSettings(GUILD_ID, important=[f"TX LOCAL {'z' * 90}-{n}" for n in range(500)], paused=True),
+        GuildSettings(GUILD_ID, call_outlets=sorted(OUTLETS), odds_swing_pts=0.1, odds_window_minutes=1440),
+    ],
+    ids=["default", "baseline", "150 races", "600 races", "500 long local races", "all outlets"],
+)
 async def test_settings_is_valid_yaml_and_fits_one_message(store, gs):
     await store.save_guild(gs)
     reply = await invoke(settings_command, make_interaction(stand_in_client(store), "plain"))
@@ -834,8 +1035,9 @@ async def test_favorite_add_remove_duplicate(store, role):
 @pytest.mark.parametrize("text", INVALID_KEYS + [""], ids=[t[:24] for t in INVALID_KEYS + [""]])
 async def test_favorite_invalid_keys_save_nothing(memory_store, text):
     await memory_store.save_user(UserSettings(501, favorites=["GA GOV"]))
-    reply = await invoke(favorite_command, make_interaction(stand_in_client(memory_store), "dm"),
-                         action="add", race=text)
+    reply = await invoke(
+        favorite_command, make_interaction(stand_in_client(memory_store), "dm"), action="add", race=text
+    )
     assert not reply.content.startswith("Favorited")
     assert (await memory_store.get_user(501)).favorites == ["GA GOV"]
 
@@ -882,10 +1084,20 @@ async def test_every_setting_round_trips_through_the_store(store):
 
     gs = await store.get_guild(GUILD_ID)
     assert gs == GuildSettings(
-        GUILD_ID, channel_id=77, admin_role_id=ADMIN_ROLE_ID, important=["NC-01", "OH SEN S"],
-        post_mode=PostMode.INTERVAL, interval_minutes=1440, post_calls=True,
-        call_outlets=["DDHQ", "NYT"], post_turnout=False, post_exit_polls=False, odds_alerts=True,
-        odds_swing_pts=0.1, odds_window_minutes=1, paused=True,
+        GUILD_ID,
+        channel_id=77,
+        admin_role_id=ADMIN_ROLE_ID,
+        important=["NC-01", "OH SEN S"],
+        post_mode=PostMode.INTERVAL,
+        interval_minutes=1440,
+        post_calls=True,
+        call_outlets=["DDHQ", "NYT"],
+        post_turnout=False,
+        post_exit_polls=False,
+        odds_alerts=True,
+        odds_swing_pts=0.1,
+        odds_window_minutes=1,
+        paused=True,
     )
     assert isinstance(gs.post_mode, PostMode)
     assert await store.all_guilds() == [gs]
@@ -980,17 +1192,25 @@ class _FailingStore(MemoryStore):
         raise ConnectionError("mongodb://u:secret@db down")
 
 
-@pytest.mark.parametrize("command, kwargs", [
-    (setup_command, {"channel": FakeChannel(1)}), (watch_command, {"action": "add", "race": "NC-01"}),
-    (posting_command, {"mode": "immediate"}), (calls_command, {"outlets": "AP", "enabled": "on"}),
-    (odds_alerts_command, {"enabled": "on"}), (turnout_command, {"enabled": "on"}),
-    (exitpolls_command, {"enabled": "on"}), (pause_command, {}), (resume_command, {}),
-])
+@pytest.mark.parametrize(
+    "command, kwargs",
+    [
+        (setup_command, {"channel": FakeChannel(1)}),
+        (watch_command, {"action": "add", "race": "NC-01"}),
+        (posting_command, {"mode": "immediate"}),
+        (calls_command, {"outlets": "AP", "enabled": "on"}),
+        (odds_alerts_command, {"enabled": "on"}),
+        (turnout_command, {"enabled": "on"}),
+        (exitpolls_command, {"enabled": "on"}),
+        (pause_command, {}),
+        (resume_command, {}),
+    ],
+)
 async def test_store_failure_propagates_to_the_tree_error_handler(command, kwargs):
     interaction = make_interaction(stand_in_client(_FailingStore()), "manage", command=command.name)
     with pytest.raises(ConnectionError) as info:
         await command.callback(interaction, **kwargs)
-    assert interaction.sent == []           # nothing sent yet, so the handler can respond
+    assert interaction.sent == []  # nothing sent yet, so the handler can respond
     await handle_app_command_error(interaction, info.value)
     assert len(interaction.replies) == 1 and interaction.replies[0].ephemeral
     assert "secret" not in interaction.text
@@ -1098,7 +1318,7 @@ async def test_poller_pause_and_resume(store):
     harness.results.votes += 1
     harness.clock.advance(1)
     assert await harness.tick() == []
-    await harness.run(pause_command)   # idempotent
+    await harness.run(pause_command)  # idempotent
     assert await harness.tick() == []
 
     await harness.run(resume_command)
@@ -1120,15 +1340,15 @@ async def test_poller_posting_modes(store):
         harness.clock.advance(minutes)
         return [post for post in await harness.tick() if post.kind == "results"]
 
-    assert len(await harness.tick()) == 1                       # first post is always due
-    assert await bump_and_tick(1) == []                         # default: 5 minutes
+    assert len(await harness.tick()) == 1  # first post is always due
+    assert await bump_and_tick(1) == []  # default: 5 minutes
     assert len(await bump_and_tick(4)) == 1
 
     await harness.run(posting_command, mode="immediate")
     assert len(await bump_and_tick(1)) == 1
     assert len(await bump_and_tick(1)) == 1
     harness.clock.advance(1)
-    assert await harness.tick() == []                           # unchanged results never post
+    assert await harness.tick() == []  # unchanged results never post
 
     await harness.run(posting_command, mode="interval", minutes=15)
     assert await bump_and_tick(10) == []
@@ -1179,7 +1399,7 @@ async def test_poller_exitpolls_toggle(store):
     harness.clock.advance(1)
     assert kinds(post for post in await harness.tick() if post.kind == "exitpoll") == [("exitpoll", "TX SEN")]
     harness.clock.advance(1)
-    assert [post for post in await harness.tick() if post.kind == "exitpoll"] == []   # once per outlet
+    assert [post for post in await harness.tick() if post.kind == "exitpoll"] == []  # once per outlet
 
 
 async def test_poller_watch_changes_which_races_post(store):
@@ -1187,7 +1407,7 @@ async def test_poller_watch_changes_which_races_post(store):
     await harness.run(setup_command, channel=FakeChannel(10))
     await harness.run(posting_command, mode="immediate")
     await harness.run(exitpolls_command, enabled="off")
-    assert kinds(await harness.tick()) == [("results", "TX SEN")]          # defaults only
+    assert kinds(await harness.tick()) == [("results", "TX SEN")]  # defaults only
 
     await harness.run(watch_command, action="add", race="nc-1")
     harness.clock.advance(1)
@@ -1207,12 +1427,21 @@ async def test_commands_with_a_real_election_bot():
         bot = ElectionBot(MemoryStore(), {}, http)
         try:
             names = {command.name for command in bot.tree.get_commands()}
-            for command in (setup_command, watch_command, posting_command, calls_command,
-                            odds_alerts_command, turnout_command, exitpolls_command, pause_command,
-                            resume_command, settings_command, favorite_command):
+            for command in (
+                setup_command,
+                watch_command,
+                posting_command,
+                calls_command,
+                odds_alerts_command,
+                turnout_command,
+                exitpolls_command,
+                pause_command,
+                resume_command,
+                settings_command,
+                favorite_command,
+            ):
                 assert command.name in names
-            await invoke(setup_command, FakeInteraction(bot, FakeMember(1, manage_guild=True)),
-                         channel=FakeChannel(5))
+            await invoke(setup_command, FakeInteraction(bot, FakeMember(1, manage_guild=True)), channel=FakeChannel(5))
             await invoke(pause_command, FakeInteraction(bot, FakeMember(1, manage_guild=True)))
             reply = await invoke(settings_command, FakeInteraction(bot, FakeMember(2)))
             assert yaml_block(reply.content)["paused"] is True
@@ -1233,8 +1462,12 @@ def test_command_parameter_ranges_match_logic_limits():
     assert (params["window"].min_value, params["window"].max_value) == (1, 1440)
     choices = {p.name: [c.value for c in p.choices] for p in bot_discord.posting_command.parameters if p.choices}
     assert choices == {"mode": ["default", "interval", "immediate"]}
-    for command in (bot_discord.calls_command, bot_discord.odds_alerts_command,
-                    bot_discord.turnout_command, bot_discord.exitpolls_command):
+    for command in (
+        bot_discord.calls_command,
+        bot_discord.odds_alerts_command,
+        bot_discord.turnout_command,
+        bot_discord.exitpolls_command,
+    ):
         enabled = next(p for p in command.parameters if p.name == "enabled")
         assert [c.value for c in enabled.choices] == ["on", "off"]
     action = next(p for p in bot_discord.watch_command.parameters if p.name == "action")

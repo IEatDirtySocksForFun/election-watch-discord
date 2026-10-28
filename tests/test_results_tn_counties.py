@@ -1,4 +1,5 @@
 """tn_counties: Shelby County's Enhanced Voting export, keyed to Tennessee races."""
+
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -25,8 +26,7 @@ def by_key(results):
 
 
 def shelby_2024():
-    return by_key(tn_counties.parse_tn_county(
-        load("shelby_2024_export.json"), county="Shelby", fetched_at=AT))
+    return by_key(tn_counties.parse_tn_county(load("shelby_2024_export.json"), county="Shelby", fetched_at=AT))
 
 
 def test_president_and_senate_are_tennessee_races():
@@ -54,7 +54,7 @@ def test_repeated_party_prefix_is_stripped():
 
 def test_congressional_and_state_legislative_districts():
     got = shelby_2024()
-    assert got["TN-08"].key.district == "08"            # Memphis splits 8 and 9
+    assert got["TN-08"].key.district == "08"  # Memphis splits 8 and 9
     assert got["TN-09"].candidates[0].name == "Steve Cohen"
     assert got["TN SD-30"].key.district == "30"
     assert got["TN HD-83"].key.district == "83"
@@ -67,7 +67,7 @@ def test_municipal_contests_are_namespaced_and_deduplicated():
     assert "TN LOCAL shelby-bartlett-alderman-position-4" in got
     assert "TN LOCAL shelby-collierville-mayor" in got
     mayor = got["TN LOCAL shelby-collierville-mayor"]
-    assert mayor.title == "Collierville Mayor Collierville"    # title kept verbatim
+    assert mayor.title == "Collierville Mayor Collierville"  # title kept verbatim
     assert [c.party for c in mayor.candidates] == ["NPA", "NPA", "NPA"]
 
 
@@ -75,32 +75,46 @@ def test_unrecognised_names_still_get_a_key():
     key = tn_counties.race_key("shelby", "Memphis City Court Clerk")
     assert format_key(key) == "TN LOCAL shelby-memphis-city-court-clerk"
     assert tn_counties.race_key("shelby", "GOVERNOR").office == "GOV"
-    assert tn_counties.race_key("shelby", "Tennessee House of Representatives District 96")\
-        .district == "96"
+    assert tn_counties.race_key("shelby", "Tennessee House of Representatives District 96").district == "96"
 
 
 def test_parse_drops_empty_and_malformed_documents():
-    assert _ev_county.parse_items(
-        {"results": {"ballotItems": []}},
-        key_fn=lambda n: tn_counties.race_key("shelby", n),
-        source="tn_counties", url="u", fetched_at=AT) == []
-    assert _ev_county.parse_items(
-        {"results": {"ballotItems": [{"name": "United States Senate", "ballotOptions": []}]}},
-        key_fn=lambda n: tn_counties.race_key("shelby", n),
-        source="tn_counties", url="u", fetched_at=AT) == []
+    assert (
+        _ev_county.parse_items(
+            {"results": {"ballotItems": []}},
+            key_fn=lambda n: tn_counties.race_key("shelby", n),
+            source="tn_counties",
+            url="u",
+            fetched_at=AT,
+        )
+        == []
+    )
+    assert (
+        _ev_county.parse_items(
+            {"results": {"ballotItems": [{"name": "United States Senate", "ballotOptions": []}]}},
+            key_fn=lambda n: tn_counties.race_key("shelby", n),
+            source="tn_counties",
+            url="u",
+            fetched_at=AT,
+        )
+        == []
+    )
     assert tn_counties.parse_tn_county(None, county="Shelby", fetched_at=AT) == []
 
 
 def test_feed_table_and_override(monkeypatch):
     monkeypatch.delenv("TN_COUNTY_FEEDS", raising=False)
-    assert tn_counties.feeds("2024-11-05") == [
-        {"county": "Shelby", "slug": "General11052024"}]
-    monkeypatch.setenv("TN_COUNTY_FEEDS", json.dumps([
-        {"county": "Shelby", "slug": "General11032026", "date": "2026-11-03"},
-        {"county": "Davidson", "slug": "General11052024", "date": "2024-11-05"},
-    ]))
-    assert tn_counties.feeds("2026-11-03") == [
-        {"county": "Shelby", "slug": "General11032026"}]
+    assert tn_counties.feeds("2024-11-05") == [{"county": "Shelby", "slug": "General11052024"}]
+    monkeypatch.setenv(
+        "TN_COUNTY_FEEDS",
+        json.dumps(
+            [
+                {"county": "Shelby", "slug": "General11032026", "date": "2026-11-03"},
+                {"county": "Davidson", "slug": "General11052024", "date": "2024-11-05"},
+            ]
+        ),
+    )
+    assert tn_counties.feeds("2026-11-03") == [{"county": "Shelby", "slug": "General11032026"}]
     with pytest.raises(SourceUnavailable):
         monkeypatch.setenv("TN_COUNTY_FEEDS", "{oops")
         tn_counties.feeds("2026-11-03")
@@ -114,14 +128,12 @@ def test_fetch_reads_the_county_export_and_marks_it_partial(monkeypatch):
     monkeypatch.delenv("TN_COUNTY_FEEDS", raising=False)
 
     def handler(request: httpx.Request) -> httpx.Response:
-        assert request.url.path == (
-            "/cdn/results/shelby-county-tn/export-General11052024.json")
+        assert request.url.path == ("/cdn/results/shelby-county-tn/export-General11052024.json")
         return httpx.Response(200, json=load("shelby_2024_export.json"))
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await tn_counties.TnCounties().fetch(
-                [parse("TN SEN"), parse("TN-09"), parse("TN GOV")], c)
+            return await tn_counties.TnCounties().fetch([parse("TN SEN"), parse("TN-09"), parse("TN GOV")], c)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"TN SEN", "TN-09"}
@@ -135,8 +147,7 @@ def test_fetch_raises_when_the_export_is_not_published(monkeypatch):
     monkeypatch.delenv("TN_COUNTY_FEEDS", raising=False)
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda request: httpx.Response(404))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as c:
             await tn_counties.TnCounties().fetch([parse("TN SEN")], c)
 
     with pytest.raises(SourceUnavailable):
@@ -145,8 +156,7 @@ def test_fetch_raises_when_the_export_is_not_published(monkeypatch):
 
 def test_other_states_are_ignored():
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda request: httpx.Response(500))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(500))) as c:
             return await tn_counties.TnCounties().fetch([parse("TX SEN")], c)
 
     assert asyncio.run(go()) == []
@@ -156,9 +166,10 @@ def test_other_states_are_ignored():
 def test_merge_helper_is_the_shared_county_one():
     # The raw `_county.merge` (shared with tx/nj/mi) always pluralises ...
     merged = _county.merge(
-        tn_counties.parse_tn_county(load("shelby_2024_export.json"),
-                                    county="Shelby", fetched_at=AT),
-        source="tn_counties", url=tn_counties.HUMAN)
+        tn_counties.parse_tn_county(load("shelby_2024_export.json"), county="Shelby", fetched_at=AT),
+        source="tn_counties",
+        url=tn_counties.HUMAN,
+    )
     titles = [r.title for r in merged if r.key.office == "SEN"]
     assert titles == ["United States Senate (partial: 1 counties)"]
     # ... and the adapter rewrites it for its single configured county (see tests above).

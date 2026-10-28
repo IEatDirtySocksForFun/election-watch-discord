@@ -7,7 +7,8 @@ import httpx
 import pytest
 
 from electionwatch.models import Level
-from electionwatch.racekeys import format_key, parse as parse_key
+from electionwatch.racekeys import format_key
+from electionwatch.racekeys import parse as parse_key
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import sc_sec
 from electionwatch.sources.results.sc_sec import parse_sc, race_key
@@ -18,8 +19,7 @@ AT = datetime(2026, 10, 27, 15, 30, tzinfo=timezone.utc)
 
 
 def parse():
-    return parse_sc(json.loads((FIX / "2024_general_summary.json").read_text()),
-                    fetched_at=AT)
+    return parse_sc(json.loads((FIX / "2024_general_summary.json").read_text()), fetched_at=AT)
 
 
 def by_key(results):
@@ -58,9 +58,9 @@ def test_votes_percent_winner_and_precincts():
     assert p.candidates[1].winner is False
 
     house = by_key(parse())["SC-01"]
-    assert house.total_votes == 390777          # source T, not recomputed from the trimmed slice
+    assert house.total_votes == 390777  # source T, not recomputed from the trimmed slice
     assert house.precincts_total == 6
-    assert house.precincts_reporting is None    # PR == 0 -> unknown, not "0 reported"
+    assert house.precincts_reporting is None  # PR == 0 -> unknown, not "0 reported"
     assert house.candidates[0].pct == pytest.approx(58.2, abs=0.2)
 
 
@@ -69,8 +69,7 @@ def test_double_spaces_in_contest_names_are_normalised():
     assert format_key(race_key("State  Senate, District  1")) == "SC SD-01"
     assert format_key(race_key("State House of Representatives, District 35")) == "SC HD-35"
     assert format_key(race_key("U.S. Senate")) == "SC SEN"
-    assert format_key(race_key("President and Vice President")) == \
-        "SC LOCAL us-president"
+    assert format_key(race_key("President and Vice President")) == "SC LOCAL us-president"
 
 
 def test_parse_tolerates_junk():
@@ -97,8 +96,7 @@ def test_fetch_uses_pinned_id_version_file(monkeypatch):
             return await sc_sec.ScSec().fetch([parse_key("SC-01"), parse_key("SC SD-19")], c)
 
     assert set(by_key(asyncio.run(go()))) == {"SC-01", "SC SD-19"}
-    assert seen == [f"{BASE}/122436/current_ver.txt",
-                    f"{BASE}/122436/359624/json/en/summary.json"]
+    assert seen == [f"{BASE}/122436/current_ver.txt", f"{BASE}/122436/359624/json/en/summary.json"]
 
 
 def test_discovery_reads_election_index(monkeypatch):
@@ -109,10 +107,13 @@ def test_discovery_reads_election_index(monkeypatch):
         url = str(request.url)
         seen.append(url)
         if url.endswith("/elections.json"):
-            return httpx.Response(200, json=[
-                {"ElectionId": 130000, "ElectionDate": "2026-06-09", "Name": "Primary"},
-                {"ElectionId": 130912, "ElectionDate": "2026-11-03", "Name": "General"},
-            ])
+            return httpx.Response(
+                200,
+                json=[
+                    {"ElectionId": 130000, "ElectionDate": "2026-06-09", "Name": "Primary"},
+                    {"ElectionId": 130912, "ElectionDate": "2026-11-03", "Name": "General"},
+                ],
+            )
         if url.endswith("/130912/current_ver.txt"):
             return httpx.Response(200, text="100")
         if url.endswith("/130912/100/json/en/summary.json"):
@@ -142,18 +143,26 @@ def test_unavailable_when_index_has_no_entry(monkeypatch):
         asyncio.run(go())
 
 
-@pytest.mark.parametrize("name,key", [
-    ("Governor and Lieutenant Governor", "SC GOV"), ("Attorney General", "SC AG"),
-    ("Secretary of State", "SC SOS"), ("State Treasurer", "SC TREAS"),
-    ("Comptroller General", "SC COMP"), ("State Superintendent of Education", "SC SUPT"),
-    ("Commissioner of Agriculture", "SC AGCOM"),
-])
+@pytest.mark.parametrize(
+    "name,key",
+    [
+        ("Governor and Lieutenant Governor", "SC GOV"),
+        ("Attorney General", "SC AG"),
+        ("Secretary of State", "SC SOS"),
+        ("State Treasurer", "SC TREAS"),
+        ("Comptroller General", "SC COMP"),
+        ("State Superintendent of Education", "SC SUPT"),
+        ("Commissioner of Agriculture", "SC AGCOM"),
+    ],
+)
 def test_statewide_offices_are_not_local(name, key):
     assert format_key(race_key(name)) == key
     assert race_key(name) == parse_key(key)
 
 
 def test_election_id_is_found_in_a_clarity_shaped_index():
-    index = [{"EID": "120000", "ElectionName": "2026 Primary", "Date": "6/9/2026 12:00:00 AM"},
-             {"EID": "125555", "ElectionName": "2026 General Election", "Date": "11/3/2026 12:00:00 AM"}]
+    index = [
+        {"EID": "120000", "ElectionName": "2026 Primary", "Date": "6/9/2026 12:00:00 AM"},
+        {"EID": "125555", "ElectionName": "2026 General Election", "Date": "11/3/2026 12:00:00 AM"},
+    ]
     assert sc_sec._match_index(index, "2026-11-03") == "125555"

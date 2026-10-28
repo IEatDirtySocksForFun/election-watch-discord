@@ -16,8 +16,7 @@ AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
 def parse():
-    return parse_wa((FIX / "20241105_AllState.xml").read_text(encoding="utf-8"),
-                    fetched_at=AT)
+    return parse_wa((FIX / "20241105_AllState.xml").read_text(encoding="utf-8"), fetched_at=AT)
 
 
 def by_key(results):
@@ -44,7 +43,7 @@ def test_votes_and_percentages():
     sen = got["WA SEN"]
     assert sen.candidates[0].name == "Maria Cantwell"
     assert sen.candidates[0].votes == 2252577
-    assert sen.candidates[0].pct == 59.09            # source field, not recomputed
+    assert sen.candidates[0].pct == 59.09  # source field, not recomputed
     assert sen.total_votes == sum(c.votes for c in sen.candidates)
     assert got["WA LOCAL initiative-measure-no-2066"].candidates[0].name == "Yes"
 
@@ -57,8 +56,7 @@ def test_legislative_positions_get_distinct_keys():
     assert got["WA HD-01"].candidates[0].name == "Davina Duerr"
     assert got["WA HD-01P2"].candidates[0].name == "Shelley Kloba"
     # Case-insensitive: the Pos. 2 row is capitalised differently in the export.
-    assert format_key(race_key("Legislative District 1 - State Representative Pos. 2")) == \
-        "WA HD-01P2"
+    assert format_key(race_key("Legislative District 1 - State Representative Pos. 2")) == "WA HD-01P2"
 
 
 def test_race_key_mapping():
@@ -69,8 +67,10 @@ def test_race_key_mapping():
     assert format_key(race_key("Commissioner of Public Lands")) == "WA LANDCOM"
     assert format_key(race_key("State Auditor")) == "WA AUD"
     assert format_key(race_key("LEGISLATIVE DISTRICT 12 - State Senator")) == "WA SD-12"
-    assert format_key(race_key("Adams Superior Court  - Judge Position 1")) == \
-        "WA LOCAL adams-superior-court-judge-position-1"
+    assert (
+        format_key(race_key("Adams Superior Court  - Judge Position 1"))
+        == "WA LOCAL adams-superior-court-judge-position-1"
+    )
     assert format_key(race_key("President/Vice President")) == "WA LOCAL president-vice-president"
 
 

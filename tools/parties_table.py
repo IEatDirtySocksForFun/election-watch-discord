@@ -6,6 +6,7 @@
 
 The table is generated, never hand-edited: change the YAML and re-run.
 """
+
 from __future__ import annotations
 
 import sys
@@ -25,8 +26,7 @@ BUCKET_NOTES = {
     "libertarian": "Libertarian Party and its state affiliates — 🟡",
     "green": "Green Party and the state parties with their own ballot line — 🟢",
     "socialist": "socialist and communist parties — a distinct emoji each, in order of party size",
-    "far_right": "parties that reliable sources call neo-Nazi, white nationalist or fascist — "
-    "a distinct emoji each",
+    "far_right": "parties that reliable sources call neo-Nazi, white nationalist or fascist — a distinct emoji each",
     "constitution": "Constitution Party, its state affiliates and ballot lines — 📜",
     "independent": "independent and no-party labels — ⚪",
     "centrist": "centrist and big-tent reform parties",
@@ -80,9 +80,7 @@ def render() -> str:
     ]
     for party in rows:
         aliases = ", ".join(party.aliases).replace("|", "\\|")
-        out.append(
-            f"| `{party.code}` | {party.name} | {party.bucket} | {party.emoji} | {aliases} |"
-        )
+        out.append(f"| `{party.code}` | {party.name} | {party.bucket} | {party.emoji} | {aliases} |")
     out.append("")
     return "\n".join(out)
 

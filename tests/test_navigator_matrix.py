@@ -24,6 +24,7 @@ Checklist
     tested in tests/test_racelists.py)
 [x] view timeout is 600 s
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -33,6 +34,7 @@ from types import SimpleNamespace
 
 import discord
 import pytest
+from fake_interaction_data import FakeInteraction, check_embed, check_view, make_client
 
 from electionwatch.bot import navigator
 from electionwatch.bot.discord import races_command
@@ -44,7 +46,6 @@ from electionwatch.racelists import RaceLists
 from electionwatch.settings import UserSettings
 from electionwatch.sources.base import OddsSource, PollSource, ResultsSource, SourceUnavailable
 from electionwatch.store.memory import MemoryStore
-from fake_interaction_data import FakeInteraction, check_embed, check_view, make_client
 
 NOW = datetime(2026, 10, 27, 12, 0, tzinfo=timezone.utc)
 TABS = {"congressional": "Congressional", "senate": "Senate", "state": "State", "local": "Local"}
@@ -102,6 +103,7 @@ class Polls(PollSource):
 
     async def fetch_polls(self, keys, client):
         from datetime import date
+
         return [Poll(key, "Pollster", [PollResult("Doe", "DEM", 50.0)], date(2026, 10, 20)) for key in keys]
 
 
@@ -132,15 +134,26 @@ def state_select_for(view, code) -> discord.ui.Select:
 
 
 def race_select(view) -> discord.ui.Select | None:
-    return next((c for c in view.children if isinstance(c, discord.ui.Select) and c.placeholder.startswith("Race")), None)
+    return next(
+        (c for c in view.children if isinstance(c, discord.ui.Select) and c.placeholder.startswith("Race")), None
+    )
 
 
 def snapshot(view):
     return (
-        view.state, view.level, view.selected_race, list(view.races),
-        [(type(c).__name__, getattr(c, "label", None) or c.placeholder,
-          getattr(c, "style", None),
-          [(o.value, o.default) for o in getattr(c, "options", [])]) for c in view.children],
+        view.state,
+        view.level,
+        view.selected_race,
+        list(view.races),
+        [
+            (
+                type(c).__name__,
+                getattr(c, "label", None) or c.placeholder,
+                getattr(c, "style", None),
+                [(o.value, o.default) for o in getattr(c, "options", [])],
+            )
+            for c in view.children
+        ],
     )
 
 
@@ -172,13 +185,16 @@ async def test_races_command_for_a_default_user():
     assert view.timeout == 600
 
 
-@pytest.mark.parametrize("home,level,expected_level,expected_race", [
-    ("NC", "congressional", "congressional", "NC-01"),
-    ("AK", "congressional", "congressional", "AK-AL"),
-    ("DC", "local", "local", "DC LOCAL mayor"),
-    ("WY", "state", "state", "WY GOV"),
-    ("CA", "bogus", "senate", "CA SEN"),
-])
+@pytest.mark.parametrize(
+    "home,level,expected_level,expected_race",
+    [
+        ("NC", "congressional", "congressional", "NC-01"),
+        ("AK", "congressional", "congressional", "AK-AL"),
+        ("DC", "local", "local", "DC LOCAL mayor"),
+        ("WY", "state", "state", "WY GOV"),
+        ("CA", "bogus", "senate", "CA SEN"),
+    ],
+)
 async def test_races_command_for_a_user_with_saved_navigation(home, level, expected_level, expected_race):
     store = MemoryStore()
     await store.save_user(UserSettings(OWNER, home_state=home, default_level=level))
@@ -227,8 +243,9 @@ async def test_territories_are_reachable_from_the_navigator():
 async def test_race_select_sizes(count):
     races = [(parse(f"TX HD-{n}"), f"Texas House District {n}") for n in range(1, count + 1)]
     store = MemoryStore()
-    view = await navigator_for(client_with(Results(races), store=store),
-                               UserSettings(OWNER, home_state="TX", default_level="state"))
+    view = await navigator_for(
+        client_with(Results(races), store=store), UserSettings(OWNER, home_state="TX", default_level="state")
+    )
     if count == 0:
         assert view.selected_race is None
         assert race_select(view) is None and "Choose race" not in buttons(view)
@@ -262,11 +279,13 @@ async def test_race_select_sizes(count):
 async def test_choosing_a_race_shows_its_result_and_brings_back_the_tools():
     store = MemoryStore()
     key = parse("TX HD-05")
-    await store.upsert_result(RaceResult(key, [CandidateResult("Doe", "DEM", 120), CandidateResult("Roe", "REP", 80)],
-                                         "test", NOW).finalize())
+    await store.upsert_result(
+        RaceResult(key, [CandidateResult("Doe", "DEM", 120), CandidateResult("Roe", "REP", 80)], "test", NOW).finalize()
+    )
     races = [(parse(f"TX HD-{n}"), f"Texas House District {n}") for n in range(1, 8)]
-    view = await navigator_for(client_with(Results(races), store=store),
-                               UserSettings(OWNER, home_state="TX", default_level="state"))
+    view = await navigator_for(
+        client_with(Results(races), store=store), UserSettings(OWNER, home_state="TX", default_level="state")
+    )
     await click(view, buttons(view)["Choose race"])
     interaction = await click(view, race_select(view), values=[str(view._race_choices.index("TX HD-05"))])
     reply = assert_edited(interaction, ["edit_message"])
@@ -326,17 +345,21 @@ async def test_navigation_round_trips_through_user_settings():
 
 
 # ----------------------------------------------------------------- failing / slow sources
-@pytest.mark.parametrize("source", [
-    Results(error=RuntimeError("boom")),
-    Results(error=SourceUnavailable("gone")),
-    Results(delay=10),
-], ids=["raises", "unavailable", "times-out"])
+@pytest.mark.parametrize(
+    "source",
+    [
+        Results(error=RuntimeError("boom")),
+        Results(error=SourceUnavailable("gone")),
+        Results(delay=10),
+    ],
+    ids=["raises", "unavailable", "times-out"],
+)
 async def test_failing_list_races_still_renders(source):
     poller = SimpleNamespace(default_races=load_races())
     client = make_client(MemoryStore(), {"results": [source]}, clock=lambda: NOW, poller=poller, refreshed=False)
     client.race_lists = RaceLists(client.store, client.sources, client.http_client, lambda: NOW, timeout=0.05)
     started = time.monotonic()
-    assert await client.race_lists.refresh() == 0          # the background refresh stores nothing
+    assert await client.race_lists.refresh() == 0  # the background refresh stores nothing
     calls = source.calls
     interaction = FakeInteraction(client, user_id=OWNER)
     await races_command.callback(interaction)
@@ -351,7 +374,7 @@ async def test_failing_list_races_still_renders(source):
     assert view.selected_race is None and race_select(view) is None
     assert reply.embed.description.startswith("No current result")
     assert "Ohio's race list is still loading" in reply.embed.description
-    assert source.calls == calls                           # the commands never asked the source
+    assert source.calls == calls  # the commands never asked the source
 
 
 async def test_navigator_reads_only_the_store():
@@ -360,10 +383,10 @@ async def test_navigator_reads_only_the_store():
     view = await navigator_for(client)
     assert view.loading and view.selected_race is None and source.calls == 0
     assert "still loading" in (await view.embed()).description
-    for _ in range(30):                                    # the bot's minute loop, a few states a time
+    for _ in range(30):  # the bot's minute loop, a few states a time
         await client.race_lists.refresh()
     calls = source.calls
-    assert calls == len(STATES)                            # every state listed once, then nothing is due
+    assert calls == len(STATES)  # every state listed once, then nothing is due
     view = await navigator_for(client)
     assert not view.loading and view.selected_race == "TX SEN"
     for code in ("GA", "PA", "OH"):
@@ -395,8 +418,8 @@ async def test_favorites_tab_lists_favorites_from_every_state():
     settings = UserSettings(OWNER, home_state="TX", favorites=["PA SEN", "PA-07", "GA GOV", "not a key"])
     view = await navigator_for(client_with(store=store), settings)
     interaction = await click(view, buttons(view)["★ Favorites"])
-    reply = assert_edited(interaction, ["defer", "edit_original"])
-    assert view.level == "favorites" and view.selected_race == "PA SEN"   # in the order added
+    assert_edited(interaction, ["defer", "edit_original"])
+    assert view.level == "favorites" and view.selected_race == "PA SEN"  # in the order added
     await click(view, buttons(view)["Choose race"])
     offered = {view._race_choices[int(o.value)] for o in race_select(view).options}
     assert offered == {"PA SEN", "PA-07", "GA GOV"}

@@ -25,6 +25,7 @@ Idempotent: raw files are cached, and a (year, state) already in the manifest is
 unless --force. Polite: descriptive User-Agent, >= 1 s between network requests, retries
 with backoff. Set GITHUB_TOKEN to raise the GitHub API rate limit (never printed).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -54,75 +55,175 @@ from electionwatch.racekeys import STATES, RaceKeyError, parse  # noqa: E402
 
 UA = "election-watch-discord/0.1 (history fetcher for replay tests; +https://github.com/IEatDirtySocksForFun/election-watch-discord)"
 DEFAULT_DATA = Path.home() / "Downloads" / "election-test-data"
-GENERAL_DATES = {"2014": "20141104", "2016": "20161108", "2018": "20181106", "2020": "20201103", "2022": "20221108", "2024": "20241105"}
+GENERAL_DATES = {
+    "2014": "20141104",
+    "2016": "20161108",
+    "2018": "20181106",
+    "2020": "20201103",
+    "2022": "20221108",
+    "2024": "20241105",
+}
 YEARS = ["2014", "2016", "2018", "2020", "2022", "2024", "2024-primary"]
 LEVELS = ["senate", "house", "governor", "state", "local"]
 FIELDS = ["race_key", "candidate", "party", "votes", "county"]
 
 MEDSL_REPO = "MEDSL/{year}-elections-official"
 DATAVERSE = "https://dataverse.harvard.edu"
-DV_2020_PRECINCTS = "doi:10.7910/DVN/NT66Z3"      # Precinct-Level Returns 2020 by Individual State
-DV_SENATE_STATE = "doi:10.7910/DVN/PEJ5QU"        # U.S. Senate statewide 1976-2024
-DV_2016_PRECINCTS = "doi:10.7910/DVN/NH5S2I"      # 2016 Precinct-Level Election Results (guestbook)
+DV_2020_PRECINCTS = "doi:10.7910/DVN/NT66Z3"  # Precinct-Level Returns 2020 by Individual State
+DV_SENATE_STATE = "doi:10.7910/DVN/PEJ5QU"  # U.S. Senate statewide 1976-2024
+DV_2016_PRECINCTS = "doi:10.7910/DVN/NH5S2I"  # 2016 Precinct-Level Election Results (guestbook)
 
 # OpenElections trailing filename word -> how the repo splits a state up. Ranks 0-2 are a whole
 # state in one file (county summary, no geo word, precinct dump): complete on their own, so only
 # one is used. Ranks 3+ are one slice of the state (district, town, county, precinct) and every
 # file of the chosen slice is aggregated, because each covers only part of the state.
-OE_LEVELS = {"county": 0, "county-level": 0, "counties": 0,
-             "district": 3, "districts": 3, "congressional": 3,
-             "town": 4, "towns": 4, "municipal": 4, "municipalities": 4, "city": 4, "cities": 4,
-             "county-ward": 5, "county-precinct": 5,
-             "precinct": 6, "precincts": 6, "precinct-level": 6, "county-level-precinct": 6,
-             "ward": 6, "wards": 6, "township": 6, "townships": 6}
+OE_LEVELS = {
+    "county": 0,
+    "county-level": 0,
+    "counties": 0,
+    "district": 3,
+    "districts": 3,
+    "congressional": 3,
+    "town": 4,
+    "towns": 4,
+    "municipal": 4,
+    "municipalities": 4,
+    "city": 4,
+    "cities": 4,
+    "county-ward": 5,
+    "county-precinct": 5,
+    "precinct": 6,
+    "precincts": 6,
+    "precinct-level": 6,
+    "county-level-precinct": 6,
+    "ward": 6,
+    "wards": 6,
+    "township": 6,
+    "townships": 6,
+}
 
 # ---------------------------------------------------------------------------------------------
 # normalisation (pure functions, unit-tested)
 
 STATEWIDE_OFFICES = {
-    "GOVERNOR": "GOV", "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
-    "GOVERNOR LIEUTENANT GOVERNOR": "GOV", "GOVERNOR AND LT GOVERNOR": "GOV",
+    "GOVERNOR": "GOV",
+    "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
+    "GOVERNOR LIEUTENANT GOVERNOR": "GOV",
+    "GOVERNOR AND LT GOVERNOR": "GOV",
     "GOVERNOR LT GOVERNOR": "GOV",
-    "LIEUTENANT GOVERNOR": "LTGOV", "LT GOVERNOR": "LTGOV",
-    "ATTORNEY GENERAL": "AG", "ATTORNEY": "AG", "SECRETARY OF STATE": "SOS",
-    "SECRETARY OF THE STATE": "SOS", "SECRETARY": "SOS",
-    "STATE TREASURER": "TREAS", "TREASURER": "TREAS", "TREASURER OF STATE": "TREAS",
-    "STATE AUDITOR": "AUD", "AUDITOR": "AUD", "AUDITOR OF STATE": "AUD", "AUDITOR GENERAL": "AUD",
-    "STATE COMPTROLLER": "COMP", "COMPTROLLER": "COMP", "COMPTROLLER OF PUBLIC ACCOUNTS": "COMP",
-    "SUPERINTENDENT OF PUBLIC INSTRUCTION": "SUPT", "STATE SUPERINTENDENT OF PUBLIC INSTRUCTION": "SUPT",
-    "STATE SCHOOL SUPERINTENDENT": "SUPT", "SUPERINTENDENT OF EDUCATION": "SUPT",
-    "COMMISSIONER OF AGRICULTURE": "AGCOM", "AGRICULTURE COMMISSIONER": "AGCOM",
-    "COMMISSIONER OF AGRICULTURE AND INDUSTRIES": "AGCOM", "SECRETARY OF AGRICULTURE": "AGCOM",
-    "INSURANCE COMMISSIONER": "INSCOM", "COMMISSIONER OF INSURANCE": "INSCOM",
-    "COMMISSIONER OF THE GENERAL LAND OFFICE": "LANDCOM", "LAND COMMISSIONER": "LANDCOM",
+    "LIEUTENANT GOVERNOR": "LTGOV",
+    "LT GOVERNOR": "LTGOV",
+    "ATTORNEY GENERAL": "AG",
+    "ATTORNEY": "AG",
+    "SECRETARY OF STATE": "SOS",
+    "SECRETARY OF THE STATE": "SOS",
+    "SECRETARY": "SOS",
+    "STATE TREASURER": "TREAS",
+    "TREASURER": "TREAS",
+    "TREASURER OF STATE": "TREAS",
+    "STATE AUDITOR": "AUD",
+    "AUDITOR": "AUD",
+    "AUDITOR OF STATE": "AUD",
+    "AUDITOR GENERAL": "AUD",
+    "STATE COMPTROLLER": "COMP",
+    "COMPTROLLER": "COMP",
+    "COMPTROLLER OF PUBLIC ACCOUNTS": "COMP",
+    "SUPERINTENDENT OF PUBLIC INSTRUCTION": "SUPT",
+    "STATE SUPERINTENDENT OF PUBLIC INSTRUCTION": "SUPT",
+    "STATE SCHOOL SUPERINTENDENT": "SUPT",
+    "SUPERINTENDENT OF EDUCATION": "SUPT",
+    "COMMISSIONER OF AGRICULTURE": "AGCOM",
+    "AGRICULTURE COMMISSIONER": "AGCOM",
+    "COMMISSIONER OF AGRICULTURE AND INDUSTRIES": "AGCOM",
+    "SECRETARY OF AGRICULTURE": "AGCOM",
+    "INSURANCE COMMISSIONER": "INSCOM",
+    "COMMISSIONER OF INSURANCE": "INSCOM",
+    "COMMISSIONER OF THE GENERAL LAND OFFICE": "LANDCOM",
+    "LAND COMMISSIONER": "LANDCOM",
     "COMMISSIONER OF PUBLIC LANDS": "LANDCOM",
     "RAILROAD COMMISSIONER": "RRC",
 }
-SENATE_OFFICES = {"US SENATE", "U S SENATE", "UNITED STATES SENATE", "US SENATOR", "U S SENATOR",
-                  "UNITED STATES SENATOR"}
-HOUSE_OFFICES = {"US HOUSE", "U S HOUSE", "US REPRESENTATIVE", "U S REPRESENTATIVE",
-                 "UNITED STATES REPRESENTATIVE", "REPRESENTATIVE IN CONGRESS", "US CONGRESS",
-                 "CONGRESS", "U S CONGRESS", "UNITED STATES HOUSE OF REPRESENTATIVES",
-                 "US HOUSE OF REPRESENTATIVES", "U S HOUSE OF REPRESENTATIVES"}
-STATE_SENATE = {"STATE SENATE", "STATE SENATOR", "STATE SENATORS", "SENATOR IN THE GENERAL ASSEMBLY",
-                "SENATOR IN STATE LEGISLATURE"}
-STATE_HOUSE = {"STATE HOUSE", "STATE HOUSE OF DELEGATES", "STATE REPRESENTATIVE", "STATE REPRESENTATIVES",
-               "STATE REP", "STATE REPS", "STATE ASSEMBLY", "ASSEMBLY", "HOUSE OF DELEGATES",
-               "STATE HOUSE OF REPRESENTATIVES", "REPRESENTATIVE IN THE GENERAL ASSEMBLY",
-               "MEMBER OF THE STATE ASSEMBLY", "HOUSE OF REPRESENTATIVES", "STATE DELEGATE",
-               "REPRESENTATIVE IN STATE LEGISLATURE", "MEMBER OF THE STATE LEGISLATURE"}
+SENATE_OFFICES = {
+    "US SENATE",
+    "U S SENATE",
+    "UNITED STATES SENATE",
+    "US SENATOR",
+    "U S SENATOR",
+    "UNITED STATES SENATOR",
+}
+HOUSE_OFFICES = {
+    "US HOUSE",
+    "U S HOUSE",
+    "US REPRESENTATIVE",
+    "U S REPRESENTATIVE",
+    "UNITED STATES REPRESENTATIVE",
+    "REPRESENTATIVE IN CONGRESS",
+    "US CONGRESS",
+    "CONGRESS",
+    "U S CONGRESS",
+    "UNITED STATES HOUSE OF REPRESENTATIVES",
+    "US HOUSE OF REPRESENTATIVES",
+    "U S HOUSE OF REPRESENTATIVES",
+}
+STATE_SENATE = {
+    "STATE SENATE",
+    "STATE SENATOR",
+    "STATE SENATORS",
+    "SENATOR IN THE GENERAL ASSEMBLY",
+    "SENATOR IN STATE LEGISLATURE",
+}
+STATE_HOUSE = {
+    "STATE HOUSE",
+    "STATE HOUSE OF DELEGATES",
+    "STATE REPRESENTATIVE",
+    "STATE REPRESENTATIVES",
+    "STATE REP",
+    "STATE REPS",
+    "STATE ASSEMBLY",
+    "ASSEMBLY",
+    "HOUSE OF DELEGATES",
+    "STATE HOUSE OF REPRESENTATIVES",
+    "REPRESENTATIVE IN THE GENERAL ASSEMBLY",
+    "MEMBER OF THE STATE ASSEMBLY",
+    "HOUSE OF REPRESENTATIVES",
+    "STATE DELEGATE",
+    "REPRESENTATIVE IN STATE LEGISLATURE",
+    "MEMBER OF THE STATE LEGISLATURE",
+}
 # A row whose office is just "House"/"Senate" is state legislature when it carries a legislative
 # district (a U.S. race would have been tagged by its own office name or dataverse).
 BARE_CHAMBERS = {"HOUSE": "HD", "SENATE": "SD"}
-SKIP_OFFICE = re.compile(r"PRESIDENT|STRAIGHT|REGISTERED|BALLOTS CAST|TURNOUT|OVER ?VOTES|UNDER ?VOTES|"
-                         r"VOTERS|TOTAL VOTES|BLANK|SPOILED|REJECTED", re.I)
-SKIP_CANDIDATE = re.compile(r"^(OVER ?VOTES?|UNDER ?VOTES?|TOTAL( VOTES)?|BLANK( VOTES)?|SPOILED|"
-                            r"VOID|REJECTED|SCATTER(ED|ING)?|WRITE[- ]?INS?( TOTALS?)?|(TOTAL )?WRITE[- ]IN VOTES)$", re.I)
+SKIP_OFFICE = re.compile(
+    r"PRESIDENT|STRAIGHT|REGISTERED|BALLOTS CAST|TURNOUT|OVER ?VOTES|UNDER ?VOTES|"
+    r"VOTERS|TOTAL VOTES|BLANK|SPOILED|REJECTED",
+    re.I,
+)
+SKIP_CANDIDATE = re.compile(
+    r"^(OVER ?VOTES?|UNDER ?VOTES?|TOTAL( VOTES)?|BLANK( VOTES)?|SPOILED|"
+    r"VOID|REJECTED|SCATTER(ED|ING)?|WRITE[- ]?INS?( TOTALS?)?|(TOTAL )?WRITE[- ]IN VOTES)$",
+    re.I,
+)
 AT_LARGE_STATES = {"AK", "DE", "ND", "SD", "VT", "WY"}
-PARTIES = {"DEMOCRAT": "DEM", "DEMOCRATIC": "DEM", "DEM": "DEM", "D": "DEM",
-           "REPUBLICAN": "REP", "REP": "REP", "R": "REP", "LIBERTARIAN": "LIB", "LIB": "LIB",
-           "GREEN": "GRN", "GRN": "GRN", "INDEPENDENT": "IND", "IND": "IND",
-           "GOP": "REP", "NONPARTISAN": "NPA", "NON-PARTISAN": "NPA", "NP": "NPA", "NPA": "NPA"}
+PARTIES = {
+    "DEMOCRAT": "DEM",
+    "DEMOCRATIC": "DEM",
+    "DEM": "DEM",
+    "D": "DEM",
+    "REPUBLICAN": "REP",
+    "REP": "REP",
+    "R": "REP",
+    "LIBERTARIAN": "LIB",
+    "LIB": "LIB",
+    "GREEN": "GRN",
+    "GRN": "GRN",
+    "INDEPENDENT": "IND",
+    "IND": "IND",
+    "GOP": "REP",
+    "NONPARTISAN": "NPA",
+    "NON-PARTISAN": "NPA",
+    "NP": "NPA",
+    "NPA": "NPA",
+}
 
 
 def norm_office(office: str) -> tuple[str, bool]:
@@ -130,13 +231,13 @@ def norm_office(office: str) -> tuple[str, bool]:
     o = office.upper()
     special = bool(re.search(r"\bSPECIAL\b|UNEXPIRED|PARTIAL TERM", o))
     o = re.sub(r"\(.*?\)", " ", o)
-    o = re.sub(r"\bPARTIAL TERM\b.*$", " ", o)   # MI "… Partial Term Ending 01/01/2017"
+    o = re.sub(r"\bPARTIAL TERM\b.*$", " ", o)  # MI "… Partial Term Ending 01/01/2017"
     o = re.sub(r"\b(SPECIAL|UNEXPIRED TERM|UNEXPIRED)\b", " ", o)
     o = re.sub(r"[^A-Z0-9 ]+", " ", o)
     o = re.sub(r"\bDISTRICT\b.*$", "", o)
-    o = re.sub(r"\bFILES? IN\b.*$", " ", o)                # "… Representative Files In WAYNE County"
+    o = re.sub(r"\bFILES? IN\b.*$", " ", o)  # "… Representative Files In WAYNE County"
     o = re.sub(r"\bPOS(?:ITION)?\.?\s*\d{0,2}\b", " ", o)  # "State Representative Pos. 2"
-    o = re.sub(r"\b\d+ ?YEAR TERM\b|\bTERM\b", " ", o)     # "State House Unexpired 2 Year Term"
+    o = re.sub(r"\b\d+ ?YEAR TERM\b|\bTERM\b", " ", o)  # "State House Unexpired 2 Year Term"
     return re.sub(r"\s+", " ", o).strip(), special
 
 
@@ -157,7 +258,7 @@ def slug(*parts: str) -> str:
 
 def _district_num(d: str | None) -> str | None:
     d = re.sub(r"(\d)(ST|ND|RD|TH)\b", r"\1", (d or "").strip().upper())
-    d = re.sub(r"^(?:CD|CONG(?:RESSIONAL)?\.?)\s*", "", d)   # 'CD3' (Connecticut)
+    d = re.sub(r"^(?:CD|CONG(?:RESSIONAL)?\.?)\s*", "", d)  # 'CD3' (Connecticut)
     m = re.fullmatch(r"(?:(?:DISTRICT|DIST|DIST\.|NO\.?)\s*)?0*(\d{1,3})\s*([A-Z]?)", d)
     if not m:
         return None
@@ -173,8 +274,10 @@ def _office_district(office: str | None) -> str | None:
 POSITION_IN = re.compile(r"\bPOS(?:ITION)?\.?\s*(\d{1,2})\b")
 DISTRICT_IN = re.compile(r"\bDISTRICT\s+(?:NO\.?\s*)?(0*\d{1,3}[A-Z]?|[A-Z])\b")
 LEAD_DISTRICT = re.compile(r"^\s*(0*\d{1,3})(?:ST|ND|RD|TH)?\s+DISTRICT\s+(.+)$", re.I)
-LEG_TAIL = re.compile(r"^(?:(?:STATE|MEMBER OF THE STATE)\s+)?(?:HOUSE|SENATE|ASSEMBLY|DELEGATES?|"
-                      r"REPRESENTATIVES?|SENATORS?)\s+(0*\d{1,3}[A-Z]?|[A-Z])$")
+LEG_TAIL = re.compile(
+    r"^(?:(?:STATE|MEMBER OF THE STATE)\s+)?(?:HOUSE|SENATE|ASSEMBLY|DELEGATES?|"
+    r"REPRESENTATIVES?|SENATORS?)\s+(0*\d{1,3}[A-Z]?|[A-Z])$"
+)
 NAMED_DISTRICT = re.compile(r"[A-Z]{2,4}(?:-(?:[A-Z]{1,4}|\d{1,3}[A-Z]?))*")
 
 
@@ -221,8 +324,9 @@ def _leg_district(office: str, district: str) -> str | None:
     return _district_id(m.group(1)) if m else None
 
 
-def classify(state: str, office: str, district: str | None, county: str = "",
-             dataverse: str | None = None) -> tuple[str, str] | None:
+def classify(
+    state: str, office: str, district: str | None, county: str = "", dataverse: str | None = None
+) -> tuple[str, str] | None:
     """Map a source row to (level, race_key string). None = not a race we keep.
 
     The source's own `dataverse` tag is only a hint: MEDSL tags state legislature rows
@@ -248,21 +352,20 @@ def classify(state: str, office: str, district: str | None, county: str = "",
             n = "AL"
         elif n is None:
             if state not in AT_LARGE_STATES:
-                return None   # a multi-district state with no readable district: drop, never -AL
+                return None  # a multi-district state with no readable district: drop, never -AL
             n = "AL"
         return "house", f"{state}-{n}{sp}"
     if dv == "HOUSE":
-        return None   # odd US House row we could not read; never file it under local
+        return None  # odd US House row we could not read; never file it under local
     if o in STATEWIDE_OFFICES:
         # statewide races are sliced by county (CT ships one row per town) and some files even
         # carry a stray district number; neither changes the key
         return "governor", f"{state} {STATEWIDE_OFFICES[o]}{sp}"
-    if o in STATE_SENATE or o in STATE_HOUSE or (o in BARE_CHAMBERS and \
-                                                 dv not in ("HOUSE", "SENATE", "CONGRESS")):
+    if o in STATE_SENATE or o in STATE_HOUSE or (o in BARE_CHAMBERS and dv not in ("HOUSE", "SENATE", "CONGRESS")):
         chamber = "SD" if o in STATE_SENATE or o == "SENATE" else "HD"
         n = _leg_district(office, dist) or _named_district(dist)
         if n:
-            pos = _position(dist) or _position(office)   # WA elects Position 1 and 2 apart
+            pos = _position(dist) or _position(office)  # WA elects Position 1 and 2 apart
             if pos and 1 <= pos <= 26 and not re.search(r"[A-Z]$", n):
                 n = f"{n}{chr(64 + pos)}"
             key = f"{state} {chamber}-{n}{sp}"
@@ -271,7 +374,7 @@ def classify(state: str, office: str, district: str | None, county: str = "",
             except RaceKeyError:
                 pass
         elif o == "SENATE" and statewide_dist and dv not in ("STATE", "LOCAL"):
-            return "senate", f"{state} SEN{sp}"   # bare "Senate", no district: the U.S. race
+            return "senate", f"{state} SEN{sp}"  # bare "Senate", no district: the U.S. race
         return "state", f"{state} LOCAL {slug(o, dist)}"
     if dv == "PRESIDENT":
         return None
@@ -280,6 +383,7 @@ def classify(state: str, office: str, district: str | None, county: str = "",
 
 # ---------------------------------------------------------------------------------------------
 # aggregation
+
 
 class Agg:
     """(level) -> (race_key, candidate, party, county) -> votes, with MEDSL mode de-dup."""
@@ -303,8 +407,9 @@ class Agg:
                     merged[k] = tv
                 else:
                     merged[k] = tv + ov
-            out[level] = [dict(zip(FIELDS[:3], k[:3]), votes=v, county=k[3])
-                          for k, v in sorted(merged.items()) if v > 0]
+            out[level] = [
+                dict(zip(FIELDS[:3], k[:3]), votes=v, county=k[3]) for k, v in sorted(merged.items()) if v > 0
+            ]
         return out
 
 
@@ -336,9 +441,12 @@ def aggregate_medsl(lines, state: str, agg: Agg | None = None, stage: str = "GEN
         if not got:
             continue
         level, key = got
-        agg.add(level, (key, pretty_name(cand), norm_party(r.get("party_simplified") or
-                                                           r.get("party_detailed")),
-                        county), _int(r.get("votes")), r.get("mode") or "")
+        agg.add(
+            level,
+            (key, pretty_name(cand), norm_party(r.get("party_simplified") or r.get("party_detailed")), county),
+            _int(r.get("votes")),
+            r.get("mode") or "",
+        )
     return agg
 
 
@@ -347,14 +455,30 @@ def aggregate_openelections(lines, state: str, agg: Agg | None = None) -> Agg:
     agg = agg or Agg()
     reader = csv.DictReader(lines)
     cols = [c for c in (reader.fieldnames or []) if c]
-    mode_cols = [c for c in cols if c != "votes" and re.search(r"votes|election_day|mail|absentee|early|"
-                                                                r"provisional|advance", c, re.I)]
+    mode_cols = [
+        c
+        for c in cols
+        if c != "votes"
+        and re.search(
+            r"votes|election_day|mail|absentee|early|"
+            r"provisional|advance",
+            c,
+            re.I,
+        )
+    ]
     split_names = "candidate" not in cols and ("last" in cols or "first" in cols)
     for r in reader:
         cand = (r.get("candidate") or "").strip()
-        if not cand and split_names:      # MI ships last/first/middle/suffix instead of candidate
-            cand = " ".join(p for p in ((r.get("first") or "").strip(), (r.get("middle") or "").strip(),
-                                        (r.get("last") or "").strip()) if p)
+        if not cand and split_names:  # MI ships last/first/middle/suffix instead of candidate
+            cand = " ".join(
+                p
+                for p in (
+                    (r.get("first") or "").strip(),
+                    (r.get("middle") or "").strip(),
+                    (r.get("last") or "").strip(),
+                )
+                if p
+            )
             cand = f"{cand} {(r.get('suffix') or '').strip()}".strip()
         if not cand or SKIP_CANDIDATE.match(cand):
             continue
@@ -417,20 +541,21 @@ def pick_openelections_files(names: list[str], year: str) -> list[list[str]]:
         if primary:
             if etype != "primary" or not date.startswith("2024"):
                 continue
-        elif date != GENERAL_DATES.get(year) or etype != "general":   # not a primary
+        elif date != GENERAL_DATES.get(year) or etype != "general":  # not a primary
             continue
         by_date[date][rank].append(n)
     out = []
     for date in sorted(by_date):
         parts = by_date[date]
         keep = [r for r in parts if r <= 2 or len(parts[r]) <= MAX_PARTITION_FILES]
-        for r in sorted(keep or [min(parts)]):     # a precinct partition of thousands of files
-            out.append(parts[r])                  # is only read when it is all there is
+        for r in sorted(keep or [min(parts)]):  # a precinct partition of thousands of files
+            out.append(parts[r])  # is only read when it is all there is
     return out
 
 
 # ---------------------------------------------------------------------------------------------
 # network
+
 
 class Net:
     def __init__(self, cache: Path, delay: float = 1.0) -> None:
@@ -460,7 +585,7 @@ class Net:
                 if r.status_code < 500 and r.status_code != 429:
                     return r
                 err = RuntimeError(f"HTTP {r.status_code}")
-            time.sleep(2 ** attempt * 3)
+            time.sleep(2**attempt * 3)
         raise RuntimeError(f"GET {url} failed: {err}")
 
     def json(self, url: str, github: bool = False):
@@ -498,7 +623,7 @@ class Net:
                 return dest
             except (httpx.HTTPError, OSError) as e:
                 print(f"  retry {url}: {e}", file=sys.stderr)
-                time.sleep(2 ** attempt * 3)
+                time.sleep(2**attempt * 3)
         return None
 
 
@@ -547,18 +672,36 @@ def git_tree(net: "Net", repo: str) -> tuple[str, list[str]] | None:
         tree = (doc.get("branch") or "HEAD", doc.get("files") or [])
     elif shutil.which("git"):
         tmp = Path(tempfile.mkdtemp(prefix="ew-gh-"))
-        net._wait()                       # same politeness budget as an HTTP request
+        net._wait()  # same politeness budget as an HTTP request
         try:
-            subprocess.run(["git", "clone", "--filter=blob:none", "--no-checkout", "--depth", "1",
-                            "--quiet", f"https://github.com/{repo}.git", str(tmp)],
-                           check=True, capture_output=True, timeout=600)
-            branch = subprocess.run(["git", "-C", str(tmp), "rev-parse", "--abbrev-ref", "HEAD"],
-                                    check=True, capture_output=True, text=True).stdout.strip()
-            files = subprocess.run(["git", "-C", str(tmp), "ls-tree", "-r", "--name-only", "HEAD"],
-                                   check=True, capture_output=True, text=True).stdout.splitlines()
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "--filter=blob:none",
+                    "--no-checkout",
+                    "--depth",
+                    "1",
+                    "--quiet",
+                    f"https://github.com/{repo}.git",
+                    str(tmp),
+                ],
+                check=True,
+                capture_output=True,
+                timeout=600,
+            )
+            branch = subprocess.run(
+                ["git", "-C", str(tmp), "rev-parse", "--abbrev-ref", "HEAD"], check=True, capture_output=True, text=True
+            ).stdout.strip()
+            files = subprocess.run(
+                ["git", "-C", str(tmp), "ls-tree", "-r", "--name-only", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.splitlines()
         except (subprocess.SubprocessError, OSError) as e:
             print(f"  git listing failed for {repo}: {e}", file=sys.stderr)
-            tree = ("", [])          # no such repo: do not burn the rate-limited API on it
+            tree = ("", [])  # no such repo: do not burn the rate-limited API on it
         else:
             tree = (branch or "HEAD", files)
             cpath.parent.mkdir(parents=True, exist_ok=True)
@@ -583,18 +726,18 @@ def repo_files(net: "Net", repo: str, subdir: str = "", deep: bool = False) -> d
         for p in sorted(paths):
             if not p.startswith(prefix) or p.endswith("/"):
                 continue
-            rest = p[len(prefix):]
+            rest = p[len(prefix) :]
             if not rest or (not deep and "/" in rest):
                 continue
             out.setdefault(rest.rsplit("/", 1)[-1], raw_github(repo, branch, p))
         return out
     listing = net.json(f"https://api.github.com/repos/{repo}/contents/{subdir}", github=True) or []
-    return {f["name"]: f["download_url"] for f in listing
-            if f.get("type") == "file" and f.get("download_url")}
+    return {f["name"]: f["download_url"] for f in listing if f.get("type") == "file" and f.get("download_url")}
 
 
 # ---------------------------------------------------------------------------------------------
 # per-source fetchers: return (Agg | None, url | None, note)
+
 
 def medsl_precinct(net: Net, year: str, st: str):
     if year == "2020":
@@ -606,15 +749,23 @@ def medsl_precinct(net: Net, year: str, st: str):
                 url = f"{DATAVERSE}/api/access/datafile/{df['id']}"
                 path = net.download(url, net.cache / "medsl" / name)
                 if not path:
-                    return None, url, "Dataverse guestbook required (fill it in a browser and drop the "\
-                                      f"file at {net.cache / 'medsl' / name})"
+                    return (
+                        None,
+                        url,
+                        "Dataverse guestbook required (fill it in a browser and drop the "
+                        f"file at {net.cache / 'medsl' / name})",
+                    )
                 return aggregate_medsl(_iter_text(path), st), url, ""
         return None, None, "no 2020 file"
     repo = MEDSL_REPO.format(year=year)
     files = repo_files(net, repo, "individual_states")
     if not files:
-        extra = (f"; its precinct returns are on Harvard Dataverse ({DV_2016_PRECINCTS}) behind a "
-                 "guestbook form, which this script does not fill in" if year == "2016" else "")
+        extra = (
+            f"; its precinct returns are on Harvard Dataverse ({DV_2016_PRECINCTS}) behind a "
+            "guestbook form, which this script does not fill in"
+            if year == "2016"
+            else ""
+        )
         return None, None, f"no MEDSL GitHub repo for {year}{extra}"
     pat = re.compile(rf"(^|[-_]){st.lower()}([-_]|24\.zip$)")
     for name, url in sorted(files.items()):
@@ -655,9 +806,12 @@ def medsl_senate_statewide(net: Net, year: str, st: str):
             if not cand or SKIP_CANDIDATE.match(cand):
                 continue
             sp = " S" if (r.get("special") or "").lower() == "true" else ""
-            agg.add("senate", (f"{st} SEN{sp}", pretty_name(cand),
-                               norm_party(r.get("party_simplified")), ""),
-                    _int(r.get("candidatevotes")), r.get("mode") or "")
+            agg.add(
+                "senate",
+                (f"{st} SEN{sp}", pretty_name(cand), norm_party(r.get("party_simplified")), ""),
+                _int(r.get("candidatevotes")),
+                r.get("mode") or "",
+            )
     return agg, _senate_cache.get("url"), ""
 
 
@@ -674,7 +828,7 @@ def openelections(net: Net, year: str, st: str):
     urls: dict[str, str] = {}
     by_date: dict[str, list[list[str]]] = defaultdict(list)
     for group in picked:
-        by_date[group[0].split("__")[0]].append(group)     # partitions of one election date
+        by_date[group[0].split("__")[0]].append(group)  # partitions of one election date
     # Every partition is aggregated on its own (a partition's files hold different parts of the
     # state), then one partition per date is kept: the one reporting the most races. Repos ship a
     # whole-state summary that is sometimes only the statewide offices and sometimes the only
@@ -693,8 +847,7 @@ def openelections(net: Net, year: str, st: str):
             races = agg.rows()
             total = sum(len(v) for v in races.values())
             if used and total > best[0]:
-                src = names[used[0]] if len(used) == 1 else \
-                    f"{names[used[0]]} (+{len(used) - 1} more files)"
+                src = names[used[0]] if len(used) == 1 else f"{names[used[0]]} (+{len(used) - 1} more files)"
                 best = (total, races, src)
         for level, rows in best[1].items():
             merged.setdefault(level, []).extend(rows)
@@ -721,8 +874,7 @@ class Rows:
 NYT_2020 = "https://static01.nyt.com/elections-assets/2020/data/api/2020-11-03/race-page/{slug}/{office}.json"
 NYT_2024 = "https://static01.nyt.com/elections-assets/pages/data/2024-11-05/results-{slug}-{office}.json"
 NYT_OFFICES = {"2020": {"SEN": "senate", "GOV": "governor"}, "2024": {"SEN": "us-senate", "GOV": "governor"}}
-NYT_PARTY = {"democrat": "DEM", "republican": "REP", "libertarian": "LIB", "green": "GRN",
-             "independent": "IND"}
+NYT_PARTY = {"democrat": "DEM", "republican": "REP", "libertarian": "LIB", "green": "GRN", "independent": "IND"}
 
 
 def nyt_timeline_2020(doc: dict, st: str) -> dict[str, list[dict]]:
@@ -738,14 +890,28 @@ def nyt_timeline_2020(doc: dict, st: str) -> dict[str, list[dict]]:
         lines = []
         for p in sorted(race.get("timeseries", []), key=lambda p: p["timestamp"]):
             total = p.get("votes") or 0
-            cl = [{"name": cands[k]["name_display"] if k in cands else k,
-                   "party": NYT_PARTY.get((cands.get(k) or {}).get("party_id", ""), None),
-                   "votes": round(share * total)} for k, share in (p.get("vote_shares") or {}).items()]
+            cl = [
+                {
+                    "name": cands[k]["name_display"] if k in cands else k,
+                    "party": NYT_PARTY.get((cands.get(k) or {}).get("party_id", ""), None),
+                    "votes": round(share * total),
+                }
+                for k, share in (p.get("vote_shares") or {}).items()
+            ]
             if not total:
                 continue
-            lines.append({"ts": p["timestamp"], "key": key, "source": "nyt", "synthetic": False,
-                          "candidates": cl, "total_votes": total, "expected_vote_pct": p.get("eevp"),
-                          "url": race.get("url")})
+            lines.append(
+                {
+                    "ts": p["timestamp"],
+                    "key": key,
+                    "source": "nyt",
+                    "synthetic": False,
+                    "candidates": cl,
+                    "total_votes": total,
+                    "expected_vote_pct": p.get("eevp"),
+                    "url": race.get("url"),
+                }
+            )
         if lines:
             out[key] = lines
     return out
@@ -766,13 +932,27 @@ def nyt_timeline_2024(doc: dict, st: str) -> dict[str, list[dict]]:
             for c in p.get("candidates", []):
                 m = meta.get(c["nyt_id"], {})
                 name = " ".join(x for x in (m.get("first_name"), m.get("last_name")) if x) or c["nyt_id"]
-                cl.append({"name": name, "party": norm_party((m.get("party") or {}).get("nyt_id")) or None,
-                           "votes": (c.get("votes") or {}).get("total", 0)})
+                cl.append(
+                    {
+                        "name": name,
+                        "party": norm_party((m.get("party") or {}).get("nyt_id")) or None,
+                        "votes": (c.get("votes") or {}).get("total", 0),
+                    }
+                )
             if not p.get("total_votes"):
                 continue
-            lines.append({"ts": p["greatest_updated_at"], "key": key, "source": "nyt", "synthetic": False,
-                          "candidates": cl, "total_votes": p["total_votes"],
-                          "expected_vote_pct": p.get("eevp"), "url": race.get("url")})
+            lines.append(
+                {
+                    "ts": p["greatest_updated_at"],
+                    "key": key,
+                    "source": "nyt",
+                    "synthetic": False,
+                    "candidates": cl,
+                    "total_votes": p["total_votes"],
+                    "expected_vote_pct": p.get("eevp"),
+                    "url": race.get("url"),
+                }
+            )
         if lines:
             out[key] = lines
     return out
@@ -788,7 +968,7 @@ def fetch_nyt_timelines(net: Net, data: Path, year: str, st: str) -> list[str]:
         url = (NYT_2020 if year == "2020" else NYT_2024).format(slug=st_slug, office=office)
         path = net.download(url, net.cache / "nyt" / year / f"{st_slug}-{office}.json")
         if not path:
-            continue   # no such race that year (404)
+            continue  # no such race that year (404)
         doc = json.loads(path.read_text())
         series = nyt_timeline_2020(doc, st) if year == "2020" else nyt_timeline_2024(doc, st)
         for key, lines in series.items():
@@ -801,6 +981,7 @@ def fetch_nyt_timelines(net: Net, data: Path, year: str, st: str) -> list[str]:
 
 # ---------------------------------------------------------------------------------------------
 
+
 def write_level(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".csv.part")
@@ -811,8 +992,9 @@ def write_level(path: Path, rows: list[dict]) -> None:
     tmp.rename(path)
 
 
-def run(data: Path, states: list[str], years: list[str], force: bool = False,
-        timelines: bool = True, delay: float = 1.0) -> int:
+def run(
+    data: Path, states: list[str], years: list[str], force: bool = False, timelines: bool = True, delay: float = 1.0
+) -> int:
     net = Net(data / "_cache", delay)
     for year in years:
         mpath = data / year / "manifest.json"
@@ -823,9 +1005,15 @@ def run(data: Path, states: list[str], years: list[str], force: bool = False,
                 continue
             print(f"{year} {st}: fetching")
             entry: dict = {"levels": {}, "notes": []}
-            sources = ([("openelections", openelections)] if year.endswith("primary") else
-                       [("medsl_precinct", medsl_precinct), ("medsl_senate_statewide", medsl_senate_statewide),
-                        ("openelections", openelections)])
+            sources = (
+                [("openelections", openelections)]
+                if year.endswith("primary")
+                else [
+                    ("medsl_precinct", medsl_precinct),
+                    ("medsl_senate_statewide", medsl_senate_statewide),
+                    ("openelections", openelections),
+                ]
+            )
             remaining = set(LEVELS)
             for name, fn in sources:
                 if not remaining:
@@ -843,18 +1031,21 @@ def run(data: Path, states: list[str], years: list[str], force: bool = False,
                 for level, rows in agg.rows().items():
                     if level in remaining and rows:
                         write_level(data / year / st / f"{level}.csv", rows)
-                        entry["levels"][level] = {"source": name, "rows": len(rows),
-                                                  "url": url.get(level) if isinstance(url, dict) else url,
-                                                  "races": len({r["race_key"] for r in rows})}
+                        entry["levels"][level] = {
+                            "source": name,
+                            "rows": len(rows),
+                            "url": url.get(level) if isinstance(url, dict) else url,
+                            "races": len({r["race_key"] for r in rows}),
+                        }
                         remaining.discard(level)
             for level in sorted(remaining):
                 entry["notes"].append(f"{level}: no public data found")
-                (data / year / st / f"{level}.csv").unlink(missing_ok=True)   # stale from a --force
+                (data / year / st / f"{level}.csv").unlink(missing_ok=True)  # stale from a --force
             if timelines and not year.endswith("primary"):
                 entry["timelines"] = fetch_nyt_timelines(net, data, year, st)
             manifest["states"][st] = entry
             mpath.parent.mkdir(parents=True, exist_ok=True)
-            mpath.write_text(json.dumps(manifest, indent=1, sort_keys=True))   # checkpoint per state
+            mpath.write_text(json.dumps(manifest, indent=1, sort_keys=True))  # checkpoint per state
             got = ", ".join(f"{k}={v['races']}" for k, v in sorted(entry["levels"].items()))
             print(f"{year} {st}: {got or 'nothing'}; timelines: {len(entry.get('timelines', []))}")
     return 0

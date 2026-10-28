@@ -21,6 +21,7 @@ slugs. `clarity` still lists IA in its `states` set (a stale placeholder from be
 module existed, kept because that file is append-only); with no IA feed configured there
 it raises SourceUnavailable, which the poller logs and skips.
 """
+
 from __future__ import annotations
 
 import re
@@ -87,8 +88,11 @@ def race_key(name: str) -> RaceKey:
 
 def parse_ia(summary, settings=None, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one Iowa Clarity summary.json (+ optional electionsettings.json)."""
-    contests = summary if isinstance(summary, list) else (
-        (summary or {}).get("Contests") or (summary or {}).get("contests") or [])
+    contests = (
+        summary
+        if isinstance(summary, list)
+        else ((summary or {}).get("Contests") or (summary or {}).get("contests") or [])
+    )
     updated = parse_settings(settings)
     out: list[RaceResult] = []
     seen: set[str] = set()
@@ -111,29 +115,36 @@ def parse_ia(summary, settings=None, *, fetched_at: datetime) -> list[RaceResult
             cand_name, incumbent = c.strip_incumbent(str(choice or "").strip())
             if not cand_name or cand_name.upper() == "NO CANDIDATE FILED":
                 continue
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(parties[i] if i < len(parties) else None),
-                votes=c.to_int(votes[i] if i < len(votes) else 0),
-                pct=c.to_pct(pcts[i] if i < len(pcts) else None),
-                incumbent=incumbent,
-                winner=c.to_int(winners[i] if i < len(winners) else 0) == 1,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=c.norm_party(parties[i] if i < len(parties) else None),
+                    votes=c.to_int(votes[i] if i < len(votes) else 0),
+                    pct=c.to_pct(pcts[i] if i < len(pcts) else None),
+                    incumbent=incumbent,
+                    winner=c.to_int(winners[i] if i < len(winners) else 0) == 1,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         total = con.get("T")
         if isinstance(total, list):
             total = total[0] if total else None
-        out.append(c.make_result(
-            key, name, cands, fetched_at,
-            source=IaSos.name,
-            url=HUMAN,
-            total_votes=c.to_int(total) or sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(con.get("PR")) or None,
-            precincts_total=c.to_int(con.get("TP")) or None,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                name,
+                cands,
+                fetched_at,
+                source=IaSos.name,
+                url=HUMAN,
+                total_votes=c.to_int(total) or sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(con.get("PR")) or None,
+                precincts_total=c.to_int(con.get("TP")) or None,
+                source_updated_at=updated,
+            )
+        )
     return out
 
 

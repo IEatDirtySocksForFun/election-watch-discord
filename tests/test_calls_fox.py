@@ -12,9 +12,7 @@ def _load(name: str):
 
 
 def test_parse_senate_call():
-    calls = parse_fox_state(
-        _load("2024-tx-senate.json"), "TX", Level.SENATE, 2024
-    )
+    calls = parse_fox_state(_load("2024-tx-senate.json"), "TX", Level.SENATE, 2024)
     assert len(calls) == 1
     call = calls[0]
     assert call.key == RaceKey("TX", Level.SENATE, "SEN")

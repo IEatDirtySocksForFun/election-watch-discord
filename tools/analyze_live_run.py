@@ -11,6 +11,7 @@ Bad-data checks run on every results post as the bot rendered it:
   call_mismatch    the race call names someone other than the final leader
   no_posts         a race that never got a results post (from --expected)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -20,13 +21,45 @@ import statistics
 import sys
 from collections import Counter, defaultdict
 
-LINE = re.compile(r"^(?P<dot>\S+) (?P<name>.+?)(?: \((?P<party>[^)]+)\))? (?P<votes>[\d,]+)(?: · (?P<pct>[\d.]+)%)?(?: ✓)?$")
-NON_CANDIDATE = re.compile(r"\b(over ?votes?|under ?votes?|blank|scattering|total"
-                           r"|uncommitted|registered voters|ballots cast|times? (?:over|under)voted)\b", re.I)
+LINE = re.compile(
+    r"^(?P<dot>\S+) (?P<name>.+?)(?: \((?P<party>[^)]+)\))? (?P<votes>[\d,]+)(?: · (?P<pct>[\d.]+)%)?(?: ✓)?$"
+)
+NON_CANDIDATE = re.compile(
+    r"\b(over ?votes?|under ?votes?|blank|scattering|total"
+    r"|uncommitted|registered voters|ballots cast|times? (?:over|under)voted)\b",
+    re.I,
+)
 BAD_CASE = re.compile(r"\b(Mc[a-z]|O'[a-z]|Ii\b|Iii\b|Iv\b)")
-NO_PARTY = {"NPA", "NA", "NON", "NP", "IND", "I", "U", "UNA", "UNENROLLED", "NONPARTISAN", "NON PARTISAN",
-            "NO PARTY PRE", "STATES NO PA", "OTHER", "OTH", "WRI", "UNAFFILIATED", "NOM", "NONC", "NONI", "NONW",
-            "ONA", "A", "NONE", "NPD", "PC", "WI", "UNENROLLED"}
+NO_PARTY = {
+    "NPA",
+    "NA",
+    "NON",
+    "NP",
+    "IND",
+    "I",
+    "U",
+    "UNA",
+    "UNENROLLED",
+    "NONPARTISAN",
+    "NON PARTISAN",
+    "NO PARTY PRE",
+    "STATES NO PA",
+    "OTHER",
+    "OTH",
+    "WRI",
+    "UNAFFILIATED",
+    "NOM",
+    "NONC",
+    "NONI",
+    "NONW",
+    "ONA",
+    "A",
+    "NONE",
+    "NPD",
+    "PC",
+    "WI",
+    "UNENROLLED",
+}
 
 
 def candidates(lines: list[str]):
@@ -42,11 +75,15 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
     out["failed_sends"] = Counter(r["error"].split(":")[0] for r in records if not r.get("ok"))
     lat = [r["secs"] for r in ok if "secs" in r]
     if lat:
-        out["send_latency_s"] = {"median": statistics.median(lat), "p95": sorted(lat)[int(len(lat) * .95) - 1],
-                                 "max": max(lat)}
+        out["send_latency_s"] = {
+            "median": statistics.median(lat),
+            "p95": sorted(lat)[int(len(lat) * 0.95) - 1],
+            "max": max(lat),
+        }
     out["rate_limited"] = sum("rate limit" in l.lower() for l in log_lines)
-    out["app_errors"] = Counter(re.sub(r"\d+", "N", l.split(": ", 1)[-1])[:120]
-                                for l in log_lines if " ERROR " in l or "Traceback" in l)
+    out["app_errors"] = Counter(
+        re.sub(r"\d+", "N", l.split(": ", 1)[-1])[:120] for l in log_lines if " ERROR " in l or "Traceback" in l
+    )
     issues: dict[str, list] = defaultdict(list)
     last_votes: dict[tuple[str, str], int] = {}
     final_leader: dict[str, str] = {}
@@ -87,11 +124,16 @@ def analyse(records: list[dict], log_lines: list[str], expected: list[str]) -> d
     for race in expected:
         if not posted[race]:
             issues["no_posts"].append(race)
-    out["posts_per_race"] = {"races": len(posted), "min": min(posted.values(), default=0),
-                             "max": max(posted.values(), default=0)}
+    out["posts_per_race"] = {
+        "races": len(posted),
+        "min": min(posted.values(), default=0),
+        "max": max(posted.values(), default=0),
+    }
     # de-duplicate repeated findings, keep counts
-    out["issues"] = {k: {"count": len(v), "examples": sorted(set(map(tuple, (x if isinstance(x, tuple) else (x,) for x in v))))[:15]}
-                     for k, v in issues.items()}
+    out["issues"] = {
+        k: {"count": len(v), "examples": sorted(set(map(tuple, (x if isinstance(x, tuple) else (x,) for x in v))))[:15]}
+        for k, v in issues.items()
+    }
     return out
 
 
@@ -105,7 +147,9 @@ def main() -> int:
     records = [json.loads(l) for l in open(a.record, encoding="utf-8") if l.strip()]
     log_lines = open(a.log, encoding="utf-8", errors="replace").read().splitlines()
     res = analyse(records, log_lines, [r for r in a.expected.split(",") if r])
-    text = json.dumps(res, indent=1, default=lambda o: dict(o) if isinstance(o, Counter) else str(o), ensure_ascii=False)
+    text = json.dumps(
+        res, indent=1, default=lambda o: dict(o) if isinstance(o, Counter) else str(o), ensure_ascii=False
+    )
     if a.json:
         open(a.json, "w", encoding="utf-8").write(text)
     print(text)

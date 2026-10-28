@@ -1,9 +1,9 @@
 """Request budgets, the demand queue, user cooldowns, and how the poller, commands and early
 vote use them: sources are asked only when due, commands never call a source."""
+
 from __future__ import annotations
 
-import json
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 
 import httpx
 import pytest
@@ -47,18 +47,18 @@ async def spend(book: RateBook, name: str, kind: str, host: str, n: int) -> None
 # --------------------------------------------------------------------------- the math
 def test_allowance_is_half_the_published_limit_per_hour():
     book = RateBook()
-    assert book.allowance("gamma-api.polymarket.com") == 300 * 360 / 2       # 300 per 10 s
-    assert book.allowance("en.wikipedia.org") == 200 * 60 / 2                # 200 per minute
-    assert book.allowance("politics.api.cnn.io") == 10 * 60 / 2              # parent domain cnn.io
-    assert book.allowance("unknown.example.org") == 3600 / 2                 # a request a second
+    assert book.allowance("gamma-api.polymarket.com") == 300 * 360 / 2  # 300 per 10 s
+    assert book.allowance("en.wikipedia.org") == 200 * 60 / 2  # 200 per minute
+    assert book.allowance("politics.api.cnn.io") == 10 * 60 / 2  # parent domain cnn.io
+    assert book.allowance("unknown.example.org") == 3600 / 2  # a request a second
     assert RateBook(safety=4).allowance("civicapi.org") == 3600 / 4
 
 
 async def test_interval_grows_with_requests_per_refresh_and_never_beats_the_floor():
     clock = Clock()
-    book = RateBook({"feed.example": Limit(600, 3600)}, clock=clock)   # allowance 300/h
+    book = RateBook({"feed.example": Limit(600, 3600)}, clock=clock)  # allowance 300/h
     await spend(book, "a:results", "results", "feed.example", 2)
-    assert book.interval("a:results", "results") == FLOORS["results"]   # 120/h wanted < 90% of 300
+    assert book.interval("a:results", "results") == FLOORS["results"]  # 120/h wanted < 90% of 300
     await spend(book, "a:results", "results", "feed.example", 50)
     # 50 a minute = 3000/h wanted; 90% of 300/h allowed: 11.1x slower than the 60 s floor.
     assert book.interval("a:results", "results") == pytest.approx(60 * 3000 / 270)
@@ -67,7 +67,7 @@ async def test_interval_grows_with_requests_per_refresh_and_never_beats_the_floo
 
 async def test_sources_sharing_a_host_are_slowed_evenly_instead_of_bursting_then_stalling():
     clock = Clock()
-    book = RateBook({"cdn.example": Limit(3600, 3600)}, clock=clock)   # allowance 1800/h
+    book = RateBook({"cdn.example": Limit(3600, 3600)}, clock=clock)  # allowance 1800/h
     costs = {"tx:results": 76, "nj:results": 56, "mi:results": 16, "al:results": 3}
     runs = {name: [] for name in costs}
     for minute in range(180):
@@ -78,17 +78,17 @@ async def test_sources_sharing_a_host_are_slowed_evenly_instead_of_bursting_then
                 await spend(book, name, "results", "cdn.example", cost)
         assert book.used("cdn.example") <= 1800
     for name, minutes in runs.items():
-        gaps = [b - a for a, b in zip(minutes, minutes[1:])][1:]      # after every cost is known
-        assert gaps and max(gaps) - min(gaps) <= 1, (name, gaps)     # an even cadence, no 40-min stall
+        gaps = [b - a for a, b in zip(minutes, minutes[1:])][1:]  # after every cost is known
+        assert gaps and max(gaps) - min(gaps) <= 1, (name, gaps)  # an even cadence, no 40-min stall
     assert book.interval("tx:results", "results") == book.interval("al:results", "results")
 
 
 async def test_refreshes_started_in_the_same_tick_reserve_their_requests():
     clock = Clock()
-    book = RateBook({"feed.example": Limit(200, 3600)}, clock=clock)   # allowance 100/h
+    book = RateBook({"feed.example": Limit(200, 3600)}, clock=clock)  # allowance 100/h
     for name in ("a:results", "b:results", "c:results"):
         await spend(book, name, "results", "feed.example", 40)
-    clock.t += 3601                                                    # all due, hour empty
+    clock.t += 3601  # all due, hour empty
     book._hits.clear()
     started = []
     contexts = []
@@ -98,7 +98,7 @@ async def test_refreshes_started_in_the_same_tick_reserve_their_requests():
             ctx = book.track(name, "results")
             ctx.__enter__()
             contexts.append(ctx)
-            await book.on_request(Request("feed.example"))             # first request in flight
+            await book.on_request(Request("feed.example"))  # first request in flight
     assert started == ["a:results"] or len(started) <= 2
     assert book.used("feed.example") + book.reserved("feed.example") <= 100 + 40
     for ctx in contexts:
@@ -116,25 +116,25 @@ def test_subdomains_share_their_parent_domains_allowance():
 
 async def test_due_waits_for_the_interval_and_for_room_in_the_hourly_allowance():
     clock = Clock()
-    book = RateBook({"feed.example": Limit(200, 3600)}, clock=clock)   # allowance 100/h
+    book = RateBook({"feed.example": Limit(200, 3600)}, clock=clock)  # allowance 100/h
     assert book.due("a:odds", "odds")
     await spend(book, "a:odds", "odds", "feed.example", 40)
     assert not book.due("a:odds", "odds")
     clock.t += book.interval("a:odds", "odds")
     assert book.due("a:odds", "odds")
-    book._next["a:odds"] = -1                                          # interval passed
-    await spend(book, "b:calls", "calls", "feed.example", 40)          # another source, same host
+    book._next["a:odds"] = -1  # interval passed
+    await spend(book, "b:calls", "calls", "feed.example", 40)  # another source, same host
     await spend(book, "c:calls", "calls", "feed.example", 30)
     book._next["a:odds"] = -1
     assert book.used("feed.example") == 110
-    assert not book.due("a:odds", "odds")                              # 110 + 40 > 100
-    clock.t += 3600                                                    # the hour rolls over
+    assert not book.due("a:odds", "odds")  # 110 + 40 > 100
+    clock.t += 3600  # the hour rolls over
     assert book.due("a:odds", "odds")
 
 
 async def test_a_refresh_bigger_than_the_allowance_still_runs():
     clock = Clock()
-    book = RateBook({"feed.example": Limit(20, 3600)}, clock=clock)    # allowance 10/h
+    book = RateBook({"feed.example": Limit(20, 3600)}, clock=clock)  # allowance 10/h
     await spend(book, "a:results", "results", "feed.example", 30)
     clock.t += book.interval("a:results", "results")
     assert book.due("a:results", "results")
@@ -158,8 +158,9 @@ def test_env_parsing_skips_bad_parts():
         "api.votehub.com": Limit(1000, 3600, "EW_RATE_LIMITS"),
     }
     assert parse_seconds("odds=120,polls=x,polymarket=-1, results = 30") == {"odds": 120, "results": 30}
-    book = RateBook.from_env({"EW_RATE_SAFETY": "3", "EW_RATE_LIMITS": "civicapi.org=60/60",
-                              "EW_INTERVALS": "polls=600"})
+    book = RateBook.from_env(
+        {"EW_RATE_SAFETY": "3", "EW_RATE_LIMITS": "civicapi.org=60/60", "EW_INTERVALS": "polls=600"}
+    )
     assert (book.safety, book.allowance("civicapi.org"), book.intervals) == (3, 1200, {"polls": 600})
     assert RateBook.from_env({"EW_RATE_SAFETY": "nonsense"}).safety == 2
 
@@ -169,7 +170,7 @@ def test_demand_expires_and_is_capped():
     demand = Demand(limit=2, ttl=60, clock=clock)
     assert demand.add("odds", "TX SEN") and demand.add("odds", "GA SEN")
     assert not demand.add("odds", "NV SEN")
-    assert demand.add("odds", "TX SEN")                 # a repeat refreshes its time
+    assert demand.add("odds", "TX SEN")  # a repeat refreshes its time
     clock.t += 61
     assert demand.items("odds") == [] and demand.add("odds", "NV SEN")
 
@@ -180,9 +181,9 @@ def test_user_cooldown_is_twice_the_refresh_and_can_be_overridden():
     seconds = limits.user_seconds(60)
     assert seconds == 120
     assert limits.hit(1, "odds", "TX SEN", seconds) == 0
-    assert limits.hit(1, "odds", "tx sen", seconds) == 120            # same target, any case
-    assert limits.hit(1, "odds", "GA SEN", seconds) == 0              # other targets are fine
-    assert limits.hit(2, "odds", "TX SEN", seconds) == 0              # other users are fine
+    assert limits.hit(1, "odds", "tx sen", seconds) == 120  # same target, any case
+    assert limits.hit(1, "odds", "GA SEN", seconds) == 0  # other targets are fine
+    assert limits.hit(2, "odds", "TX SEN", seconds) == 0  # other users are fine
     clock.t += 120
     assert limits.hit(1, "odds", "TX SEN", seconds) == 0
     assert Cooldowns(user_cooldown=10).user_seconds(60) == 10
@@ -194,17 +195,21 @@ def test_hourly_cap_and_refresh_cooldown():
     limits = Cooldowns(user_hourly=2, clock=clock)
     assert limits.hit(1, "odds", "a", 0) == limits.hit(1, "polls", "b", 0) == 0
     assert limits.hit(1, "odds", "c", 0) == 3600
-    assert limits.hit(1, "odds", "c", 0, hourly=0) == 0                # server: no cap
+    assert limits.hit(1, "odds", "c", 0, hourly=0) == 0  # server: no cap
     assert limits.refresh_seconds(60) == 120
     assert limits.refresh_hit(7, 120) == 0 and limits.refresh_hit(7, 120) == 120
-    assert Cooldowns.from_env({"EW_USER_COOLDOWN": "5", "EW_USER_HOURLY": "x",
-                               "EW_REFRESH_COOLDOWN": "-3"}).user_cooldown == 5
+    assert (
+        Cooldowns.from_env({"EW_USER_COOLDOWN": "5", "EW_USER_HOURLY": "x", "EW_REFRESH_COOLDOWN": "-3"}).user_cooldown
+        == 5
+    )
 
 
 def test_change_limits_and_the_limits_text():
     gs = GuildSettings(1)
-    assert change_limits(gs, user_cooldown=30, user_hourly=0) == \
-        "Limits set: user cooldown 30, commands per user per hour 0"
+    assert (
+        change_limits(gs, user_cooldown=30, user_hourly=0)
+        == "Limits set: user cooldown 30, commands per user per hour 0"
+    )
     assert (gs.user_cooldown_seconds, gs.user_commands_per_hour) == (30, 0)
     change_limits(gs, user_cooldown=-1)
     assert gs.user_cooldown_seconds is None
@@ -228,6 +233,7 @@ class CountingResults(ResultsSource):
     async def fetch(self, keys, client):
         self.calls += 1
         from electionwatch.models import CandidateResult, RaceResult
+
         return [RaceResult(TX, [CandidateResult("A", "DEM", 10)], self.name, NOW)]
 
 
@@ -278,7 +284,7 @@ async def test_a_source_that_is_not_due_answers_with_its_last_results_not_the_fa
     store, poller = await make_poller(clock, results=[official, fallback])
     await poller.tick()
     clock.t += 60
-    await poller.tick()                        # official not due (120 s): its answer is reused
+    await poller.tick()  # official not due (120 s): its answer is reused
     assert (official.calls, fallback.calls) == (1, 0)
     clock.t += 60
     await poller.tick()
@@ -297,8 +303,8 @@ async def test_odds_and_polls_refresh_on_their_own_schedule_and_include_demanded
     for _ in range(10):
         clock.t += 60
         await poller.tick()
-    assert odds.calls == 11                    # every minute
-    assert polls.calls == 1                    # every 30 min
+    assert odds.calls == 11  # every minute
+    assert polls.calls == 1  # every 30 min
     clock.t += FLOORS["polls"]
     await poller.tick()
     assert polls.calls == 2
@@ -308,8 +314,7 @@ async def test_odds_and_polls_refresh_on_their_own_schedule_and_include_demanded
 @respx.mock
 async def test_commands_read_early_vote_pages_the_refresher_stored():
     store = MemoryStore()
-    national = {"regions": {"TX": {"Democratic": {"votes": 10}}}, "statewide_total": 10,
-                "snapshot_date": "2026-10-30"}
+    national = {"regions": {"TX": {"Democratic": {"votes": 10}}}, "statewide_total": 10, "snapshot_date": "2026-10-30"}
     respx.get(url__startswith=f"{API}/US/").respond(json=national)
     route = respx.get(url__startswith=f"{API}/TX").respond(404)
     respx.get(url__startswith=f"{API}/historical").respond(404)
@@ -321,8 +326,8 @@ async def test_commands_read_early_vote_pages_the_refresher_stored():
         assert await refresher.refresh() == 1
         calls = len(respx.calls)
         ev = await reader.state("TX", counties=True, age=True)
-        assert ev is not None and ev.total_ballots == 20   # returned + in person
-        assert len(respx.calls) == calls        # the reader made no request
+        assert ev is not None and ev.total_ballots == 20  # returned + in person
+        assert len(respx.calls) == calls  # the reader made no request
     assert route.called
     assert any(ident.startswith(f"{API}/US/") for ident in await store.cached_idents(CACHE_KIND))
 
@@ -354,7 +359,7 @@ async def test_a_short_outage_keeps_the_official_numbers_instead_of_flipping_to_
     poller.rates.intervals = {"results": 60}
     await poller.tick()
     official.fail = True
-    for _ in range(3):                         # fails, then backs off 1 and 2 minutes
+    for _ in range(3):  # fails, then backs off 1 and 2 minutes
         clock.t += 60
         await poller.tick()
     assert fallback.calls == 0
@@ -375,7 +380,9 @@ def test_limits_text_fits_one_message_with_every_adapter_and_leads_with_command_
 
 
 def test_the_cooldown_key_ignores_presentation_options():
-    from electionwatch.bot.discord import polls_command
     import inspect
+
+    from electionwatch.bot.discord import polls_command
+
     source = inspect.getsource(polls_command.callback)
     assert '_cooldown(interaction, "polls", str(key), "polls")' in source

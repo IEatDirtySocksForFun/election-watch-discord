@@ -1,12 +1,13 @@
 """Ephemeral race navigator view (/races). It reads only the database: race lists come from
 the background refresh in electionwatch/racelists.py, results from the poller."""
+
 from __future__ import annotations
 
 import logging
 
 import discord
 
-from electionwatch.bot.logic import LEVELS, NAV_TABS, filter_races, remember_navigation
+from electionwatch.bot.logic import NAV_TABS, filter_races, remember_navigation
 from electionwatch.bot.poster import render_embed
 from electionwatch.poller import format_result
 from electionwatch.racekeys import ALL_JURISDICTIONS, describe, parse
@@ -15,13 +16,18 @@ from electionwatch.settings import UserSettings
 
 logger = logging.getLogger(__name__)
 _TAB_LABELS = {
-    "congressional": "Congressional", "senate": "Senate", "state": "State", "local": "Local",
+    "congressional": "Congressional",
+    "senate": "Senate",
+    "state": "State",
+    "local": "Local",
     "favorites": "★ Favorites",
 }
-RACE_PAGE = 23   # race-select options per page when two are taken by previous/next
-LOADING = ("{state}'s race list is still loading: race lists are fetched in the background and "
-           "this state is now first in line. Check back in a few minutes; meanwhile this shows "
-           "the server's watched races and your favorites.")
+RACE_PAGE = 23  # race-select options per page when two are taken by previous/next
+LOADING = (
+    "{state}'s race list is still loading: race lists are fetched in the background and "
+    "this state is now first in line. Check back in a few minutes; meanwhile this shows "
+    "the server's watched races and your favorites."
+)
 
 
 def race_lists(client) -> RaceLists:
@@ -45,14 +51,14 @@ class RaceNavigator(discord.ui.View):
         self.client = client
         self.user_id = user_id
         self.settings = settings
-        self.watched = watched                 # the server's watch list; None = the default races
-        self.loading = False                   # no source has stored this state's list yet
+        self.watched = watched  # the server's watch list; None = the default races
+        self.loading = False  # no source has stored this state's list yet
         self.state = settings.home_state or "TX"
         self.level = settings.default_level if settings.default_level in NAV_TABS else "senate"
         self.races: list[tuple] = []
         self.selected_race = None
-        self._race_choices: list[str] = []   # race-select option value i -> race key
-        self.page = 0                          # race-select page when a tab has > 25 races
+        self._race_choices: list[str] = []  # race-select option value i -> race key
+        self.page = 0  # race-select page when a tab has > 25 races
 
     def _visible(self) -> list[tuple]:
         """Races on the current tab: the user's favorites (any state) or the state's races."""
@@ -109,14 +115,12 @@ class RaceNavigator(discord.ui.View):
             self.add_item(button)
         # 51 states + DC and 5 territories = 56 entries: three selects of at most 25.
         codes = list(ALL_JURISDICTIONS)
-        groups = [codes[index:index + 25] for index in range(0, len(codes), 25)]
+        groups = [codes[index : index + 25] for index in range(0, len(codes), 25)]
         for row, group in enumerate(groups, start=1):
             select = discord.ui.Select(
                 placeholder=f"State: {ALL_JURISDICTIONS[group[0]]}–{ALL_JURISDICTIONS[group[-1]]}"[:100],
                 options=[
-                    discord.SelectOption(
-                        label=ALL_JURISDICTIONS[code], value=code, default=code == self.state
-                    )
+                    discord.SelectOption(label=ALL_JURISDICTIONS[code], value=code, default=code == self.state)
                     for code in group
                 ],
                 row=row,
@@ -138,7 +142,7 @@ class RaceNavigator(discord.ui.View):
             # A select holds 25 options: longer lists are paged with previous/next options.
             pages = 1 if len(visible) <= 25 else -(-len(visible) // RACE_PAGE)
             self.page = min(self.page, pages - 1)
-            shown = visible if pages == 1 else visible[self.page * RACE_PAGE:(self.page + 1) * RACE_PAGE]
+            shown = visible if pages == 1 else visible[self.page * RACE_PAGE : (self.page + 1) * RACE_PAGE]
             self._race_choices = [str(key) for key, _ in shown]
             options = [
                 discord.SelectOption(label=(label or str(key))[:100], value=str(index))
@@ -173,7 +177,7 @@ class RaceNavigator(discord.ui.View):
         self.state = interaction.data["values"][0]
         self.selected_race = None
         self.page = 0
-        if self.level == "favorites":   # picking a state leaves the cross-state favorites tab
+        if self.level == "favorites":  # picking a state leaves the cross-state favorites tab
             self.level = "senate"
         await self._save_and_refresh(interaction)
 
@@ -233,7 +237,8 @@ class RaceNavigator(discord.ui.View):
             title = _TAB_LABELS["favorites"]
             description = (
                 "No current result is available. Choose a favorite race."
-                if self.settings.favorites else "No favorites yet: add one with /favorite add."
+                if self.settings.favorites
+                else "No favorites yet: add one with /favorite add."
             )
         else:
             title = f"{ALL_JURISDICTIONS[self.state]} · {_TAB_LABELS[self.level]}"

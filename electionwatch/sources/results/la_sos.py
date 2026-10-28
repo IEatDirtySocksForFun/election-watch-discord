@@ -34,6 +34,7 @@ presidential electors, as the trailing party name ("Name, VP Name Republican").
 
 The media API (`/api/MediaRequests/...`) needs an access key and is not used.
 """
+
 from __future__ import annotations
 
 import re
@@ -58,10 +59,10 @@ ELECTIONS: dict[str, str | None] = {
 
 #: OfficeLevel -> RaceKey office for the levels the state's own race taxonomy tags.
 _LEVELS = {
-    "140": Level.SENATE,      # U.S. Senator
-    "145": Level.HOUSE,       # U.S. Representative
-    "200": Level.STATE,       # State Senator
-    "205": Level.STATE,       # State Representative
+    "140": Level.SENATE,  # U.S. Senator
+    "145": Level.HOUSE,  # U.S. Representative
+    "200": Level.STATE,  # State Senator
+    "205": Level.STATE,  # State Representative
 }
 
 _OFFICES = (
@@ -76,20 +77,34 @@ _OFFICES = (
 
 #: Trailing party names (presidential electors carry no "(XXX)" suffix).
 _PARTY_WORDS = {
-    "DEMOCRATIC": "DEM", "DEMOCRAT": "DEM", "REPUBLICAN": "REP",
-    "LIBERTARIAN": "LIB", "GREEN": "GRN", "INDEPENDENT": "IND",
-    "CONSTITUTION PARTY": "CON", "AMERICAN SOLIDARITY PARTY": "ASP",
-    "SOCIALISM AND LIBERATION": "SAL", "SOCIALIST WORKERS PARTY": "SWP",
-    "JUSTICE FOR ALL": "JFA", "WE THE PEOPLE": "WTP",
+    "DEMOCRATIC": "DEM",
+    "DEMOCRAT": "DEM",
+    "REPUBLICAN": "REP",
+    "LIBERTARIAN": "LIB",
+    "GREEN": "GRN",
+    "INDEPENDENT": "IND",
+    "CONSTITUTION PARTY": "CON",
+    "AMERICAN SOLIDARITY PARTY": "ASP",
+    "SOCIALISM AND LIBERATION": "SAL",
+    "SOCIALIST WORKERS PARTY": "SWP",
+    "JUSTICE FOR ALL": "JFA",
+    "WE THE PEOPLE": "WTP",
     "GODLINESS, TRUTH, JUSTICE": "GTJ",
 }
 _PARTY_CODE = {
-    "DEM": "DEM", "REP": "REP", "LBT": "LIB", "LIB": "LIB", "GRN": "GRN",
-    "IND": "IND", "NOPTY": "NPA", "OTH": "OTH", "PF": "PF", "CON": "CON",
+    "DEM": "DEM",
+    "REP": "REP",
+    "LBT": "LIB",
+    "LIB": "LIB",
+    "GRN": "GRN",
+    "IND": "IND",
+    "NOPTY": "NPA",
+    "OTH": "OTH",
+    "PF": "PF",
+    "CON": "CON",
 }
 
-_DISTRICT_TAIL = re.compile(
-    r"(\d{1,3})(?:ST|ND|RD|TH)?\s+(?:CONGRESSIONAL|REPRESENTATIVE|SENATE|SENATOR)", re.I)
+_DISTRICT_TAIL = re.compile(r"(\d{1,3})(?:ST|ND|RD|TH)?\s+(?:CONGRESSIONAL|REPRESENTATIVE|SENATE|SENATOR)", re.I)
 
 try:  # tzdata is not always present in slim containers
     _LOUISIANA_TZ = ZoneInfo("America/Chicago")
@@ -194,9 +209,7 @@ def parse_la(
         if str(key) in seen:
             continue
         tally = counts.get(str(race.get("ID")), {})
-        vote_by_choice = {
-            str(v.get("ID")): v for v in (tally.get("Choice") or []) if isinstance(v, dict)
-        }
+        vote_by_choice = {str(v.get("ID")): v for v in (tally.get("Choice") or []) if isinstance(v, dict)}
         cands: list[CandidateResult] = []
         for choice in race.get("Choice") or []:
             if not isinstance(choice, dict):
@@ -205,25 +218,32 @@ def parse_la(
             if not cand_name:
                 continue
             vote = vote_by_choice.get(str(choice.get("ID")), {})
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=party,
-                votes=c.to_int(vote.get("VoteTotal")),
-                winner=str(vote.get("Outcome") or "").strip().lower() == "elected",
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=party,
+                    votes=c.to_int(vote.get("VoteTotal")),
+                    winner=str(vote.get("Outcome") or "").strip().lower() == "elected",
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, name, cands, fetched_at,
-            source=LaSos.name,
-            url=HUMAN,
-            total_votes=c.to_int(tally.get("VoterCountVoted")) or None,
-            precincts_reporting=c.to_int(tally.get("PrecinctsReporting")) or None,
-            precincts_total=c.to_int(tally.get("PrecinctsExpected")) or None,
-            registered_voters=c.to_int(tally.get("VoterCountQualified")) or None,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                name,
+                cands,
+                fetched_at,
+                source=LaSos.name,
+                url=HUMAN,
+                total_votes=c.to_int(tally.get("VoterCountVoted")) or None,
+                precincts_reporting=c.to_int(tally.get("PrecinctsReporting")) or None,
+                precincts_total=c.to_int(tally.get("PrecinctsExpected")) or None,
+                registered_voters=c.to_int(tally.get("VoterCountQualified")) or None,
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
@@ -242,7 +262,8 @@ async def _folder(client: httpx.AsyncClient, date: str) -> str:
         if str(entry.get("ElectionDate")) == target:
             return target[6:10] + target[0:2] + target[3:5]
     raise SourceUnavailable(
-        f"LA: ElectionDates.htm has no election dated {target} (checked {_blob_url('ElectionDates.htm')})")
+        f"LA: ElectionDates.htm has no election dated {target} (checked {_blob_url('ElectionDates.htm')})"
+    )
 
 
 async def _races(client: httpx.AsyncClient, folder: str):
@@ -263,8 +284,7 @@ class LaSos(ResultsSource):
         if not any(k.state == "LA" for k in keys):
             return []
         folder = await _folder(client, c.election_date())
-        parsed = parse_la(await _races(client, folder), await _votes(client, folder),
-                          fetched_at=c.utcnow())
+        parsed = parse_la(await _races(client, folder), await _votes(client, folder), fetched_at=c.utcnow())
         return c.select(parsed, [k for k in keys if k.state == "LA"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -273,8 +293,7 @@ class LaSos(ResultsSource):
         folder = await _folder(client, c.election_date())
         _, races = _rows(await _races(client, folder))
         return [
-            (race_key(str(r.get("SpecificTitle") or ""), r.get("OfficeLevel")),
-             str(r.get("SpecificTitle") or ""))
+            (race_key(str(r.get("SpecificTitle") or ""), r.get("OfficeLevel")), str(r.get("SpecificTitle") or ""))
             for r in races
             if str(r.get("SpecificTitle") or "").strip()
         ]

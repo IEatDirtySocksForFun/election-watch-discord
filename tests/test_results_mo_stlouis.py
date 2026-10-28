@@ -1,4 +1,5 @@
 """mo_stlouis: St. Louis County's per-precinct CSV export (Missouri's ENR is Cloudflare-blocked)."""
+
 import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
@@ -41,7 +42,7 @@ def test_votes_are_summed_over_precincts():
     assert sen.total_votes == 1246
     assert sen.candidates[0].pct == round(100.0 * 798 / 1246, 2)
     assert sen.precincts_reporting == 5
-    assert sen.precincts_total is None          # the export carries no precinct total
+    assert sen.precincts_total is None  # the export carries no precinct total
     assert sen.title == "U.S. SENATOR (partial: 1 counties)"
     assert sen.url == "https://enr.sos.mo.gov/"
 
@@ -66,8 +67,8 @@ def test_ballot_measures_and_retention_are_local():
 
 def test_unfiled_write_ins_are_dropped():
     names = {c.name for c in by_key(merged())["MO SEN"].candidates}
-    assert "Gina Bufe" not in names             # empty party, zero votes, choice id 0
-    assert "Jared Young" in names               # zero votes but a filed party
+    assert "Gina Bufe" not in names  # empty party, zero votes, choice id 0
+    assert "Jared Young" in names  # zero votes but a filed party
 
 
 def test_cp1252_bytes_decode():
@@ -96,8 +97,7 @@ def test_fetch_reports_a_missing_export(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda request: httpx.Response(404))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as c:
             await mo_stlouis.MoStLouis().fetch([parse("MO SEN")], c)
 
     with pytest.raises(SourceUnavailable) as err:

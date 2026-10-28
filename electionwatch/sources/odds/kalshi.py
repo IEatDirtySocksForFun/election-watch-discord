@@ -3,6 +3,7 @@
 Discovers 2026 U.S. election events from series tickers and parses each market
 as an OddsSnapshot. No API key is required for reads.
 """
+
 from __future__ import annotations
 
 from dataclasses import replace
@@ -12,7 +13,6 @@ from typing import ClassVar
 import httpx
 
 from electionwatch.models import Level, OddsSnapshot, RaceKey
-from electionwatch.racekeys import STATES
 from electionwatch.sources.base import OddsSource, SourceUnavailable, register
 
 
@@ -30,9 +30,7 @@ class KalshiSource(OddsSource):
         "AK": "KXGOVAK",
     }
 
-    async def fetch_odds(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[OddsSnapshot]:
+    async def fetch_odds(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[OddsSnapshot]:
         if not keys:
             return []
 
@@ -49,9 +47,7 @@ class KalshiSource(OddsSource):
             if resp.status_code == 404:
                 continue
             if resp.status_code >= 400:
-                raise SourceUnavailable(
-                    f"kalshi returned {resp.status_code} for {event_ticker}"
-                )
+                raise SourceUnavailable(f"kalshi returned {resp.status_code} for {event_ticker}")
             try:
                 payload = resp.json()
             except Exception as exc:

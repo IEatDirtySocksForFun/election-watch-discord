@@ -1,4 +1,5 @@
 """Shared helpers for call-source adapters."""
+
 from __future__ import annotations
 
 import re
@@ -88,13 +89,31 @@ def normalize_party(party: str | None) -> str | None:
         return None
     low = party.strip().lower().rstrip(".")
     mapping = {
-        "dem": "DEM", "democrat": "DEM", "democratic": "DEM", "democrats": "DEM", "d": "DEM",
-        "gop": "REP", "rep": "REP", "republican": "REP", "republicans": "REP", "r": "REP",
-        "ind": "IND", "independent": "IND", "i": "IND",
-        "lib": "LIB", "libertarian": "LIB", "lb": "LIB", "l": "LIB",
-        "grn": "GRN", "green": "GRN", "g": "GRN",
-        "wri": "WRI", "write-in": "WRI", "write-ins": "WRI",
-        "other": "OTH", "others": "OTH",
+        "dem": "DEM",
+        "democrat": "DEM",
+        "democratic": "DEM",
+        "democrats": "DEM",
+        "d": "DEM",
+        "gop": "REP",
+        "rep": "REP",
+        "republican": "REP",
+        "republicans": "REP",
+        "r": "REP",
+        "ind": "IND",
+        "independent": "IND",
+        "i": "IND",
+        "lib": "LIB",
+        "libertarian": "LIB",
+        "lb": "LIB",
+        "l": "LIB",
+        "grn": "GRN",
+        "green": "GRN",
+        "g": "GRN",
+        "wri": "WRI",
+        "write-in": "WRI",
+        "write-ins": "WRI",
+        "other": "OTH",
+        "others": "OTH",
     }
     if low in mapping:
         return mapping[low]

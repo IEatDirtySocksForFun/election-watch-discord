@@ -1,4 +1,5 @@
 """nj_counties: New Jersey county Clarity ENR feeds merged into partial statewide results."""
+
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -26,15 +27,16 @@ def by_key(results):
 
 
 def parsed(name, county, settings=None):
-    return nj_counties.parse_nj_county(
-        load(name), load(settings) if settings else None, county=county, fetched_at=AT)
+    return nj_counties.parse_nj_county(load(name), load(settings) if settings else None, county=county, fetched_at=AT)
 
 
 def merged_2024():
     return _county.merge(
         parsed("mercer_2024_summary.json", "Mercer", "mercer_2024_settings.json")
         + parsed("cumberland_2024_summary.json", "Cumberland"),
-        source="nj_counties", url=nj_counties.HUMAN)
+        source="nj_counties",
+        url=nj_counties.HUMAN,
+    )
 
 
 def test_2024_senate_is_one_race_across_counties():
@@ -58,8 +60,7 @@ def test_account_senate_name_variant_maps_to_the_same_key():
 
 def test_house_districts_are_parsed_from_three_naming_styles():
     got = by_key(merged_2024())
-    assert got["NJ-12"].title == (
-        "U.S. House of Representatives 12th Congressional District (partial: 1 counties)")
+    assert got["NJ-12"].title == ("U.S. House of Representatives 12th Congressional District (partial: 1 counties)")
     assert got["NJ-03"].candidates[0].name == "Herb Conaway"
     # "HOUSE OF REPRESENTATIVES - 2ND CONGRESSIONAL" (Cumberland)
     assert got["NJ-02"].key.level is Level.HOUSE
@@ -81,13 +82,16 @@ def test_county_local_races_are_namespaced():
 
 
 def test_2026_general_file_uses_the_county_listing_names():
-    results = by_key(_county.merge(parsed("cumberland_2026_summary.json", "Cumberland",
-                                        "cumberland_2026_settings.json"),
-                                  source="nj_counties", url=nj_counties.HUMAN))
+    results = by_key(
+        _county.merge(
+            parsed("cumberland_2026_summary.json", "Cumberland", "cumberland_2026_settings.json"),
+            source="nj_counties",
+            url=nj_counties.HUMAN,
+        )
+    )
     assert results["NJ SEN"].candidates[0].name == "Cory BOOKER"
     assert results["NJ SEN"].total_votes == 0
-    assert results["NJ SEN"].source_updated_at == datetime(2026, 10, 21, 17, 53, 6,
-                                                          tzinfo=timezone.utc)
+    assert results["NJ SEN"].source_updated_at == datetime(2026, 10, 21, 17, 53, 6, tzinfo=timezone.utc)
     # "United States House of Representatives" carries no district -> county-local, not NJ-xx.
     assert "NJ LOCAL cumberland-united-states-house-of-representatives" in results
     assert results["NJ LOCAL cumberland-sheriff"].key.level is Level.LOCAL
@@ -95,10 +99,22 @@ def test_2026_general_file_uses_the_county_listing_names():
 
 
 def test_placeholder_candidates_are_dropped():
-    results = nj_counties.parse_nj_county([
-        {"C": "United States Senator", "CH": ["Jane DOE", "NO NOMINATION MADE"],
-         "P": ["DEM", ""], "V": [10, 0], "T": [10], "TP": 5, "PR": 1},
-    ], None, county="Cumberland", fetched_at=AT)
+    results = nj_counties.parse_nj_county(
+        [
+            {
+                "C": "United States Senator",
+                "CH": ["Jane DOE", "NO NOMINATION MADE"],
+                "P": ["DEM", ""],
+                "V": [10, 0],
+                "T": [10],
+                "TP": 5,
+                "PR": 1,
+            },
+        ],
+        None,
+        county="Cumberland",
+        fetched_at=AT,
+    )
     assert [c.name for c in results[0].candidates] == ["Jane DOE"]
 
 
@@ -132,17 +148,19 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
         parts = request.url.path.strip("/").split("/")
         key = (parts[1], parts[2])
         if key not in bodies:
-            return httpx.Response(503)                       # the other counties are "down"
+            return httpx.Response(503)  # the other counties are "down"
         if request.url.path.endswith("current_ver.txt"):
             return httpx.Response(200, text="355689")
         if request.url.path.endswith("summary.json"):
             return httpx.Response(200, json=json.loads((FIX / bodies[key]).read_text()))
-        return httpx.Response(404)                           # no electionsettings.json
+        return httpx.Response(404)  # no electionsettings.json
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
             return await nj_counties.NjCounties().fetch(
-                [race_key_parse("NJ SEN"), race_key_parse("NJ-02"), race_key_parse("NJ LOCAL cumberland-county-clerk")], c)
+                [race_key_parse("NJ SEN"), race_key_parse("NJ-02"), race_key_parse("NJ LOCAL cumberland-county-clerk")],
+                c,
+            )
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"NJ SEN", "NJ-02", "NJ LOCAL cumberland-county-clerk"}
@@ -151,11 +169,12 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
 
 def test_fetch_explains_missing_elections(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2022-11-08")
-    monkeypatch.setenv("NJ_COUNTY_FEEDS", json.dumps([
-        {"county": "Cumberland", "election_id": "", "date": "2022-11-08"}]))
+    monkeypatch.setenv(
+        "NJ_COUNTY_FEEDS", json.dumps([{"county": "Cumberland", "election_id": "", "date": "2022-11-08"}])
+    )
 
     def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, json=[])                  # county lists no elections
+        return httpx.Response(200, json=[])  # county lists no elections
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:

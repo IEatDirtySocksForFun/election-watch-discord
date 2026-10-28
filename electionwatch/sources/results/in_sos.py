@@ -26,6 +26,7 @@ Election folders follow ``<year><General|Primary>``; the live site serves the
 current election under ``/archive/`` as well, but a brand-new election can appear
 at the root path first, so both are tried.
 """
+
 from __future__ import annotations
 
 import re
@@ -50,10 +51,17 @@ ELECTIONS: dict[str, str] = {
 
 #: Office categories worth polling: federal, statewide executive, state legislature.
 _WANTED = (
-    "PRESIDENTIAL", "US SENATOR", "UNITED STATES SENATOR",
-    "US REPRESENTATIVE", "UNITED STATES REPRESENTATIVE",
-    "GOVERNOR", "LIEUTENANT GOVERNOR", "ATTORNEY GENERAL", "SECRETARY OF STATE",
-    "STATE SENATOR", "STATE REPRESENTATIVE",
+    "PRESIDENTIAL",
+    "US SENATOR",
+    "UNITED STATES SENATOR",
+    "US REPRESENTATIVE",
+    "UNITED STATES REPRESENTATIVE",
+    "GOVERNOR",
+    "LIEUTENANT GOVERNOR",
+    "ATTORNEY GENERAL",
+    "SECRETARY OF STATE",
+    "STATE SENATOR",
+    "STATE REPRESENTATIVE",
 )
 
 _STATEWIDE = {
@@ -69,8 +77,15 @@ _STATEWIDE = {
 }
 
 _ORDINALS = {
-    "FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4, "FIFTH": 5,
-    "SIXTH": 6, "SEVENTH": 7, "EIGHTH": 8, "NINTH": 9,
+    "FIRST": 1,
+    "SECOND": 2,
+    "THIRD": 3,
+    "FOURTH": 4,
+    "FIFTH": 5,
+    "SIXTH": 6,
+    "SEVENTH": 7,
+    "EIGHTH": 8,
+    "NINTH": 9,
 }
 
 
@@ -120,8 +135,7 @@ def parse_category(payload: dict, *, fetched_at: datetime, url: str | None = Non
     """Pure parse of one OffCatC_<id>_<version>.json document."""
     root = (payload or {}).get("Root") or {}
     races = _as_list(((root.get("StatewideSummary") or {}).get("Race")))
-    updated = c.parse_updated_at(
-        re.sub(r"\.\d+$", "", str(root.get("WriteTime") or "")) or None)
+    updated = c.parse_updated_at(re.sub(r"\.\d+$", "", str(root.get("WriteTime") or "")) or None)
     out: list[RaceResult] = []
     seen: set[str] = set()
     for race in races:
@@ -140,23 +154,29 @@ def parse_category(payload: dict, *, fetched_at: datetime, url: str | None = Non
             name = (cand.get("NAME_ON_BALLOT") or "").strip()
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=c.norm_party(cand.get("PARTY") or cand.get("PARTY_ABBREV")),
-                votes=c.to_int(cand.get("TOTAL") if cand.get("TOTAL") is not None
-                               else cand.get("TOTAL_VOTES")),
-                winner=str(cand.get("isWinner") or "").strip().upper() in ("T", "1", "TRUE", "Y"),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=c.norm_party(cand.get("PARTY") or cand.get("PARTY_ABBREV")),
+                    votes=c.to_int(cand.get("TOTAL") if cand.get("TOTAL") is not None else cand.get("TOTAL_VOTES")),
+                    winner=str(cand.get("isWinner") or "").strip().upper() in ("T", "1", "TRUE", "Y"),
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=InSos.name,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=InSos.name,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
@@ -186,14 +206,12 @@ async def _load(client: httpx.AsyncClient, date: str) -> tuple[str, dict, dict]:
     """Locate the data folder; returns (data_base, settings, category index)."""
     folder = ELECTIONS.get(date)
     if not folder:
-        raise SourceUnavailable(
-            f"IN: no ENR folder configured for {date}; add '<year>General' to ELECTIONS")
+        raise SourceUnavailable(f"IN: no ENR folder configured for {date}; add '<year>General' to ELECTIONS")
     last: SourceUnavailable | None = None
     for prefix in (f"{BASE}/archive/{folder}", f"{BASE}/{folder}"):
         try:
             settings = await c.get_json(client, f"{prefix}/data/settings.json")
-            index = await c.get_json(
-                client, f"{prefix}/data/statewideElectionsC_{_version(settings)}.json")
+            index = await c.get_json(client, f"{prefix}/data/statewideElectionsC_{_version(settings)}.json")
         except SourceUnavailable as exc:
             last = exc
             continue
@@ -241,5 +259,4 @@ class InSos(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "IN":
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]

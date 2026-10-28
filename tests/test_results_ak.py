@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
-import pytest
 
 from electionwatch.models import Level, RaceKey
 from electionwatch.racekeys import format_key
@@ -14,8 +13,11 @@ AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
 def parse():
-    return parse_ak((FIX / "ENRbyPrecinct.csv").read_text(encoding="utf-8"),
-                    fetched_at=AT, url="https://www.elections.alaska.gov/results/24GENR/")
+    return parse_ak(
+        (FIX / "ENRbyPrecinct.csv").read_text(encoding="utf-8"),
+        fetched_at=AT,
+        url="https://www.elections.alaska.gov/results/24GENR/",
+    )
 
 
 def by_key():
@@ -30,8 +32,7 @@ def test_us_house_is_at_large_and_sums_precincts():
     assert house.candidates[0].party == "REP"
     # Every precinct row for the contest is summed, and percentages are filled in.
     assert house.total_votes == sum(x.votes for x in house.candidates)
-    assert house.candidates[0].pct == round(
-        100.0 * house.candidates[0].votes / house.total_votes, 2)
+    assert house.candidates[0].pct == round(100.0 * house.candidates[0].votes / house.total_votes, 2)
     assert house.url == "https://www.elections.alaska.gov/results/24GENR/"
 
 
@@ -68,9 +69,11 @@ def test_empty_payload_is_not_an_error():
 
 def _subject_text(ca: dict) -> str:
     """'GlobalSign GCC R46 OV TLS CA 2025' from get_ca_certs()'s nested tuples."""
-    return " ".join(
-        v for rdn in ca.get("subject") or () for _k, v in rdn
-    ) if not isinstance(ca.get("subject"), str) else ca["subject"]
+    return (
+        " ".join(v for rdn in ca.get("subject") or () for _k, v in rdn)
+        if not isinstance(ca.get("subject"), str)
+        else ca["subject"]
+    )
 
 
 def test_tls_context_adds_the_missing_intermediate_on_top_of_certifi():
@@ -78,6 +81,7 @@ def test_tls_context_adds_the_missing_intermediate_on_top_of_certifi():
     # but only the older "GlobalSign RSA OV SSL CA 2018" intermediate, so the default
     # bundle alone cannot build a chain (CERTIFICATE_VERIFY_FAILED).
     import ssl
+
     import certifi
 
     plain = ssl.create_default_context(cafile=certifi.where()).get_ca_certs()

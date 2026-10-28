@@ -1,4 +1,5 @@
 """ny_nycboe: New York City Board of Elections recap CSVs (New York's block has no state feed)."""
+
 import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,14 +22,17 @@ def by_key(results):
 
 
 def recap(name, county, contest):
-    return ny_nycboe.parse_recap((FIX / name).read_text(encoding="utf-8"),
-                                 county=county, contest=contest, fetched_at=AT)
+    return ny_nycboe.parse_recap(
+        (FIX / name).read_text(encoding="utf-8"), county=county, contest=contest, fetched_at=AT
+    )
 
 
 def merged():
-    results = (recap("nyc_2024_senator_citywide.csv", "Citywide", "United States Senator")
-               + recap("nyc_2024_cd10_new_york.csv", "New York", CD10)
-               + recap("nyc_2024_cd10_kings.csv", "Kings", CD10))
+    results = (
+        recap("nyc_2024_senator_citywide.csv", "Citywide", "United States Senator")
+        + recap("nyc_2024_cd10_new_york.csv", "New York", CD10)
+        + recap("nyc_2024_cd10_kings.csv", "Kings", CD10)
+    )
     return by_key(_county.merge(results, source="ny_nycboe", url=ny_nycboe.HUMAN))
 
 
@@ -136,7 +140,7 @@ def test_fetch_downloads_only_matching_contests(monkeypatch):
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"NY SEN"}
-    assert not any("01900010" in url for url in fetched)   # CD10 files were not requested
+    assert not any("01900010" in url for url in fetched)  # CD10 files were not requested
 
 
 def test_fetch_raises_when_nothing_is_published(monkeypatch):
@@ -153,8 +157,13 @@ def test_fetch_raises_when_nothing_is_published(monkeypatch):
         asyncio.run(go())
 
 
-@pytest.mark.parametrize("name", [
-    "Governor/Lieutenant Governor", "Governor Lieutenant Governor", "Governor and Lieutenant Governor",
-])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Governor/Lieutenant Governor",
+        "Governor Lieutenant Governor",
+        "Governor and Lieutenant Governor",
+    ],
+)
 def test_joint_governor_ticket_is_the_governor_race(name):
     assert format_key(ny_nycboe.race_key(name)) == "NY GOV"

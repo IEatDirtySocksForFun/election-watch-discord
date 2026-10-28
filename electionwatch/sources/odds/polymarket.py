@@ -3,6 +3,7 @@
 Discovers active U.S. election events via the Gamma API and reads each market's
 CLOB-derived yes price as the implied probability. No API key is required.
 """
+
 from __future__ import annotations
 
 import json
@@ -34,9 +35,7 @@ class PolymarketSource(OddsSource):
     _MAX_DISCOVERY_OFFSET: ClassVar[int] = 1000
     TAG = "midterms"
 
-    async def fetch_odds(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[OddsSnapshot]:
+    async def fetch_odds(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[OddsSnapshot]:
         requested = set(keys)
         if not requested:
             return []
@@ -49,17 +48,14 @@ class PolymarketSource(OddsSource):
             try:
                 resp = await client.get(
                     f"{self.BASE}/events",
-                    params={"closed": "false", "limit": limit, "offset": offset,
-                            "tag_slug": self.TAG},
+                    params={"closed": "false", "limit": limit, "offset": offset, "tag_slug": self.TAG},
                 )
             except httpx.HTTPError as exc:
                 raise SourceUnavailable(f"polymarket unreachable: {exc}") from exc
             if resp.status_code == 422 and offset:
                 break  # past Gamma's offset limit: keep what earlier pages found
             if resp.status_code >= 400:
-                raise SourceUnavailable(
-                    f"polymarket returned {resp.status_code}"
-                )
+                raise SourceUnavailable(f"polymarket returned {resp.status_code}")
             try:
                 events = resp.json()
             except Exception as exc:
@@ -72,7 +68,7 @@ class PolymarketSource(OddsSource):
                     snaps = parse_polymarket_event(event)
                 except Exception:
                     continue
-                fetched = datetime.now(timezone.utc)   # updatedAt is metadata time, not price time
+                fetched = datetime.now(timezone.utc)  # updatedAt is metadata time, not price time
                 for snap in snaps:
                     if snap.key in requested:
                         snapshots.append(replace(snap, ts=fetched))
@@ -120,8 +116,7 @@ def parse_polymarket_event(event: dict) -> list[OddsSnapshot]:
     labels = [snap.outcome for snap in snapshots]
     titles = {str(m.get("id")): (m.get("groupItemTitle") or "").strip() for m in event.get("markets") or []}
     return [
-        replace(snap, outcome=titles.get(snap.market_id) or snap.outcome)
-        if labels.count(snap.outcome) > 1 else snap
+        replace(snap, outcome=titles.get(snap.market_id) or snap.outcome) if labels.count(snap.outcome) > 1 else snap
         for snap in snapshots
     ]
 

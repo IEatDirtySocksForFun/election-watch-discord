@@ -1,7 +1,7 @@
 import yaml
 
-from electionwatch.config import load_env, load_races, parse_env_line
 from electionwatch.__main__ import validate_env
+from electionwatch.config import load_env, load_races, parse_env_line
 
 
 def test_env_files_accept_colon_and_equals_without_overriding(monkeypatch, tmp_path):
@@ -27,12 +27,10 @@ def test_env_files_accept_colon_and_equals_without_overriding(monkeypatch, tmp_p
 
 def test_validate_env_reports_names_not_values():
     assert validate_env({}) == ["DISCORD_TOKEN", "MONGODB_URI"]
-    assert validate_env(
-        {"DISCORD_TOKEN": "not-printed", "MONGODB_URI": "not-printed", "DEV_GUILD_ID": "bad"}
-    ) == ["DEV_GUILD_ID"]
-    assert validate_env(
-        {"DISCORD_TOKEN": "not-printed", "MONGODB_URI": "not-printed", "DEV_GUILD_ID": "123"}
-    ) == []
+    assert validate_env({"DISCORD_TOKEN": "not-printed", "MONGODB_URI": "not-printed", "DEV_GUILD_ID": "bad"}) == [
+        "DEV_GUILD_ID"
+    ]
+    assert validate_env({"DISCORD_TOKEN": "not-printed", "MONGODB_URI": "not-printed", "DEV_GUILD_ID": "123"}) == []
 
 
 def test_load_races_validates_and_canonicalizes(tmp_path):
@@ -75,10 +73,9 @@ def test_source_states_narrows_one_adapter_to_the_listed_states():
         states = frozenset({"TX", "TN", "CA", "NY"})
 
     registry = {"results": {"fox_results": National}}
-    env = {"EW_ENABLED_SOURCES": "fox_results",
-           "EW_SOURCE_STATES": "fox_results=tx, tn,WY; other=CA"}
+    env = {"EW_ENABLED_SOURCES": "fox_results", "EW_SOURCE_STATES": "fox_results=tx, tn,WY; other=CA"}
     (fox,) = build_sources(registry, env)["results"]
-    assert fox.states == frozenset({"TX", "TN"})          # WY is not one of its states
+    assert fox.states == frozenset({"TX", "TN"})  # WY is not one of its states
     assert National.states == frozenset({"TX", "TN", "CA", "NY"})
     # Listing states never enables an adapter by itself.
     assert build_sources(registry, {"EW_SOURCE_STATES": "fox_results=TX"})["results"] == []

@@ -5,6 +5,7 @@ precincts/expected-vote totals for Senate, Governor and House races. These are
 scraper endpoints with no documented API, so ``scrape=True`` and disabled by
 default.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,10 +13,10 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import CandidateResult, Level, RaceKey, RaceResult
 from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
 from ._common import district_key, normalize_party, parse_iso_ts
 from .fox import _OFFICE_NAMES, _results_url
@@ -27,7 +28,7 @@ class FOXResultsSource(ResultsSource):
     env: ClassVar[tuple[str, ...]] = ()
     scrape = True
     enabled_by_default = False
-    fallback = True   # ranked after the official state feeds
+    fallback = True  # ranked after the official state feeds
     states = frozenset(STATES)
 
     BASE = "https://feeds-elections.foxnews.com/archive/politics/elections"
@@ -37,10 +38,7 @@ class FOXResultsSource(ResultsSource):
         office = _OFFICE_NAMES.get(key.level)
         if office is None:
             return None
-        return (
-            f"{self.BASE}/{self.YEAR}/3/{self.YEAR}_Generals/"
-            f"{office}/{key.state}/state_level_results/file.json"
-        )
+        return f"{self.BASE}/{self.YEAR}/3/{self.YEAR}_Generals/{office}/{key.state}/state_level_results/file.json"
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         pairs: set[tuple[str, RaceKey]] = set()
@@ -80,7 +78,9 @@ class FOXResultsSource(ResultsSource):
         now = datetime.now(timezone.utc)
         races: list[tuple[RaceKey, str]] = []
         for level in (Level.SENATE, Level.GOVERNOR, Level.HOUSE):
-            key = RaceKey(state, level, "SEN" if level is Level.SENATE else "GOV" if level is Level.GOVERNOR else "HOUSE")
+            key = RaceKey(
+                state, level, "SEN" if level is Level.SENATE else "GOV" if level is Level.GOVERNOR else "HOUSE"
+            )
             url = self._url(key)
             if url is None:
                 continue
@@ -141,9 +141,7 @@ def parse_fox_results(
     for race in races:
         try:
             key = (
-                RaceKey(state, Level.SENATE, "SEN")
-                if level is Level.SENATE
-                else RaceKey(state, Level.GOVERNOR, "GOV")
+                RaceKey(state, Level.SENATE, "SEN") if level is Level.SENATE else RaceKey(state, Level.GOVERNOR, "GOV")
             )
             candidates, totals = _parse_fox_race(race)
             if not candidates:
@@ -177,7 +175,12 @@ def _parse_fox_race(race: dict) -> tuple[list[CandidateResult], dict]:
         try:
             candidate = entry.get("candidate") or {}
             name = " ".join(p for p in (candidate.get("firstName"), candidate.get("lastName")) if p)
-            party = entry.get("partyCode") or candidate.get("partyCode") or entry.get("partyName") or candidate.get("partyName")
+            party = (
+                entry.get("partyCode")
+                or candidate.get("partyCode")
+                or entry.get("partyName")
+                or candidate.get("partyName")
+            )
             votes = entry.get("votes") or {}
             candidates.append(
                 CandidateResult(

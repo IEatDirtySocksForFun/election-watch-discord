@@ -15,6 +15,7 @@ fake winners); those races are dropped, never posted.
     GET /api/v2/race/search?country=US&province=TX&startDate=D&endDate=D&limit=N&offset=M
     GET /api/v2/race/{id}      (full race: test_data, called_at, last_updated, candidates)
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -27,19 +28,18 @@ from typing import ClassVar
 import httpx
 
 from electionwatch.models import CandidateResult, Level, RaceCall, RaceKey, RaceResult
+from electionwatch.parties import party_code
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATEWIDE, RaceKeyError, parse
 from electionwatch.sources.base import CallSource, ResultsSource, SourceUnavailable, register
 from electionwatch.sources.results._common import election_date
-
-from electionwatch.parties import party_code
 
 from ._common import parse_iso_ts
 
 API = "https://civicapi.org/api/v2"
 PAGE = "https://civicapi.org/results/elections/{id}"
-INDEX_TTL = 1800      # race ids never change: re-list a state every 30 minutes
-RACE_TTL = 55         # one fetch per race per poll tick (the poller ticks every 60 s)
-CALL_TTL = 300        # call checks reuse a results fetch, else re-ask every 5 minutes
+INDEX_TTL = 1800  # race ids never change: re-list a state every 30 minutes
+RACE_TTL = 55  # one fetch per race per poll tick (the poller ticks every 60 s)
+CALL_TTL = 300  # call checks reuse a results fetch, else re-ask every 5 minutes
 PAGE_SIZE = 1000
 MAX_PAGES = 10
 CONCURRENCY = 4
@@ -60,7 +60,7 @@ def race_key(row: dict) -> RaceKey | None:
     name = row.get("election_name") or ""
     lowered = name.lower()
     if "primary" in lowered or "primary" in (row.get("election_type") or "").lower():
-        return None   # party primaries share keys with each other and with the general
+        return None  # party primaries share keys with each other and with the general
     special = "special" in lowered
     try:
         # AZ, CA, DE and MD label their US Senate race plain "Senate".
@@ -87,7 +87,7 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
         return None
     opens = race.get("polls_open")
     if opens and fetched_at < parse_iso_ts(opens) and any(c.get("votes") for c in race.get("candidates") or []):
-        return None   # votes before the polls open can only be leftover test numbers
+        return None  # votes before the polls open can only be leftover test numbers
     candidates = [
         CandidateResult(
             name=str(c.get("name") or "").strip(),
@@ -95,7 +95,7 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
             votes=int(c.get("votes") or 0),
             pct=c.get("percent"),
             incumbent=bool(c.get("incumbent")),
-            winner=False,   # civicAPI's winner flag is its own call: published by the call source
+            winner=False,  # civicAPI's winner flag is its own call: published by the call source
         )
         for c in race.get("candidates") or []
         if c.get("name")
@@ -109,7 +109,8 @@ def parse_race(race: dict, race_id: int, key: RaceKey, fetched_at: datetime) -> 
         fetched_at=fetched_at,
         source_updated_at=parse_iso_ts(race.get("last_updated")) if race.get("last_updated") else None,
         # civicAPI shows 0% on hundreds of races that already carry votes: unknown, not zero.
-        expected_vote_pct=(race.get("percent_reporting") or None) if any(c.votes for c in candidates)
+        expected_vote_pct=(race.get("percent_reporting") or None)
+        if any(c.votes for c in candidates)
         else race.get("percent_reporting"),
         total_votes=sum(c.votes for c in candidates),
         registered_voters=race.get("registered_voters"),
@@ -123,7 +124,7 @@ def parse_call(race: dict, race_id: int, key: RaceKey) -> RaceCall | None:
     if race.get("test_data") or not race.get("called_at"):
         return None
     winners = [c for c in race.get("candidates") or [] if c.get("winner")]
-    if len(winners) != 1:   # multi-seat races and ties are not single-winner calls
+    if len(winners) != 1:  # multi-seat races and ties are not single-winner calls
         return None
     return RaceCall(
         key=key,
@@ -166,10 +167,21 @@ class _CivicAPI:
         found: dict[RaceKey, tuple[int, str]] = {}
         breakdown: dict[RaceKey, bool] = {}
         for page in range(MAX_PAGES):
-            payload = await self._get(client, "race/search", {
-                "country": "US", "province": state, "startDate": date, "endDate": date,
-                "limit": PAGE_SIZE, "offset": page * PAGE_SIZE,
-            }) or {}
+            payload = (
+                await self._get(
+                    client,
+                    "race/search",
+                    {
+                        "country": "US",
+                        "province": state,
+                        "startDate": date,
+                        "endDate": date,
+                        "limit": PAGE_SIZE,
+                        "offset": page * PAGE_SIZE,
+                    },
+                )
+                or {}
+            )
             rows = payload.get("races") or []
             for row in rows:
                 key = race_key(row)
@@ -194,7 +206,10 @@ class _CivicAPI:
         return payload
 
     async def races_for(
-        self, keys: list[RaceKey], client: httpx.AsyncClient, max_age: float = RACE_TTL,
+        self,
+        keys: list[RaceKey],
+        client: httpx.AsyncClient,
+        max_age: float = RACE_TTL,
         skip: set[int] = frozenset(),
     ):
         """(key, race id, race payload) for the requested keys civicAPI publishes; race ids
@@ -203,7 +218,8 @@ class _CivicAPI:
         for state in sorted({key.state for key in keys}):
             index = await self.state_races(state, client)
             wanted += [
-                (key, index[key][0]) for key in keys
+                (key, index[key][0])
+                for key in keys
                 if key.state == state and key in index and index[key][0] not in skip
             ]
         gate = asyncio.Semaphore(CONCURRENCY)
@@ -222,7 +238,7 @@ _SHARED = _CivicAPI()
 @register
 class CivicAPIResultsSource(ResultsSource):
     name = "civicapi"
-    fallback = True   # ranked after the official state feeds (see __main__.build_sources)
+    fallback = True  # ranked after the official state feeds (see __main__.build_sources)
     states = frozenset(ALL_JURISDICTIONS)
 
     def __init__(self, api: _CivicAPI | None = None) -> None:
@@ -248,7 +264,7 @@ class CivicAPICallSource(CallSource):
 
     def __init__(self, api: _CivicAPI | None = None) -> None:
         self.api = api or _SHARED
-        self.called: dict[int, RaceCall] = {}   # race id -> call already made
+        self.called: dict[int, RaceCall] = {}  # race id -> call already made
 
     async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         # A call is checked from the results fetch when there was one this minute, else at

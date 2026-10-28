@@ -42,7 +42,8 @@ class FakeStore:
 
     async def odds_since(self, key, market, outcome, since):
         return [
-            item for item in self.odds
+            item
+            for item in self.odds
             if item.key == key and item.market == market and item.outcome == outcome and item.ts >= since
         ]
 
@@ -152,11 +153,13 @@ async def test_a_race_the_refresh_found_no_market_for_says_so():
 
 @pytest.mark.asyncio
 async def test_odds_history_supplies_one_and_24_hour_moves():
-    store = FakeStore([
-        snapshot(prob=0.50, ts=NOW - timedelta(hours=23)),
-        snapshot(prob=0.52, ts=NOW - timedelta(minutes=30)),
-        snapshot(prob=0.55),
-    ])
+    store = FakeStore(
+        [
+            snapshot(prob=0.50, ts=NOW - timedelta(hours=23)),
+            snapshot(prob=0.52, ts=NOW - timedelta(minutes=30)),
+            snapshot(prob=0.55),
+        ]
+    )
     data = CommandData(store, {}, object(), lambda: NOW)
 
     embed = await data.odds_embed(KEY)
@@ -174,7 +177,7 @@ async def test_stored_poll_answers_are_merged_and_deduped_without_calling_the_so
     second.name = "fake_polls_2"
     store = FakeStore()
     data = CommandData(store, {"polls": [first, second]}, object(), lambda: NOW)
-    assert await data.get_polls(KEY) is None            # nothing stored yet
+    assert await data.get_polls(KEY) is None  # nothing stored yet
     for source in (first, second):
         await store.put_cached(POLLS_CACHE, polls_ident(source.name, KEY), dump_polls(source.values), NOW)
     values = await data.get_polls(KEY)
@@ -191,13 +194,18 @@ async def test_missing_poll_source_is_explained():
 
 def test_merge_polls_joins_sponsor_and_fieldwork_copies():
     from datetime import date
+
     from electionwatch.bot.command_data import merge_polls
     from electionwatch.models import Poll, PollResult
     from electionwatch.racekeys import parse
-    res = lambda: [PollResult("Talarico", "DEM", 50.0), PollResult("Paxton", "REP", 45.0)]
+
+    def res():
+        return [PollResult("Talarico", "DEM", 50.0), PollResult("Paxton", "REP", 45.0)]
+
     a = Poll(parse("TX SEN"), "N+ Univision", res(), date(2026, 10, 27), source="wikipedia")
-    b = Poll(parse("TX SEN"), "YouGov", res(), date(2026, 10, 21), sponsor="N+ Univision",
-             sample_size=1000, source="votehub")
+    b = Poll(
+        parse("TX SEN"), "YouGov", res(), date(2026, 10, 21), sponsor="N+ Univision", sample_size=1000, source="votehub"
+    )
     c = Poll(parse("TX SEN"), "Emerson College", res(), date(2026, 10, 22))  # other firm: kept
     merged = merge_polls([a, b, c])
     assert [p.pollster for p in merged] == ["Emerson College", "YouGov"]
@@ -212,8 +220,14 @@ def test_format_polls_stays_under_discords_6000_character_embed_limit():
 
     name = "Bartholomew-Maximilian Featherstonehaugh-Wolfeschlegelsteinhausen Jr."
     polls = [
-        Poll(KEY, f"{name} Research {p}", [PollResult(f"{name} {c}", "DEM", 10.0) for c in range(12)],
-             date(2026, 10, 30 - p), sponsor=f"{name} Committee {p}", url="https://example.org/p")
+        Poll(
+            KEY,
+            f"{name} Research {p}",
+            [PollResult(f"{name} {c}", "DEM", 10.0) for c in range(12)],
+            date(2026, 10, 30 - p),
+            sponsor=f"{name} Committee {p}",
+            url="https://example.org/p",
+        )
         for p in range(12)
     ]
     embed = format_polls(KEY, polls, count=10)

@@ -24,6 +24,7 @@ page. Parsing is the shared Clarity parser; contest names are re-keyed to MI one
 
 Wayne County (Detroit) runs a different ES&S "ResultsSW.aspx" app and is not included.
 """
+
 from __future__ import annotations
 
 import json
@@ -48,12 +49,12 @@ COUNTIES = ("Oakland", "Macomb", "Genesee", "Ottawa")
 _GOV = ("GOVERNOR AND LIEUTENANT GOVERNOR", "GOVERNOR / LIEUTENANT GOVERNOR", "GOVERNOR")
 
 #: Michigan Clarity contest names ("Representative in Congress 2nd District").
-_CONGRESS = re.compile(
-    r"^REPRESENTATIVE IN CONGRESS\s+(\d+)(?:ST|ND|RD|TH)?\s*DISTRICT$")
+_CONGRESS = re.compile(r"^REPRESENTATIVE IN CONGRESS\s+(\d+)(?:ST|ND|RD|TH)?\s*DISTRICT$")
 _STATE_SENATE = re.compile(r"^STATE SENATOR\s+(\d+)(?:ST|ND|RD|TH)?\s*DISTRICT$")
 _STATE_HOUSE = re.compile(
     r"^(?:REPRESENTATIVE IN STATE LEGISLATURE|STATE REPRESENTATIVE)\s+"
-    r"(\d+)(?:ST|ND|RD|TH)?\s*DISTRICT$")
+    r"(\d+)(?:ST|ND|RD|TH)?\s*DISTRICT$"
+)
 
 
 def feeds(date: str) -> list[dict]:
@@ -115,6 +116,7 @@ def race_key(name: str) -> RaceKey:
     if m:
         return RaceKey("MI", Level.STATE, "HD", f"{int(m.group(1)):02d}", special)
     from .clarity import race_key as clarity_race_key
+
     return clarity_race_key("MI", name)
 
 
@@ -136,13 +138,21 @@ def merge_counties(
     merged: dict[str, dict] = {}
     for results in by_county.values():
         for r in results:
-            entry = merged.setdefault(str(r.key), {
-                "key": r.key, "title": r.title or str(r.key), "cands": {},
-                "prt": 0, "ptl": 0, "updated": None,
-            })
+            entry = merged.setdefault(
+                str(r.key),
+                {
+                    "key": r.key,
+                    "title": r.title or str(r.key),
+                    "cands": {},
+                    "prt": 0,
+                    "ptl": 0,
+                    "updated": None,
+                },
+            )
             for cand in r.candidates:
-                slot = entry["cands"].setdefault((cand.name, cand.party), {
-                    "votes": 0, "incumbent": cand.incumbent, "winner": cand.winner})
+                slot = entry["cands"].setdefault(
+                    (cand.name, cand.party), {"votes": 0, "incumbent": cand.incumbent, "winner": cand.winner}
+                )
                 slot["votes"] += cand.votes
                 slot["winner"] = slot["winner"] or cand.winner
                 slot["incumbent"] = slot["incumbent"] or cand.incumbent
@@ -150,23 +160,30 @@ def merge_counties(
                 entry["prt"] += r.precincts_reporting
             if r.precincts_total:
                 entry["ptl"] += r.precincts_total
-            if r.source_updated_at and (entry["updated"] is None
-                                        or r.source_updated_at > entry["updated"]):
+            if r.source_updated_at and (entry["updated"] is None or r.source_updated_at > entry["updated"]):
                 entry["updated"] = r.source_updated_at
 
     out: list[RaceResult] = []
     for entry in merged.values():
-        cands = [CandidateResult(name=name, party=party, votes=slot["votes"],
-                                 incumbent=slot["incumbent"], winner=slot["winner"])
-                 for (name, party), slot in entry["cands"].items()]
-        out.append(c.make_result(
-            entry["key"], partial_title(entry["title"], total_counties), cands, fetched_at,
-            source=source,
-            url=HUMAN,
-            precincts_reporting=entry["prt"] or None,
-            precincts_total=entry["ptl"] or None,
-            source_updated_at=entry["updated"],
-        ))
+        cands = [
+            CandidateResult(
+                name=name, party=party, votes=slot["votes"], incumbent=slot["incumbent"], winner=slot["winner"]
+            )
+            for (name, party), slot in entry["cands"].items()
+        ]
+        out.append(
+            c.make_result(
+                entry["key"],
+                partial_title(entry["title"], total_counties),
+                cands,
+                fetched_at,
+                source=source,
+                url=HUMAN,
+                precincts_reporting=entry["prt"] or None,
+                precincts_total=entry["ptl"] or None,
+                source_updated_at=entry["updated"],
+            )
+        )
     return out
 
 
@@ -175,14 +192,23 @@ def rekey(results: list[RaceResult]) -> list[RaceResult]:
     out: list[RaceResult] = []
     for r in results:
         key = race_key(r.title or "")
-        out.append(RaceResult(
-            key=key, candidates=r.candidates, source=r.source, fetched_at=r.fetched_at,
-            source_updated_at=r.source_updated_at,
-            precincts_reporting=r.precincts_reporting, precincts_total=r.precincts_total,
-            expected_vote_pct=r.expected_vote_pct, total_votes=r.total_votes,
-            registered_voters=r.registered_voters, turnout_pct=r.turnout_pct,
-            url=r.url, title=r.title,
-        ))
+        out.append(
+            RaceResult(
+                key=key,
+                candidates=r.candidates,
+                source=r.source,
+                fetched_at=r.fetched_at,
+                source_updated_at=r.source_updated_at,
+                precincts_reporting=r.precincts_reporting,
+                precincts_total=r.precincts_total,
+                expected_vote_pct=r.expected_vote_pct,
+                total_votes=r.total_votes,
+                registered_voters=r.registered_voters,
+                turnout_pct=r.turnout_pct,
+                url=r.url,
+                title=r.title,
+            )
+        )
     return out
 
 
@@ -227,12 +253,11 @@ class MiCounty(ResultsSource):
             county = str(entry["county"])
             try:
                 by_county[county] = await _county(client, county, date, entry.get("election_id"))
-            except SourceUnavailable as exc:   # a county that has not published yet
+            except SourceUnavailable as exc:  # a county that has not published yet
                 errors.append(f"{county}: {exc}")
                 by_county[county] = []
         if not any(by_county.values()):
-            raise SourceUnavailable(
-                "mi_county: no county feed published for " + date + " (" + "; ".join(errors) + ")")
+            raise SourceUnavailable("mi_county: no county feed published for " + date + " (" + "; ".join(errors) + ")")
         return merge_counties(by_county, fetched_at=c.utcnow(), source=MiCounty.name)
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:

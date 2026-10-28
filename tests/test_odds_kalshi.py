@@ -165,8 +165,7 @@ async def test_fetch_odds_requests_the_at_large_event():
         return httpx.Response(200, json=payload)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
-        snaps = await KalshiSource().fetch_odds(
-            [RaceKey("AK", Level.HOUSE, "HOUSE", "AL")], client)
+        snaps = await KalshiSource().fetch_odds([RaceKey("AK", Level.HOUSE, "HOUSE", "AL")], client)
     assert seen == ["/trade-api/v2/events/HOUSEAKAL-26"]
     assert {s.outcome for s in snaps} == {"REP", "DEM"}
     assert all(s.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for s in snaps)

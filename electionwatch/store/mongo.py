@@ -1,4 +1,5 @@
 """MongoDB persistence using pymongo's native asyncio client."""
+
 from __future__ import annotations
 
 import time
@@ -6,8 +7,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 from pymongo import ASCENDING
-from pymongo.errors import ServerSelectionTimeoutError
 from pymongo.asynchronous.mongo_client import AsyncMongoClient
+from pymongo.errors import ServerSelectionTimeoutError
 
 from electionwatch.models import (
     CandidateResult,
@@ -71,8 +72,11 @@ def _odds(doc: dict[str, Any]) -> OddsSnapshot:
 
 class MongoStore:
     def __init__(self, uri: str, database: str = "electionwatch", *, client: AsyncMongoClient | None = None):
-        options = {} if "serverselectiontimeoutms" in uri.lower() else {
-            "serverSelectionTimeoutMS": SERVER_SELECTION_TIMEOUT_MS}
+        options = (
+            {}
+            if "serverselectiontimeoutms" in uri.lower()
+            else {"serverSelectionTimeoutMS": SERVER_SELECTION_TIMEOUT_MS}
+        )
         self.client = client or AsyncMongoClient(uri, tz_aware=True, **options)
         self.db = self.client[database]
         self.guilds = self.db.guilds
@@ -90,10 +94,10 @@ class MongoStore:
         await self.result_history.create_index([("key", ASCENDING), ("fetched_at", ASCENDING)])
         await self.calls.create_index([("key", ASCENDING), ("outlet", ASCENDING)], unique=True)
         await self.odds.create_index([("ts", ASCENDING)], expireAfterSeconds=_ODDS_TTL_SECONDS)
-        await self.odds.create_index([("key", ASCENDING), ("market", ASCENDING), ("outcome", ASCENDING), ("ts", ASCENDING)])
-        await self.posts.create_index(
-            [("guild_id", ASCENDING), ("kind", ASCENDING), ("ref", ASCENDING)], unique=True
+        await self.odds.create_index(
+            [("key", ASCENDING), ("market", ASCENDING), ("outcome", ASCENDING), ("ts", ASCENDING)]
         )
+        await self.posts.create_index([("guild_id", ASCENDING), ("kind", ASCENDING), ("ref", ASCENDING)], unique=True)
         await self.cache.create_index([("kind", ASCENDING)])
         self._indexes_ready = True
 
@@ -169,12 +173,10 @@ class MongoStore:
     async def add_odds(self, snapshot: OddsSnapshot) -> None:
         await self.odds.insert_one(to_doc(snapshot))
 
-    async def odds_since(
-        self, key: RaceKey, market: str, outcome: str, since: datetime
-    ) -> list[OddsSnapshot]:
-        cursor = self.odds.find(
-            {"key": str(key), "market": market, "outcome": outcome, "ts": {"$gte": since}}
-        ).sort("ts", ASCENDING)
+    async def odds_since(self, key: RaceKey, market: str, outcome: str, since: datetime) -> list[OddsSnapshot]:
+        cursor = self.odds.find({"key": str(key), "market": market, "outcome": outcome, "ts": {"$gte": since}}).sort(
+            "ts", ASCENDING
+        )
         return [_odds(doc) async for doc in cursor]
 
     async def latest_odds(self, key: RaceKey) -> list[OddsSnapshot]:
@@ -189,20 +191,18 @@ class MongoStore:
 
     async def put_cached(self, kind: str, ident: str, data: str, at: datetime) -> None:
         await self.cache.replace_one(
-            {"_id": f"{kind}|{ident}"}, {"kind": kind, "ident": ident, "data": data, "at": at}, upsert=True)
+            {"_id": f"{kind}|{ident}"}, {"kind": kind, "ident": ident, "data": data, "at": at}, upsert=True
+        )
 
     async def get_cached(self, kind: str, ident: str) -> tuple[datetime, str] | None:
         doc = await self.cache.find_one({"_id": f"{kind}|{ident}"})
         return (_utc(doc["at"]), doc["data"]) if doc else None
 
     async def cached_idents(self, kind: str) -> dict[str, datetime]:
-        return {doc["ident"]: _utc(doc["at"])
-                async for doc in self.cache.find({"kind": kind}, {"ident": 1, "at": 1})}
+        return {doc["ident"]: _utc(doc["at"]) async for doc in self.cache.find({"kind": kind}, {"ident": 1, "at": 1})}
 
     async def last_posted(self, guild_id: int, kind: str, ref: str) -> datetime | None:
-        doc = await self.posts.find_one(
-            {"guild_id": guild_id, "kind": kind, "ref": ref}, {"at": 1}
-        )
+        doc = await self.posts.find_one({"guild_id": guild_id, "kind": kind, "ref": ref}, {"at": 1})
         return _utc(doc["at"]) if doc else None
 
     async def mark_posted(self, guild_id: int, kind: str, ref: str, at: datetime) -> None:

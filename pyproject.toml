@@ -38,3 +38,8 @@ extend-exclude = ["tests/fixtures", "replay/out"]
 select = ["E", "F", "W", "I"]
 # The formatter takes care of line length; long strings and URLs are left alone.
 ignore = ["E501"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.9",
+]

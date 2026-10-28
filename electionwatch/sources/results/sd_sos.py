@@ -30,6 +30,7 @@ election it is currently reporting when `eid` is omitted. The adapter therefore 
 and refuses to report if the page's date is not the tracked election date; `SD_EID` pins an
 archived election instead (684 = 2024 general, 651 = 2024 primary).
 """
+
 from __future__ import annotations
 
 import csv
@@ -72,7 +73,8 @@ _PRECINCTS = re.compile(r"^\s*[=]?\"?\s*([\d,]+)\s*/\s*([\d,]+)\s*\"?\s*$")
 _UPDATED = re.compile(r"last\s+updated:?\s*([0-9/]+ [0-9:]+ ?[AP]M)", re.I)
 _MEASURE = re.compile(
     r"^(CONSTITUTIONAL AMENDMENT|INITIATED MEASURE|INITIATED LAW|REFERRED LAW|"
-    r"REFERRED MEASURE|REFERENDUM)\s+([A-Z]{1,3}|\d{1,3})\b")
+    r"REFERRED MEASURE|REFERENDUM)\s+([A-Z]{1,3}|\d{1,3})\b"
+)
 
 
 def _norm(text: str) -> str:
@@ -142,8 +144,7 @@ def media_info(html: str) -> dict:
         "election_type": values.get("hidElectionType") or None,
         "registered_voters": c.to_int(values.get("hidVoterTotal")) or None,
         "ballots_cast": c.to_int(values.get("hidVoterTurnout")) or None,
-        "updated_at": c.parse_updated_at(updated.group(1) if updated else None,
-                                         tz="America/Chicago"),
+        "updated_at": c.parse_updated_at(updated.group(1) if updated else None, tz="America/Chicago"),
     }
 
 
@@ -187,31 +188,40 @@ def parse_sd(
             cand_name = _candidate_name(row.get("CandidateName") or "")
             if not cand_name:
                 continue
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(row.get("PartyCode") or None),
-                votes=c.to_int(row.get("CandidateVotes")),
-                pct=c.to_pct(row.get("CandidatePercentage"), fraction=True),
-                winner=False,  # the feed publishes no winner flag
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=c.norm_party(row.get("PartyCode") or None),
+                    votes=c.to_int(row.get("CandidateVotes")),
+                    pct=c.to_pct(row.get("CandidatePercentage"), fraction=True),
+                    winner=False,  # the feed publishes no winner flag
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         reporting, total = _precincts(rows[0].get("PrecinctsReporting") or "")
         title = name if not area or _norm(area) in _norm(name) else f"{name} ({area})"
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=SdSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=reporting,
-            precincts_total=total,
-            registered_voters=info.get("registered_voters"),
-            turnout_pct=(
-                round(100.0 * info["ballots_cast"] / info["registered_voters"], 2)
-                if info.get("ballots_cast") and info.get("registered_voters") else None),
-            source_updated_at=info.get("updated_at"),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=SdSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=reporting,
+                precincts_total=total,
+                registered_voters=info.get("registered_voters"),
+                turnout_pct=(
+                    round(100.0 * info["ballots_cast"] / info["registered_voters"], 2)
+                    if info.get("ballots_cast") and info.get("registered_voters")
+                    else None
+                ),
+                source_updated_at=info.get("updated_at"),
+            )
+        )
     return out
 
 
@@ -239,7 +249,8 @@ class SdSos(ResultsSource):
         if info.get("date") and info["date"] != wanted_date and not eid:
             raise SourceUnavailable(
                 f"SD: the site is reporting the {info['date']} election, not {wanted_date}; "
-                f"set SD_EID to pin an archived election")
+                f"set SD_EID to pin an archived election"
+            )
         texts: list[str] = []
         errors = 0
         for kind, mapping in PAGES:
@@ -263,5 +274,4 @@ class SdSos(ResultsSource):
                 texts.append(await c.get_text(client, _with_eid(CSV_URL.format(kind, mapping), eid)))
             except SourceUnavailable:
                 continue
-        return [(r.key, r.title or str(r.key))
-                for r in parse_sd(texts, media, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_sd(texts, media, fetched_at=c.utcnow())]

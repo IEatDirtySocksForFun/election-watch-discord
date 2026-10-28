@@ -18,6 +18,7 @@ payload level by tests/test_interaction_payloads.py.
 Needs DISCORD_TOKEN (env or EW_ENV_FILES). The token is never printed or logged.
 No LLM calls, no network besides discord.com.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -40,14 +41,28 @@ import httpx  # noqa: E402
 from electionwatch.bot.command_data import format_odds, format_odds_overview, format_polls  # noqa: E402
 from electionwatch.bot.discord import ElectionBot  # noqa: E402
 from electionwatch.bot.logic import (  # noqa: E402
-    change_calls, change_favorite, change_odds, change_posting, change_setup, change_watch,
-    faq_text, settings_dump,
+    change_calls,
+    change_favorite,
+    change_odds,
+    change_posting,
+    change_setup,
+    change_watch,
+    faq_text,
+    settings_dump,
 )
 from electionwatch.bot.navigator import RaceNavigator  # noqa: E402
 from electionwatch.bot.poster import render_embed  # noqa: E402
 from electionwatch.config import load_env  # noqa: E402
 from electionwatch.models import (  # noqa: E402
-    CandidateResult, ExitPoll, Level, OddsSnapshot, Poll, PollResult, RaceCall, RaceKey, RaceResult,
+    CandidateResult,
+    ExitPoll,
+    Level,
+    OddsSnapshot,
+    Poll,
+    PollResult,
+    RaceCall,
+    RaceKey,
+    RaceResult,
 )
 from electionwatch.poller import format_call, format_exit_poll, format_result  # noqa: E402
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES  # noqa: E402
@@ -56,10 +71,11 @@ from electionwatch.store.memory import MemoryStore  # noqa: E402
 
 log = logging.getLogger("live_command_check")
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
-LONG = "Bartholomew-Maximilian Featherstonehaugh-Wolfeschlegelsteinhausen Jr."   # 69 chars
+LONG = "Bartholomew-Maximilian Featherstonehaugh-Wolfeschlegelsteinhausen Jr."  # 69 chars
 # A real Washington-style ballot measure: adapters slug the full contest name for LOCAL keys.
-LONG_LOCAL = ("Advisory Vote No. 10 Engrossed Second Substitute Senate Bill 5096 concerning "
-              "an excise tax on capital gains")
+LONG_LOCAL = (
+    "Advisory Vote No. 10 Engrossed Second Substitute Senate Bill 5096 concerning an excise tax on capital gains"
+)
 SAMPLE_STATES = ["TX", "CA", "AK", "NY", "DC", "WA"]
 
 
@@ -78,15 +94,20 @@ class FakeResults:
     async def list_races(self, state, http):
         from electionwatch.sources.results._common import local_key
 
-        races = [(RaceKey(state, Level.SENATE, "SEN"), f"{ALL_JURISDICTIONS[state]} U.S. Senate"),
-                 (RaceKey(state, Level.SENATE, "SEN", special=True), f"{ALL_JURISDICTIONS[state]} U.S. Senate (special)"),
-                 (RaceKey(state, Level.GOVERNOR, "GOV"), f"{ALL_JURISDICTIONS[state]} Governor"),
-                 (RaceKey(state, Level.GOVERNOR, "AG"), f"{ALL_JURISDICTIONS[state]} Attorney General")]
-        races += [(RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"),
-                   f"{ALL_JURISDICTIONS[state]} Congressional District {n} – {LONG} vs {LONG}")
-                  for n in range(1, 39)]
-        races += [(RaceKey(state, Level.STATE, "HD", f"{n:03d}"), f"State House District {n}")
-                  for n in range(1, 31)]
+        races = [
+            (RaceKey(state, Level.SENATE, "SEN"), f"{ALL_JURISDICTIONS[state]} U.S. Senate"),
+            (RaceKey(state, Level.SENATE, "SEN", special=True), f"{ALL_JURISDICTIONS[state]} U.S. Senate (special)"),
+            (RaceKey(state, Level.GOVERNOR, "GOV"), f"{ALL_JURISDICTIONS[state]} Governor"),
+            (RaceKey(state, Level.GOVERNOR, "AG"), f"{ALL_JURISDICTIONS[state]} Attorney General"),
+        ]
+        races += [
+            (
+                RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"),
+                f"{ALL_JURISDICTIONS[state]} Congressional District {n} – {LONG} vs {LONG}",
+            )
+            for n in range(1, 39)
+        ]
+        races += [(RaceKey(state, Level.STATE, "HD", f"{n:03d}"), f"State House District {n}") for n in range(1, 31)]
         races += [(local_key(state, f"{LONG_LOCAL} {n}"), f"{LONG_LOCAL} {n}") for n in range(3)]
         races += [(local_key(state, "Harris County Judge"), "Harris County Judge")]
         return races
@@ -97,45 +118,79 @@ def odds_snapshots(key: RaceKey, outcomes: int, long_names: bool) -> list[OddsSn
     for market in ("kalshi", "polymarket"):
         for n in range(outcomes):
             name = f"{LONG} #{n}" if long_names else ("DEM", "REP", "IND")[n % 3] + (str(n) if n > 2 else "")
-            snaps.append(OddsSnapshot(
-                key, market, name, max(0.001, 1 / (n + 2)), NOW - timedelta(minutes=n),
-                market_id=f"m{n}",
-                url=f"https://{market}.com/markets/{key.state.lower()}-{key.office.lower()}-2026-outcome-{n}"
-                    "?utm_source=election-watch"))
+            snaps.append(
+                OddsSnapshot(
+                    key,
+                    market,
+                    name,
+                    max(0.001, 1 / (n + 2)),
+                    NOW - timedelta(minutes=n),
+                    market_id=f"m{n}",
+                    url=f"https://{market}.com/markets/{key.state.lower()}-{key.office.lower()}-2026-outcome-{n}"
+                    "?utm_source=election-watch",
+                )
+            )
     return snaps
 
 
 def polls(key: RaceKey, n_polls: int, candidates: int, long_names: bool) -> list[Poll]:
     out = []
     for p in range(n_polls):
-        results = [PollResult(f"{LONG} {c}" if long_names else f"Candidate {c}",
-                              ("DEM", "REP", "LIB", None)[c % 4], 40.0 / (c + 1))
-                   for c in range(candidates)]
-        out.append(Poll(key, f"{LONG} Research & Polling Partners {p}" if long_names else f"Pollster {p}",
-                        results, date(2026, 10, 30) - timedelta(days=p), start_date=date(2026, 10, 20) - timedelta(days=p),
-                        sample_size=1000 + p, population="LV",
-                        sponsor=f"{LONG} Committee for Good Government {p}" if long_names else None,
-                        partisan="REP" if p % 3 == 0 else None, source="live_check",
-                        url=f"https://example.org/polls/{key.state.lower()}/{p}/" + "x" * (60 if long_names else 0)))
+        results = [
+            PollResult(
+                f"{LONG} {c}" if long_names else f"Candidate {c}", ("DEM", "REP", "LIB", None)[c % 4], 40.0 / (c + 1)
+            )
+            for c in range(candidates)
+        ]
+        out.append(
+            Poll(
+                key,
+                f"{LONG} Research & Polling Partners {p}" if long_names else f"Pollster {p}",
+                results,
+                date(2026, 10, 30) - timedelta(days=p),
+                start_date=date(2026, 10, 20) - timedelta(days=p),
+                sample_size=1000 + p,
+                population="LV",
+                sponsor=f"{LONG} Committee for Good Government {p}" if long_names else None,
+                partisan="REP" if p % 3 == 0 else None,
+                source="live_check",
+                url=f"https://example.org/polls/{key.state.lower()}/{p}/" + "x" * (60 if long_names else 0),
+            )
+        )
     return out
 
 
 def result(key: RaceKey, candidates: int, long_names: bool) -> RaceResult:
-    cands = [CandidateResult((LONG * 4)[:250] + f" {c}" if long_names else f"Candidate Number {c}",
-                             ("DEM", "REP", "LIB", "GRN", "IND", None)[c % 6], 1_000_000 // (c + 1),
-                             incumbent=c == 0, winner=c == 0)
-             for c in range(candidates)]
-    r = RaceResult(key, cands, "live_check_results" + (" " + LONG * 3 if long_names else ""), NOW,
-                   precincts_reporting=8123, precincts_total=9001, expected_vote_pct=87.4,
-                   total_votes=sum(c.votes for c in cands), registered_voters=12_345_678, turnout_pct=61.2,
-                   url="https://results.example.gov/2026/general/" + ("very-long-path/" * 8 if long_names else ""),
-                   title=(f"{LONG_LOCAL} " * 4) if long_names else None)
+    cands = [
+        CandidateResult(
+            (LONG * 4)[:250] + f" {c}" if long_names else f"Candidate Number {c}",
+            ("DEM", "REP", "LIB", "GRN", "IND", None)[c % 6],
+            1_000_000 // (c + 1),
+            incumbent=c == 0,
+            winner=c == 0,
+        )
+        for c in range(candidates)
+    ]
+    r = RaceResult(
+        key,
+        cands,
+        "live_check_results" + (" " + LONG * 3 if long_names else ""),
+        NOW,
+        precincts_reporting=8123,
+        precincts_total=9001,
+        expected_vote_pct=87.4,
+        total_votes=sum(c.votes for c in cands),
+        registered_voters=12_345_678,
+        turnout_pct=61.2,
+        url="https://results.example.gov/2026/general/" + ("very-long-path/" * 8 if long_names else ""),
+        title=(f"{LONG_LOCAL} " * 4) if long_names else None,
+    )
     r.finalize() if hasattr(r, "finalize") else None
     return r
 
 
 class CheckBot(ElectionBot):
-    async def setup_hook(self) -> None:   # no sync-on-login and no polling loop: we drive it
+    async def setup_hook(self) -> None:  # no sync-on-login and no polling loop: we drive it
         return None
 
 
@@ -143,8 +198,11 @@ class CheckBot(ElectionBot):
 
 
 def _norm_option(o: dict) -> dict:
-    keep = {k: o[k] for k in ("type", "name", "description", "min_value", "max_value",
-                              "min_length", "max_length", "autocomplete") if o.get(k) not in (None, False)}
+    keep = {
+        k: o[k]
+        for k in ("type", "name", "description", "min_value", "max_value", "min_length", "max_length", "autocomplete")
+        if o.get(k) not in (None, False)
+    }
     keep["required"] = bool(o.get("required", False))
     if o.get("choices"):
         keep["choices"] = [(c["name"], c["value"]) for c in o["choices"]]
@@ -156,8 +214,12 @@ def _norm_option(o: dict) -> dict:
 
 
 def _norm_command(c: dict) -> dict:
-    return {"name": c["name"], "description": c["description"], "type": c.get("type", 1),
-            "options": [_norm_option(o) for o in c.get("options", [])]}
+    return {
+        "name": c["name"],
+        "description": c["description"],
+        "type": c.get("type", 1),
+        "options": [_norm_option(o) for o in c.get("options", [])],
+    }
 
 
 async def check_schema(bot: CheckBot, guild: discord.Object) -> dict:
@@ -205,8 +267,13 @@ async def build_payloads(bot: CheckBot):
 
     # /settings: default and stuffed settings.
     yield "settings default", {"content": wrap_yaml(settings_dump(GuildSettings(guild_id=100000000000000001)))}
-    big = GuildSettings(guild_id=100000000000000001, channel_id=100000000000000002, admin_role_id=1,
-                        post_mode=PostMode.INTERVAL, interval_minutes=1440)
+    big = GuildSettings(
+        guild_id=100000000000000001,
+        channel_id=100000000000000002,
+        admin_role_id=1,
+        post_mode=PostMode.INTERVAL,
+        interval_minutes=1440,
+    )
     for state in STATES:
         big.important += [f"{state} SEN", f"{state} GOV"] + [f"{state}-{n:02d}" for n in range(1, 5)]
     big.important = big.important[:300]
@@ -230,12 +297,17 @@ async def build_payloads(bot: CheckBot):
 
     # /odds overview + per race.
     keys = [RaceKey(s, Level.SENATE, "SEN") for s in STATES] + [
-        RaceKey(s, Level.HOUSE, "HOUSE", f"{n:02d}") for s in STATES for n in range(1, 6)]
+        RaceKey(s, Level.HOUSE, "HOUSE", f"{n:02d}") for s in STATES for n in range(1, 6)
+    ]
     keys = keys[:300]
-    yield "odds overview 300 races, long names", {"embed": format_odds_overview(
-        [(k, odds_snapshots(k, 6, True)) for k in keys])}
-    yield "odds overview 15 races", {"embed": format_odds_overview(
-        [(k, odds_snapshots(k, 2, False)) for k in keys[:15]])}
+    yield (
+        "odds overview 300 races, long names",
+        {"embed": format_odds_overview([(k, odds_snapshots(k, 6, True)) for k in keys])},
+    )
+    yield (
+        "odds overview 15 races",
+        {"embed": format_odds_overview([(k, odds_snapshots(k, 2, False)) for k in keys[:15]])},
+    )
     yield "odds overview empty", {"embed": format_odds_overview([(k, []) for k in keys[:3]])}
     yield "odds overview no races", {"embed": format_odds_overview([])}
     moves = {(m, f"{LONG} #{n}"): {1: 12.3, 24: -45.6} for m in ("kalshi", "polymarket") for n in range(40)}
@@ -246,8 +318,10 @@ async def build_payloads(bot: CheckBot):
     # /polls.
     yield "polls 10 long names", {"embed": format_polls(tx_sen, polls(tx_sen, 12, 12, True), count=10)}
     yield "polls 10 short", {"embed": format_polls(tx_sen, polls(tx_sen, 12, 4, False), count=10)}
-    yield "polls 10 no internals", {"embed": format_polls(tx_sen, polls(tx_sen, 30, 3, False), count=10,
-                                                           internals=False)}
+    yield (
+        "polls 10 no internals",
+        {"embed": format_polls(tx_sen, polls(tx_sen, 30, 3, False), count=10, internals=False)},
+    )
     yield "polls none", {"embed": format_polls(tx_sen, [], count=5)}
     yield "polls no source", {"embed": format_polls(tx_sen, [], sources_available=False)}
 
@@ -260,15 +334,49 @@ async def build_payloads(bot: CheckBot):
         r = result(key, n, long_names)
         await bot.store.upsert_result(r)
         yield label, {"embed": render_embed(format_result(r, turnout=turnout))}
-    yield "call", {"embed": render_embed(format_call(RaceCall(tx_sen, "AP", "Candidate Number 0", "REP", NOW,
-                                                              url="https://apnews.com/")))}
-    yield "call long names", {"embed": render_embed(format_call(RaceCall(
-        RaceKey("WA", Level.LOCAL, "LOCAL", "y" * 200), "VOTEHUB", LONG * 5, "Working Families Party", NOW)))}
-    yield "call retracted", {"embed": render_embed(format_call(RaceCall(tx_sen, "FOX", "Candidate", "DEM", NOW,
-                                                                        retracted=True)))}
-    yield "exit poll", {"embed": render_embed(format_exit_poll(ExitPoll(
-        tx_sen, "CNN", "https://cnn.com/election/2026/exit-polls/texas/senate",
-        "Women: D 55 R 44\n" + "Independents: " + "x" * 3000)))}
+    yield (
+        "call",
+        {
+            "embed": render_embed(
+                format_call(RaceCall(tx_sen, "AP", "Candidate Number 0", "REP", NOW, url="https://apnews.com/"))
+            )
+        },
+    )
+    yield (
+        "call long names",
+        {
+            "embed": render_embed(
+                format_call(
+                    RaceCall(
+                        RaceKey("WA", Level.LOCAL, "LOCAL", "y" * 200),
+                        "VOTEHUB",
+                        LONG * 5,
+                        "Working Families Party",
+                        NOW,
+                    )
+                )
+            )
+        },
+    )
+    yield (
+        "call retracted",
+        {"embed": render_embed(format_call(RaceCall(tx_sen, "FOX", "Candidate", "DEM", NOW, retracted=True)))},
+    )
+    yield (
+        "exit poll",
+        {
+            "embed": render_embed(
+                format_exit_poll(
+                    ExitPoll(
+                        tx_sen,
+                        "CNN",
+                        "https://cnn.com/election/2026/exit-polls/texas/senate",
+                        "Women: D 55 R 44\n" + "Independents: " + "x" * 3000,
+                    )
+                )
+            )
+        },
+    )
 
     # The race navigator: every tab for a sample of states, plus the race-select step. It reads
     # the stored race lists: run the background refresh until every state is listed.
@@ -317,10 +425,22 @@ async def build_payloads(bot: CheckBot):
     from electionwatch.bot.early_vote import early_vote_embed
     from electionwatch.sources.early_vote import EarlyVoteClient
 
-    async with httpx.AsyncClient(headers={"User-Agent": "election-watch-discord/0.1 (+https://github.com/IEatDirtySocksForFun/election-watch-discord)"}) as http:
+    async with httpx.AsyncClient(
+        headers={
+            "User-Agent": "election-watch-discord/0.1 (+https://github.com/IEatDirtySocksForFun/election-watch-discord)"
+        }
+    ) as http:
         ev = EarlyVoteClient(http)
-        for state, breakdown in ((None, None), ("GA", None), ("NC", "party"), ("NC", "county"),
-                                 ("GA", "age"), ("TX", "method"), ("NY", None), ("IL", None)):
+        for state, breakdown in (
+            (None, None),
+            ("GA", None),
+            ("NC", "party"),
+            ("NC", "county"),
+            ("GA", "age"),
+            ("TX", "method"),
+            ("NY", None),
+            ("IL", None),
+        ):
             try:
                 embed = await early_vote_embed(ev, state, breakdown)
             except Exception as exc:  # noqa: BLE001 - recorded, the run goes on
@@ -350,12 +470,18 @@ async def run(a) -> int:
             summary["bot_user"] = str(bot.user)
             if not a.skip_sync:
                 summary["schema"] = await check_schema(bot, discord.Object(id=a.guild))
-                print("schema:", json.dumps(summary["schema"].get("sync")),
-                      "diffs:", list(summary["schema"].get("diff", {})))
+                print(
+                    "schema:",
+                    json.dumps(summary["schema"].get("sync")),
+                    "diffs:",
+                    list(summary["schema"].get("diff", {})),
+                )
             channel = await bot.fetch_channel(a.channel)
             thread = await channel.create_thread(
-                name=f"[TEST] command render {stamp}"[:100], type=discord.ChannelType.public_thread,
-                auto_archive_duration=1440)
+                name=f"[TEST] command render {stamp}"[:100],
+                type=discord.ChannelType.public_thread,
+                auto_archive_duration=1440,
+            )
             summary["thread_id"] = thread.id
             summary["thread_url"] = f"https://discord.com/channels/{a.guild}/{thread.id}"
             print("thread:", summary["thread_url"])
@@ -387,8 +513,13 @@ async def run(a) -> int:
             summary.update(sent_ok=ok, sent_failed=failed, record=str(record_path))
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
     print(f"sent ok={ok} failed={failed}; record {record_path}; summary {summary_path}")
-    return 1 if failed or summary.get("schema", {}).get("diff") or not summary.get("schema", {}).get(
-        "sync", {"ok": True}).get("ok") else 0
+    return (
+        1
+        if failed
+        or summary.get("schema", {}).get("diff")
+        or not summary.get("schema", {}).get("sync", {"ok": True}).get("ok")
+        else 0
+    )
 
 
 def main() -> None:

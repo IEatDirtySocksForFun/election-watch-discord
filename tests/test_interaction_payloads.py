@@ -10,6 +10,7 @@ Discord would receive: response ``type`` and ``flags & 64`` (EPHEMERAL).
 No network: the webhook adapter used for interaction callbacks/followups is replaced by a
 recorder (``discord.webhook.async_.async_context``).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -23,13 +24,19 @@ import discord
 import httpx
 import pytest
 from discord.webhook.async_ import AsyncWebhookAdapter, async_context
+from fake_civicapi_early_vote import fixture_client, mock_http_client
 
 from electionwatch.bot.discord import ElectionBot
 from electionwatch.models import (
-    CandidateResult, Level, OddsSnapshot, Poll, PollResult, RaceKey, RaceResult,
+    CandidateResult,
+    Level,
+    OddsSnapshot,
+    Poll,
+    PollResult,
+    RaceKey,
+    RaceResult,
 )
 from electionwatch.store.memory import MemoryStore
-from fake_civicapi_early_vote import fixture_client, mock_http_client
 
 GUILD = 100000000000000001
 CHANNEL = 100000000000000002
@@ -40,7 +47,7 @@ ROLE = 333333333333333333
 TARGET_CHANNEL = 444444444444444444
 MSG_ID = 555555555555555555
 MANAGE_GUILD = 1 << 5
-MOD_ROLE = 666666666666666666   # cached guild role carrying Manage Server
+MOD_ROLE = 666666666666666666  # cached guild role carrying Manage Server
 EPHEMERAL = 64
 
 CALLBACK = "/interactions/{webhook_id}/{webhook_token}/callback"
@@ -90,8 +97,13 @@ class RecordingAdapter(AsyncWebhookAdapter):
 
 
 def _user(user_id: int) -> dict:
-    return {"id": str(user_id), "username": f"user{user_id % 1000}", "discriminator": "0",
-            "global_name": None, "avatar": None}
+    return {
+        "id": str(user_id),
+        "username": f"user{user_id % 1000}",
+        "discriminator": "0",
+        "global_name": None,
+        "avatar": None,
+    }
 
 
 def _member(user_id: int, permissions: int) -> dict:
@@ -99,45 +111,99 @@ def _member(user_id: int, permissions: int) -> dict:
     # CACHED guild roles, not from the interaction's "permissions" field: give admins the
     # cached Manage Server role as well.
     roles = [str(MOD_ROLE)] if permissions & MANAGE_GUILD else []
-    return {"user": _user(user_id), "roles": roles, "joined_at": "2024-01-01T00:00:00+00:00",
-            "deaf": False, "mute": False, "flags": 0, "permissions": str(permissions)}
+    return {
+        "user": _user(user_id),
+        "roles": roles,
+        "joined_at": "2024-01-01T00:00:00+00:00",
+        "deaf": False,
+        "mute": False,
+        "flags": 0,
+        "permissions": str(permissions),
+    }
 
 
 def _message_payload(flags: int = EPHEMERAL) -> dict:
     return {
-        "id": str(MSG_ID), "channel_id": str(CHANNEL), "author": _user(APP), "content": "",
-        "embeds": [], "attachments": [], "mentions": [], "mention_roles": [], "pinned": False,
-        "tts": False, "type": 20, "timestamp": "2026-11-03T20:00:00+00:00",
-        "edited_timestamp": None, "flags": flags, "components": [],
-        "application_id": str(APP), "webhook_id": str(APP),
+        "id": str(MSG_ID),
+        "channel_id": str(CHANNEL),
+        "author": _user(APP),
+        "content": "",
+        "embeds": [],
+        "attachments": [],
+        "mentions": [],
+        "mention_roles": [],
+        "pinned": False,
+        "tts": False,
+        "type": 20,
+        "timestamp": "2026-11-03T20:00:00+00:00",
+        "edited_timestamp": None,
+        "flags": flags,
+        "components": [],
+        "application_id": str(APP),
+        "webhook_id": str(APP),
     }
 
 
 def _role(role_id: int, name: str, permissions: int, position: int) -> dict:
-    return {"id": str(role_id), "name": name, "color": 0, "hoist": False, "position": position,
-            "permissions": str(permissions), "managed": False, "mentionable": False, "flags": 0}
+    return {
+        "id": str(role_id),
+        "name": name,
+        "color": 0,
+        "hoist": False,
+        "position": position,
+        "permissions": str(permissions),
+        "managed": False,
+        "mentionable": False,
+        "flags": 0,
+    }
 
 
 def _text_channel(channel_id: int, name: str) -> dict:
-    return {"id": str(channel_id), "type": 0, "guild_id": str(GUILD), "name": name, "position": 0,
-            "permission_overwrites": [], "nsfw": False, "parent_id": None}
+    return {
+        "id": str(channel_id),
+        "type": 0,
+        "guild_id": str(GUILD),
+        "name": name,
+        "position": 0,
+        "permission_overwrites": [],
+        "nsfw": False,
+        "parent_id": None,
+    }
 
 
 GUILD_CREATE = {
     # What the gateway delivers at startup with the default (guilds) intent.
-    "id": str(GUILD), "name": "Test guild", "owner_id": "1", "member_count": 3, "features": [],
-    "emojis": [], "stickers": [], "members": [], "threads": [], "presences": [], "voice_states": [],
-    "roles": [_role(GUILD, "@everyone", 0, 0), _role(MOD_ROLE, "Mods", MANAGE_GUILD, 2),
-              _role(ROLE, "Election admins", 0, 1)],
+    "id": str(GUILD),
+    "name": "Test guild",
+    "owner_id": "1",
+    "member_count": 3,
+    "features": [],
+    "emojis": [],
+    "stickers": [],
+    "members": [],
+    "threads": [],
+    "presences": [],
+    "voice_states": [],
+    "roles": [
+        _role(GUILD, "@everyone", 0, 0),
+        _role(MOD_ROLE, "Mods", MANAGE_GUILD, 2),
+        _role(ROLE, "Election admins", 0, 1),
+    ],
     "channels": [_text_channel(CHANNEL, "general"), _text_channel(TARGET_CHANNEL, "elections")],
 }
 
 
 def _base(itype: int, *, user_id: int = OWNER, permissions: int = MANAGE_GUILD, dm: bool = False) -> dict:
     payload = {
-        "id": str(next(_ids)), "application_id": str(APP), "type": itype,
-        "token": "interaction-token", "version": 1, "attachment_size_limit": 8 * 1024 * 1024,
-        "locale": "en-US", "app_permissions": "0", "entitlements": [],
+        "id": str(next(_ids)),
+        "application_id": str(APP),
+        "type": itype,
+        "token": "interaction-token",
+        "version": 1,
+        "attachment_size_limit": 8 * 1024 * 1024,
+        "locale": "en-US",
+        "app_permissions": "0",
+        "entitlements": [],
         "authorizing_integration_owners": {},
     }
     if dm:
@@ -148,20 +214,27 @@ def _base(itype: int, *, user_id: int = OWNER, permissions: int = MANAGE_GUILD, 
     else:
         payload["guild_id"] = str(GUILD)
         payload["guild_locale"] = "en-US"
-        payload["channel"] = {"id": str(CHANNEL), "type": 0, "guild_id": str(GUILD), "name": "general",
-                              "position": 0, "permission_overwrites": [], "nsfw": False,
-                              "parent_id": None}
+        payload["channel"] = {
+            "id": str(CHANNEL),
+            "type": 0,
+            "guild_id": str(GUILD),
+            "name": "general",
+            "position": 0,
+            "permission_overwrites": [],
+            "nsfw": False,
+            "parent_id": None,
+        }
         payload["channel_id"] = str(CHANNEL)
         payload["member"] = _member(user_id, permissions)
         payload["context"] = 0
     return payload
 
 
-def command_payload(name: str, options: list[dict] | None = None, resolved: dict | None = None,
-                    *, autocomplete: bool = False, **kw) -> dict:
+def command_payload(
+    name: str, options: list[dict] | None = None, resolved: dict | None = None, *, autocomplete: bool = False, **kw
+) -> dict:
     payload = _base(4 if autocomplete else 2, **kw)
-    payload["data"] = {"id": "999", "name": name, "type": 1, "options": options or [],
-                       "resolved": resolved or {}}
+    payload["data"] = {"id": "999", "name": name, "type": 1, "options": options or [], "resolved": resolved or {}}
     return payload
 
 
@@ -181,8 +254,7 @@ def opt(name: str, value, kind: int = 3) -> dict:
 # --------------------------------------------------------------------------- fake sources
 
 TX_SEN = RaceKey("TX", Level.SENATE, "SEN")
-LONG_SLUG = ("advisory-vote-no-10-engrossed-second-substitute-senate-bill-5096-concerning-"
-             "an-excise-tax-on-capital-gains")
+LONG_SLUG = "advisory-vote-no-10-engrossed-second-substitute-senate-bill-5096-concerning-an-excise-tax-on-capital-gains"
 NOW = datetime(2026, 11, 3, 22, 0, tzinfo=timezone.utc)
 
 
@@ -194,10 +266,13 @@ class FakeResults:
         return True
 
     async def list_races(self, state, http):
-        races = [(RaceKey(state, Level.SENATE, "SEN"), f"{state} Senate"),
-                 (RaceKey(state, Level.GOVERNOR, "GOV"), f"{state} Governor")]
-        races += [(RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"), f"{state}-{n:02d} " + "x" * 120)
-                  for n in range(1, 31)]
+        races = [
+            (RaceKey(state, Level.SENATE, "SEN"), f"{state} Senate"),
+            (RaceKey(state, Level.GOVERNOR, "GOV"), f"{state} Governor"),
+        ]
+        races += [
+            (RaceKey(state, Level.HOUSE, "HOUSE", f"{n:02d}"), f"{state}-{n:02d} " + "x" * 120) for n in range(1, 31)
+        ]
         # Adapters slug the full contest name into LOCAL keys: these can exceed 100 characters.
         races += [(RaceKey(state, Level.LOCAL, "LOCAL", LONG_SLUG), "Advisory Vote No. 10")]
         return races
@@ -215,10 +290,12 @@ class FakeOdds:
     async def fetch_odds(self, keys, http):
         if self.fail:
             raise RuntimeError("odds source down")
-        return [OddsSnapshot(key, market, outcome, prob, NOW, url="https://example.com/m")
-                for key in keys
-                for market in ("kalshi", "polymarket")
-                for outcome, prob in (("DEM", 0.41), ("REP", 0.59))]
+        return [
+            OddsSnapshot(key, market, outcome, prob, NOW, url="https://example.com/m")
+            for key in keys
+            for market in ("kalshi", "polymarket")
+            for outcome, prob in (("DEM", 0.41), ("REP", 0.59))
+        ]
 
 
 class FakePolls:
@@ -228,11 +305,20 @@ class FakePolls:
         return True
 
     async def fetch_polls(self, keys, http):
-        return [Poll(key, f"Pollster {n}", [PollResult("Candidate A", "DEM", 47.0),
-                                            PollResult("Candidate B", "REP", 49.0)],
-                     date(2026, 10, 1) + timedelta(days=n), sample_size=800, population="LV",
-                     partisan="REP" if n % 3 == 0 else None, url="https://example.com/p")
-                for key in keys for n in range(12)]
+        return [
+            Poll(
+                key,
+                f"Pollster {n}",
+                [PollResult("Candidate A", "DEM", 47.0), PollResult("Candidate B", "REP", 49.0)],
+                date(2026, 10, 1) + timedelta(days=n),
+                sample_size=800,
+                population="LV",
+                partisan="REP" if n % 3 == 0 else None,
+                url="https://example.com/p",
+            )
+            for key in keys
+            for n in range(12)
+        ]
 
 
 class ExplodingStore(MemoryStore):
@@ -245,14 +331,19 @@ async def harness():
     recorder = RecordingAdapter()
     reset = async_context.set(recorder)
     store = MemoryStore()
-    await store.upsert_result(RaceResult(
-        TX_SEN, [CandidateResult("Alice Example", "DEM", 1000, winner=False),
-                 CandidateResult("Bob Example", "REP", 1200)],
-        "fake_results", NOW))
+    await store.upsert_result(
+        RaceResult(
+            TX_SEN,
+            [CandidateResult("Alice Example", "DEM", 1000, winner=False), CandidateResult("Bob Example", "REP", 1200)],
+            "fake_results",
+            NOW,
+        )
+    )
     odds = FakeOdds()
     async with httpx.AsyncClient() as client:
-        bot = ElectionBot(store, {"results": [FakeResults()], "odds": [odds], "polls": [FakePolls()]},
-                          client, clock=lambda: NOW)
+        bot = ElectionBot(
+            store, {"results": [FakeResults()], "odds": [odds], "polls": [FakePolls()]}, client, clock=lambda: NOW
+        )
         await bot._async_setup_hook()
         # As after READY: the logged-in application user.
         bot._connection.user = discord.ClientUser(state=bot._connection, data=_user(APP) | {"bot": True})
@@ -261,8 +352,8 @@ async def harness():
         # What the background refresh stores; /odds and /polls read only the store.
         await bot.poller._odds(NOW, [], [TX_SEN, RaceKey("CA", Level.SENATE, "SEN")])
         await bot.poller._polls(NOW, [TX_SEN])
-        await bot.race_lists.refresh()           # the /races browser reads the stored lists
-        early_vote_http = mock_http_client()   # /earlyvote reads recorded civicAPI responses
+        await bot.race_lists.refresh()  # the /races browser reads the stored lists
+        early_vote_http = mock_http_client()  # /earlyvote reads recorded civicAPI responses
         bot.early_vote = fixture_client(early_vote_http)
         try:
             yield h
@@ -279,8 +370,12 @@ class Harness:
         self.bot, self.recorder, self.odds = bot, recorder, odds
 
     def views(self) -> list:
-        return [item.view for entries in self.bot._connection._view_store._views.values()
-                for item in entries.values() if item.view is not None]
+        return [
+            item.view
+            for entries in self.bot._connection._view_store._views.values()
+            for item in entries.values()
+            if item.view is not None
+        ]
 
     async def dispatch(self, payload: dict) -> list[Sent]:
         """Run a payload through the real gateway handler and wait for every task it spawns."""
@@ -288,14 +383,19 @@ class Harness:
         before = asyncio.all_tasks()
         self.bot._connection.parse_interaction_create(payload)
         for _ in range(10):
-            pending = [task for task in asyncio.all_tasks() - before
-                       if task.get_name().startswith(("CommandTree-invoker", "discord-ui-view-dispatch"))
-                       and not task.done()]
+            pending = [
+                task
+                for task in asyncio.all_tasks() - before
+                if task.get_name().startswith(("CommandTree-invoker", "discord-ui-view-dispatch")) and not task.done()
+            ]
             if not pending:
                 await asyncio.sleep(0)
-                pending = [task for task in asyncio.all_tasks() - before
-                           if task.get_name().startswith(("CommandTree-invoker", "discord-ui-view-dispatch"))
-                           and not task.done()]
+                pending = [
+                    task
+                    for task in asyncio.all_tasks() - before
+                    if task.get_name().startswith(("CommandTree-invoker", "discord-ui-view-dispatch"))
+                    and not task.done()
+                ]
                 if not pending:
                     break
             await asyncio.wait(pending, timeout=5)
@@ -384,40 +484,73 @@ TEXT_CHANNEL_RESOLVED = {
 
 # (case id, command, options, resolved, interaction kwargs, text expected in the reply)
 CASES = [
-    ("setup-ok", "setup", [opt("channel", str(TARGET_CHANNEL), 7), opt("admin_role", str(ROLE), 8)],
-     TEXT_CHANNEL_RESOLVED, {}, f"<#{TARGET_CHANNEL}>"),
-    ("setup-no-role", "setup", [opt("channel", str(TARGET_CHANNEL), 7)], TEXT_CHANNEL_RESOLVED, {},
-     "Election posts will go to"),
-    ("setup-not-admin", "setup", [opt("channel", str(TARGET_CHANNEL), 7)], TEXT_CHANNEL_RESOLVED,
-     {"permissions": 0}, "Manage Server"),
+    (
+        "setup-ok",
+        "setup",
+        [opt("channel", str(TARGET_CHANNEL), 7), opt("admin_role", str(ROLE), 8)],
+        TEXT_CHANNEL_RESOLVED,
+        {},
+        f"<#{TARGET_CHANNEL}>",
+    ),
+    (
+        "setup-no-role",
+        "setup",
+        [opt("channel", str(TARGET_CHANNEL), 7)],
+        TEXT_CHANNEL_RESOLVED,
+        {},
+        "Election posts will go to",
+    ),
+    (
+        "setup-not-admin",
+        "setup",
+        [opt("channel", str(TARGET_CHANNEL), 7)],
+        TEXT_CHANNEL_RESOLVED,
+        {"permissions": 0},
+        "Manage Server",
+    ),
     # In a DM the guild channel cannot be resolved: the transformer fails before the command
     # body runs, so the generic (still ephemeral) error reply is sent.
-    ("setup-dm", "setup", [opt("channel", str(TARGET_CHANNEL), 7)], TEXT_CHANNEL_RESOLVED,
-     {"dm": True}, ""),
+    ("setup-dm", "setup", [opt("channel", str(TARGET_CHANNEL), 7)], TEXT_CHANNEL_RESOLVED, {"dm": True}, ""),
     ("pause-dm", "pause", [], None, {"dm": True}, "Use this command in a server"),
     ("watch-add", "watch", [opt("action", "add"), opt("race", "TX SEN")], None, {}, "Watching TX SEN"),
     ("watch-list", "watch", [opt("action", "list")], None, {"permissions": 0}, "Watched races"),
     ("watch-remove", "watch", [opt("action", "remove"), opt("race", "Texas Senate")], None, {}, "Removed"),
     ("watch-missing-race", "watch", [opt("action", "add")], None, {}, "race is required"),
     ("watch-bad-race", "watch", [opt("action", "add"), opt("race", "Narnia SEN")], None, {}, ""),
-    ("watch-not-admin", "watch", [opt("action", "add"), opt("race", "TX SEN")], None,
-     {"permissions": 0}, "Manage Server"),
-    ("posting-interval", "posting", [opt("mode", "interval"), opt("minutes", 30, 4)], None, {},
-     "every 30 minutes"),
+    (
+        "watch-not-admin",
+        "watch",
+        [opt("action", "add"), opt("race", "TX SEN")],
+        None,
+        {"permissions": 0},
+        "Manage Server",
+    ),
+    ("posting-interval", "posting", [opt("mode", "interval"), opt("minutes", 30, 4)], None, {}, "every 30 minutes"),
     ("posting-immediate", "posting", [opt("mode", "immediate")], None, {}, "immediate"),
     ("calls-on", "calls", [opt("outlets", "AP, cbs"), opt("enabled", "on")], None, {}, "AP, CBS"),
-    ("calls-unknown", "calls", [opt("outlets", "XYZ"), opt("enabled", "off")], None, {},
-     "unknown outlets"),
-    ("oddsalerts-on", "oddsalerts", [opt("enabled", "on"), opt("threshold", 5.5, 10),
-                                     opt("window", 30, 4)], None, {}, "threshold 5.5 points"),
+    ("calls-unknown", "calls", [opt("outlets", "XYZ"), opt("enabled", "off")], None, {}, "unknown outlets"),
+    (
+        "oddsalerts-on",
+        "oddsalerts",
+        [opt("enabled", "on"), opt("threshold", 5.5, 10), opt("window", 30, 4)],
+        None,
+        {},
+        "threshold 5.5 points",
+    ),
     ("oddsalerts-off", "oddsalerts", [opt("enabled", "off")], None, {}, "Odds alerts off"),
     ("odds-overview", "odds", [], None, {}, "Watched race odds"),
     ("odds-race", "odds", [opt("race", "TX SEN")], None, {}, "Odds"),
     ("odds-dm", "odds", [], None, {"dm": True}, "Watched race odds"),
     ("odds-bad-race", "odds", [opt("race", "Narnia SEN")], None, {}, ""),
     ("polls-default", "polls", [opt("race", "TX SEN")], None, {}, "Showing 5 most recent polls"),
-    ("polls-10-no-internals", "polls", [opt("race", "TX SEN"), opt("count", 10, 4),
-                                        opt("internals", False, 5)], None, {}, "internals excluded"),
+    (
+        "polls-10-no-internals",
+        "polls",
+        [opt("race", "TX SEN"), opt("count", 10, 4), opt("internals", False, 5)],
+        None,
+        {},
+        "internals excluded",
+    ),
     ("polls-bad-race", "polls", [opt("race", "Narnia SEN")], None, {}, ""),
     ("refresh", "refresh", [opt("what", "odds")], None, {}, "Refreshed"),
     ("refresh-races", "refresh", [opt("what", "races")], None, {}, "Race lists are refreshing"),
@@ -434,10 +567,8 @@ CASES = [
     ("settings-dm", "settings", [], None, {"dm": True}, "Use this command in a server"),
     ("races", "races", [], None, {}, "Texas"),
     ("races-dm", "races", [], None, {"dm": True}, "Texas"),
-    ("favorite-add", "favorite", [opt("action", "add"), opt("race", "TX SEN")], None, {},
-     "Favorited TX SEN"),
-    ("favorite-remove", "favorite", [opt("action", "remove"), opt("race", "TX SEN")], None, {},
-     "Removed favorite"),
+    ("favorite-add", "favorite", [opt("action", "add"), opt("race", "TX SEN")], None, {}, "Favorited TX SEN"),
+    ("favorite-remove", "favorite", [opt("action", "remove"), opt("race", "TX SEN")], None, {}, "Removed favorite"),
     ("favorite-bad", "favorite", [opt("action", "add"), opt("race", "Narnia SEN")], None, {}, ""),
     ("faq-none", "faq", [], None, {}, "State FAQs"),
     ("faq-tx", "faq", [opt("state", "TX")], None, {}, "```yaml"),
@@ -445,13 +576,11 @@ CASES = [
     ("faq-bad", "faq", [opt("state", "ZZ")], None, {}, "unknown state"),
     ("earlyvote-overview", "earlyvote", [], None, {"dm": True}, "Early vote · United States"),
     ("earlyvote-state", "earlyvote", [opt("state", "nc")], None, {"permissions": 0}, "North Carolina"),
-    ("earlyvote-county", "earlyvote", [opt("state", "Georgia"), opt("breakdown", "county")], None, {},
-     "Top counties"),
+    ("earlyvote-county", "earlyvote", [opt("state", "Georgia"), opt("breakdown", "county")], None, {}, "Top counties"),
     ("earlyvote-no-data", "earlyvote", [opt("state", "NY")], None, {}, "no early-vote data"),
     ("earlyvote-bad", "earlyvote", [opt("state", "ZZ")], None, {}, "Unknown state"),
     ("earlyvote-posts-on", "earlyvote_posts", [opt("enabled", "on")], None, {}, "early vote on"),
-    ("earlyvote-posts-not-admin", "earlyvote_posts", [opt("enabled", "on")], None, {"permissions": 0},
-     "Manage Server"),
+    ("earlyvote-posts-not-admin", "earlyvote_posts", [opt("enabled", "on")], None, {"permissions": 0}, "Manage Server"),
 ]
 
 
@@ -470,9 +599,11 @@ async def test_matrix_covers_every_registered_command(harness):
 
 
 async def test_resolved_role_and_channel_reach_the_settings(harness):
-    await harness.dispatch(command_payload(
-        "setup", [opt("channel", str(TARGET_CHANNEL), 7), opt("admin_role", str(ROLE), 8)],
-        TEXT_CHANNEL_RESOLVED))
+    await harness.dispatch(
+        command_payload(
+            "setup", [opt("channel", str(TARGET_CHANNEL), 7), opt("admin_role", str(ROLE), 8)], TEXT_CHANNEL_RESOLVED
+        )
+    )
     gs = await harness.bot.store.get_guild(GUILD)
     assert (gs.channel_id, gs.admin_role_id) == (TARGET_CHANNEL, ROLE)
     # The configured role now grants admin to a member without Manage Server.
@@ -535,7 +666,7 @@ async def test_unknown_command_is_answered_ephemerally(harness):
 async def test_failing_odds_source_still_renders_an_ephemeral_embed(harness):
     harness.odds.fail = True
     harness.bot.rates.force({"odds"})
-    await harness.bot.poller._odds(NOW, [], [RaceKey("NV", Level.SENATE, "SEN")])   # refresh fails
+    await harness.bot.poller._odds(NOW, [], [RaceKey("NV", Level.SENATE, "SEN")])  # refresh fails
     sent = await harness.dispatch(command_payload("odds", [opt("race", "NV SEN")]))
     assert_ephemeral_reply(sent)
     assert "queued for the next odds refresh" in text_of(sent)
@@ -583,7 +714,11 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     message = sent[-1].payload
     assert message["flags"] & EPHEMERAL
     assert [c["label"] for c in components(message) if c["type"] == 2][:4] == [
-        "Congressional", "Senate", "State", "Local"]
+        "Congressional",
+        "Senate",
+        "State",
+        "Local",
+    ]
     assert len(selects(message)) == 3  # 51 states in groups of 25
 
     # Tab button: deferred update (6, no new message), then the original message is edited.
@@ -622,8 +757,7 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert len(race_select["options"]) == 24 and race_select["options"][-1]["value"] == "next"
 
     # Race select: UPDATE_MESSAGE (7) showing that race.
-    sent = await harness.dispatch(component_payload(race_select["custom_id"], 3,
-                                                    [race_select["options"][3]["value"]]))
+    sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [race_select["options"][3]["value"]]))
     assert len(sent) == 1 and sent[0].payload["type"] == UPDATE_MESSAGE
     check_message_limits(sent[0].payload["data"])
     assert button(sent[0].payload, "Odds")
@@ -709,10 +843,15 @@ async def test_command_schema_follows_discord_rules(harness):
         for option in options:
             _check_option(option, f"/{name} {option['name']}")
         # Command name + description + options' names/descriptions/choices <= 4000 characters.
-        total = len(name) + len(payload["description"]) + sum(
-            len(o["name"]) + len(o["description"])
-            + sum(len(c["name"]) + len(str(c["value"])) for c in o.get("choices", []))
-            for o in options
+        total = (
+            len(name)
+            + len(payload["description"])
+            + sum(
+                len(o["name"])
+                + len(o["description"])
+                + sum(len(c["name"]) + len(str(c["value"])) for c in o.get("choices", []))
+                for o in options
+            )
         )
         assert total <= 4000, name
     by_name = {p["name"]: p for p in payloads}

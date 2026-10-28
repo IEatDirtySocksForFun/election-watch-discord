@@ -23,8 +23,10 @@ def test_federal_contests_before_polls_close():
     senate = got["NM SEN"]
     assert senate.key.level is Level.SENATE
     assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
-        ("Ben R Lujan", "DEM", 0), ("Larry E Marker", "REP", 0)]
-    assert senate.precincts_reporting == 0          # "Precincts Fully: 0 / 2204"
+        ("Ben R Lujan", "DEM", 0),
+        ("Larry E Marker", "REP", 0),
+    ]
+    assert senate.precincts_reporting == 0  # "Precincts Fully: 0 / 2204"
     assert senate.precincts_total == 2204
     assert senate.expected_vote_pct is None
     assert senate.total_votes == 0
@@ -55,5 +57,7 @@ def test_race_key_mapping():
     assert format_key(race_key("Commissioner of Public Lands")) == "NM LANDCOM"
     assert format_key(race_key("State Senator DISTRICT 5")) == "NM SD-05"
     assert format_key(race_key("State Representative DISTRICT 12")) == "NM HD-12"
-    assert format_key(race_key("Public Education Commissioner DISTRICT 2")) == \
-        "NM LOCAL public-education-commissioner-district-2"
+    assert (
+        format_key(race_key("Public Education Commissioner DISTRICT 2"))
+        == "NM LOCAL public-education-commissioner-district-2"
+    )

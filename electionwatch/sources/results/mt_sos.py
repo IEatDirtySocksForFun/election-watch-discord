@@ -41,6 +41,7 @@ case included, like the other vendor-family adapters. Precincts reporting is "Fu
 "Partially" (both are out of the same total). The header carries the election name/date,
 statewide turnout and the "Results last updated: ... MT" stamp (America/Denver).
 """
+
 from __future__ import annotations
 
 import os
@@ -64,8 +65,7 @@ PAGES = ("FED", "STATE", "SENATE", "HOUSE", "PSC", "SCJ", "JUD", "BQ")
 _PRECINCTS = re.compile(r"Precincts\s+Fully:\s*([\d,]+)\s*/\s*([\d,]+)", re.I)
 _PARTIAL = re.compile(r"Partially:\s*([\d,]+)\s*/\s*([\d,]+)", re.I)
 _DISTRICT = re.compile(r"DISTRICT\s*0*(\d{1,3})\b", re.I)
-_CONGRESS = re.compile(
-    r"UNITED STATES REPRESENTATIVE\s+(\d{1,2})(?:ST|ND|RD|TH)?\s+CONGRESSIONAL", re.I)
+_CONGRESS = re.compile(r"UNITED STATES REPRESENTATIVE\s+(\d{1,2})(?:ST|ND|RD|TH)?\s+CONGRESSIONAL", re.I)
 _MEASURE = re.compile(r"^([A-Z]{1,3}-\d{1,3})\b")
 _RETENTION = re.compile(r"^SHALL JUDGE (.+?) OF THE", re.I)
 _DOB = re.compile(r"([A-Z][a-z]+ \d{1,2}, \d{4})")
@@ -175,7 +175,9 @@ def parse_mt(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     seen: set[str] = set()
     turnout = (
         round(100.0 * info["ballots_cast"] / info["registered_voters"], 2)
-        if info.get("ballots_cast") and info.get("registered_voters") else None)
+        if info.get("ballots_cast") and info.get("registered_voters")
+        else None
+    )
     for contest in doc.css("div.wrapper-inside.wrapper-border"):
         heading = contest.css_first("div.display-results-box-a h1")
         if heading is None:
@@ -204,25 +206,32 @@ def parse_mt(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 continue  # the column header row
             party_node = row.css_first("div.display-results-box-d h2")
             votes_node = row.css_first("div.display-results-box-f h1")
-            cands.append(CandidateResult(
-                name=name,
-                party=_party(party_node.text() if party_node is not None else None),
-                votes=c.to_int(votes_node.text() if votes_node is not None else None),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=_party(party_node.text() if party_node is not None else None),
+                    votes=c.to_int(votes_node.text() if votes_node is not None else None),
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=MtSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=reporting,
-            precincts_total=total,
-            registered_voters=info.get("registered_voters"),
-            turnout_pct=turnout,
-            source_updated_at=info.get("updated_at"),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=MtSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=reporting,
+                precincts_total=total,
+                registered_voters=info.get("registered_voters"),
+                turnout_pct=turnout,
+                source_updated_at=info.get("updated_at"),
+            )
+        )
     return out
 
 
@@ -261,8 +270,7 @@ class MtSos(ResultsSource):
             raise SourceUnavailable(f"MT: {FILING} -> HTTP {resp.status_code}")
         eid = discover_eid(resp.text, date)
         if not eid:
-            raise SourceUnavailable(
-                f"MT: no election dated {date} in the candidate-filing list; set MT_EID")
+            raise SourceUnavailable(f"MT: no election dated {date} in the candidate-filing list; set MT_EID")
         return eid, False
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
@@ -279,16 +287,14 @@ class MtSos(ResultsSource):
                 continue  # a group with no contests 302s to the error page
             seen_date = page_info(html).get("date")
             if seen_date and not pinned and seen_date != date:
-                raise SourceUnavailable(
-                    f"MT: eid {eid} is the {seen_date} election, not {date}")
+                raise SourceUnavailable(f"MT: eid {eid} is the {seen_date} election, not {date}")
             parsed = parse_mt(html, fetched_at=c.utcnow())
             if not parsed:
                 continue  # the election exists but this group has no contests (yet)
             pages += 1
             results.extend(parsed)
         if not pages:
-            raise SourceUnavailable(
-                f"MT: eid {eid} publishes no contests yet ({URL.format('FED', eid)})")
+            raise SourceUnavailable(f"MT: eid {eid} publishes no contests yet ({URL.format('FED', eid)})")
         return c.select(results, [k for k in keys if k.state == "MT"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:

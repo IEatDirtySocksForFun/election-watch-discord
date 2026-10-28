@@ -55,7 +55,7 @@ def test_statewide_offices_and_incumbent_flag(results):
     rrc = by_key(results)["TX RRC"]
     assert rrc.key.level is Level.GOVERNOR
     top = rrc.candidates[0]
-    assert top.name == "Christi Craddick"          # "(I)" stripped into the flag
+    assert top.name == "Christi Craddick"  # "(I)" stripped into the flag
     assert top.incumbent is True
     assert top.party == "REP"
     assert rrc.candidates == sorted(rrc.candidates, key=lambda c: c.votes, reverse=True)
@@ -88,8 +88,7 @@ def test_race_key_mapping_cases():
     assert format_key(race_key("Commissioner Of The General Land Office")) == "TX LANDCOM"
     assert format_key(race_key("STATE SENATOR, DISTRICT 15 - UNEXPIRED TERM")) == "TX SD-15 S"
     assert race_key("STATE SENATOR, DISTRICT 15 - UNEXPIRED TERM").special is True
-    assert format_key(race_key("JUSTICE, SUPREME COURT, PLACE 4")) == \
-        "TX LOCAL supreme-court-place-4"
+    assert format_key(race_key("JUSTICE, SUPREME COURT, PLACE 4")) == "TX LOCAL supreme-court-place-4"
     # Unknown contests still get a stable LOCAL slug rather than being dropped.
     assert format_key(race_key("Some County Measure A")) == "TX LOCAL some-county-measure-a"
 

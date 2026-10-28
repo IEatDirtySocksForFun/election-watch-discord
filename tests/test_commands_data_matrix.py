@@ -53,6 +53,7 @@ race_autocomplete
   [x] slow source in many states -> answers within Discord's 3 s deadline
   [x] local slug longer than 100 chars is never offered as a choice value
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -63,6 +64,7 @@ from datetime import date, datetime, timedelta, timezone
 import httpx
 import pytest
 import yaml
+from fake_interaction_data import FakeInteraction, check_choices, embed_total, make_client
 
 from electionwatch.bot.discord import faq_command, odds_command, polls_command, race_autocomplete
 from electionwatch.models import Level, OddsSnapshot, Poll, PollResult, RaceKey
@@ -70,7 +72,6 @@ from electionwatch.racekeys import STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings
 from electionwatch.sources.base import OddsSource, PollSource, ResultsSource, SourceUnavailable
 from electionwatch.store.memory import MemoryStore
-from fake_interaction_data import check_choices, check_embed, embed_total, FakeInteraction, make_client
 
 NOW = datetime(2026, 10, 27, 12, 0, tzinfo=timezone.utc)
 TX_SEN = parse("TX SEN")
@@ -87,8 +88,15 @@ class Store(MemoryStore):
 class Odds(OddsSource):
     name = "fake_odds"
 
-    def __init__(self, per_key=None, *, markets=("kalshi", "polymarket"), outcomes=("DEM", "REP"),
-                 error: BaseException | None = None, url="https://kalshi.example/m"):
+    def __init__(
+        self,
+        per_key=None,
+        *,
+        markets=("kalshi", "polymarket"),
+        outcomes=("DEM", "REP"),
+        error: BaseException | None = None,
+        url="https://kalshi.example/m",
+    ):
         self.per_key = per_key
         self.markets = markets
         self.outcomes = outcomes
@@ -103,9 +111,12 @@ class Odds(OddsSource):
         if self.per_key is not None:
             return [s for s in self.per_key if s.key in keys]
         return [
-            OddsSnapshot(key, market, outcome, 0.5 if len(self.outcomes) <= 2 else 1 / len(self.outcomes),
-                         NOW, url=self.url)
-            for key in keys for market in self.markets for outcome in self.outcomes
+            OddsSnapshot(
+                key, market, outcome, 0.5 if len(self.outcomes) <= 2 else 1 / len(self.outcomes), NOW, url=self.url
+            )
+            for key in keys
+            for market in self.markets
+            for outcome in self.outcomes
         ]
 
 
@@ -152,9 +163,15 @@ class AllStates(ResultsSource):
 
 def poll(pollster="Example", end=date(2026, 10, 26), key=TX_SEN, **changes):
     values = dict(
-        key=key, pollster=pollster, end_date=end, start_date=end - timedelta(days=2),
+        key=key,
+        pollster=pollster,
+        end_date=end,
+        start_date=end - timedelta(days=2),
         results=[PollResult("Doe", "DEM", 49.0), PollResult("Smith", "REP", 47.0)],
-        sample_size=800, population="LV", url="https://polls.example/one", source="a",
+        sample_size=800,
+        population="LV",
+        url="https://polls.example/one",
+        source="a",
     )
     values.update(changes)
     return Poll(**values)
@@ -197,8 +214,9 @@ async def test_odds_overview_for_watched_races(count):
     store = Store()
     keys = [f"TX HD-{n:03d}" for n in range(1, count + 1)] if count > 1 else ["GA GOV"]
     await store.save_guild(GuildSettings(1, important=keys))
-    client = make_client(store, {"odds": [Odds(outcomes=("Candidate " + "x" * 40, "Other " + "y" * 40))]},
-                         clock=lambda: NOW)
+    client = make_client(
+        store, {"odds": [Odds(outcomes=("Candidate " + "x" * 40, "Other " + "y" * 40))]}, clock=lambda: NOW
+    )
     embed = deferred_embed(await run(odds_command, client))
     assert f"**{parse(keys[0])}**" in embed.description
     if count == 1:
@@ -223,11 +241,35 @@ async def test_odds_overview_without_any_odds():
 
 # --------------------------------------------------------------------------- /odds one race
 KEY_FORMATS = [
-    "TX SEN", "TX-SEN", "tx sen", "Texas Senate", "texas senate", "NC-01", "NC-1", "nc-1",
-    "AK-AL", "North Carolina Congressional District 1", "OH SEN S", "OH SEN SPECIAL",
-    "Ohio Senate Special", "GA GOV", "Georgia Governor", "TX LTGOV", "AZ AG", "TX RRC",
-    "TX SD-05", "TX SD 5", "TX HD-121", "AK SD-A", "VT HD-CHT-6-7", "TX LOCAL harris-county-judge",
-    "PR-AL", "GU-AL", "DC-AL", "District of Columbia Senate", "NC-01 S",
+    "TX SEN",
+    "TX-SEN",
+    "tx sen",
+    "Texas Senate",
+    "texas senate",
+    "NC-01",
+    "NC-1",
+    "nc-1",
+    "AK-AL",
+    "North Carolina Congressional District 1",
+    "OH SEN S",
+    "OH SEN SPECIAL",
+    "Ohio Senate Special",
+    "GA GOV",
+    "Georgia Governor",
+    "TX LTGOV",
+    "AZ AG",
+    "TX RRC",
+    "TX SD-05",
+    "TX SD 5",
+    "TX HD-121",
+    "AK SD-A",
+    "VT HD-CHT-6-7",
+    "TX LOCAL harris-county-judge",
+    "PR-AL",
+    "GU-AL",
+    "DC-AL",
+    "District of Columbia Senate",
+    "NC-01 S",
 ]
 
 
@@ -240,22 +282,35 @@ async def test_odds_single_race_in_every_key_format(text):
     assert [f.name for f in embed.fields] == ["Kalshi", "Polymarket"]
 
 
-@pytest.mark.parametrize("text", [
-    "ZZ SEN", "TX", "TX NOPE", "TX SEN X", "TX LOCAL", "   ", "Atlantis Senate", "TX-99999",
-    pytest.param("TX " + "Q" * 6000, id="6000-chars"),
-])
+@pytest.mark.parametrize(
+    "text",
+    [
+        "ZZ SEN",
+        "TX",
+        "TX NOPE",
+        "TX SEN X",
+        "TX LOCAL",
+        "   ",
+        "Atlantis Senate",
+        "TX-99999",
+        pytest.param("TX " + "Q" * 6000, id="6000-chars"),
+    ],
+)
 async def test_odds_invalid_key_is_one_ephemeral_error(text):
     client = make_client(Store(), {"odds": [Odds()]})
     content = immediate_text(await run(odds_command, client, race=text))
     assert content
 
 
-@pytest.mark.parametrize("markets,expected", [
-    ((), None),
-    (("kalshi",), ["Kalshi"]),
-    (("polymarket",), ["Polymarket"]),
-    (("polymarket", "kalshi"), ["Kalshi", "Polymarket"]),
-])
+@pytest.mark.parametrize(
+    "markets,expected",
+    [
+        ((), None),
+        (("kalshi",), ["Kalshi"]),
+        (("polymarket",), ["Polymarket"]),
+        (("polymarket", "kalshi"), ["Kalshi", "Polymarket"]),
+    ],
+)
 async def test_odds_market_combinations(markets, expected):
     client = make_client(Store(), {"odds": [Odds(markets=markets)]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
@@ -268,13 +323,16 @@ async def test_odds_market_combinations(markets, expected):
         assert embed.footer.text == "Last update: 2026-10-27 12:00 UTC"
 
 
-@pytest.mark.parametrize("outcomes,url", [
-    (tuple(f"Candidate {n:02d}" for n in range(50)), "https://kalshi.example/m"),
-    (tuple(f"{n:02d} " + "Long Name " * 30 for n in range(50)), "https://kalshi.example/m"),
-    (("DEM", "REP"), "https://polymarket.example/" + "p" * 900),
-    (tuple(f"Candidate {n:02d}" for n in range(50)), "https://polymarket.example/" + "p" * 300),
-    (("x" * 2000,), None),
-])
+@pytest.mark.parametrize(
+    "outcomes,url",
+    [
+        (tuple(f"Candidate {n:02d}" for n in range(50)), "https://kalshi.example/m"),
+        (tuple(f"{n:02d} " + "Long Name " * 30 for n in range(50)), "https://kalshi.example/m"),
+        (("DEM", "REP"), "https://polymarket.example/" + "p" * 900),
+        (tuple(f"Candidate {n:02d}" for n in range(50)), "https://polymarket.example/" + "p" * 300),
+        (("x" * 2000,), None),
+    ],
+)
 async def test_odds_many_long_outcomes_and_urls_stay_within_limits(outcomes, url):
     client = make_client(Store(), {"odds": [Odds(outcomes=outcomes, url=url)]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
@@ -312,8 +370,9 @@ async def test_stale_stored_odds_are_replaced_by_live_odds():
     assert "50.0%" in embed.fields[0].value
 
 
-@pytest.mark.parametrize("error", [RuntimeError("x"), SourceUnavailable("gone"),
-                                   httpx.ReadTimeout("slow"), asyncio.TimeoutError()])
+@pytest.mark.parametrize(
+    "error", [RuntimeError("x"), SourceUnavailable("gone"), httpx.ReadTimeout("slow"), asyncio.TimeoutError()]
+)
 async def test_odds_source_errors_render_no_odds(error):
     # The refresh failed, so nothing is stored: the race is queued, not a crash.
     client = make_client(Store(), {"odds": [Odds(error=error)]}, clock=lambda: NOW)
@@ -383,11 +442,12 @@ async def test_polls_long_pollster_names_are_clipped():
 
 async def test_ten_polls_with_many_candidates_fit_the_6000_char_embed_total():
     def results(seed):
-        return [PollResult(f"Candidate Number {n:02d}", "DEM" if n % 2 else "REP", seed + n / 10)
-                for n in range(60)]
+        return [PollResult(f"Candidate Number {n:02d}", "DEM" if n % 2 else "REP", seed + n / 10) for n in range(60)]
 
-    polls = [poll(f"Pollster {n}", date(2026, 10, n + 1), results=results(n),
-                  sponsor=f"Sponsor {n} " + "s" * 80) for n in range(10)]
+    polls = [
+        poll(f"Pollster {n}", date(2026, 10, n + 1), results=results(n), sponsor=f"Sponsor {n} " + "s" * 80)
+        for n in range(10)
+    ]
     client = make_client(Store(), {"polls": [Polls(polls)]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", count=10))
     assert embed.fields  # check_embed (run by the fake) enforced the 6000 total
@@ -403,13 +463,16 @@ async def test_polls_with_missing_optional_fields():
     assert "Poll link" not in value
 
 
-@pytest.mark.parametrize("bad", [
-    Polls(error=RuntimeError("boom")),
-    Polls(error=SourceUnavailable("gone")),
-    Polls(error=httpx.ReadTimeout("slow")),
-    Polls(error=asyncio.TimeoutError()),
-    Polls([poll("Hidden")], avail_error=True),
-])
+@pytest.mark.parametrize(
+    "bad",
+    [
+        Polls(error=RuntimeError("boom")),
+        Polls(error=SourceUnavailable("gone")),
+        Polls(error=httpx.ReadTimeout("slow")),
+        Polls(error=asyncio.TimeoutError()),
+        Polls([poll("Hidden")], avail_error=True),
+    ],
+)
 async def test_poll_source_failures_leave_the_other_sources(bad):
     good = Polls([poll("Survivor")])
     client = make_client(Store(), {"polls": [bad, good]})
@@ -450,7 +513,7 @@ def faq_reply(interaction: FakeInteraction) -> str:
 
 def yaml_body(content: str):
     assert content.startswith("```yaml\n") and content.endswith("\n```")
-    return yaml.safe_load(content[len("```yaml\n"):-len("\n```")])
+    return yaml.safe_load(content[len("```yaml\n") : -len("\n```")])
 
 
 async def test_faq_without_a_state():
@@ -516,15 +579,18 @@ def results_client(store=None, **source_kwargs):
     return make_client(store or Store(), {"results": [AllStates(**source_kwargs)]})
 
 
-@pytest.mark.parametrize("current,expected", [
-    ("", {"TX SEN", "TX GOV", "TX-07"}),
-    ("sen", {"TX SEN"}),
-    ("SEN", {"TX SEN"}),
-    ("texas gov", {"TX GOV"}),
-    ("tx-0", {"TX-07"}),
-    ("district 7", {"TX-07"}),
-    ("nothing matches", set()),
-])
+@pytest.mark.parametrize(
+    "current,expected",
+    [
+        ("", {"TX SEN", "TX GOV", "TX-07"}),
+        ("sen", {"TX SEN"}),
+        ("SEN", {"TX SEN"}),
+        ("texas gov", {"TX GOV"}),
+        ("tx-0", {"TX-07"}),
+        ("district 7", {"TX-07"}),
+        ("nothing matches", set()),
+    ],
+)
 async def test_autocomplete_filters_case_insensitively(current, expected):
     races = {"TX": [(parse("TX GOV"), "Texas Governor"), (parse("TX-07"), "Texas District 7")]}
     choices = await autocomplete(results_client(per_state=races), current)
@@ -582,21 +648,22 @@ async def test_autocomplete_answers_in_time_when_the_database_is_slow(monkeypatc
     started = time.monotonic()
     choices = await autocomplete(make_client(store, {"results": [AllStates()]}, refreshed=False), "")
     assert time.monotonic() - started < 1
-    assert {c.value for c in choices} == {"TX SEN", "PA SEN"}   # the watched races still come
+    assert {c.value for c in choices} == {"TX SEN", "PA SEN"}  # the watched races still come
 
 
 async def test_autocomplete_offers_stored_races_of_a_typed_state_and_queues_it():
     from electionwatch.demand import Demand
     from electionwatch.racelists import KIND, STATES_PER_TICK, RaceLists
 
-    source = AllStates(per_state={"PA": [(parse("PA SEN"), "Pennsylvania Senate"),
-                                         (parse("PA-07"), "Pennsylvania District 7")]})
+    source = AllStates(
+        per_state={"PA": [(parse("PA SEN"), "Pennsylvania Senate"), (parse("PA-07"), "Pennsylvania District 7")]}
+    )
     client = make_client(Store(), {"results": [source]}, refreshed=False)
     demand = Demand()
     client.race_lists = RaceLists(client.store, client.sources, client.http_client, demand=demand)
-    assert {c.value for c in await autocomplete(client, "pa")} == set()   # PA not listed yet
+    assert {c.value for c in await autocomplete(client, "pa")} == set()  # PA not listed yet
     assert demand.items(KIND) == ["PA"] and source.calls == 0
-    await client.race_lists.refresh()                                     # demanded state first
+    await client.race_lists.refresh()  # demanded state first
     assert source.calls == STATES_PER_TICK
     for typed in ("pa", "PA-0", "pennsylvania"):
         values = {c.value for c in await autocomplete(client, typed)}

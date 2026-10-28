@@ -75,5 +75,6 @@ def test_race_key_mapping():
     assert format_key(race_key("United States Representative District 7")) == "CA-07"
     assert format_key(race_key("State Senate District 15")) == "CA SD-15"
     assert format_key(race_key("State Assembly Member District 42")) == "CA HD-42"
-    assert format_key(race_key("Board of Equalization Member District 3")) == \
-        "CA LOCAL board-of-equalization-district-3"
+    assert (
+        format_key(race_key("Board of Equalization Member District 3")) == "CA LOCAL board-of-equalization-district-3"
+    )

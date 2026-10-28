@@ -7,6 +7,7 @@ scraping of the outlet's own page, so ``scrape=True`` and disabled by default.
 Paths used: ``page.content.generalStateResults.aggregates`` -> ``{fips: {races:
 [...]}}``. Each race has ``candidates[].winner`` and ``result.severity``.
 """
+
 from __future__ import annotations
 
 import json
@@ -15,9 +16,9 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
 from ._common import district_key, normalize_party, parse_iso_ts
 
@@ -44,13 +45,10 @@ class ABCSource(CallSource):
         if chamber is None:
             return None
         return (
-            f"{self.BASE}?chamber={chamber}&hideMap=true"
-            f"&stateAbbrev={key.state.lower()}&year={self.YEAR}&type=general"
+            f"{self.BASE}?chamber={chamber}&hideMap=true&stateAbbrev={key.state.lower()}&year={self.YEAR}&type=general"
         )
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         calls: list[RaceCall] = []
         seen: set[str] = set()
         for key in keys:
@@ -78,11 +76,7 @@ class ABCSource(CallSource):
 def parse_abc_state_page(html: str) -> list[RaceCall]:
     """Extract race calls from an ABC general-state-results widget page."""
     config = extract_abc_config(html)
-    page = (
-        config.get("page", {})
-        .get("content", {})
-        .get("generalStateResults", {})
-    )
+    page = config.get("page", {}).get("content", {}).get("generalStateResults", {})
     state = ((page.get("state") or {}).get("abbreviation") or "").strip().upper()
     if len(state) != 2 or not state.isalpha():
         return []
@@ -131,10 +125,7 @@ def _race_call(race: dict, state: str, agg_key: str) -> RaceCall | None:
     else:
         return None
 
-    called_at = (
-        parse_iso_ts((race.get("lastUpdated") or {}).get("value"))
-        or datetime.now(timezone.utc)
-    )
+    called_at = parse_iso_ts((race.get("lastUpdated") or {}).get("value")) or datetime.now(timezone.utc)
     return RaceCall(
         key=key,
         outlet="ABC",

@@ -1,4 +1,5 @@
 """Process entry point: ``python -m electionwatch`` or ``--check``."""
+
 from __future__ import annotations
 
 import argparse
@@ -34,6 +35,7 @@ def build_sources(registry: Mapping[str, Mapping[str, type]], environ: Mapping[s
     names them in EW_ENABLED_SOURCES, e.g. EW_ENABLED_SOURCES=cbs,fox; EW_DISABLED_SOURCES
     turns off default adapters.
     """
+
     def names(var: str) -> set[str]:
         return {name.strip() for name in environ.get(var, "").split(",") if name.strip()}
 
@@ -67,8 +69,7 @@ def source_states(raw: str) -> dict[str, frozenset[str]]:
         name, sep, states = part.partition("=")
         if not sep or not name.strip():
             continue
-        out[name.strip()] = frozenset(
-            s.strip().upper() for s in states.split(",") if s.strip())
+        out[name.strip()] = frozenset(s.strip().upper() for s in states.split(",") if s.strip())
     return out
 
 

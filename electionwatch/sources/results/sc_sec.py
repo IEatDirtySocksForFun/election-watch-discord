@@ -28,6 +28,7 @@ use inconsistent double spaces, so whitespace is normalised before mapping.
 2026: the state's elections.json index was empty on 2026-10-27, so the 2026
 general election id is discovered from that index at runtime (no id pinned yet).
 """
+
 from __future__ import annotations
 
 import re
@@ -46,14 +47,13 @@ HUMAN = "https://www.enr-scvotes.org/SC/"
 
 #: date -> Clarity election id.  None = discover from /SC/elections.json.
 ELECTIONS: dict[str, str | None] = {
-    "2024-11-05": "122436",   # verified fixture
-    "2026-11-03": None,       # not published yet on 2026-10-27 (elections.json == [])
+    "2024-11-05": "122436",  # verified fixture
+    "2026-11-03": None,  # not published yet on 2026-10-27 (elections.json == [])
 }
 
 _NO_PARTY = {"NON", ""}
 
-_HOUSE = re.compile(
-    r"^U\.S\. HOUSE OF REPRESENTATIVES, DISTRICT (\d+)$", re.I)
+_HOUSE = re.compile(r"^U\.S\. HOUSE OF REPRESENTATIVES, DISTRICT (\d+)$", re.I)
 _SENATE = re.compile(r"^STATE SENATE, DISTRICT (\d+)$", re.I)
 _HD = re.compile(r"^STATE HOUSE OF REPRESENTATIVES, DISTRICT (\d+)$", re.I)
 
@@ -63,10 +63,15 @@ def _norm(name: str) -> str:
 
 
 _STATEWIDE = {
-    "GOVERNOR": "GOV", "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
-    "LIEUTENANT GOVERNOR": "LTGOV", "ATTORNEY GENERAL": "AG", "SECRETARY OF STATE": "SOS",
-    "STATE TREASURER": "TREAS", "COMPTROLLER GENERAL": "COMP",
-    "STATE SUPERINTENDENT OF EDUCATION": "SUPT", "COMMISSIONER OF AGRICULTURE": "AGCOM",
+    "GOVERNOR": "GOV",
+    "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
+    "LIEUTENANT GOVERNOR": "LTGOV",
+    "ATTORNEY GENERAL": "AG",
+    "SECRETARY OF STATE": "SOS",
+    "STATE TREASURER": "TREAS",
+    "COMPTROLLER GENERAL": "COMP",
+    "STATE SUPERINTENDENT OF EDUCATION": "SUPT",
+    "COMMISSIONER OF AGRICULTURE": "AGCOM",
 }
 
 
@@ -96,7 +101,7 @@ def _choice(raw: str, party: str | None) -> tuple[str, bool]:
     if party and party not in _NO_PARTY:
         prefix = party + " "
         if name.upper().startswith(prefix.upper()):
-            name = name[len(prefix):]
+            name = name[len(prefix) :]
     return c.strip_incumbent(name)
 
 
@@ -125,25 +130,32 @@ def parse_sc(payload, *, fetched_at: datetime) -> list[RaceResult]:
             name, incumbent = _choice(raw, party)
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=party,
-                votes=c.to_int(votes[i] if i < len(votes) else None),
-                pct=c.to_pct(pcts[i] if i < len(pcts) else None),
-                incumbent=incumbent,
-                winner=bool(winners[i]) if i < len(winners) else False,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=party,
+                    votes=c.to_int(votes[i] if i < len(votes) else None),
+                    pct=c.to_pct(pcts[i] if i < len(pcts) else None),
+                    incumbent=incumbent,
+                    winner=bool(winners[i]) if i < len(winners) else False,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=ScSec.name,
-            url=HUMAN,
-            total_votes=c.to_int(contest.get("T")) or sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(contest.get("PR")) or None,
-            precincts_total=c.to_int(contest.get("TP")) or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=ScSec.name,
+                url=HUMAN,
+                total_votes=c.to_int(contest.get("T")) or sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(contest.get("PR")) or None,
+                precincts_total=c.to_int(contest.get("TP")) or None,
+            )
+        )
     return out
 
 
@@ -182,7 +194,8 @@ async def resolve_election_id(client: httpx.AsyncClient, date: str) -> str:
     if not found:
         raise SourceUnavailable(
             f"sc_sec: no {date} entry in {BASE}/elections.json; South Carolina lists "
-            f"the election id there when the ENR site opens")
+            f"the election id there when the ENR site opens"
+        )
     return found
 
 
@@ -208,8 +221,8 @@ class ScSec(ResultsSource):
             payload = await fetch_summary(client, election_id)
         except SourceUnavailable as exc:
             raise SourceUnavailable(
-                f"sc_sec: SC ENR summary for election {election_id} is not readable "
-                f"({exc})") from exc
+                f"sc_sec: SC ENR summary for election {election_id} is not readable ({exc})"
+            ) from exc
         return c.select(parse_sc(payload, fetched_at=c.utcnow()), sc_keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -220,5 +233,4 @@ class ScSec(ResultsSource):
             payload = await fetch_summary(client, election_id)
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in parse_sc(payload, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_sc(payload, fetched_at=c.utcnow())]

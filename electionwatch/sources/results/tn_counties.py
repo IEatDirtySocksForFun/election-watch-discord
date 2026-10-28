@@ -23,6 +23,7 @@ Pin another county (or a new election slug) with TN_COUNTY_FEEDS:
 
     TN_COUNTY_FEEDS='[{"county":"Shelby","slug":"General11032026","date":"2026-11-03"}]'
 """
+
 from __future__ import annotations
 
 import json
@@ -64,17 +65,18 @@ _STATEWIDE = {
 
 _SENATE = {"UNITED STATES SENATE", "US SENATE", "UNITED STATES SENATOR", "US SENATOR"}
 _PRESIDENT = {
-    "UNITED STATES PRESIDENT AND VICE PRESIDENT", "PRESIDENT AND VICE PRESIDENT",
-    "PRESIDENT OF THE UNITED STATES", "US PRESIDENT",
+    "UNITED STATES PRESIDENT AND VICE PRESIDENT",
+    "PRESIDENT AND VICE PRESIDENT",
+    "PRESIDENT OF THE UNITED STATES",
+    "US PRESIDENT",
 }
 
-_HOUSE = re.compile(
-    r"^(?:US|UNITED STATES) HOUSE OF REPRESENTATIVES\s*(?:DISTRICT|DIST\.?|NO\.?)?\s*(\d+)$")
-_STATE_SENATE = re.compile(
-    r"^(?:TN|TENNESSEE|STATE) SENATE\s*(?:DISTRICT|DIST\.?|NO\.?)?\s*(\d+)$")
+_HOUSE = re.compile(r"^(?:US|UNITED STATES) HOUSE OF REPRESENTATIVES\s*(?:DISTRICT|DIST\.?|NO\.?)?\s*(\d+)$")
+_STATE_SENATE = re.compile(r"^(?:TN|TENNESSEE|STATE) SENATE\s*(?:DISTRICT|DIST\.?|NO\.?)?\s*(\d+)$")
 _STATE_HOUSE = re.compile(
     r"^(?:TN|TENNESSEE|STATE) HOUSE OF REPRESENTATIVES\s*"
-    r"(?:DISTRICT|DIST\.?|NO\.?)?\s*(\d+)$")
+    r"(?:DISTRICT|DIST\.?|NO\.?)?\s*(\d+)$"
+)
 
 
 def _norm(name: str) -> str:
@@ -155,8 +157,7 @@ def feeds(date: str) -> list[dict]:
                 continue
             out.append({"county": str(entry["county"]), "slug": str(entry["slug"])})
         return out
-    return [{"county": county, "slug": slug}
-            for county, slug in ELECTIONS.get(date, {}).items() if slug]
+    return [{"county": county, "slug": slug} for county, slug in ELECTIONS.get(date, {}).items() if slug]
 
 
 @register
@@ -181,14 +182,18 @@ class TnCounties(ResultsSource):
             collected.extend(parse_tn_county(payload, county=county, fetched_at=c.utcnow()))
         if not collected:
             raise SourceUnavailable(
-                "tn_counties: no Tennessee county export answered for " + date
-                + (" (" + "; ".join(errors) + ")" if errors else ""))
+                "tn_counties: no Tennessee county export answered for "
+                + date
+                + (" (" + "; ".join(errors) + ")" if errors else "")
+            )
         merged = merge(collected, source=self.name, url=HUMAN)
         if len({entry["county"] for entry in entries}) == 1:
             # `_county.merge` always pluralises; a single configured county should not
             # read "(partial: 1 counties)".
-            merged = [replace(r, title=(r.title or "").replace(
-                "(partial: 1 counties)", "(partial: 1 county)")) for r in merged]
+            merged = [
+                replace(r, title=(r.title or "").replace("(partial: 1 counties)", "(partial: 1 county)"))
+                for r in merged
+            ]
         return merged
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:

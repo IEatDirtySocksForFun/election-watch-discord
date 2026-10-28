@@ -5,7 +5,9 @@ senate, house (first district, or AL), governor (GOV, else the biggest statewide
 legislature (biggest SD/HD by votes), local (biggest local contest by votes).
 Extra races (e.g. PA-07) are always included. Prints comma-separated race keys.
 """
-import csv, sys
+
+import csv
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -35,8 +37,11 @@ for st_dir in sorted(p for p in (data / year).iterdir() if p.is_dir() and len(p.
             k = next((k for k in keys if k.endswith(" GOV")), votes.most_common(1)[0][0])
         else:
             # skip county slices of statewide offices that some sources file as local
-            cands = [(v, k) for k, v in votes.items() if "commissioner-of-labor" not in k
-                     and "referendum" not in k and "amendment" not in k]
+            cands = [
+                (v, k)
+                for k, v in votes.items()
+                if "commissioner-of-labor" not in k and "referendum" not in k and "amendment" not in k
+            ]
             k = max(cands)[1] if cands else votes.most_common(1)[0][0]
         if k not in picked:
             picked.append(k)

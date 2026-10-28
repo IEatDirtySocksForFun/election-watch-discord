@@ -164,9 +164,7 @@ async def test_default_interval_not_due_and_source_failure_isolated():
 async def test_first_result_source_wins_and_guild_source_restrictions():
     store = MemoryStore()
     await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
-    await store.save_guild(
-        GuildSettings(2, channel_id=20, important=[str(KEY)], results_sources=["second"])
-    )
+    await store.save_guild(GuildSettings(2, channel_id=20, important=[str(KEY)], results_sources=["second"]))
     first = FakeResults(result(votes=100, source="first"))
     second = FakeResults(result(votes=200, source="second"))
     poster = RecordingPoster()
@@ -241,9 +239,7 @@ async def test_odds_swing_uses_lazy_detector_and_posts_once_per_window(monkeypat
 @pytest.mark.asyncio
 async def test_paused_guild_suppresses_all_posts():
     store = MemoryStore()
-    await store.save_guild(
-        GuildSettings(1, channel_id=10, important=[str(KEY)], paused=True)
-    )
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)], paused=True))
     poster = RecordingPoster()
     call = RaceCall(KEY, "AP", "Ted Cruz", "REP", NOW)
     sources = {"results": [FakeResults()], "calls": [FakeCalls(call)], "exitpolls": [FakeExitPolls()]}
@@ -274,8 +270,12 @@ async def test_odds_swing_matches_the_real_detector_signature(monkeypatch):
     store = MemoryStore()
     await store.save_guild(
         GuildSettings(
-            1, channel_id=10, important=[str(KEY)], odds_alerts=True,
-            odds_swing_pts=20, odds_window_minutes=45,
+            1,
+            channel_id=10,
+            important=[str(KEY)],
+            odds_alerts=True,
+            odds_swing_pts=20,
+            odds_window_minutes=45,
         )
     )
     await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", 0.40, NOW - timedelta(minutes=5)))
@@ -304,9 +304,7 @@ async def test_slow_source_times_out_and_the_rest_of_the_tick_survives():
     await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
     poster = RecordingPoster()
     good = FakeResults()
-    race_poller = Poller(
-        store, {"results": [SlowResults(), good]}, poster, lambda: NOW, object(), fetch_timeout=0.05
-    )
+    race_poller = Poller(store, {"results": [SlowResults(), good]}, poster, lambda: NOW, object(), fetch_timeout=0.05)
     await race_poller.tick()
     assert good.calls == 1
     assert len(poster.sent) == 1
@@ -411,9 +409,11 @@ async def test_empty_watch_list_falls_back_to_config_races():
 
 def test_results_post_shows_only_top_five():
     from datetime import datetime, timezone
+
     from electionwatch.models import CandidateResult, RaceResult
     from electionwatch.poller import format_result
     from electionwatch.racekeys import parse
+
     cands = [CandidateResult(f"C{i}", "IND", 100 - i) for i in range(8)]
     post = format_result(RaceResult(parse("TX SEN"), cands, "t", datetime.now(timezone.utc)).finalize())
     names = [l for l in post.lines if l.split(" ", 1)[1].startswith("C")]
@@ -435,7 +435,7 @@ async def test_unchanged_result_fetched_after_tick_start_is_not_reposted():
     assert len(poster.sent) == 1
     for minutes in range(1, 16):
         clock["now"] = NOW + timedelta(minutes=minutes)
-        source.value = result(at=clock["now"] + timedelta(seconds=5))   # same votes
+        source.value = result(at=clock["now"] + timedelta(seconds=5))  # same votes
         await p.tick()
     assert len(poster.sent) == 1
 
@@ -443,9 +443,7 @@ async def test_unchanged_result_fetched_after_tick_start_is_not_reposted():
 @pytest.mark.asyncio
 async def test_immediate_mode_posts_each_change_once():
     store = MemoryStore()
-    await store.save_guild(
-        GuildSettings(1, channel_id=10, important=[str(KEY)], post_mode=PostMode.IMMEDIATE)
-    )
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)], post_mode=PostMode.IMMEDIATE))
     poster = RecordingPoster()
     clock = {"now": NOW}
     source = FakeResults(result(at=NOW + timedelta(seconds=5)))
@@ -481,7 +479,7 @@ async def test_results_sources_are_fetched_concurrently_in_priority_order():
     sources = [Slow("first", 2_300_000), Slow("second", 2_200_000), Slow("third", 2_100_000)]
     started = time.monotonic()
     await poller(store, {"results": sources}, poster).tick()
-    assert time.monotonic() - started < 0.8      # 3 x 0.3 s if fetched one after another
+    assert time.monotonic() - started < 0.8  # 3 x 0.3 s if fetched one after another
     assert (await store.latest_result(KEY)).source == "first"
     assert poster.sent[0][2].footer == "Source: first"
 
@@ -525,11 +523,14 @@ def test_outlet_timestamps_without_offset_are_aware_utc():
 
 async def test_identical_results_post_is_skipped():
     from datetime import datetime, timezone
+
+    import httpx
+
     from electionwatch.poller import Poller
     from electionwatch.poster import Post, RecordingPoster
     from electionwatch.settings import GuildSettings, PostMode
     from electionwatch.store.memory import MemoryStore
-    import httpx
+
     poster = RecordingPoster()
     now = datetime(2026, 11, 3, 23, tzinfo=timezone.utc)
     async with httpx.AsyncClient() as http:
@@ -538,19 +539,24 @@ async def test_identical_results_post_is_skipped():
         post = Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 10 · 60.0%"])
         await p._post(gs, "results", "TX SEN", post, now)
         await p._post(gs, "results", "TX SEN", post, now)
-        await p._post(gs, "results", "TX SEN", Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 11 · 61.0%"]), now)
+        await p._post(
+            gs, "results", "TX SEN", Post("results", "TX SEN", "Texas Senate", ["🔴 A (REP) 11 · 61.0%"]), now
+        )
     assert len(poster.sent) == 2
 
 
 async def test_failing_source_backs_off_then_recovers():
     from datetime import datetime, timedelta, timezone
+
     import httpx
+
     from electionwatch.poller import Poller
     from electionwatch.poster import RecordingPoster
     from electionwatch.store.memory import MemoryStore
 
     class Flaky:
         name, calls, fail = "flaky", 0, True
+
         async def fetch(self, keys, http):
             Flaky.calls += 1
             if Flaky.fail:
@@ -561,7 +567,7 @@ async def test_failing_source_backs_off_then_recovers():
     async with httpx.AsyncClient() as http:
         p = Poller(MemoryStore(), {}, RecordingPoster(), lambda: now[0], http)
         src = Flaky()
-        for _ in range(3):                       # fails once, then skipped for 1 minute
+        for _ in range(3):  # fails once, then skipped for 1 minute
             try:
                 await p._fetch(src, "fetch", [])
             except RuntimeError:
@@ -588,8 +594,9 @@ async def test_complete_result_beats_an_earlier_partial_county_merge():
         async def fetch(self, keys, client):
             return [self.value]
 
-    partial = dc_replace(result(votes=900_000, source="tx_counties"),
-                         title="United States Senator (partial: 12 counties)")
+    partial = dc_replace(
+        result(votes=900_000, source="tx_counties"), title="United States Senator (partial: 12 counties)"
+    )
     full = result(votes=2_300_000, source="tx_sos")
     store = MemoryStore()
     await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
@@ -636,8 +643,11 @@ async def test_fallback_sources_are_only_asked_about_races_without_a_complete_an
 
         async def fetch(self, keys, client):
             self.asked.append(sorted(str(k) for k in keys))
-            return [RaceResult(k, [CandidateResult("A", "DEM", 1)], self.name, now, title=self.title)
-                    for k in keys if k in self.answers]
+            return [
+                RaceResult(k, [CandidateResult("A", "DEM", 1)], self.name, now, title=self.title)
+                for k in keys
+                if k in self.answers
+            ]
 
     official = Source("pa_sos", {pa})
     counties = Source("tx_counties", {tx}, title="U.S. Senate (partial: 3 counties)")
@@ -646,8 +656,8 @@ async def test_fallback_sources_are_only_asked_about_races_without_a_complete_an
     await store.save_guild(GuildSettings(1, channel_id=2, important=["PA SEN", "TX SEN", "TN SEN"]))
     poller = Poller(store, {"results": [civic, official, counties]}, RecordingPoster(), lambda: now, None)
     await poller.tick()
-    assert civic.asked == [["TN SEN", "TX SEN"]]       # PA answered completely by its state feed
-    assert (await store.latest_result(tx)).source == "civicapi"   # complete beats partial
+    assert civic.asked == [["TN SEN", "TX SEN"]]  # PA answered completely by its state feed
+    assert (await store.latest_result(tx)).source == "civicapi"  # complete beats partial
     assert (await store.latest_result(pa)).source == "pa_sos"
 
 
@@ -659,8 +669,14 @@ def test_civicapi_calls_are_opt_in_and_attributed():
     from electionwatch.settings import GuildSettings
 
     assert "CIVICAPI" not in GuildSettings(1).call_outlets
-    call = RaceCall(RaceKey("TX", Level.SENATE, "SEN"), "CIVICAPI", "Ted Cruz", "REP",
-                    datetime(2024, 11, 6, 2, 10, tzinfo=timezone.utc), "https://civicapi.org/results/elections/1")
+    call = RaceCall(
+        RaceKey("TX", Level.SENATE, "SEN"),
+        "CIVICAPI",
+        "Ted Cruz",
+        "REP",
+        datetime(2024, 11, 6, 2, 10, tzinfo=timezone.utc),
+        "https://civicapi.org/results/elections/1",
+    )
     post = format_call(call)
     assert "Outlet: civicAPI (its own decision desk)" in post.lines and post.url.startswith("https://civicapi.org")
 
@@ -675,8 +691,10 @@ async def test_outlet_flagging_specials_does_not_alias_the_regular_race():
         name, outlet = "both", "FOX"
 
         async def fetch_calls(self, keys, client):
-            return [RaceCall(plain, "FOX", "Adam B Schiff", "DEM", NOW),
-                    RaceCall(special, "FOX", "Adam Schiff", "DEM", NOW)]
+            return [
+                RaceCall(plain, "FOX", "Adam B Schiff", "DEM", NOW),
+                RaceCall(special, "FOX", "Adam Schiff", "DEM", NOW),
+            ]
 
     store = MemoryStore()
     await store.save_guild(GuildSettings(1, channel_id=10, important=["CA SEN S"]))
@@ -684,5 +702,4 @@ async def test_outlet_flagging_specials_does_not_alias_the_regular_race():
     p = poller(store, {"calls": [BothCalls()]}, poster)
     for _ in range(3):
         await p.tick()
-    assert [(p.race, p.lines[0]) for _, _, p in poster.sent] == [
-        ("CA SEN S", "🔵 Projected winner: Adam Schiff (DEM)")]
+    assert [(p.race, p.lines[0]) for _, _, p in poster.sent] == [("CA SEN S", "🔵 Projected winner: Adam Schiff (DEM)")]

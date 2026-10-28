@@ -40,6 +40,7 @@ Rows are semicolon-delimited, one per candidate per contest, no header:
 Precinct counts and the contest total repeat on every row, so they are read once per
 contest. Percentages are recomputed by ``RaceResult.finalize()`` when absent.
 """
+
 from __future__ import annotations
 
 import re
@@ -137,7 +138,7 @@ def parse_mn(
     seen: set[str] = set()
     for body in files.values():
         # Rows of one contest always sit together: group in encounter order.
-        order: list[tuple[str, str, str]] = []          # (name, district, county code)
+        order: list[tuple[str, str, str]] = []  # (name, district, county code)
         rows: dict[tuple[str, str, str], list[list[str]]] = {}
         for line in (body or "").splitlines():
             fields = [f.strip() for f in line.rstrip("\r").split(";")]
@@ -161,26 +162,33 @@ def parse_mn(
                 cand_name, incumbent = c.strip_incumbent(fields[7])
                 if not cand_name or cand_name.upper() == _WRITE_IN:
                     continue
-                cands.append(CandidateResult(
-                    name=cand_name,
-                    party=c.norm_party(fields[10]),
-                    votes=c.to_int(fields[13]),
-                    pct=c.to_pct(fields[14]),
-                    incumbent=incumbent,
-                    winner=False,  # the export carries no winner flag
-                ))
+                cands.append(
+                    CandidateResult(
+                        name=cand_name,
+                        party=c.norm_party(fields[10]),
+                        votes=c.to_int(fields[13]),
+                        pct=c.to_pct(fields[14]),
+                        incumbent=incumbent,
+                        winner=False,  # the export carries no winner flag
+                    )
+                )
             if not cands:
                 continue
             seen.add(str(key))
             first = rows[group][0]
-            out.append(c.make_result(
-                key, race_title(name, county), cands, fetched_at,
-                source=MnSos.name,
-                url=HUMAN,
-                total_votes=c.to_int(first[15]) or None,
-                precincts_reporting=c.to_int(first[11]) or None,
-                precincts_total=c.to_int(first[12]) or None,
-            ))
+            out.append(
+                c.make_result(
+                    key,
+                    race_title(name, county),
+                    cands,
+                    fetched_at,
+                    source=MnSos.name,
+                    url=HUMAN,
+                    total_votes=c.to_int(first[15]) or None,
+                    precincts_reporting=c.to_int(first[11]) or None,
+                    precincts_total=c.to_int(first[12]) or None,
+                )
+            )
     return out
 
 
@@ -218,8 +226,7 @@ async def _load(client: httpx.AsyncClient, date: str) -> dict[str, str]:
         if body:
             bodies[name] = body
     if not bodies:
-        raise SourceUnavailable(
-            f"MN: none of the {len(FILES)} results files under {base} are published")
+        raise SourceUnavailable(f"MN: none of the {len(FILES)} results files under {base} are published")
     counties = parse_counties(await _optional_text(client, f"{base}/Cntytbl.txt") or "")
     return {"__counties__": counties} | bodies
 
@@ -243,7 +250,4 @@ class MnSos(ResultsSource):
             return []
         payload = await _load(client, c.election_date())
         counties = payload.pop("__counties__", {})
-        return [
-            (r.key, r.title or str(r.key))
-            for r in parse_mn(payload, fetched_at=c.utcnow(), counties=counties)
-        ]
+        return [(r.key, r.title or str(r.key)) for r in parse_mn(payload, fetched_at=c.utcnow(), counties=counties)]

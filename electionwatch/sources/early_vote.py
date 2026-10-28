@@ -24,6 +24,7 @@ bot downloads every page the commands can show into MongoDB about once an hour (
 request budget, electionwatch/ratelimit.py), one request at a time at least a second apart;
 past elections' pages are kept 12 hours. The commands read only the stored pages.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -43,13 +44,13 @@ from electionwatch.sources.base import SourceUnavailable
 API = "https://civicapi.org/api/v2/early-vote"
 PAGE = "https://civicapi.org/early-vote"
 USER_AGENT = "election-watch-discord/0.1 (+https://github.com/IEatDirtySocksForFun/election-watch-discord)"
-TTL = 15 * 60                 # early-vote numbers update about once a day
-HISTORY_TTL = 12 * 60 * 60    # past elections never change
-MIN_INTERVAL = 1.0            # seconds between requests: one at a time, never a burst
+TTL = 15 * 60  # early-vote numbers update about once a day
+HISTORY_TTL = 12 * 60 * 60  # past elections never change
+MIN_INTERVAL = 1.0  # seconds between requests: one at a time, never a burst
 TIMEOUT = 20
 
 CATEGORIES = ("returned", "inperson", "requested", "grace")
-VOTED = ("returned", "inperson")            # what counts as "ballots cast", as on civicapi.org
+VOTED = ("returned", "inperson")  # what counts as "ballots cast", as on civicapi.org
 CATEGORY_LABELS = {
     "returned": "Mail ballots returned",
     "inperson": "In-person early votes",
@@ -57,10 +58,10 @@ CATEGORY_LABELS = {
     "grace": "Grace-period votes",
 }
 UNSPECIFIED = "unspecified"
-MAX_COMPARISON_DAYS = 60      # only compare during the early-vote season
+MAX_COMPARISON_DAYS = 60  # only compare during the early-vote season
 
 _MISS = object()
-CACHE_KIND = "earlyvote"   # store cache kind for downloaded pages
+CACHE_KIND = "earlyvote"  # store cache kind for downloaded pages
 
 
 class NotCached(SourceUnavailable):
@@ -91,6 +92,7 @@ def comparison_date(snapshot: date, year: int) -> date | None:
 @dataclass
 class Tally:
     """One category's statewide count. ``by_party`` leaves out "Unspecified" ballots."""
+
     category: str
     total: int
     by_party: dict[str, int] = field(default_factory=dict)
@@ -100,23 +102,24 @@ class Tally:
 @dataclass
 class Comparison:
     """Ballots cast (returned + in person) at the same point before a past election."""
+
     year: int
     on: date
     total: int
     by_party: dict[str, int] = field(default_factory=dict)
-    labels: tuple[str, ...] = ()            # civicAPI's names for what each count includes
+    labels: tuple[str, ...] = ()  # civicAPI's names for what each count includes
 
 
 @dataclass
 class EarlyVote:
     state: str
-    tallies: dict[str, Tally]               # by category
+    tallies: dict[str, Tally]  # by category
     updated_at: date | None
     url: str
     comparison: Comparison | None = None
-    counties: dict[str, int] = field(default_factory=dict)       # ballots cast per county
-    age: dict[str, int] = field(default_factory=dict)            # ballots cast per age bracket
-    age_categories: tuple[str, ...] = ()    # which categories the age numbers cover
+    counties: dict[str, int] = field(default_factory=dict)  # ballots cast per county
+    age: dict[str, int] = field(default_factory=dict)  # ballots cast per age bracket
+    age_categories: tuple[str, ...] = ()  # which categories the age numbers cover
 
     @property
     def name(self) -> str:
@@ -137,7 +140,7 @@ class EarlyVote:
 
 @dataclass
 class National:
-    states: dict[str, dict[str, Tally]]     # USPS code -> category -> tally
+    states: dict[str, dict[str, Tally]]  # USPS code -> category -> tally
     updated_at: date | None
 
     def total(self, state: str) -> int:
@@ -200,7 +203,7 @@ def parse_national(payloads: dict[str, dict | None]) -> National:
         if (snapshot := parse_snapshot(payload)) is not None:
             dates.append(snapshot)
         regions = payload.get("regions")
-        for code, raw in (regions.items() if isinstance(regions, dict) else ()):
+        for code, raw in regions.items() if isinstance(regions, dict) else ():
             code = str(code).upper()
             if code not in STATES:
                 continue
@@ -234,10 +237,7 @@ def parse_capabilities(payload: dict | None) -> dict[str, dict[str, bool]]:
     categories = payload.get("categories")
     if not isinstance(categories, dict):
         return {c: dict(provides) for c in CATEGORIES} if provides else {}
-    return {
-        str(c): {**provides, **(flags if isinstance(flags, dict) else {})}
-        for c, flags in categories.items()
-    }
+    return {str(c): {**provides, **(flags if isinstance(flags, dict) else {})} for c, flags in categories.items()}
 
 
 # --------------------------------------------------------------------------- client
@@ -296,7 +296,7 @@ class EarlyVoteClient:
         if (cached := self._fresh(key)) is not _MISS:
             return cached
         async with self._lock:
-            if (cached := self._fresh(key)) is not _MISS:   # filled while we waited
+            if (cached := self._fresh(key)) is not _MISS:  # filled while we waited
                 return cached
             payload = await self._download(url, params)
             self._cache[key] = (self._clock() + (self.ttl if ttl is None else ttl), payload)
@@ -311,7 +311,9 @@ class EarlyVoteClient:
             await self._sleep(wait)
         try:
             response = await self.client.get(
-                url, params=params, timeout=TIMEOUT,
+                url,
+                params=params,
+                timeout=TIMEOUT,
                 headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
             )
         except httpx.HTTPError as exc:
@@ -376,7 +378,12 @@ class EarlyVoteClient:
         return list(national.states)
 
     async def state(
-        self, code: str, *, counties: bool = False, age: bool = False, compare: bool = True,
+        self,
+        code: str,
+        *,
+        counties: bool = False,
+        age: bool = False,
+        compare: bool = True,
     ) -> EarlyVote | None:
         """One state's early vote; None when civicAPI has no early-vote data for it."""
         code = code.upper()
@@ -410,21 +417,25 @@ class EarlyVoteClient:
         return result
 
     async def _comparison(self, code: str, categories: list[str], snapshot: date) -> Comparison | None:
-        year = snapshot.year - 4                 # the same kind of election (midterm / presidential)
+        year = snapshot.year - 4  # the same kind of election (midterm / presidential)
         on = comparison_date(snapshot, year)
         if on is None or not categories:
             return None
         tallies = []
         for category in categories:
             payload = await self._get(
-                f"historical/{year}/{code}/{category}", {"date": on.isoformat()}, ttl=self.history_ttl,
+                f"historical/{year}/{code}/{category}",
+                {"date": on.isoformat()},
+                ttl=self.history_ttl,
             )
             if (tally := parse_tally(payload, category)) is not None and tally.total:
                 tallies.append(tally)
         if not tallies:
             return None
         return Comparison(
-            year, on, sum(t.total for t in tallies),
+            year,
+            on,
+            sum(t.total for t in tallies),
             merge_parties(*(t.by_party for t in tallies)),
             tuple(t.label for t in tallies if t.label),
         )

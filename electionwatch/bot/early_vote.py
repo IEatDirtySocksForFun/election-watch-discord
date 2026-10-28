@@ -6,6 +6,7 @@ The command and the daily post read the pages the bot's hourly refresher stored 
 Every embed links the civicapi.org early-vote page and names civicAPI in the footer: that is
 civicAPI's attribution requirement. Rendering is deterministic and fits Discord's limits.
 """
+
 from __future__ import annotations
 
 import logging
@@ -14,22 +15,33 @@ from datetime import date, datetime, timezone
 import discord
 
 from electionwatch.bot.poster import (
-    MAX_DESCRIPTION, MAX_EMBED_TOTAL, MAX_FIELD_NAME, MAX_FIELD_VALUE, MAX_FOOTER, MAX_TITLE, clip,
+    MAX_DESCRIPTION,
+    MAX_EMBED_TOTAL,
+    MAX_FIELD_NAME,
+    MAX_FIELD_VALUE,
+    MAX_FOOTER,
+    MAX_TITLE,
+    clip,
 )
 from electionwatch.config import load_races
 from electionwatch.racekeys import STATES, parse
 from electionwatch.settings import GuildSettings
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.early_vote import (
-    CATEGORY_LABELS, EarlyVote, EarlyVoteClient, National, NotCached, page_url,
+    CATEGORY_LABELS,
+    EarlyVote,
+    EarlyVoteClient,
+    National,
+    NotCached,
+    page_url,
 )
 
 logger = logging.getLogger(__name__)
 BREAKDOWNS = ("party", "method", "age", "county")
 MAX_COUNTIES = 25
 MAX_CHOICES = 25
-AUTOCOMPLETE_TIMEOUT = 2.0      # Discord drops autocomplete answers after 3 s
-POST_KIND = "early_vote"        # store.mark_posted kind for the daily summary
+AUTOCOMPLETE_TIMEOUT = 2.0  # Discord drops autocomplete answers after 3 s
+POST_KIND = "early_vote"  # store.mark_posted kind for the daily summary
 _NAMES = {name.casefold(): code for code, name in STATES.items()}
 _NAMES["washington dc"] = _NAMES["washington d.c."] = _NAMES["d.c."] = "DC"
 _PARTY_ORDER = {"Democratic": 0, "Republican": 1}
@@ -119,8 +131,9 @@ def _add_field(embed: discord.Embed, name: str, lines: list[str]) -> None:
 def _summary_lines(ev: EarlyVote) -> list[str]:
     method = ev.by_method
     lines = [f"**{_n(ev.total_ballots)}** early ballots cast (mail returned + in person)"]
-    cast = [f"{label}: {_n(method[c])}" for c, label in (("returned", "Mail"), ("inperson", "In person"))
-            if c in method]
+    cast = [
+        f"{label}: {_n(method[c])}" for c, label in (("returned", "Mail"), ("inperson", "In person")) if c in method
+    ]
     if cast:
         lines.append(" · ".join(cast))
     if "requested" in method:
@@ -130,8 +143,10 @@ def _summary_lines(ev: EarlyVote) -> list[str]:
         lines.append(f"Grace-period votes (not in the total): {_n(method['grace'])}")
     parties = ev.by_party
     if parties:
-        shares = " · ".join(f"{p} {_pct(v, ev.total_ballots)}" for p, v in
-                            sorted(parties.items(), key=lambda i: (_PARTY_ORDER.get(i[0], 2), -i[1])))
+        shares = " · ".join(
+            f"{p} {_pct(v, ev.total_ballots)}"
+            for p, v in sorted(parties.items(), key=lambda i: (_PARTY_ORDER.get(i[0], 2), -i[1]))
+        )
         lines.append(f"By party registration: {shares}")
     if ev.comparison:
         c = ev.comparison
@@ -159,8 +174,9 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
         if ev.by_party and len([c for c in ("returned", "inperson") if c in ev.tallies]) > 1:
             _add_field(embed, "All ballots cast", _party_lines(ev.by_party, ev.total_ballots))
         if ev.comparison and ev.comparison.by_party:
-            _add_field(embed, f"Same point in {ev.comparison.year}",
-                       _party_lines(ev.comparison.by_party, ev.comparison.total))
+            _add_field(
+                embed, f"Same point in {ev.comparison.year}", _party_lines(ev.comparison.by_party, ev.comparison.total)
+            )
     elif breakdown == "method":
         for category, total in ev.by_method.items():
             lines = [f"**{_n(total)}**"]
@@ -181,8 +197,10 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
         if ev.counties:
             reporting = sum(1 for v in ev.counties.values() if v)
             top = list(ev.counties.items())[:MAX_COUNTIES]
-            lines = [f"{index}. {clip(county, 60)}: {_n(v)} ({_pct(v, ev.total_ballots)})"
-                     for index, (county, v) in enumerate(top, 1)]
+            lines = [
+                f"{index}. {clip(county, 60)}: {_n(v)} ({_pct(v, ev.total_ballots)})"
+                for index, (county, v) in enumerate(top, 1)
+            ]
             _add_field(embed, f"Top counties ({reporting} of {len(ev.counties)} reporting)", lines)
         else:
             _add_field(embed, "By county", ["civicAPI lists no county numbers for this state."])
@@ -202,8 +220,10 @@ def format_overview(national: National, states: list[str] | None = None, title: 
     lines = []
     for code in codes:
         tallies = national.states[code]
-        parts = [f"mail {_n(tallies['returned'].total)}" if "returned" in tallies else "",
-                 f"in person {_n(tallies['inperson'].total)}" if "inperson" in tallies else ""]
+        parts = [
+            f"mail {_n(tallies['returned'].total)}" if "returned" in tallies else "",
+            f"in person {_n(tallies['inperson'].total)}" if "inperson" in tallies else "",
+        ]
         if not any(parts) and "requested" in tallies:
             parts.append(f"{_n(tallies['requested'].total)} mail ballots requested")
         if "grace" in tallies:
@@ -217,17 +237,24 @@ def format_overview(national: National, states: list[str] | None = None, title: 
 
 def _guard_total(embed: discord.Embed) -> discord.Embed:
     """Drop trailing fields until the whole embed fits Discord's 6000-character total."""
+
     def total() -> int:
-        return (len(embed.title or "") + len(embed.description or "") + len(embed.footer.text or "")
-                + sum(len(f.name) + len(f.value) for f in embed.fields))
+        return (
+            len(embed.title or "")
+            + len(embed.description or "")
+            + len(embed.footer.text or "")
+            + sum(len(f.name) + len(f.value) for f in embed.fields)
+        )
+
     while total() > MAX_EMBED_TOTAL and embed.fields:
         embed.remove_field(len(embed.fields) - 1)
     return embed
 
 
 def unavailable_embed(state: str | None = None) -> discord.Embed:
-    embed = _embed(f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}",
-                   page_url(state), None)
+    embed = _embed(
+        f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}", page_url(state), None
+    )
     embed.description = "civicAPI's early-vote data could not be reached. Try again in a few minutes."
     return embed
 
@@ -238,15 +265,19 @@ async def early_vote_embed(client: EarlyVoteClient, state: str | None, breakdown
         if state is None:
             embed = format_overview(await client.national())
             if breakdown and embed.description:
-                embed.description = clip(f"{embed.description}\n\nPick a state to see the {breakdown} breakdown.",
-                                         MAX_DESCRIPTION)
+                embed.description = clip(
+                    f"{embed.description}\n\nPick a state to see the {breakdown} breakdown.", MAX_DESCRIPTION
+                )
             return embed
         ev = await client.state(state, counties=breakdown == "county", age=breakdown == "age")
     except NotCached:
-        embed = _embed(f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}",
-                       page_url(state), None)
-        embed.description = ("Early-vote numbers are still being loaded by the background refresh "
-                             "(civicAPI pages download one a second). Try again in a few minutes.")
+        embed = _embed(
+            f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}", page_url(state), None
+        )
+        embed.description = (
+            "Early-vote numbers are still being loaded by the background refresh "
+            "(civicAPI pages download one a second). Try again in a few minutes."
+        )
         embed.set_footer(text="Early vote: civicAPI")
         return embed
     except SourceUnavailable:
@@ -254,8 +285,10 @@ async def early_vote_embed(client: EarlyVoteClient, state: str | None, breakdown
         return unavailable_embed(state)
     if ev is None:
         embed = _embed(f"Early vote · {STATES.get(state, state)}", page_url(), None)
-        embed.description = (f"civicAPI has no early-vote data for {STATES.get(state, state)}. "
-                             "Some states do not publish early-vote counts.")
+        embed.description = (
+            f"civicAPI has no early-vote data for {STATES.get(state, state)}. "
+            "Some states do not publish early-vote counts."
+        )
         embed.set_footer(text="Early vote: civicAPI")
         return embed
     return format_state(ev, breakdown)
@@ -285,8 +318,7 @@ async def post_daily_summaries(bot) -> int:
 
     Off unless an admin ran ``/earlyvote_posts on``. Runs hourly; ``mark_posted`` keyed by the
     snapshot date makes it post once per day of data, also across restarts. Returns posts sent."""
-    guilds = [gs for gs in await bot.store.all_guilds()
-              if gs.post_early_vote and gs.channel_id and not gs.paused]
+    guilds = [gs for gs in await bot.store.all_guilds() if gs.post_early_vote and gs.channel_id and not gs.paused]
     if not guilds:
         return 0
     national = await early_vote_client(bot).national()

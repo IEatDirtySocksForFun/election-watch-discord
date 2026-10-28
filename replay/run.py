@@ -8,6 +8,7 @@ results, a scripted race call per race and synthetic odds with one forced swing 
 Writes replay/out/<run>.md: every post with its simulated time, then a summary that checks
 posts per race, the interval rule and duplicates. Exit code 1 if a check fails.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -24,10 +25,8 @@ import httpx
 from electionwatch.poster import Post, RecordingPoster
 from electionwatch.settings import DEFAULT_INTERVAL_MIN, GuildSettings, PostMode
 from electionwatch.store.memory import MemoryStore
-
 from replay.clock import FakeClock
-from replay.scripted import (ScriptedCallSource, ScriptedOddsSource, default_calls,
-                             default_swings)
+from replay.scripted import ScriptedCallSource, ScriptedOddsSource, default_calls, default_swings
 from replay.source import ReplaySource
 from replay.timeline import load_year
 
@@ -54,8 +53,13 @@ def check(posts: list[tuple[datetime, Post]], gs: GuildSettings) -> Report:
     rep = Report(posts=posts)
     last_results: dict[str, tuple[datetime, tuple]] = {}
     seen_once: set[tuple] = set()
-    minutes = (0 if gs.post_mode is PostMode.IMMEDIATE else
-               DEFAULT_INTERVAL_MIN if gs.post_mode is PostMode.DEFAULT else max(1, gs.interval_minutes))
+    minutes = (
+        0
+        if gs.post_mode is PostMode.IMMEDIATE
+        else DEFAULT_INTERVAL_MIN
+        if gs.post_mode is PostMode.DEFAULT
+        else max(1, gs.interval_minutes)
+    )
     for at, p in posts:
         rep.per_race[p.race][p.kind] += 1
         if p.kind == "results":
@@ -63,8 +67,9 @@ def check(posts: list[tuple[datetime, Post]], gs: GuildSettings) -> Report:
             if prev:
                 gap = (at - prev[0]).total_seconds() / 60
                 if gap < minutes:
-                    rep.problems.append(f"{at:%H:%M} {p.race}: results {gap:.0f} min after the last "
-                                        f"one (rule: >= {minutes})")
+                    rep.problems.append(
+                        f"{at:%H:%M} {p.race}: results {gap:.0f} min after the last one (rule: >= {minutes})"
+                    )
                 if prev[1] == (p.lines, p.footer, p.fields):
                     rep.problems.append(f"{at:%H:%M} {p.race}: results post identical to the previous one")
             last_results[p.race] = (at, (p.lines, p.footer, p.fields))
@@ -77,11 +82,16 @@ def check(posts: list[tuple[datetime, Post]], gs: GuildSettings) -> Report:
 
 
 def render(rep: Report, title: str, gs: GuildSettings) -> str:
-    out = [f"# Replay: {title}", "",
-           f"Simulated {rep.start:%Y-%m-%d %H:%M} to {rep.end:%Y-%m-%d %H:%M} UTC, {rep.ticks} ticks; "
-           f"post mode {gs.post_mode.value}"
-           + (f" ({gs.interval_minutes} min)" if gs.post_mode is PostMode.INTERVAL else ""), "",
-           "## Posts", ""]
+    out = [
+        f"# Replay: {title}",
+        "",
+        f"Simulated {rep.start:%Y-%m-%d %H:%M} to {rep.end:%Y-%m-%d %H:%M} UTC, {rep.ticks} ticks; "
+        f"post mode {gs.post_mode.value}"
+        + (f" ({gs.interval_minutes} min)" if gs.post_mode is PostMode.INTERVAL else ""),
+        "",
+        "## Posts",
+        "",
+    ]
     for at, p in rep.posts:
         out.append(f"### {at:%H:%M} UTC · {p.kind} · {p.race} · {p.title}")
         out += [f"    {ln}" for ln in p.lines]
@@ -99,8 +109,15 @@ def render(rep: Report, title: str, gs: GuildSettings) -> str:
 KINDS = ("results", "call", "turnout", "exitpoll", "odds_swing")
 
 
-async def replay(timelines, gs: GuildSettings, speed: float | None = None, max_hours: float = 36,
-                 swings: bool = True, calls: bool = True, poller_cls=None) -> Report:
+async def replay(
+    timelines,
+    gs: GuildSettings,
+    speed: float | None = None,
+    max_hours: float = 36,
+    swings: bool = True,
+    calls: bool = True,
+    poller_cls=None,
+) -> Report:
     if poller_cls is None:
         from electionwatch.poller import Poller as poller_cls  # noqa: N813
     start_ts = min(v[0].ts for v in timelines.values())
@@ -161,11 +178,17 @@ def main(argv: list[str] | None = None) -> int:
     except ImportError as e:
         print(f"electionwatch.poller is not available yet ({e}); merge pkg/core first", file=sys.stderr)
         return 2
-    gs = GuildSettings(guild_id=GUILD, channel_id=CHANNEL, important=sorted(timelines),
-                       post_mode=PostMode(a.mode), interval_minutes=a.interval, odds_alerts=True)
+    gs = GuildSettings(
+        guild_id=GUILD,
+        channel_id=CHANNEL,
+        important=sorted(timelines),
+        post_mode=PostMode(a.mode),
+        interval_minutes=a.interval,
+        odds_alerts=True,
+    )
     speed = None if a.speed == "max" else float(a.speed)
     rep = asyncio.run(replay(timelines, gs, speed, a.max_hours, not a.no_swing, not a.no_calls, Poller))
-    name = f"{a.year}-" + ("-".join(k.replace(' ', '') for k in sorted(timelines)) if races else "all")
+    name = f"{a.year}-" + ("-".join(k.replace(" ", "") for k in sorted(timelines)) if races else "all")
     out = Path(a.out) if a.out else OUT / f"{name}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render(rep, f"{a.year} {', '.join(sorted(timelines))}", gs))

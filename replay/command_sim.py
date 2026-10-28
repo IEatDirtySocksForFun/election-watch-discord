@@ -33,43 +33,49 @@ memory (five Senate races, a snapshot every two minutes from 8 PM to 1 AM ET) an
 scenarios that work on it, none of which need MongoDB or a mongod. Use it to check a change in a few
 seconds; the real timelines from tools/fetch_history.py make `--years` and `--races` meaningful.
 """
+
 from __future__ import annotations
 
 import argparse
 import asyncio
-import copy
 import inspect
 import json
 import logging
 import os
 import shlex
-import statistics
 import subprocess
 import sys
 import tempfile
 import time
 import traceback
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field, replace as dc_replace
+from dataclasses import dataclass, field
+from dataclasses import replace as dc_replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Callable
+from typing import Callable
 from zoneinfo import ZoneInfo
 
 import discord
 import httpx
 import yaml
 
-from electionwatch.models import (CandidateResult, ExitPoll, OddsSnapshot, Poll, PollResult, RaceCall,
-                                 RaceKey, RaceResult)
+from electionwatch.models import (
+    CandidateResult,
+    ExitPoll,
+    OddsSnapshot,
+    Poll,
+    PollResult,
+    RaceCall,
+    RaceResult,
+)
 from electionwatch.poller import format_result
 from electionwatch.poster import Post
 from electionwatch.racekeys import STATES, parse
 from electionwatch.settings import GuildSettings, PostMode
 from electionwatch.sources.base import CallSource, ExitPollSource, OddsSource, PollSource
 from electionwatch.store.memory import MemoryStore
-
 from replay.clock import FakeClock
 from replay.discord_live import top_race_per_state
 from replay.run import DEFAULT_DATA
@@ -80,7 +86,7 @@ log = logging.getLogger("replay.command_sim")
 ET = ZoneInfo("America/New_York")
 LOGS = Path(__file__).resolve().parent / "out" / "sims"
 GUILD, CHANNEL = 1, 100
-DEADLINE_FLAG_S = 2.5          # Discord's interaction deadline is 3 s; flag anything above this
+DEADLINE_FLAG_S = 2.5  # Discord's interaction deadline is 3 s; flag anything above this
 
 # ---------------------------------------------------------------- time
 
@@ -128,15 +134,20 @@ USERS = {
 
 def fake_user(kind: str):
     u = USERS[kind]
-    return SimpleNamespace(id=u["id"], name=kind, display_name=kind, mention=f"<@{u['id']}>",
-                           guild_permissions=SimpleNamespace(manage_guild=u["manage"]),
-                           roles=[FakeRole(r) for r in u["roles"]])
+    return SimpleNamespace(
+        id=u["id"],
+        name=kind,
+        display_name=kind,
+        mention=f"<@{u['id']}>",
+        guild_permissions=SimpleNamespace(manage_guild=u["manage"]),
+        roles=[FakeRole(r) for r in u["roles"]],
+    )
 
 
 @dataclass
 class Reply:
-    kind: str                     # message | defer | followup | edit | edit_original
-    t: float                      # seconds since the interaction arrived
+    kind: str  # message | defer | followup | edit | edit_original
+    t: float  # seconds since the interaction arrived
     ephemeral: bool
     content: str | None = None
     embeds: list[dict] = field(default_factory=list)
@@ -185,9 +196,16 @@ class FakeResponse:
 
     async def send_message(self, content=None, *, embed=..., embeds=..., view=..., ephemeral=False, **_):
         self._first()
-        self.ix.record(Reply("message", self.ix.elapsed(), bool(ephemeral),
-                             None if content is None else str(content),
-                             _embed_dicts(embed, embeds), _view_dict(view)))
+        self.ix.record(
+            Reply(
+                "message",
+                self.ix.elapsed(),
+                bool(ephemeral),
+                None if content is None else str(content),
+                _embed_dicts(embed, embeds),
+                _view_dict(view),
+            )
+        )
         if view is not ... and view is not None:
             self.ix.views.append(view)
 
@@ -198,8 +216,16 @@ class FakeResponse:
 
     async def edit_message(self, *, content=..., embed=..., embeds=..., view=..., **_):
         self._first()
-        self.ix.record(Reply("edit", self.ix.elapsed(), True,
-                             None if content is ... else content, _embed_dicts(embed, embeds), _view_dict(view)))
+        self.ix.record(
+            Reply(
+                "edit",
+                self.ix.elapsed(),
+                True,
+                None if content is ... else content,
+                _embed_dicts(embed, embeds),
+                _view_dict(view),
+            )
+        )
 
 
 class FakeFollowup:
@@ -211,16 +237,32 @@ class FakeFollowup:
             raise RuntimeError("followup before the interaction was acknowledged")
         # A followup to an ephemeral deferral is ephemeral even without the flag.
         eph = bool(ephemeral) or self.ix.deferred_ephemeral
-        self.ix.record(Reply("followup", self.ix.elapsed(), eph,
-                             None if content is None else str(content),
-                             _embed_dicts(embed, embeds), _view_dict(view)))
+        self.ix.record(
+            Reply(
+                "followup",
+                self.ix.elapsed(),
+                eph,
+                None if content is None else str(content),
+                _embed_dicts(embed, embeds),
+                _view_dict(view),
+            )
+        )
         if view is not ... and view is not None:
             self.ix.views.append(view)
 
 
 class FakeInteraction:
-    def __init__(self, client, guild_id: int | None, user_kind: str, command: str,
-                 *, is_component: bool = False, data: dict | None = None, t0: float | None = None):
+    def __init__(
+        self,
+        client,
+        guild_id: int | None,
+        user_kind: str,
+        command: str,
+        *,
+        is_component: bool = False,
+        data: dict | None = None,
+        t0: float | None = None,
+    ):
         self.client = client
         self.guild_id = guild_id
         self.guild = SimpleNamespace(id=guild_id) if guild_id else None
@@ -243,8 +285,16 @@ class FakeInteraction:
         self.replies.append(r)
 
     async def edit_original_response(self, *, content=..., embed=..., embeds=..., view=..., **_):
-        self.record(Reply("edit_original", self.elapsed(), True,
-                          None if content is ... else content, _embed_dicts(embed, embeds), _view_dict(view)))
+        self.record(
+            Reply(
+                "edit_original",
+                self.elapsed(),
+                True,
+                None if content is ... else content,
+                _embed_dicts(embed, embeds),
+                _view_dict(view),
+            )
+        )
 
 
 # ---------------------------------------------------------------- Discord limit checks
@@ -304,7 +354,7 @@ class SimReplaySource(ReplaySource):
         self.turnout = turnout
         self.outages: list[tuple[datetime, datetime]] = []
         self.attempts: list[tuple[datetime, bool]] = []
-        self.list_calls: list[str | None] = []   # the budget each list_races call ran under
+        self.list_calls: list[str | None] = []  # the budget each list_races call ran under
         self._reg = {k: int(max(v[-1].result.total_votes or 0, 1) * 1.6) for k, v in self.timelines.items()}
 
     async def fetch(self, keys, client=None):
@@ -350,12 +400,14 @@ class SimCallSource(CallSource):
     async def fetch_calls(self, keys, client=None):
         want = {str(k): k for k in keys}
         now = self.clock()
-        return [RaceCall(want[c.key], c.outlet, c.winner, c.party, c.at)
-                for c in self.calls if c.key in want and c.at <= now]
+        return [
+            RaceCall(want[c.key], c.outlet, c.winner, c.party, c.at)
+            for c in self.calls
+            if c.key in want and c.at <= now
+        ]
 
 
-def spread_calls(timelines, races: list[str], t0: datetime, t1: datetime,
-                 outlets: dict[str, float]) -> list[SimCall]:
+def spread_calls(timelines, races: list[str], t0: datetime, t1: datetime, outlets: dict[str, float]) -> list[SimCall]:
     """One call per race per outlet, spread evenly over [t0, t1]; outlets maps name -> delay min."""
     out = []
     n = max(len(races), 1)
@@ -376,11 +428,12 @@ class HeldSwing:
     outcome: str
     start: datetime
     minutes: float
-    pts: float       # moves `outcome` by this many points over `minutes`, then holds
+    pts: float  # moves `outcome` by this many points over `minutes`, then holds
 
 
 class HoldOddsSource(OddsSource):
     """Flat 50/50 odds for every race (so no swing happens by accident) plus held swings."""
+
     name = "sim_odds"
     enabled_by_default = False
 
@@ -399,8 +452,7 @@ class HoldOddsSource(OddsSource):
 
     async def fetch_odds(self, keys, client=None):
         now = self.clock()
-        return [OddsSnapshot(k, self.market, o, self.prob(str(k), o, now), now)
-                for k in keys for o in ("DEM", "REP")]
+        return [OddsSnapshot(k, self.market, o, self.prob(str(k), o, now), now) for k in keys for o in ("DEM", "REP")]
 
 
 class SimExitPollSource(ExitPollSource):
@@ -412,9 +464,17 @@ class SimExitPollSource(ExitPollSource):
 
     async def fetch_exit_polls(self, keys, client=None):
         now = self.clock()
-        return [ExitPoll(k, self.outlet, f"https://example.invalid/exit/{str(k).replace(' ', '_')}",
-                         "Economy top issue: 38%\nDecided in last week: 9%", now)
-                for k in keys if str(k) in self.avail and self.avail[str(k)] <= now]
+        return [
+            ExitPoll(
+                k,
+                self.outlet,
+                f"https://example.invalid/exit/{str(k).replace(' ', '_')}",
+                "Economy top issue: 38%\nDecided in last week: 9%",
+                now,
+            )
+            for k in keys
+            if str(k) in self.avail and self.avail[str(k)] <= now
+        ]
 
 
 class SimPollSource(PollSource):
@@ -425,11 +485,20 @@ class SimPollSource(PollSource):
         out = []
         for k in keys:
             for i, pollster in enumerate(("Siena", "Emerson", "Trafalgar Group", "PPP")):
-                out.append(Poll(k, pollster, [PollResult("Candidate D", "DEM", 47.0 + i),
-                                              PollResult("Candidate R", "REP", 46.0 - i)],
-                                date(2020, 10, 20 + i), date(2020, 10, 15 + i), 800 + 50 * i, "LV",
-                                partisan="REP" if pollster == "Trafalgar Group" else None,
-                                source="sim", url="https://example.invalid/poll"))
+                out.append(
+                    Poll(
+                        k,
+                        pollster,
+                        [PollResult("Candidate D", "DEM", 47.0 + i), PollResult("Candidate R", "REP", 46.0 - i)],
+                        date(2020, 10, 20 + i),
+                        date(2020, 10, 15 + i),
+                        800 + 50 * i,
+                        "LV",
+                        partisan="REP" if pollster == "Trafalgar Group" else None,
+                        source="sim",
+                        url="https://example.invalid/poll",
+                    )
+                )
         return out
 
 
@@ -457,6 +526,7 @@ class ObservedStore:
         self.errors += 1
         try:
             from pymongo.errors import AutoReconnect
+
             raise AutoReconnect("simulated MongoDB outage")
         except ImportError:  # pragma: no cover
             raise StoreDown("simulated store outage")
@@ -478,6 +548,7 @@ class ObservedStore:
             if self._down():
                 self._fail()
             return await attr(*a, **kw)
+
         return wrapped
 
 
@@ -492,9 +563,16 @@ class PostRec:
     post: Post
 
     def row(self) -> dict:
-        return {"at": self.at.isoformat(), "et": et(self.at), "guild": self.guild, "channel": self.channel,
-                "kind": self.post.kind, "race": self.post.race, "title": self.post.title,
-                "lines": self.post.lines}
+        return {
+            "at": self.at.isoformat(),
+            "et": et(self.at),
+            "guild": self.guild,
+            "channel": self.channel,
+            "kind": self.post.kind,
+            "race": self.post.race,
+            "title": self.post.title,
+            "lines": self.post.lines,
+        }
 
 
 class SimPoster:
@@ -528,8 +606,7 @@ def parse_steps(spec) -> list[Step]:
             at, cmd = item.split(" ", 1)
             out.append(Step(at, cmd.strip()))
         else:
-            out.append(Step(str(item["at"]), str(item["cmd"]), item.get("as", "admin"),
-                            int(item.get("guild", GUILD))))
+            out.append(Step(str(item["at"]), str(item["cmd"]), item.get("as", "admin"), int(item.get("guild", GUILD))))
     return out
 
 
@@ -545,7 +622,7 @@ class CmdRec:
     total_s: float
     error: str | None = None
     concurrent: bool = False
-    rejected: str | None = None     # Discord's client would not send this (bad choice/range)
+    rejected: str | None = None  # Discord's client would not send this (bad choice/range)
     label: str = ""
 
     @property
@@ -559,18 +636,36 @@ class CmdRec:
         return " | ".join(parts)
 
     def row(self) -> dict:
-        return {"at": self.at.isoformat(), "et": et(self.at), "guild": self.guild, "user": self.user,
-                "command": self.label or self.command, "args": {k: str(v) for k, v in self.args.items()},
-                "ack_s": self.ack_s, "total_s": round(self.total_s, 4), "error": self.error,
-                "concurrent": self.concurrent, "rejected": self.rejected,
-                "replies": [{"kind": r.kind, "t": round(r.t, 4), "ephemeral": r.ephemeral,
-                             "content": (r.content or "")[:300],
-                             "embeds": [{"title": e.get("title"), "len": len(json.dumps(e))} for e in r.embeds],
-                             "view": bool(r.view), "limits": limit_problems(r)} for r in self.replies]}
+        return {
+            "at": self.at.isoformat(),
+            "et": et(self.at),
+            "guild": self.guild,
+            "user": self.user,
+            "command": self.label or self.command,
+            "args": {k: str(v) for k, v in self.args.items()},
+            "ack_s": self.ack_s,
+            "total_s": round(self.total_s, 4),
+            "error": self.error,
+            "concurrent": self.concurrent,
+            "rejected": self.rejected,
+            "replies": [
+                {
+                    "kind": r.kind,
+                    "t": round(r.t, 4),
+                    "ephemeral": r.ephemeral,
+                    "content": (r.content or "")[:300],
+                    "embeds": [{"title": e.get("title"), "len": len(json.dumps(e))} for e in r.embeds],
+                    "view": bool(r.view),
+                    "limits": limit_problems(r),
+                }
+                for r in self.replies
+            ],
+        }
 
 
 def _convert(param, raw: str):
     from discord import AppCommandOptionType as T
+
     if param.type is T.integer:
         return int(raw)
     if param.type is T.number:
@@ -620,8 +715,20 @@ def bind_args(command, tokens: list[str]) -> tuple[dict, str | None]:
 # 5 minutes, interval 15) to produce real gaps and changes, and it builds in a few milliseconds.
 QUICK_YEAR = "2024"
 QUICK_RACES = ["AZ SEN", "GA SEN", "OH SEN", "PA SEN", "TX SEN"]
-QUICK_SCENARIOS = ("pause", "posting", "calls", "toggles", "oddsalerts", "setup", "nonadmin",
-                   "sourcedown", "roleadmin", "invalid", "pausechange", "twoguilds")
+QUICK_SCENARIOS = (
+    "pause",
+    "posting",
+    "calls",
+    "toggles",
+    "oddsalerts",
+    "setup",
+    "nonadmin",
+    "sourcedown",
+    "roleadmin",
+    "invalid",
+    "pausechange",
+    "twoguilds",
+)
 
 
 def quick_timelines(year: str = QUICK_YEAR, races: list[str] | None = None) -> dict:
@@ -635,9 +742,13 @@ def quick_timelines(year: str = QUICK_YEAR, races: list[str] | None = None) -> d
         for i in range(150):
             ts = t0 + timedelta(minutes=2 * i + n)
             dem, rep = 1000 * i + 37 * n, 1010 * i + 11 * n
-            r = RaceResult(parse(race), [CandidateResult("Dee Mock", "DEM", dem),
-                                         CandidateResult("Ray Publican", "REP", rep)],
-                           "replay", ts, expected_vote_pct=min(99.0, i * 0.7))
+            r = RaceResult(
+                parse(race),
+                [CandidateResult("Dee Mock", "DEM", dem), CandidateResult("Ray Publican", "REP", rep)],
+                "replay",
+                ts,
+                expected_vote_pct=min(99.0, i * 0.7),
+            )
             snaps.append(Snapshot(ts, r.finalize(), True))
         out[race] = snaps
     return out
@@ -661,9 +772,15 @@ class NightResult:
     extra: dict = field(default_factory=dict)
 
     def posts_for(self, guild=GUILD, kind=None, race=None, t0=None, t1=None) -> list[PostRec]:
-        return [p for p in self.posts if p.guild == guild and (kind is None or p.post.kind == kind)
-                and (race is None or p.post.race == race) and (t0 is None or p.at >= t0)
-                and (t1 is None or p.at < t1)]
+        return [
+            p
+            for p in self.posts
+            if p.guild == guild
+            and (kind is None or p.post.kind == kind)
+            and (race is None or p.post.race == race)
+            and (t0 is None or p.at >= t0)
+            and (t1 is None or p.at < t1)
+        ]
 
     def t(self, hhmm: str) -> datetime:
         return sim_time(self.year, hhmm)
@@ -672,13 +789,27 @@ class NightResult:
 class Night:
     """One simulated night. Build, then `await run(steps)`."""
 
-    def __init__(self, year: str, timelines: dict, guilds: list[GuildSettings], *,
-                 start: str = "19:30", until: str = "02:30", turnout: bool = False,
-                 calls: list[SimCall] | None = None, swings: list[HeldSwing] | None = None,
-                 exitpolls: dict[str, datetime] | None = None, store=None,
-                 default_races: list[str] | None = None, workdir: Path | None = None,
-                 poster=None, speed: float | None = None, on_step=None, mongod=None,
-                 idle_skip: float = 90) -> None:
+    def __init__(
+        self,
+        year: str,
+        timelines: dict,
+        guilds: list[GuildSettings],
+        *,
+        start: str = "19:30",
+        until: str = "02:30",
+        turnout: bool = False,
+        calls: list[SimCall] | None = None,
+        swings: list[HeldSwing] | None = None,
+        exitpolls: dict[str, datetime] | None = None,
+        store=None,
+        default_races: list[str] | None = None,
+        workdir: Path | None = None,
+        poster=None,
+        speed: float | None = None,
+        on_step=None,
+        mongod=None,
+        idle_skip: float = 90,
+    ) -> None:
         self.year = str(year)
         self.timelines = timelines
         self.guilds = guilds
@@ -727,8 +858,9 @@ class Night:
 
     # -- commands
 
-    async def invoke(self, bot, step: Step, *, concurrent: bool = False, t0: float | None = None,
-                     label: str = "") -> CmdRec:
+    async def invoke(
+        self, bot, step: Step, *, concurrent: bool = False, t0: float | None = None, label: str = ""
+    ) -> CmdRec:
         tokens = shlex.split(step.cmd)
         name, rest = tokens[0], tokens[1:]
         command = bot.tree.get_command(name)
@@ -740,38 +872,57 @@ class Night:
         if rejected is None:
             try:
                 await command.callback(ix, **args)
-            except Exception as exc:   # what CommandTree does: route to on_error
+            except Exception as exc:  # what CommandTree does: route to on_error
                 from electionwatch.bot.discord import handle_app_command_error
+
                 err = f"{type(exc).__name__}: {exc}"[:300]
                 log.debug("command /%s raised", name, exc_info=True)
                 try:
                     await handle_app_command_error(ix, exc)
                 except Exception as exc2:
                     err += f" / on_error raised {type(exc2).__name__}"
-        rec = CmdRec(self.clock(), step.guild, step.user, name, args, ix.replies,
-                     ix.ack_t, ix.elapsed(), err, concurrent, rejected, label or step.cmd)
+        rec = CmdRec(
+            self.clock(),
+            step.guild,
+            step.user,
+            name,
+            args,
+            ix.replies,
+            ix.ack_t,
+            ix.elapsed(),
+            err,
+            concurrent,
+            rejected,
+            label or step.cmd,
+        )
         rec._ix = ix  # type: ignore[attr-defined]
         self.cmds.append(rec)
         return rec
 
-    async def click(self, bot, view, item, user: str, guild: int, label: str, data=None,
-                    concurrent=False, t0=None) -> CmdRec:
+    async def click(
+        self, bot, view, item, user: str, guild: int, label: str, data=None, concurrent=False, t0=None
+    ) -> CmdRec:
         ix = FakeInteraction(bot, guild, user, "races", is_component=True, data=data, t0=t0)
         err = None
         try:
             await item.callback(ix)
         except Exception as exc:
             err = f"{type(exc).__name__}: {exc}"[:300]
-        rec = CmdRec(self.clock(), guild, user, "races", {}, ix.replies, ix.ack_t, ix.elapsed(), err,
-                     concurrent, None, label)
+        rec = CmdRec(
+            self.clock(), guild, user, "races", {}, ix.replies, ix.ack_t, ix.elapsed(), err, concurrent, None, label
+        )
         self.cmds.append(rec)
         return rec
 
-    async def navigator_sweep(self, bot, guild: int, user: str = "admin", *, all_states=True,
-                              under_tick=False) -> list[CmdRec]:
+    async def navigator_sweep(
+        self, bot, guild: int, user: str = "admin", *, all_states=True, under_tick=False
+    ) -> list[CmdRec]:
         recs = []
-        rec = await self._maybe_concurrent(bot, lambda t0: self.invoke(
-            bot, Step("", "races", user, guild), concurrent=under_tick, t0=t0, label="races"), under_tick)
+        rec = await self._maybe_concurrent(
+            bot,
+            lambda t0: self.invoke(bot, Step("", "races", user, guild), concurrent=under_tick, t0=t0, label="races"),
+            under_tick,
+        )
         recs.append(rec)
         views = getattr(rec, "_ix").views
         if not views:
@@ -793,26 +944,39 @@ class Night:
         for code in states:
             u = conc()
             select = find(discord.ui.Select, lambda s: any(o.value == code for o in s.options))
-            recs.append(await self._maybe_concurrent(bot, lambda t0: self.click(
-                bot, view, select, user, guild, "races:state", {"values": [code]}, u, t0), u))
+            recs.append(
+                await self._maybe_concurrent(
+                    bot,
+                    lambda t0: self.click(bot, view, select, user, guild, "races:state", {"values": [code]}, u, t0),
+                    u,
+                )
+            )
             for tab in ("Congressional", "Senate", "State", "Local"):
                 u = conc()
                 button = find(discord.ui.Button, lambda b: b.label == tab)
-                recs.append(await self._maybe_concurrent(bot, lambda t0: self.click(
-                    bot, view, button, user, guild, "races:tab", None, u, t0), u))
+                recs.append(
+                    await self._maybe_concurrent(
+                        bot, lambda t0: self.click(bot, view, button, user, guild, "races:tab", None, u, t0), u
+                    )
+                )
                 if tab == "Senate" and view.selected_race and code in ("PA", "GA", "AZ", "TX"):
                     for tool in ("Odds", "Polls"):
                         u = conc()
                         b = find(discord.ui.Button, lambda b: b.label == tool)
-                        recs.append(await self._maybe_concurrent(bot, lambda t0: self.click(
-                            bot, view, b, user, guild, f"races:{tool.lower()}", None, u, t0),
-                            u))
+                        recs.append(
+                            await self._maybe_concurrent(
+                                bot,
+                                lambda t0: self.click(bot, view, b, user, guild, f"races:{tool.lower()}", None, u, t0),
+                                u,
+                            )
+                        )
                     b = find(discord.ui.Button, lambda b: b.label == "Choose race")
                     recs.append(await self.click(bot, view, b, user, guild, "races:choose"))
                     s = find(discord.ui.Select, lambda s: s.placeholder == "Race")
                     if s is not None:
-                        recs.append(await self.click(bot, view, s, user, guild, "races:race",
-                                                     {"values": [s.options[0].value]}))
+                        recs.append(
+                            await self.click(bot, view, s, user, guild, "races:race", {"values": [s.options[0].value]})
+                        )
         return recs
 
     async def _maybe_concurrent(self, bot, make, under_tick: bool):
@@ -821,7 +985,7 @@ class Night:
         if not under_tick:
             return await make(None)
         tick = asyncio.create_task(self._tick(bot, record=False))
-        await asyncio.sleep(0)             # let the tick start and run to its first await
+        await asyncio.sleep(0)  # let the tick start and run to its first await
         t0 = time.perf_counter()
         rec = await make(t0)
         await tick
@@ -829,23 +993,46 @@ class Night:
 
     async def readonly_battery(self, bot, guild: int, under_tick: bool = True):
         race = self.readonly_race or (sorted(self.watched_for(guild)) or ["PA SEN"])[0]
-        battery = ["odds", f'odds race="{race}"', f'polls race="{race}"', "watch list", "settings",
-                   "faq", "faq state=PA"]
+        battery = [
+            "odds",
+            f'odds race="{race}"',
+            f'polls race="{race}"',
+            "watch list",
+            "settings",
+            "faq",
+            "faq state=PA",
+        ]
         for cmd in battery:
-            await self._maybe_concurrent(bot, lambda t0: self.invoke(
-                bot, Step("", cmd, "member", guild), concurrent=under_tick, t0=t0, label=cmd.split("=")[0]),
-                under_tick)
+            await self._maybe_concurrent(
+                bot,
+                lambda t0: self.invoke(
+                    bot, Step("", cmd, "member", guild), concurrent=under_tick, t0=t0, label=cmd.split("=")[0]
+                ),
+                under_tick,
+            )
         # autocomplete is also bound by the 3 s deadline
         from electionwatch.bot.discord import race_autocomplete
 
         async def ac(t0):
             ix = FakeInteraction(bot, guild, "member", "autocomplete", t0=t0)
             got = await race_autocomplete(ix, "se")
-            rec = CmdRec(self.clock(), guild, "member", "autocomplete", {}, [
-                Reply("autocomplete", ix.elapsed(), True, f"{len(got)} choices")], ix.elapsed(), ix.elapsed(),
-                None if len(got) <= 25 else f"{len(got)} choices > 25", under_tick, None, "autocomplete")
+            rec = CmdRec(
+                self.clock(),
+                guild,
+                "member",
+                "autocomplete",
+                {},
+                [Reply("autocomplete", ix.elapsed(), True, f"{len(got)} choices")],
+                ix.elapsed(),
+                ix.elapsed(),
+                None if len(got) <= 25 else f"{len(got)} choices > 25",
+                under_tick,
+                None,
+                "autocomplete",
+            )
             self.cmds.append(rec)
             return rec
+
         await self._maybe_concurrent(bot, ac, under_tick)
         await self.navigator_sweep(bot, guild, "member", all_states=True, under_tick=under_tick)
 
@@ -863,7 +1050,7 @@ class Night:
             await self.navigator_sweep(bot, step.guild, step.user, all_states=kv.get("all", "0") == "1")
         elif name == "click_other":
             recs = await self.navigator_sweep(bot, step.guild, step.user, all_states=False)
-            view = recs[0]._ix.views[-1] if recs and recs[0]._ix.views else None   # type: ignore
+            view = recs[0]._ix.views[-1] if recs and recs[0]._ix.views else None  # type: ignore
             if view is not None:
                 button = next(i for i in view.children if isinstance(i, discord.ui.Button))
                 await self.click(bot, view, button, "other", step.guild, "races:foreign-click")
@@ -886,7 +1073,7 @@ class Night:
         # The bot runs the poller and the race-list refresh as two loops on one event loop,
         # each once a minute: run both, concurrently, every simulated minute.
         polled, _ = await asyncio.gather(bot.poller.tick(), self._race_lists(bot), return_exceptions=True)
-        if isinstance(polled, Exception):   # the bot's poll_results loop logs and carries on
+        if isinstance(polled, Exception):  # the bot's poll_results loop logs and carries on
             self.tick_errors.append((self.clock(), f"{type(polled).__name__}: {polled}"[:200]))
         if hb is not None:
             hb.cancel()
@@ -898,7 +1085,7 @@ class Night:
     async def _race_lists(self, bot) -> None:
         try:
             await bot.race_lists.refresh()
-        except Exception:              # the bot's refresh_race_lists loop logs and carries on
+        except Exception:  # the bot's refresh_race_lists loop logs and carries on
             log.debug("race list refresh failed", exc_info=True)
 
     async def _heartbeat(self) -> None:
@@ -948,9 +1135,18 @@ class Night:
                 else:
                     os.environ["EW_RACES_FILE"] = old_env
         watched = sorted({k for g in self.guilds for k in g.important})
-        return NightResult(self.year, getattr(self.poster, "posts", []), self.cmds, self.store.changes,
-                           self.ticks, self.tick_errors, self.src.attempts,
-                           sim_time(self.year, "19:30"), self.end, watched)
+        return NightResult(
+            self.year,
+            getattr(self.poster, "posts", []),
+            self.cmds,
+            self.store.changes,
+            self.ticks,
+            self.tick_errors,
+            self.src.attempts,
+            sim_time(self.year, "19:30"),
+            self.end,
+            watched,
+        )
 
 
 # ---------------------------------------------------------------- checks
@@ -973,6 +1169,7 @@ class Checks:
 def first_tick(res: "NightResult", at: datetime) -> datetime:
     """The tick that first sees something scheduled at `at` (ticks run once per sim minute)."""
     import bisect
+
     ticks = [t for t, _ in res.ticks]
     i = bisect.bisect_left(ticks, at)
     return ticks[i] if i < len(ticks) else res.end + timedelta(minutes=1)
@@ -986,7 +1183,10 @@ def check_gaps(c: Checks, res: NightResult, t0, t1, minutes, guild=GUILD, label=
         if prev is not None and t0 <= p.at < t1:
             gap = (p.at - prev).total_seconds() / 60
             n += 1
-            c.ok(gap >= minutes, f"{label}{et(p.at)} {p.post.race}: results {gap:.0f} min after previous (rule {minutes})")
+            c.ok(
+                gap >= minutes,
+                f"{label}{et(p.at)} {p.post.race}: results {gap:.0f} min after previous (rule {minutes})",
+            )
         last[p.post.race] = p.at
     return n
 
@@ -1030,8 +1230,13 @@ def check_every_change(c: Checks, res: NightResult, t0, t1, guild=GUILD, label="
 
 def no_posts(c: Checks, res, t0, t1, guild=GUILD, kind=None, label=""):
     bad = res.posts_for(guild, kind, t0=t0, t1=t1)
-    c.ok(not bad, f"{label}{len(bad)} {kind or 'any'} posts in {et(t0)}-{et(t1)} (first {bad[0].post.kind} "
-                  f"{bad[0].post.race} at {et(bad[0].at)})" if bad else "")
+    c.ok(
+        not bad,
+        f"{label}{len(bad)} {kind or 'any'} posts in {et(t0)}-{et(t1)} (first {bad[0].post.kind} "
+        f"{bad[0].post.race} at {et(bad[0].at)})"
+        if bad
+        else "",
+    )
     return bad
 
 
@@ -1047,8 +1252,10 @@ def replies_ok(c: Checks, res: NightResult, *, expect_refused: bool | None = Non
             for p in limit_problems(rep):
                 c.problems.append(f"{label}/{r.label} at {et(r.at)}: {p}")
         if expect_refused is True:
-            c.ok("required" in r.text.lower() or "belongs to another user" in r.text,
-                 f"{label}/{r.label} by {r.user} not refused: {r.text[:120]!r}")
+            c.ok(
+                "required" in r.text.lower() or "belongs to another user" in r.text,
+                f"{label}/{r.label} by {r.user} not refused: {r.text[:120]!r}",
+            )
 
 
 def post_signature(res: NightResult, guild: int) -> list[tuple]:
@@ -1062,8 +1269,8 @@ def post_signature(res: NightResult, guild: int) -> list[tuple]:
 class Ctx:
     year: str
     timelines: dict
-    watched: list[str]          # the scenario's watch list (top-per-state or all)
-    mode: str                   # top | all
+    watched: list[str]  # the scenario's watch list (top-per-state or all)
+    mode: str  # top | all
     workdir: Path
     mongo_uri: str | None = None
     mongod_bin: str | None = None
@@ -1086,13 +1293,23 @@ def base_guild(ctx: Ctx, **kw) -> GuildSettings:
 
 
 def default_calls_for(ctx: Ctx, races=None, outlets=None) -> list[SimCall]:
-    return spread_calls(ctx.timelines, races or ctx.watched, sim_time(ctx.year, "20:00"),
-                        sim_time(ctx.year, "01:30"), outlets or {"AP": 0})
+    return spread_calls(
+        ctx.timelines,
+        races or ctx.watched,
+        sim_time(ctx.year, "20:00"),
+        sim_time(ctx.year, "01:30"),
+        outlets or {"AP": 0},
+    )
 
 
 async def sc_pause(ctx: Ctx, c: Checks):
-    night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], calls=default_calls_for(ctx),
-                  exitpolls={k: sim_time(ctx.year, "21:20") for k in ctx.watched[:5]})
+    night = Night(
+        ctx.year,
+        ctx.timelines,
+        [base_guild(ctx)],
+        calls=default_calls_for(ctx),
+        exitpolls={k: sim_time(ctx.year, "21:20") for k in ctx.watched[:5]},
+    )
     res = await night.run(["21:00 pause", "22:00 resume"])
     no_posts(c, res, res.t("21:00"), res.t("22:00"))
     after = res.posts_for(t0=res.t("22:00"))
@@ -1108,20 +1325,25 @@ async def sc_pause(ctx: Ctx, c: Checks):
             c.ok(before[-1].post.lines != now[0].post.lines, f"{race}: resume re-posted an identical result")
     dropped = [k for k in night.calls if res.t("21:00") <= first_tick(res, k.at) < res.t("22:00")]
     late = res.posts_for(kind="call", t0=res.t("22:00"))
-    c.ok(not any(p.post.race in {d.key for d in dropped} and p.at < res.t("22:02") for p in late),
-         "calls made during the pause were flooded out at resume")
+    c.ok(
+        not any(p.post.race in {d.key for d in dropped} and p.at < res.t("22:02") for p in late),
+        "calls made during the pause were flooded out at resume",
+    )
     eps = res.posts_for(kind="exitpoll")
-    c.note(f"resume minute: {len(at_resume)} results posts (one per changed race, latest numbers only); "
-           f"{len(dropped)} calls made while paused are never posted; "
-           f"{len([p for p in eps if p.at >= res.t('22:00')])} exit polls published while paused posted after resume")
+    c.note(
+        f"resume minute: {len(at_resume)} results posts (one per changed race, latest numbers only); "
+        f"{len(dropped)} calls made while paused are never posted; "
+        f"{len([p for p in eps if p.at >= res.t('22:00')])} exit polls published while paused posted after resume"
+    )
     replies_ok(c, res)
     return res
 
 
 async def sc_posting(ctx: Ctx, c: Checks):
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], calls=default_calls_for(ctx))
-    res = await night.run(["21:30 posting interval 15", "22:30 posting interval 1",
-                           "23:00 posting immediate", "23:45 posting default"])
+    res = await night.run(
+        ["21:30 posting interval 15", "22:30 posting interval 1", "23:00 posting immediate", "23:45 posting default"]
+    )
     n0 = check_gaps(c, res, res.start, res.t("21:30"), 5, label="default: ")
     n1 = check_gaps(c, res, res.t("21:30"), res.t("22:30"), 15, label="interval15: ")
     k1 = check_every_change(c, res, res.t("22:30"), res.t("23:00"), label="interval1: ", watched=set(ctx.watched))
@@ -1131,9 +1353,11 @@ async def sc_posting(ctx: Ctx, c: Checks):
     # rate per channel (Discord allows ~5 messages / 5 s per channel)
     per_min = Counter(p.at for p in res.posts_for())
     peak = per_min.most_common(1)[0] if per_min else (None, 0)
-    c.note(f"gaps checked: default {n0}, interval15 {n1}, back-to-default {n3}; changes checked: "
-           f"interval1 {k1}, immediate {k2}; peak {peak[1]} posts in one minute"
-           + (f" at {et(peak[0])}" if peak[0] else ""))
+    c.note(
+        f"gaps checked: default {n0}, interval15 {n1}, back-to-default {n3}; changes checked: "
+        f"interval1 {k1}, immediate {k2}; peak {peak[1]} posts in one minute"
+        + (f" at {et(peak[0])}" if peak[0] else "")
+    )
     replies_ok(c, res)
     return res
 
@@ -1143,8 +1367,9 @@ async def sc_watch(ctx: Ctx, c: Checks):
     x = pick_extra_race(ctx, set(ctx.watched) if ctx.mode == "top" else set(), t0, t1)
     watched = [k for k in ctx.watched if k != x]
     defaults = []
-    for k in sorted(ctx.timelines, key=lambda k: -sum(1 for s in ctx.timelines[k]
-                                                      if s.ts >= sim_time(ctx.year, "00:00"))):
+    for k in sorted(
+        ctx.timelines, key=lambda k: -sum(1 for s in ctx.timelines[k] if s.ts >= sim_time(ctx.year, "00:00"))
+    ):
         if k not in (x,) and len(defaults) < 2 and (ctx.mode == "all" or k not in watched):
             defaults.append(k)
     gs = GuildSettings(guild_id=GUILD, channel_id=CHANNEL, important=watched)
@@ -1155,8 +1380,10 @@ async def sc_watch(ctx: Ctx, c: Checks):
     res = await night.run(steps)
     c.ok(not res.posts_for(race=x, t1=t0), f"{x} posted before /watch add")
     c.ok(bool(res.posts_for(race=x, kind="results", t0=t0, t1=t1)), f"{x} never posted after /watch add")
-    c.ok(not res.posts_for(race=x, t0=t1 + timedelta(minutes=1)) or x in defaults,
-         f"{x} still posted after /watch remove")
+    c.ok(
+        not res.posts_for(race=x, t0=t1 + timedelta(minutes=1)) or x in defaults,
+        f"{x} still posted after /watch remove",
+    )
     after = res.posts_for(t0=sim_time(ctx.year, "00:00"))
     stray = {p.post.race for p in after} - set(defaults)
     c.ok(not stray, f"after removing every race, posts for non-default races: {sorted(stray)[:5]}")
@@ -1172,8 +1399,11 @@ async def sc_calls(ctx: Ctx, c: Checks):
     outlets = {"AP": 0, "FOX": 3, "NBC": 6}
     calls = default_calls_for(ctx, outlets=outlets)
     # "/calls X off" stops only the named outlets: name every outlet to switch calls off.
-    steps = ["21:00 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",
-             "22:00 calls outlets=FOX enabled=on", "23:30 calls AP,NBC on"]
+    steps = [
+        "21:00 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",
+        "22:00 calls outlets=FOX enabled=on",
+        "23:30 calls AP,NBC on",
+    ]
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], calls=calls)
     res = await night.run(steps)
     ticks = [t for t, _ in res.ticks]
@@ -1187,6 +1417,7 @@ async def sc_calls(ctx: Ctx, c: Checks):
         if at < res.t("23:30"):
             return True, {"FOX"}
         return True, {"AP", "NBC"}
+
     expected = set()
     for k in calls:
         i = _b.bisect_left(ticks, k.at)
@@ -1197,8 +1428,11 @@ async def sc_calls(ctx: Ctx, c: Checks):
         if on and k.outlet in allowed:
             expected.add((tick, k.key, k.outlet))
     got = {(p.at, p.post.race, p.post.lines[-1].removeprefix("Outlet: ")) for p in res.posts_for(kind="call")}
-    c.ok(got == expected, f"call posts differ from expected: missing {sorted(expected - got)[:3]}, "
-                          f"unexpected {sorted(got - expected)[:3]}")
+    c.ok(
+        got == expected,
+        f"call posts differ from expected: missing {sorted(expected - got)[:3]}, "
+        f"unexpected {sorted(got - expected)[:3]}",
+    )
     win = Counter(("off" if not cfg(t)[0] else "+".join(sorted(cfg(t)[1]))[:12]) for t, _, _ in got)
     c.ok(not res.posts_for(kind="call", t0=res.t("21:00"), t1=res.t("22:00")), "call posted while calls off")
     c.ok(all(o == "FOX" for t, _, o in got if res.t("22:00") <= t < res.t("23:30")), "non-FOX call in FOX window")
@@ -1209,24 +1443,30 @@ async def sc_calls(ctx: Ctx, c: Checks):
 
 
 async def sc_toggles(ctx: Ctx, c: Checks):
-    avail = {k: sim_time(ctx.year, "20:00") + timedelta(minutes=(i * 7) % 300)
-             for i, k in enumerate(sorted(ctx.watched))}
+    avail = {
+        k: sim_time(ctx.year, "20:00") + timedelta(minutes=(i * 7) % 300) for i, k in enumerate(sorted(ctx.watched))
+    }
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], turnout=True, exitpolls=avail)
     res = await night.run(["21:30 turnout off", "22:00 exitpolls off", "00:00 exitpolls on", "00:00 turnout on"])
     has_t = lambda p: any(ln.startswith("Turnout:") for ln in p.post.lines)  # noqa: E731
     c.ok(any(has_t(p) for p in res.posts_for(kind="results", t1=res.t("21:30"))), "vacuous: no turnout line before off")
     bad = [p for p in res.posts_for(kind="results", t0=res.t("21:30"), t1=res.t("00:00")) if has_t(p)]
     c.ok(not bad, f"{len(bad)} results posts still show turnout after /turnout off")
-    c.ok(any(has_t(p) for p in res.posts_for(kind="results", t0=res.t("00:00"))) or
-         not res.posts_for(kind="results", t0=res.t("00:00")), "turnout not back after /turnout on")
+    c.ok(
+        any(has_t(p) for p in res.posts_for(kind="results", t0=res.t("00:00")))
+        or not res.posts_for(kind="results", t0=res.t("00:00")),
+        "turnout not back after /turnout on",
+    )
     no_posts(c, res, res.t("22:00"), res.t("00:00"), kind="exitpoll", label="exitpolls off: ")
     c.ok(bool(res.posts_for(kind="exitpoll", t1=res.t("22:00"))), "vacuous: no exit poll before off")
     backlog = res.posts_for(kind="exitpoll", t0=res.t("00:00"), t1=res.t("00:01"))
     missed = [k for k, t in avail.items() if res.t("22:00") <= t < res.t("00:00")]
     due_now = [k for k, t in avail.items() if t == res.t("00:00")]
-    c.ok(len(backlog) == len(missed) + len(due_now),
-         f"exit polls published while off: {len(missed)} (+{len(due_now)} due at 00:00), "
-         f"posted at /exitpolls on: {len(backlog)}")
+    c.ok(
+        len(backlog) == len(missed) + len(due_now),
+        f"exit polls published while off: {len(missed)} (+{len(due_now)} due at 00:00), "
+        f"posted at /exitpolls on: {len(backlog)}",
+    )
     c.note(f"/exitpolls on posts the {len(backlog)} exit polls published while it was off in one burst")
     replies_ok(c, res)
     return res
@@ -1239,11 +1479,13 @@ async def sc_oddsalerts(ctx: Ctx, c: Checks):
         return None
     a, b, cc, d, e = races[:5]
     T = lambda s: sim_time(ctx.year, s)  # noqa: E731
-    swings = [HeldSwing(e, "DEM", T("20:30"), 10, 60),     # before alerts are on
-              HeldSwing(a, "DEM", T("21:40"), 10, 15),     # above 10
-              HeldSwing(b, "REP", T("21:40"), 10, 5),      # below 10
-              HeldSwing(cc, "REP", T("22:30"), 5, 12),     # above 10
-              HeldSwing(d, "DEM", T("23:30"), 5, 20)]      # after alerts are off
+    swings = [
+        HeldSwing(e, "DEM", T("20:30"), 10, 60),  # before alerts are on
+        HeldSwing(a, "DEM", T("21:40"), 10, 15),  # above 10
+        HeldSwing(b, "REP", T("21:40"), 10, 5),  # below 10
+        HeldSwing(cc, "REP", T("22:30"), 5, 12),  # above 10
+        HeldSwing(d, "DEM", T("23:30"), 5, 20),
+    ]  # after alerts are off
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], swings=swings)
     res = await night.run(["21:30 oddsalerts on threshold=10 window=30", "23:00 oddsalerts off"])
     alerts = res.posts_for(kind="odds_swing")
@@ -1254,8 +1496,10 @@ async def sc_oddsalerts(ctx: Ctx, c: Checks):
     first_a = min((p.at for p in alerts if p.post.race == a), default=None)
     if first_a:
         c.ok(first_a <= T("21:48"), f"{a} alert late: {et(first_a)} (crossed 10 pts at ~21:47)")
-    c.note(f"alerts {dict(by)} ({len(alerts)} posts; one per outcome: both sides of a 2-way market alert); "
-           f"e.g. {alerts[0].post.lines[0] if alerts else '-'}")
+    c.note(
+        f"alerts {dict(by)} ({len(alerts)} posts; one per outcome: both sides of a 2-way market alert); "
+        f"e.g. {alerts[0].post.lines[0] if alerts else '-'}"
+    )
     replies_ok(c, res)
     return res
 
@@ -1271,9 +1515,19 @@ async def sc_setup(ctx: Ctx, c: Checks):
     return res
 
 
-ADMIN_CMDS = ["pause", "resume", "posting immediate", "posting interval 30", 'watch add "{x}"',
-              'watch remove "{y}"', "calls AP off", "oddsalerts on threshold=1 window=5",
-              "turnout off", "exitpolls off", "setup channel=999 admin_role=555"]
+ADMIN_CMDS = [
+    "pause",
+    "resume",
+    "posting immediate",
+    "posting interval 30",
+    'watch add "{x}"',
+    'watch remove "{y}"',
+    "calls AP off",
+    "oddsalerts on threshold=1 window=5",
+    "turnout off",
+    "exitpolls off",
+    "setup channel=999 admin_role=555",
+]
 
 
 async def sc_nonadmin(ctx: Ctx, c: Checks):
@@ -1281,7 +1535,7 @@ async def sc_nonadmin(ctx: Ctx, c: Checks):
     y = sorted(ctx.watched)[0]
     steps = []
     for i, cmd in enumerate(ADMIN_CMDS):
-        for who in ("member", "roleadmin"):     # no admin role configured: role means nothing
+        for who in ("member", "roleadmin"):  # no admin role configured: role means nothing
             steps.append({"at": f"21:{30 + i:02d}", "cmd": cmd.format(x=x, y=y), "as": who})
     steps.append({"at": "22:15", "cmd": "!click_other", "as": "admin"})
     kw = dict(calls=default_calls_for(ctx), exitpolls={k: sim_time(ctx.year, "21:00") for k in ctx.watched[:5]})
@@ -1293,20 +1547,26 @@ async def sc_nonadmin(ctx: Ctx, c: Checks):
     foreign = [r for r in res.cmds if r.user == "other"]
     replies_ok(c, res, expect_refused=True, users={"other"})
     c.ok(bool(foreign), "foreign navigator click not exercised")
-    c.ok(post_signature(res, GUILD) == post_signature(control, GUILD),
-         "posts differ from the control night without the refused commands")
-    c.note(f"{len(attempts)} refused admin commands + {len(foreign)} foreign navigator click; posts identical to control")
+    c.ok(
+        post_signature(res, GUILD) == post_signature(control, GUILD),
+        "posts differ from the control night without the refused commands",
+    )
+    c.note(
+        f"{len(attempts)} refused admin commands + {len(foreign)} foreign navigator click; posts identical to control"
+    )
     return res
 
 
 async def sc_roleadmin(ctx: Ctx, c: Checks):
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)])
-    res = await night.run([
-        {"at": "21:00", "cmd": "posting interval 20", "as": "roleadmin"},        # refused: no role set
-        {"at": "21:10", "cmd": f"setup channel={CHANNEL} admin_role=555", "as": "admin"},
-        {"at": "21:30", "cmd": "posting interval 20", "as": "roleadmin"},        # allowed now
-        {"at": "21:31", "cmd": "pause", "as": "member"},                         # still refused
-    ])
+    res = await night.run(
+        [
+            {"at": "21:00", "cmd": "posting interval 20", "as": "roleadmin"},  # refused: no role set
+            {"at": "21:10", "cmd": f"setup channel={CHANNEL} admin_role=555", "as": "admin"},
+            {"at": "21:30", "cmd": "posting interval 20", "as": "roleadmin"},  # allowed now
+            {"at": "21:31", "cmd": "pause", "as": "member"},  # still refused
+        ]
+    )
     r = [x for x in res.cmds if x.user == "roleadmin"]
     c.ok("required" in r[0].text, f"role user allowed before admin_role was set: {r[0].text!r}")
     c.ok("interval every 20" in r[1].text, f"role user refused after admin_role was set: {r[1].text!r}")
@@ -1319,18 +1579,28 @@ async def sc_roleadmin(ctx: Ctx, c: Checks):
 
 
 async def sc_invalid(ctx: Ctx, c: Checks):
-    steps = ['21:30 watch add "ZZ SEN"', "21:31 calls outlets=BOGUS enabled=off", "21:32 posting interval",
-             "21:33 watch add", "21:34 polls race=nonsense", "21:35 odds race=???", "21:36 faq state=XX",
-             "21:37 favorite add \"QQ-99\"", "21:38 watch remove \"ZZ-01\""]
+    steps = [
+        '21:30 watch add "ZZ SEN"',
+        "21:31 calls outlets=BOGUS enabled=off",
+        "21:32 posting interval",
+        "21:33 watch add",
+        "21:34 polls race=nonsense",
+        "21:35 odds race=???",
+        "21:36 faq state=XX",
+        '21:37 favorite add "QQ-99"',
+        '21:38 watch remove "ZZ-01"',
+    ]
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], calls=default_calls_for(ctx))
     res = await night.run(steps)
     control = await Night(ctx.year, ctx.timelines, [base_guild(ctx)], calls=default_calls_for(ctx)).run([])
     for r in res.cmds:
         c.ok(r.error is None, f"/{r.label}: raised {r.error}")
     replies_ok(c, res)
-    gs = res.extra.get("final")
-    c.ok(post_signature(res, GUILD) == post_signature(control, GUILD),
-         "invalid commands changed posting (posts differ from control)")
+    res.extra.get("final")
+    c.ok(
+        post_signature(res, GUILD) == post_signature(control, GUILD),
+        "invalid commands changed posting (posts differ from control)",
+    )
     c.note("; ".join(f"/{r.label} -> {r.text[:60]!r}" for r in res.cmds[:4]))
     return res
 
@@ -1347,20 +1617,35 @@ async def sc_pause_change(ctx: Ctx, c: Checks):
 
 async def sc_two_guilds(ctx: Ctx, c: Checks):
     g2_races = sorted(ctx.watched)[::3]
-    g2 = GuildSettings(guild_id=2, channel_id=201, important=g2_races, post_mode=PostMode.IMMEDIATE,
-                       call_outlets=["FOX"], post_turnout=False, odds_alerts=True, odds_swing_pts=10,
-                       odds_window_minutes=30)
+    g2 = GuildSettings(
+        guild_id=2,
+        channel_id=201,
+        important=g2_races,
+        post_mode=PostMode.IMMEDIATE,
+        call_outlets=["FOX"],
+        post_turnout=False,
+        odds_alerts=True,
+        odds_swing_pts=10,
+        odds_window_minutes=30,
+    )
     x = pick_extra_race(ctx, set(ctx.watched), sim_time(ctx.year, "21:30"), sim_time(ctx.year, "23:00")) or g2_races[0]
     swings = [HeldSwing(g2_races[0], "DEM", sim_time(ctx.year, "22:10"), 5, 20)]
     kw = dict(calls=default_calls_for(ctx, outlets={"AP": 0, "FOX": 2}), swings=swings, turnout=True)
-    steps = ["21:00 pause", "21:30 resume", "21:40 posting interval 15", f'21:50 watch add "{x}"',
-             "22:00 calls AP off", "22:20 setup channel=300", "22:30 oddsalerts on threshold=5 window=10",
-             "22:40 turnout off", f'23:00 watch remove "{g2_races[0]}"',
-             {"at": "23:10", "cmd": "posting immediate", "as": "admin", "guild": 2},   # same as before: no-op
-             {"at": "23:20", "cmd": "!readonly under_tick=0", "guild": 2}]
+    steps = [
+        "21:00 pause",
+        "21:30 resume",
+        "21:40 posting interval 15",
+        f'21:50 watch add "{x}"',
+        "22:00 calls AP off",
+        "22:20 setup channel=300",
+        "22:30 oddsalerts on threshold=5 window=10",
+        "22:40 turnout off",
+        f'23:00 watch remove "{g2_races[0]}"',
+        {"at": "23:10", "cmd": "posting immediate", "as": "admin", "guild": 2},  # same as before: no-op
+        {"at": "23:20", "cmd": "!readonly under_tick=0", "guild": 2},
+    ]
     both = await Night(ctx.year, ctx.timelines, [base_guild(ctx), g2], **kw).run(steps)
-    solo = await Night(ctx.year, ctx.timelines, [g2], **kw).run(
-        [s for s in parse_steps(steps) if s.guild == 2])
+    solo = await Night(ctx.year, ctx.timelines, [g2], **kw).run([s for s in parse_steps(steps) if s.guild == 2])
     c.ok(post_signature(both, 2) == post_signature(solo, 2), "guild 2 posts differ when guild 1 changes settings")
     c.ok({p.channel for p in both.posts_for(2)} <= {201}, "guild 2 posted outside its channel")
     c.ok(not {p.channel for p in both.posts_for(GUILD)} & {201}, "guild 1 posted into guild 2's channel")
@@ -1378,23 +1663,36 @@ async def sc_store_errors(ctx: Ctx, c: Checks):
     from pymongo.asynchronous.mongo_client import AsyncMongoClient
 
     from electionwatch.store.mongo import MongoStore
+
     db = f"ew_sim_{os.getpid()}_{int(time.time())}"
     store = MongoStore(ctx.mongo_uri, db)
     await store.create_indexes()
-    await store.odds.drop_index("ts_1")   # the 3-day TTL would expire 2014-2024 replay odds mid-run
+    await store.odds.drop_index("ts_1")  # the 3-day TTL would expire 2014-2024 replay odds mid-run
     try:
-        night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], store=store, until="23:30",
-                      calls=default_calls_for(ctx))
-        res = await night.run(["21:50 posting interval 10", "22:00 !store_down minutes=20", "22:05 pause",
-                               "22:06 settings", "22:07 odds", '22:08 watch add "PA SEN"', "22:30 settings"])
+        night = Night(
+            ctx.year, ctx.timelines, [base_guild(ctx)], store=store, until="23:30", calls=default_calls_for(ctx)
+        )
+        res = await night.run(
+            [
+                "21:50 posting interval 10",
+                "22:00 !store_down minutes=20",
+                "22:05 pause",
+                "22:06 settings",
+                "22:07 odds",
+                '22:08 watch add "PA SEN"',
+                "22:30 settings",
+            ]
+        )
     finally:
         client = AsyncMongoClient(ctx.mongo_uri)
         await client.drop_database(db)
         await client.close()
         await store.close()
     down_errors = [e for e in res.tick_errors if res.t("22:00") <= e[0] < res.t("22:20")]
-    c.ok(all(res.t("22:00") <= e[0] < res.t("22:20") for e in res.tick_errors),
-         f"tick errors outside the outage: {res.tick_errors[:2]}")
+    c.ok(
+        all(res.t("22:00") <= e[0] < res.t("22:20") for e in res.tick_errors),
+        f"tick errors outside the outage: {res.tick_errors[:2]}",
+    )
     c.ok(bool(down_errors), "outage did not reach the poller")
     no_posts(c, res, res.t("22:00"), res.t("22:20"), label="store down: ")
     c.ok(bool(res.posts_for(t0=res.t("22:20"), t1=res.t("22:30"))), "no posts within 10 min after the store came back")
@@ -1403,13 +1701,17 @@ async def sc_store_errors(ctx: Ctx, c: Checks):
         c.ok(r.ack_s is not None and r.ack_s < DEADLINE_FLAG_S, f"/{r.label} during outage: no reply in time")
         c.ok("went wrong" in r.text, f"/{r.label} during outage: {r.text[:80]!r}")
     final = [r for r in res.cmds if r.label == "settings"][-1]
-    c.ok("paused: false" in final.text and "interval_minutes: 10" in final.text,
-         "settings after the outage lost the pre-outage change or kept the failed /pause")
+    c.ok(
+        "paused: false" in final.text and "interval_minutes: 10" in final.text,
+        "settings after the outage lost the pre-outage change or kept the failed /pause",
+    )
     dup = Counter((p.post.race, tuple(p.post.lines)) for p in res.posts_for(kind="call"))
     c.ok(all(v == 1 for v in dup.values()), "duplicate call posts after recovery")
     late = [p for p in res.posts_for(kind="call", t0=res.t("22:20"), t1=res.t("22:21"))]
-    c.note(f"{len(down_errors)} failed ticks, {len(during)} commands answered 'Something went wrong'; "
-           f"{len(late)} calls from the outage posted at recovery")
+    c.note(
+        f"{len(down_errors)} failed ticks, {len(during)} commands answered 'Something went wrong'; "
+        f"{len(late)} calls from the outage posted at recovery"
+    )
     replies_ok(c, res)
     return res
 
@@ -1423,10 +1725,23 @@ class PrivateMongod:
         path.mkdir(parents=True, exist_ok=True)
 
     def start(self) -> None:
-        self.proc = subprocess.Popen([self.binary, "--port", str(self.port), "--bind_ip", "127.0.0.1",
-                                      "--dbpath", str(self.path), "--quiet", "--nounixsocket"],
-                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.proc = subprocess.Popen(
+            [
+                self.binary,
+                "--port",
+                str(self.port),
+                "--bind_ip",
+                "127.0.0.1",
+                "--dbpath",
+                str(self.path),
+                "--quiet",
+                "--nounixsocket",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         import socket
+
         for _ in range(100):
             try:
                 socket.create_connection(("127.0.0.1", self.port), timeout=0.2).close()
@@ -1446,9 +1761,11 @@ async def sc_mongo_restart(ctx: Ctx, c: Checks):
     if not ctx.mongod_bin:
         c.ok(False, "no --mongod-bin")
         return None
-    from electionwatch.store.mongo import MongoStore
     import socket
-    with socket.socket() as sock:          # a free port: parallel runs must not share a mongod
+
+    from electionwatch.store.mongo import MongoStore
+
+    with socket.socket() as sock:  # a free port: parallel runs must not share a mongod
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
     mongod = PrivateMongod(ctx.mongod_bin, port, ctx.workdir / f"mongod-restart-{port}")
@@ -1457,10 +1774,19 @@ async def sc_mongo_restart(ctx: Ctx, c: Checks):
         store = MongoStore(f"mongodb://127.0.0.1:{port}", "ew_sim_restart")
         await store.create_indexes()
         await store.odds.drop_index("ts_1")
-        night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], store=store, start="21:30", until="22:30",
-                      mongod=mongod)
-        res = await night.run(["21:50 posting interval 10", "22:00 !mongod_stop", "22:00 settings",
-                               "22:01 pause", "22:02 !mongod_start", "22:10 settings"])
+        night = Night(
+            ctx.year, ctx.timelines, [base_guild(ctx)], store=store, start="21:30", until="22:30", mongod=mongod
+        )
+        res = await night.run(
+            [
+                "21:50 posting interval 10",
+                "22:00 !mongod_stop",
+                "22:00 settings",
+                "22:01 pause",
+                "22:02 !mongod_start",
+                "22:10 settings",
+            ]
+        )
         await store.close()
     finally:
         mongod.stop()
@@ -1468,13 +1794,17 @@ async def sc_mongo_restart(ctx: Ctx, c: Checks):
     for r in during:
         c.ok(r.ack_s is not None, f"/{r.label} while mongod is down: no reply at all")
         if r.ack_s is None or r.ack_s > DEADLINE_FLAG_S:
-            c.problems.append(f"/{r.label} while mongod is down answered after {r.total_s:.1f}s "
-                              "(Discord's 3 s deadline: the user sees 'did not respond')")
+            c.problems.append(
+                f"/{r.label} while mongod is down answered after {r.total_s:.1f}s "
+                "(Discord's 3 s deadline: the user sees 'did not respond')"
+            )
     c.ok(bool(res.posts_for(t0=res.t("22:02"))), "no posts after mongod restarted")
     final = [r for r in res.cmds if r.label == "settings"][-1]
     c.ok("interval_minutes: 10" in final.text, "settings lost across the mongod restart")
-    c.note(f"tick errors while down: {len(res.tick_errors)}; command wall times while down: "
-           + ", ".join(f"/{r.label} {r.total_s:.1f}s" for r in during))
+    c.note(
+        f"tick errors while down: {len(res.tick_errors)}; command wall times while down: "
+        + ", ".join(f"/{r.label} {r.total_s:.1f}s" for r in during)
+    )
     return res
 
 
@@ -1488,14 +1818,18 @@ async def sc_source_outage(ctx: Ctx, c: Checks):
     no_posts(c, res, res.t("21:41"), res.t("22:00"), kind="results", label="source down: ")
     held = len(res.posts_for(kind="results", t0=res.t("21:30"), t1=res.t("21:41")))
     first = min((p.at for p in res.posts_for(kind="results", t0=res.t("22:00"))), default=None)
-    c.ok(first is not None and first - res.t("22:00") <= timedelta(minutes=16),
-         f"results recovered at {et(first) if first else 'never'}")
+    c.ok(
+        first is not None and first - res.t("22:00") <= timedelta(minutes=16),
+        f"results recovered at {et(first) if first else 'never'}",
+    )
     c.ok(bool(res.posts_for(kind="call", t0=res.t("21:30"), t1=res.t("22:00"))) or True, "")
     calls_during = len(res.posts_for(kind="call", t0=res.t("21:30"), t1=res.t("22:00")))
     replies_ok(c, res)
-    c.note(f"{held} posts of numbers fetched before the outage, 21:30-21:40; "
-           f"attempts during outage at {[et(t) for t in tries]}; first results post after: "
-           f"{et(first) if first else '-'}; {calls_during} call posts continued during the outage")
+    c.note(
+        f"{held} posts of numbers fetched before the outage, 21:30-21:40; "
+        f"attempts during outage at {[et(t) for t in tries]}; first results post after: "
+        f"{et(first) if first else '-'}; {calls_during} call posts continued during the outage"
+    )
     return res
 
 
@@ -1507,15 +1841,24 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
             c.ok(False, "no --mongo-uri")
             return None
         from electionwatch.store.mongo import MongoStore
+
         db = f"ew_sim_lat_{os.getpid()}_{int(time.time())}"
         store = MongoStore(ctx.mongo_uri, db)
         await store.create_indexes()
         await store.odds.drop_index("ts_1")
-    night = Night(ctx.year, ctx.timelines, [base_guild(ctx, odds_alerts=True)], calls=default_calls_for(ctx),
-                  turnout=True, until="02:00", store=store)
+    night = Night(
+        ctx.year,
+        ctx.timelines,
+        [base_guild(ctx, odds_alerts=True)],
+        calls=default_calls_for(ctx),
+        turnout=True,
+        until="02:00",
+        store=store,
+    )
     night.measure_stall = True
-    night.readonly_race = next((k for k in ("PA SEN", "GA SEN", "AZ SEN", "TX SEN") if k in ctx.watched),
-                               sorted(ctx.watched)[0])
+    night.readonly_race = next(
+        (k for k in ("PA SEN", "GA SEN", "AZ SEN", "TX SEN") if k in ctx.watched), sorted(ctx.watched)[0]
+    )
     try:
         res = await night.run(steps)
     finally:
@@ -1525,12 +1868,16 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
     replies_ok(c, res)
     # The navigator and autocomplete read the race lists the background refresh stored.
     calls = night.src.list_calls
-    c.ok(bool(calls) and all(name and ":racelists:" in name for name in calls),
-         f"list_races called outside the race-list refresh: {[n for n in calls if not n or ':racelists:' not in n][:3]}")
+    c.ok(
+        bool(calls) and all(name and ":racelists:" in name for name in calls),
+        f"list_races called outside the race-list refresh: {[n for n in calls if not n or ':racelists:' not in n][:3]}",
+    )
     nav = [r for r in res.cmds if r.label.startswith("races")]
     loading = [r for r in nav if "still loading" in r.text]
-    c.ok(bool(nav) and not loading,
-         f"navigator said a race list was still loading at {et(loading[0].at)}" if loading else "no navigator")
+    c.ok(
+        bool(nav) and not loading,
+        f"navigator said a race list was still loading at {et(loading[0].at)}" if loading else "no navigator",
+    )
     for r in res.cmds:
         c.ok(r.error is None, f"/{r.label} at {et(r.at)} raised {r.error}")
         if r.ack_s is None or r.ack_s > DEADLINE_FLAG_S:
@@ -1543,13 +1890,24 @@ async def sc_latency(ctx: Ctx, c: Checks, mongo: bool = False):
     # The 3 s deadline is for the first response (message or defer); a deferred command has
     # 15 minutes for its followup, so the worst case is the slowest *ack* + the longest stall.
     worst = max(v["ack_max"] or v["max"] for v in lat.values()) + max(st)
-    c.ok(worst <= DEADLINE_FLAG_S, f"worst case (slowest ack {worst - max(st):.2f}s + loop blocked "
-                                   f"{max(st):.2f}s by a tick) = {worst:.2f}s > {DEADLINE_FLAG_S}s")
-    res.extra["stall"] = {"p50": pct(st, 50), "p95": pct(st, 95), "max": max(st),
-                          "tick_p50": pct(tk, 50), "tick_p95": pct(tk, 95), "tick_max": max(tk)}
+    c.ok(
+        worst <= DEADLINE_FLAG_S,
+        f"worst case (slowest ack {worst - max(st):.2f}s + loop blocked "
+        f"{max(st):.2f}s by a tick) = {worst:.2f}s > {DEADLINE_FLAG_S}s",
+    )
+    res.extra["stall"] = {
+        "p50": pct(st, 50),
+        "p95": pct(st, 95),
+        "max": max(st),
+        "tick_p50": pct(tk, 50),
+        "tick_p95": pct(tk, 95),
+        "tick_max": max(tk),
+    }
     c.note(f"loop blocked by a tick: p50 {pct(st, 50):.3f}s p95 {pct(st, 95):.3f}s max {max(st):.3f}s")
-    c.note(f"{len(res.cmds)} interactions; tick p50 {pct(tk, 50):.3f}s max {max(tk):.3f}s; "
-           + "; ".join(f"{k} p50 {v['p50']:.3f} p95 {v['p95']:.3f} max {v['max']:.3f}" for k, v in lat.items()))
+    c.note(
+        f"{len(res.cmds)} interactions; tick p50 {pct(tk, 50):.3f}s max {max(tk):.3f}s; "
+        + "; ".join(f"{k} p50 {v['p50']:.3f} p95 {v['p95']:.3f} max {v['max']:.3f}" for k, v in lat.items())
+    )
     res.extra["latency"] = lat
     return res
 
@@ -1569,8 +1927,10 @@ def latency_table(res: NightResult) -> dict:
     for r in res.cmds:
         if r.ack_s is not None:
             acks[r.label].append(r.ack_s)
-    return {k: {"n": len(v), "p50": pct(v, 50), "p95": pct(v, 95), "max": max(v),
-                "ack_max": max(acks[k], default=None)} for k, v in sorted(by.items())}
+    return {
+        k: {"n": len(v), "p50": pct(v, 50), "p95": pct(v, 95), "max": max(v), "ack_max": max(acks[k], default=None)}
+        for k, v in sorted(by.items())
+    }
 
 
 SCENARIOS: dict[str, tuple[str, Callable]] = {
@@ -1583,8 +1943,10 @@ SCENARIOS: dict[str, tuple[str, Callable]] = {
     "setup": ("7 /setup channel change mid-night", sc_setup),
     "nonadmin": ("8 non-admin tries every admin command; foreign navigator click", sc_nonadmin),
     "latency": ("9 read-only commands + navigator every 30 min under load", sc_latency),
-    "latencymongo": ("9b same as 9 with MongoStore (local mongod, throw-away db)",
-                     lambda ctx, c: sc_latency(ctx, c, mongo=True)),
+    "latencymongo": (
+        "9b same as 9 with MongoStore (local mongod, throw-away db)",
+        lambda ctx, c: sc_latency(ctx, c, mongo=True),
+    ),
     "twoguilds": ("10 two guilds, guild 1 changes everything", sc_two_guilds),
     "storeerr": ("11a MongoStore with store errors for 20 min", sc_store_errors),
     "mongorestart": ("11b private mongod stopped/started mid-night", sc_mongo_restart),
@@ -1600,11 +1962,15 @@ SCENARIOS: dict[str, tuple[str, Callable]] = {
 
 def write_run(out_dir: Path, name: str, res: NightResult | None, c: Checks, secs: float) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
-    row = {"scenario": name, "ok": not c.problems, "problems": c.problems[:40], "notes": c.notes,
-           "secs": round(secs, 1)}
+    row = {
+        "scenario": name,
+        "ok": not c.problems,
+        "problems": c.problems[:40],
+        "notes": c.notes,
+        "secs": round(secs, 1),
+    }
     if res is not None:
-        row.update(posts=len(res.posts), commands=len(res.cmds), ticks=len(res.ticks),
-                   tick_errors=len(res.tick_errors))
+        row.update(posts=len(res.posts), commands=len(res.cmds), ticks=len(res.ticks), tick_errors=len(res.tick_errors))
         for k in ("latency", "stall"):
             if k in res.extra:
                 row[k] = res.extra[k]
@@ -1618,8 +1984,9 @@ def write_run(out_dir: Path, name: str, res: NightResult | None, c: Checks, secs
     return row
 
 
-async def run_scenarios(years, mode, names, data, out_dir, mongo_uri, mongod_bin,
-                        bundled: dict | None = None) -> list[dict]:
+async def run_scenarios(
+    years, mode, names, data, out_dir, mongo_uri, mongod_bin, bundled: dict | None = None
+) -> list[dict]:
     """`bundled` maps year -> timelines for `--quick`, so no data directory is read."""
     rows = []
     for year in years:
@@ -1639,9 +2006,11 @@ async def run_scenarios(years, mode, names, data, out_dir, mongo_uri, mongod_bin
             row = write_run(out_dir / f"{year}-{mode}", name, res, c, time.perf_counter() - t)
             row.update(year=year, mode=mode)
             rows.append(row)
-            print(f"{year} {mode:3} {name:12} {'PASS' if row['ok'] else 'FAIL'} {row['secs']:7.1f}s "
-                  + ("; ".join(c.problems[:2]) if c.problems else (c.notes[0][:140] if c.notes else "")),
-                  flush=True)
+            print(
+                f"{year} {mode:3} {name:12} {'PASS' if row['ok'] else 'FAIL'} {row['secs']:7.1f}s "
+                + ("; ".join(c.problems[:2]) if c.problems else (c.notes[0][:140] if c.notes else "")),
+                flush=True,
+            )
     return rows
 
 
@@ -1669,9 +2038,9 @@ LIVE_STEPS = [
     "21:35 resume",
     "21:40 posting immediate",
     "21:55 posting default",
-    'WATCH_ADD',
-    'WATCH_REMOVE',
-    "22:35 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",   # every outlet: calls off
+    "WATCH_ADD",
+    "WATCH_REMOVE",
+    "22:35 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",  # every outlet: calls off
     "22:50 calls outlets=FOX enabled=on",
     "23:15 oddsalerts on threshold=10 window=30",
     "23:50 oddsalerts off",
@@ -1692,19 +2061,29 @@ class LivePoster(SimPoster):
 
     async def post(self, guild_id: int, channel_id: int, post: Post) -> None:
         from electionwatch.bot.poster import render_embed
+
         await super().post(guild_id, channel_id, post)
         sim = self.clock()
-        shown = dc_replace(post, title=f"[SIM] {post.title}",
-                           footer=((post.footer + " · ") if post.footer else "") + f"sim {et(sim)} ET")
+        shown = dc_replace(
+            post,
+            title=f"[SIM] {post.title}",
+            footer=((post.footer + " · ") if post.footer else "") + f"sim {et(sim)} ET",
+        )
         await self.thread.send(embed=render_embed(shown))
         self.sent[post.kind] += 1
-        self.record.write(json.dumps({"type": "post", "et": et(sim), "kind": post.kind, "race": post.race,
-                                      "lines": post.lines}, ensure_ascii=False) + "\n")
+        self.record.write(
+            json.dumps(
+                {"type": "post", "et": et(sim), "kind": post.kind, "race": post.race, "lines": post.lines},
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
         self.record.flush()
 
 
 async def live(a) -> None:
     from electionwatch.config import load_env
+
     load_env()
     timelines = load_year(Path(a.data).expanduser(), a.year)
     races = [k for k in LIVE_RACES if k in timelines] or top_race_per_state(timelines)[:8]
@@ -1731,42 +2110,65 @@ async def live(a) -> None:
     async def on_ready():
         try:
             channel = await client.fetch_channel(a.channel)
-            thread = await channel.create_thread(name=f"[SIM] command changes {a.year}",
-                                                 type=discord.ChannelType.public_thread,
-                                                 auto_archive_duration=1440)
+            thread = await channel.create_thread(
+                name=f"[SIM] command changes {a.year}",
+                type=discord.ChannelType.public_thread,
+                auto_archive_duration=1440,
+            )
             state["thread"] = thread.id
             (out / "thread.txt").write_text(f"{thread.id}\n")
             await thread.send(
                 f"**[SIM] Command-change simulation, {a.year} election night** ({a.speed:g}x, "
                 f"{a.start}-{a.until} ET).\nResults are historical replays; race calls, odds and exit polls are "
                 f"scripted test data. Watching: {', '.join(races)}.\nEach admin command below is invoked "
-                "through the bot's real slash-command code mid-night; watch the posts change after it.")
+                "through the bot's real slash-command code mid-night; watch the posts change after it."
+            )
 
             async def on_step(step: Step, rec: CmdRec | None) -> None:
                 if rec is None:
                     return
                 who = {"admin": "admin", "member": "a member without Manage Server"}.get(step.user, step.user)
                 reply = rec.text.replace("```yaml", "").replace("```", "").strip()
-                await thread.send(f"⚙️ `/{step.cmd}` by {who} (sim {et(rec.at)} ET)\n"
-                                  f"↳ ephemeral reply: {reply[:600]}")
+                await thread.send(f"⚙️ `/{step.cmd}` by {who} (sim {et(rec.at)} ET)\n↳ ephemeral reply: {reply[:600]}")
 
             poster = LivePoster(None, thread, out / "posts.jsonl")
-            night = Night(a.year, timelines, [GuildSettings(GUILD, CHANNEL, important=list(races))],
-                          start=a.start, until=a.until, turnout=True, calls=calls, swings=swings,
-                          exitpolls=exitpolls, poster=poster, speed=a.speed, on_step=on_step)
+            night = Night(
+                a.year,
+                timelines,
+                [GuildSettings(GUILD, CHANNEL, important=list(races))],
+                start=a.start,
+                until=a.until,
+                turnout=True,
+                calls=calls,
+                swings=swings,
+                exitpolls=exitpolls,
+                poster=poster,
+                speed=a.speed,
+                on_step=on_step,
+            )
             poster.clock = night.clock
             t0 = time.monotonic()
             res = await night.run(steps)
             await thread.send(
                 f"**[SIM] finished** after {(time.monotonic() - t0) / 60:.0f} min: posts {dict(poster.sent)}, "
-                f"{len(res.cmds)} commands, tick errors {len(res.tick_errors)}.")
+                f"{len(res.cmds)} commands, tick errors {len(res.tick_errors)}."
+            )
             c = Checks()
             no_posts(c, res, res.t("21:05"), res.t("21:35"))
             check_gaps(c, res, res.t("20:45"), res.t("21:05"), 15)
             no_posts(c, res, res.t("22:35"), res.t("22:50"), kind="call")
-            (out / "result.json").write_text(json.dumps(
-                {"thread": thread.id, "problems": c.problems, "posts": dict(poster.sent),
-                 "commands": [r.row() for r in res.cmds]}, indent=1, default=str))
+            (out / "result.json").write_text(
+                json.dumps(
+                    {
+                        "thread": thread.id,
+                        "problems": c.problems,
+                        "posts": dict(poster.sent),
+                        "commands": [r.row() for r in res.cmds],
+                    },
+                    indent=1,
+                    default=str,
+                )
+            )
             print("live problems:", c.problems or "none", "thread", thread.id, "->", out)
         except Exception:
             traceback.print_exc()
@@ -1788,9 +2190,11 @@ def main(argv=None) -> int:
     ap.add_argument("--scenarios", default="all", help="comma-separated names, or 'all' (see --list)")
     ap.add_argument("--skip", default="", help="scenarios to leave out")
     ap.add_argument("--data", default=str(DEFAULT_DATA))
-    ap.add_argument("--quick", action="store_true",
-                    help="bundled tiny night, no history data: a few scenarios, about 15 s "
-                         "(--years is ignored)")
+    ap.add_argument(
+        "--quick",
+        action="store_true",
+        help="bundled tiny night, no history data: a few scenarios, about 15 s (--years is ignored)",
+    )
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--mongo-uri", default=None, help="for storeerr, e.g. mongodb://127.0.0.1:27017")
     ap.add_argument("--mongod-bin", default=None, help="for mongorestart (private mongod on a free port)")
@@ -1811,15 +2215,14 @@ def main(argv=None) -> int:
         for k, (d, _) in SCENARIOS.items():
             print(f"{k:12} {d}")
         return 0
-    logging.basicConfig(level=logging.CRITICAL)   # the poller logs every injected failure
+    logging.basicConfig(level=logging.CRITICAL)  # the poller logs every injected failure
     bundled = {QUICK_YEAR: quick_timelines()} if a.quick else None
     years = [QUICK_YEAR] if a.quick else [y.strip() for y in a.years.split(",")]
     default_names = list(QUICK_SCENARIOS) if a.quick else list(SCENARIOS)
     names = default_names if a.scenarios == "all" else [s.strip() for s in a.scenarios.split(",")]
     names = [n for n in names if n not in set(a.skip.split(","))]
     out = Path(a.out_dir) if a.out_dir else LOGS / datetime.now().strftime("%Y%m%d-%H%M%S")
-    rows = asyncio.run(run_scenarios(years, a.races, names, a.data, out, a.mongo_uri, a.mongod_bin,
-                                     bundled))
+    rows = asyncio.run(run_scenarios(years, a.races, names, a.data, out, a.mongo_uri, a.mongod_bin, bundled))
     (out / f"summary-{a.races}.json").write_text(json.dumps(rows, indent=1, default=str))
     (out / f"matrix-{a.races}.md").write_text(matrix(rows) + "\n")
     print(matrix(rows))

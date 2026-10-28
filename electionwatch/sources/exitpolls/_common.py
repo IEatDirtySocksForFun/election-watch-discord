@@ -1,4 +1,5 @@
 """Shared helpers for exit-poll adapters."""
+
 from __future__ import annotations
 
 import os
@@ -8,7 +9,7 @@ from typing import ClassVar
 import httpx
 
 from electionwatch.models import ExitPoll, Level, RaceKey
-from electionwatch.sources.base import ExitPollSource, SourceUnavailable
+from electionwatch.sources.base import ExitPollSource
 
 URL_TEMPLATES = {
     # CNN and CBS give each state/race its own exit-poll page (verified 2024).
@@ -92,9 +93,7 @@ def make_exit_poll_source(source_name: str, source_outlet: str):
         enabled_by_default = False
         YEAR = 2026
 
-        async def fetch_exit_polls(
-            self, keys: list[RaceKey], client: httpx.AsyncClient
-        ) -> list[ExitPoll]:
+        async def fetch_exit_polls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[ExitPoll]:
             polls: list[ExitPoll] = []
             if _before_election_day():
                 return polls

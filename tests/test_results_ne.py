@@ -33,7 +33,7 @@ def test_statewide_offices_from_the_sw_page():
     assert got["NE SEN"].title == "For United States Senator - 6 Year Term"
     assert got["NE SEN"].candidates[0].name == "Pete Ricketts"
     assert got["NE SEN"].candidates[0].party == "REP"
-    assert got["NE GOV"].candidates[0].name == "Jim Pillen and Joe Kelly"   # ticket
+    assert got["NE GOV"].candidates[0].name == "Jim Pillen and Joe Kelly"  # ticket
     assert got["NE AUD"].key.office == "AUD"
     assert got["NE SEN"].source == "ne_sos"
 
@@ -41,7 +41,7 @@ def test_statewide_offices_from_the_sw_page():
 def test_precincts_come_from_the_precincts_fully_line():
     sen = by_key(parsed("sw.html"))["NE SEN"]
     assert sen.precincts_total == 1322
-    assert sen.precincts_reporting is None                    # 0 fully reported -> None
+    assert sen.precincts_reporting is None  # 0 fully reported -> None
     assert sen.expected_vote_pct is None
     assert sen.total_votes == 0
 
@@ -58,7 +58,8 @@ def test_state_board_of_education_is_local():
     got = by_key(parsed("se.html"))
     assert list(got) == ["NE LOCAL member-of-the-state-board-of-education-district-05"]
     assert got["NE LOCAL member-of-the-state-board-of-education-district-05"].title.startswith(
-        "For Member of the State Board of Education")
+        "For Member of the State Board of Education"
+    )
 
 
 def test_race_key_mapping():
@@ -68,11 +69,12 @@ def test_race_key_mapping():
     assert format_key(race_key("For State Treasurer")) == "NE TREAS"
     assert format_key(race_key("For Attorney General")) == "NE AG"
     assert format_key(race_key("For Auditor of Public Accounts")) == "NE AUD"
-    assert format_key(race_key("For Representative in Congress - 2  Year Term - District 02")) == \
-        "NE-02"
+    assert format_key(race_key("For Representative in Congress - 2  Year Term - District 02")) == "NE-02"
     assert format_key(race_key("For Member of the Legislature - District 49")) == "NE SD-49"
-    assert format_key(race_key("For Member of the State Board of Education - District 05")) == \
-        "NE LOCAL member-of-the-state-board-of-education-district-05"
+    assert (
+        format_key(race_key("For Member of the State Board of Education - District 05"))
+        == "NE LOCAL member-of-the-state-board-of-education-district-05"
+    )
 
 
 def test_scraper_flags():
@@ -103,7 +105,7 @@ def test_fetch_only_scrapes_pages_it_needs(monkeypatch):
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"NE SEN", "NE GOV"}
-    assert seen == ["SW"]                     # no local/legislative page was fetched
+    assert seen == ["SW"]  # no local/legislative page was fetched
 
 
 def test_fetch_pulls_local_pages_when_a_local_race_is_watched(monkeypatch):
@@ -113,14 +115,16 @@ def test_fetch_pulls_local_pages_when_a_local_race_is_watched(monkeypatch):
     def handler(request: httpx.Request) -> httpx.Response:
         family = request.url.params["type"]
         seen.append(family)
-        return httpx.Response(200, text=load(f"{family.lower()}.html") if family == "SE"
-                              else "<html><body></body></html>")
+        return httpx.Response(
+            200, text=load(f"{family.lower()}.html") if family == "SE" else "<html><body></body></html>"
+        )
 
     async def go():
         transport = httpx.MockTransport(handler)
         async with httpx.AsyncClient(transport=transport) as client:
             return await ne_sos.NeSos().fetch(
-                [parse("NE LOCAL member-of-the-state-board-of-education-district-05")], client)
+                [parse("NE LOCAL member-of-the-state-board-of-education-district-05")], client
+            )
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"NE LOCAL member-of-the-state-board-of-education-district-05"}

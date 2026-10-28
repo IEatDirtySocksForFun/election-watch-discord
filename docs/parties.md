@@ -8,9 +8,9 @@ old ballot line) is resolved by `electionwatch/parties.py` through the alias lis
 ```python
 from electionwatch.parties import party_code, party_emoji
 
-party_code("DFL")                            # 'DEM'
+party_code("DFL")  # 'DEM'
 party_emoji("Constitution Party of Oregon")  # '📜'
-party_emoji("Nobody We Know")                # '⚪'
+party_emoji("Nobody We Know")  # '⚪'
 ```
 
 Matching is case- and punctuation-insensitive, and never touches the network. Unknown

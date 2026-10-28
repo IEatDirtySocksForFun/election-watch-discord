@@ -18,6 +18,7 @@ courts, StateWideQ.json constitutional amendments (Races is ``null`` if there ar
 The 2026 general election is not in ElectionConstants yet (checked 2026-10-27), so the ID is
 discovered at runtime; 2024 is pinned so the fixture never depends on discovery.
 """
+
 from __future__ import annotations
 
 import re
@@ -54,8 +55,10 @@ _STATEWIDE = {
 _DISTRICT_LOCAL = (
     (re.compile(r"^JUSTICE, SUPREME COURT, PLACE (\d+)$"), "supreme-court-place-{}"),
     (re.compile(r"^JUDGE, COURT OF CRIMINAL APPEALS, PLACE (\d+)$"), "cca-place-{}"),
-    (re.compile(r"^MEMBER, STATE BOARD OF EDUCATION, DISTRICT (\d+)(?: - UNEXPIRED TERM)?$"),
-     "state-board-of-education-{}"),
+    (
+        re.compile(r"^MEMBER, STATE BOARD OF EDUCATION, DISTRICT (\d+)(?: - UNEXPIRED TERM)?$"),
+        "state-board-of-education-{}",
+    ),
 )
 
 
@@ -92,15 +95,17 @@ def _candidates(race: dict) -> list[CandidateResult]:
         name, incumbent = c.strip_incumbent(str(cand.get("N") or "").strip())
         if not name:
             continue
-        out.append(CandidateResult(
-            name=name,
-            party=c.norm_party(cand.get("P")),
-            votes=c.to_int(cand.get("V")),
-            pct=c.to_pct(cand.get("PE")),
-            incumbent=incumbent,
-            # Texas does not declare winners in these files (see Race.json for the call).
-            winner=False,
-        ))
+        out.append(
+            CandidateResult(
+                name=name,
+                party=c.norm_party(cand.get("P")),
+                votes=c.to_int(cand.get("V")),
+                pct=c.to_pct(cand.get("PE")),
+                incumbent=incumbent,
+                # Texas does not declare winners in these files (see Race.json for the call).
+                winner=False,
+            )
+        )
     return out
 
 
@@ -141,15 +146,20 @@ def parse_tx(
             # whole state's reporting (and expected-vote %) as its own.
             statewide = key.level in (Level.SENATE, Level.GOVERNOR) or fname == "StateWideQ"
             seen.add(ident)
-            results.append(c.make_result(
-                key, title, cands, fetched_at,
-                source=TxSos.name,
-                url=HUMAN,
-                total_votes=total,
-                precincts_reporting=(pr or None) if statewide else None,
-                precincts_total=(pt or None) if statewide else None,
-                source_updated_at=updated,
-            ))
+            results.append(
+                c.make_result(
+                    key,
+                    title,
+                    cands,
+                    fetched_at,
+                    source=TxSos.name,
+                    url=HUMAN,
+                    total_votes=total,
+                    precincts_reporting=(pr or None) if statewide else None,
+                    precincts_total=(pt or None) if statewide else None,
+                    source_updated_at=updated,
+                )
+            )
     return results
 
 
@@ -172,8 +182,7 @@ async def _resolve(client: httpx.AsyncClient, date: str) -> dict:
         for election_id, info in (entries or {}).items():
             name = str((info or {}).get("N") or "").upper()
             if et == "G" or "GENERAL" in name:
-                per = await c.get_json(
-                    client, f"{BASE}/election/{election_id}/version.json")
+                per = await c.get_json(client, f"{BASE}/election/{election_id}/version.json")
                 version = str((per or {}).get("___versionNo") or "").strip()
                 if version:
                     return {"election_id": str(election_id), "version": version}
@@ -216,8 +225,7 @@ class TxSos(ResultsSource):
             return []
         date = c.election_date()
         election = await _resolve(client, date)
-        doc = await _optional_json(
-            client, _data_url(election["election_id"], election["version"], "Race.json"))
+        doc = await _optional_json(client, _data_url(election["election_id"], election["version"], "Race.json"))
         out: list[tuple[RaceKey, str]] = []
         for office_type in (doc or {}).get("OfficeTypes") or []:
             for race in office_type.get("Races") or []:

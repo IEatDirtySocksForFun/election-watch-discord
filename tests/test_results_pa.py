@@ -17,8 +17,12 @@ def load(name):
 
 def parse():
     out = []
-    for name in ("office_us_senate.json", "office_us_house.json",
-                 "office_state_senate.json", "office_state_house.json"):
+    for name in (
+        "office_us_senate.json",
+        "office_us_house.json",
+        "office_state_senate.json",
+        "office_state_house.json",
+    ):
         out.extend(parse_pa(load(name), fetched_at=AT))
     return {format_key(r.key): r for r in out}
 
@@ -43,7 +47,7 @@ def test_house_and_state_legislature_districts():
     assert keys["PA-01"].title == "1st Congressional District"
     assert keys["PA SD-01"].key.level is Level.STATE
     assert keys["PA HD-01"].key.district == "01"
-    assert "PA-04" not in keys                   # trimmed out of the fixture
+    assert "PA-04" not in keys  # trimmed out of the fixture
 
 
 def test_office_name_mapping():
@@ -53,19 +57,28 @@ def test_office_name_mapping():
     assert format_key(race_key("Auditor General")) == "PA AUD"
     assert format_key(race_key("State Treasurer")) == "PA TREAS"
     assert format_key(race_key("Representative in Congress", {"District": "8th Congressional District"})) == "PA-08"
-    assert format_key(race_key("Senator in the General Assembly", {"District": "1st Senatorial District"})) == "PA SD-01"
-    assert format_key(race_key("Representative in the General Assembly", {"District": "121st Legislative District"})) == "PA HD-121"
-    assert format_key(race_key("President of the United States")) == \
-        "PA LOCAL president-of-the-united-states"
+    assert (
+        format_key(race_key("Senator in the General Assembly", {"District": "1st Senatorial District"})) == "PA SD-01"
+    )
+    assert (
+        format_key(race_key("Representative in the General Assembly", {"District": "121st Legislative District"}))
+        == "PA HD-121"
+    )
+    assert format_key(race_key("President of the United States")) == "PA LOCAL president-of-the-united-states"
     # Unknown questions are kept as a stable LOCAL race, not dropped.
-    assert format_key(race_key("Retention of Supreme Court Justice")) == \
-        "PA LOCAL retention-of-supreme-court-justice"
+    assert format_key(race_key("Retention of Supreme Court Justice")) == "PA LOCAL retention-of-supreme-court-justice"
 
 
 def test_latest_election_is_a_json_string_of_a_json_list():
-    inner = [{"ElectionID": 117, "ElectionName": "2026 General Election",
-              "ElectionDate": "2026-11-03T00:00:00", "ElectionType": "G"}]
-    body = json.dumps(json.dumps(inner))   # the API's double encoding, verbatim
+    inner = [
+        {
+            "ElectionID": 117,
+            "ElectionName": "2026 General Election",
+            "ElectionDate": "2026-11-03T00:00:00",
+            "ElectionType": "G",
+        }
+    ]
+    body = json.dumps(json.dumps(inner))  # the API's double encoding, verbatim
     rows = latest_rows(body)
     assert rows and rows[0]["ElectionID"] == 117
     assert latest_rows("") == []

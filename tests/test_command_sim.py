@@ -1,6 +1,7 @@
 """Command changes during a running replay night (replay/command_sim.py) on the bundled tiny
 night (`quick_timelines`: five races, a snapshot every 2 minutes from 8 PM to 1 AM ET, hand-made
 numbers). No network, no history data."""
+
 from __future__ import annotations
 
 import json
@@ -8,9 +9,22 @@ from datetime import timedelta
 
 import pytest
 
-from replay.command_sim import (QUICK_RACES, QUICK_SCENARIOS, QUICK_YEAR, SCENARIOS, Checks, Ctx,
-                                FakeInteraction, Night, Step, limit_problems, main, parse_steps,
-                                quick_timelines, sim_time)
+from replay.command_sim import (
+    QUICK_RACES,
+    QUICK_SCENARIOS,
+    QUICK_YEAR,
+    SCENARIOS,
+    Checks,
+    Ctx,
+    FakeInteraction,
+    Night,
+    Step,
+    limit_problems,
+    main,
+    parse_steps,
+    quick_timelines,
+    sim_time,
+)
 
 YEAR = QUICK_YEAR
 RACES = QUICK_RACES
@@ -43,6 +57,7 @@ async def test_checks_catch_a_command_that_does_nothing(ctx, monkeypatch):
 
     async def broken_pause(interaction):
         await interaction.response.send_message("Election posts paused.", ephemeral=True)
+
     monkeypatch.setattr(bot_discord.pause_command, "_callback", broken_pause)
     c = Checks()
     await SCENARIOS["pause"][1](ctx, c)
@@ -51,8 +66,9 @@ async def test_checks_catch_a_command_that_does_nothing(ctx, monkeypatch):
 
 async def test_admin_command_from_member_is_refused_and_recorded(ctx):
     night = Night(YEAR, ctx.timelines, [], until="20:05")
-    res = await night.run([{"at": "20:00", "cmd": "pause", "as": "member"},
-                           {"at": "20:01", "cmd": "posting interval 0"}])   # Discord's client blocks 0
+    res = await night.run(
+        [{"at": "20:00", "cmd": "pause", "as": "member"}, {"at": "20:01", "cmd": "posting interval 0"}]
+    )  # Discord's client blocks 0
     member, bad = res.cmds
     assert "required" in member.text and member.replies[0].ephemeral
     assert bad.rejected and not bad.replies
@@ -64,8 +80,17 @@ def test_quick_mode_needs_no_history_data(tmp_path):
     """`--quick` is what `make sim` runs: bundled night, a few scenarios, no fetched timelines."""
     assert set(QUICK_SCENARIOS) <= set(SCENARIOS)
     assert not {"storeerr", "latencymongo", "mongorestart"} & set(QUICK_SCENARIOS)
-    code = main(["--quick", "--scenarios", "pause,posting", "--out-dir", str(tmp_path),
-                 "--data", str(tmp_path / "no-such-directory")])
+    code = main(
+        [
+            "--quick",
+            "--scenarios",
+            "pause,posting",
+            "--out-dir",
+            str(tmp_path),
+            "--data",
+            str(tmp_path / "no-such-directory"),
+        ]
+    )
     assert code == 0
     rows = json.loads((tmp_path / "summary-top.json").read_text())
     assert [r["scenario"] for r in rows] == ["pause", "posting"]

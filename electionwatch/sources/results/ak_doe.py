@@ -28,6 +28,7 @@ intermediate is therefore shipped in ``electionwatch/data/certs/`` and trusted o
 normal CA bundle *for this host only* (see ``_tls_client``); certificate verification is
 never disabled.
 """
+
 from __future__ import annotations
 
 import csv
@@ -52,8 +53,7 @@ BASE = "https://www.elections.alaska.gov"
 #: Public intermediate the served leaf is issued by (fetched from the AIA URL printed in
 #: the leaf: http://secure.globalsign.com/cacert/gsgccr46ovtlsca2025.crt, 2026-10-27).
 EXTRA_INTERMEDIATE = (
-    Path(__file__).resolve().parent.parent.parent / "data" / "certs"
-    / "globalsign-gcc-r46-ov-tls-ca-2025.pem"
+    Path(__file__).resolve().parent.parent.parent / "data" / "certs" / "globalsign-gcc-r46-ov-tls-ca-2025.pem"
 )
 
 #: date -> results folder (the Division's own <YY><TYPE> id, e.g. 24GENR).
@@ -136,17 +136,23 @@ def parse_ak(text: str, *, fetched_at: datetime, url: str | None = None) -> list
             continue
         cands = [
             CandidateResult(name=v["name"], party=v["party"], votes=v["votes"])
-            for v in bucket["cands"].values() if v["name"]
+            for v in bucket["cands"].values()
+            if v["name"]
         ]
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=AkDoe.name,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=AkDoe.name,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+            )
+        )
     return out
 
 

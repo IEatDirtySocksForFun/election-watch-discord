@@ -11,6 +11,7 @@ simulated clock waits instead of dropping posts, so busy stretches run slower th
 
 Needs DISCORD_TOKEN (env or EW_ENV_FILES). No Mongo: uses MemoryStore.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -34,7 +35,6 @@ from electionwatch.poster import Post
 from electionwatch.racekeys import parse
 from electionwatch.settings import GuildSettings
 from electionwatch.store.memory import MemoryStore
-
 from replay.clock import FakeClock
 from replay.run import DEFAULT_DATA
 from replay.scripted import ScriptedCallSource, ScriptedOddsSource, default_calls, default_swings
@@ -42,7 +42,7 @@ from replay.source import ReplaySource
 from replay.timeline import load_year
 
 log = logging.getLogger("replay.discord_live")
-HIDDEN_GUILD = -1   # tracks every race; its posts are only counted
+HIDDEN_GUILD = -1  # tracks every race; its posts are only counted
 
 
 class SplitPoster:
@@ -66,19 +66,33 @@ class SplitPoster:
             return
         sim = self.clock()
         post = dataclasses.replace(
-            post, title=f"[SIM {self.year}] {post.title}",
-            footer=((post.footer + " · ") if post.footer else "") + f"sim {sim:%b %d %H:%M} UTC")
+            post,
+            title=f"[SIM {self.year}] {post.title}",
+            footer=((post.footer + " · ") if post.footer else "") + f"sim {sim:%b %d %H:%M} UTC",
+        )
         t0 = time.monotonic()
         try:
             await self.channel.send(embed=render_embed(post))
         except Exception as e:  # recorded for the run analysis, then re-raised to the poller
             self.failed[type(e).__name__] += 1
-            self._log(sim=f"{sim:%H:%M}", kind=post.kind, race=post.race, ok=False,
-                      error=f"{type(e).__name__}: {e}"[:300], lines=post.lines)
+            self._log(
+                sim=f"{sim:%H:%M}",
+                kind=post.kind,
+                race=post.race,
+                ok=False,
+                error=f"{type(e).__name__}: {e}"[:300],
+                lines=post.lines,
+            )
             raise
         self.sent[post.kind] += 1
-        self._log(sim=f"{sim:%H:%M}", kind=post.kind, race=post.race, ok=True,
-                  secs=round(time.monotonic() - t0, 2), lines=post.lines)
+        self._log(
+            sim=f"{sim:%H:%M}",
+            kind=post.kind,
+            race=post.race,
+            ok=True,
+            secs=round(time.monotonic() - t0, 2),
+            lines=post.lines,
+        )
 
 
 def top_race_per_state(timelines: dict) -> list[str]:
@@ -92,6 +106,7 @@ def top_race_per_state(timelines: dict) -> list[str]:
         key = parse(k)
         order = {Level.SENATE: 0, Level.GOVERNOR: 1, Level.HOUSE: 2}.get(key.level, 3)
         return (order, key.special, key.office != "GOV", k)
+
     return [min(ks, key=rank) for _, ks in sorted(by_state.items())]
 
 
@@ -115,13 +130,17 @@ async def run(a) -> None:
     clock = FakeClock(start_ts.replace(second=0, microsecond=0) - timedelta(minutes=1))
     src = ReplaySource(timelines, clock)
     end = min(src.span()[1] + timedelta(minutes=30), clock() + timedelta(hours=a.max_hours))
-    sources = {"results": [src], "calls": [ScriptedCallSource(default_calls(src), clock)],
-               "odds": [ScriptedOddsSource(src, clock, default_swings(src))], "exitpolls": []}
+    sources = {
+        "results": [src],
+        "calls": [ScriptedCallSource(default_calls(src), clock)],
+        "odds": [ScriptedOddsSource(src, clock, default_swings(src))],
+        "exitpolls": [],
+    }
     store = MemoryStore()
-    await store.save_guild(GuildSettings(guild_id=a.guild, channel_id=a.channel,
-                                         important=posting, odds_alerts=True))
-    await store.save_guild(GuildSettings(guild_id=HIDDEN_GUILD, channel_id=0,
-                                         important=sorted(timelines), odds_alerts=True))
+    await store.save_guild(GuildSettings(guild_id=a.guild, channel_id=a.channel, important=posting, odds_alerts=True))
+    await store.save_guild(
+        GuildSettings(guild_id=HIDDEN_GUILD, channel_id=0, important=sorted(timelines), odds_alerts=True)
+    )
 
     client = discord.Client(intents=discord.Intents.none())
     done = asyncio.Event()
@@ -145,14 +164,17 @@ async def night(client, a, timelines, posting, clock, end, sources, store, src) 
 
     channel = await client.fetch_channel(a.channel)
     if a.thread:
-        channel = await channel.create_thread(name=a.thread, type=discord.ChannelType.public_thread,
-                                              auto_archive_duration=1440)
+        channel = await channel.create_thread(
+            name=a.thread, type=discord.ChannelType.public_thread, auto_archive_duration=1440
+        )
     poster = SplitPoster(channel, a.year, clock, Path(a.record) if a.record else None)
     hours = (end - clock()).total_seconds() / 3600
-    intro = (f"**[SIM {a.year}] Election-night replay starting** ({a.speed:g}x, ~{hours / a.speed * 60:.0f} min).\n"
-             f"Tracking **{len(timelines)}** races; posting **{len(posting)}** here "
-             f"({', '.join(posting[:6])}{' …' if len(posting) > 6 else ''}).\n"
-             "Results are historical; race calls and odds are scripted test data.")
+    intro = (
+        f"**[SIM {a.year}] Election-night replay starting** ({a.speed:g}x, ~{hours / a.speed * 60:.0f} min).\n"
+        f"Tracking **{len(timelines)}** races; posting **{len(posting)}** here "
+        f"({', '.join(posting[:6])}{' …' if len(posting) > 6 else ''}).\n"
+        "Results are historical; race calls and odds are scripted test data."
+    )
     if a.report_url:
         intro += f"\nFull run (all {len(timelines)} races): {a.report_url}"
     files = [discord.File(a.report)] if a.report else []
@@ -177,14 +199,16 @@ async def night(client, a, timelines, posting, clock, end, sources, store, src) 
                 clock.advance(skipped.total_seconds() / 60)
                 log.info("no new results for %s: skipping to %s", skipped, f"{clock():%H:%M}")
             if ticks % 60 == 0:
-                log.info("sim %s, %d posts sent, slowest tick %.1fs", f"{clock():%H:%M}",
-                         sum(poster.sent.values()), slow)
+                log.info(
+                    "sim %s, %d posts sent, slowest tick %.1fs", f"{clock():%H:%M}", sum(poster.sent.values()), slow
+                )
     real = (time.monotonic() - t0) / 60
     await channel.send(
         f"**[SIM {a.year}] Replay finished** after {real:.0f} min real time ({ticks} simulated minutes).\n"
         f"Posted here: {dict(poster.sent)} · failed sends: {dict(poster.failed) or 0} · "
         f"all tracked races: {dict(poster.hidden)} · "
-        f"slowest tick incl. Discord sends: {slow:.1f}s")
+        f"slowest tick incl. Discord sends: {slow:.1f}s"
+    )
 
 
 def main() -> None:
@@ -199,15 +223,15 @@ def main() -> None:
     ap.add_argument("--max-hours", type=float, default=36)
     ap.add_argument("--report", default=None, help="file to attach to the first message")
     ap.add_argument("--report-url", default=None, help="link to the full-run report")
-    ap.add_argument("--idle-skip", type=float, default=90,
-                    help="fast-forward when no race has a new snapshot for this many minutes")
+    ap.add_argument(
+        "--idle-skip", type=float, default=90, help="fast-forward when no race has a new snapshot for this many minutes"
+    )
     ap.add_argument("--thread", default=None, help="post in a new public thread of the channel with this name")
     ap.add_argument("--record", default=None, help="append one JSON line per Discord send here")
     ap.add_argument("--log-file", default=None, help="also write all log output (incl. discord.py) here")
     a = ap.parse_args()
     handlers = [logging.StreamHandler()] + ([logging.FileHandler(a.log_file)] if a.log_file else [])
-    logging.basicConfig(level=logging.INFO, handlers=handlers,
-                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.basicConfig(level=logging.INFO, handlers=handlers, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     load_env()
     asyncio.run(run(a))
 

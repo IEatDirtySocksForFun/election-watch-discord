@@ -1,4 +1,5 @@
 """tx_counties: Texas county Clarity ENR feeds merged into partial statewide results."""
+
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -25,10 +26,8 @@ def by_key(results):
 
 
 def merged_2024():
-    denton = tx_counties.parse_tx_county(load("denton_2024_summary.json"), None,
-                                         county="Denton", fetched_at=AT)
-    elpaso = tx_counties.parse_tx_county(load("el_paso_2024_summary.json"), None,
-                                         county="El_Paso", fetched_at=AT)
+    denton = tx_counties.parse_tx_county(load("denton_2024_summary.json"), None, county="Denton", fetched_at=AT)
+    elpaso = tx_counties.parse_tx_county(load("el_paso_2024_summary.json"), None, county="El_Paso", fetched_at=AT)
     return _county.merge(denton + elpaso, source="tx_counties", url=tx_counties.HUMAN)
 
 
@@ -80,8 +79,9 @@ def test_local_races_are_namespaced_by_county_but_shared_courts_are_not():
 
 
 def test_2026_general_file_parses_with_zero_votes():
-    results = by_key(tx_counties.parse_tx_county(
-        load("denton_2026_summary.json"), None, county="Denton", fetched_at=AT))
+    results = by_key(
+        tx_counties.parse_tx_county(load("denton_2026_summary.json"), None, county="Denton", fetched_at=AT)
+    )
     assert results["TX SEN"].candidates[0].name == "Ken Paxton"
     assert results["TX SEN"].candidates[0].votes == 0
     assert results["TX GOV"].title == "Governor"
@@ -99,29 +99,38 @@ def test_elections_listing_finds_the_general_for_a_date():
 
 def test_elections_listing_falls_back_when_the_general_is_filed_under_its_final_date():
     # Mercer County files "2024 General" under 12/5/2024 (its certification date).
-    entries = _county.parse_elections([
-        {"EID": "122845", "ElectionName": "2024 General", "Date": "12/5/2024 12:00:00 AM"},
-        {"EID": "123019", "ElectionName": "2024 Trenton Runoff", "Date": "12/3/2024 12:00:00 AM"},
-        {"EID": "122320", "ElectionName": "2024 Special School", "Date": "9/17/2024 12:00:00 AM"},
-    ])
+    entries = _county.parse_elections(
+        [
+            {"EID": "122845", "ElectionName": "2024 General", "Date": "12/5/2024 12:00:00 AM"},
+            {"EID": "123019", "ElectionName": "2024 Trenton Runoff", "Date": "12/3/2024 12:00:00 AM"},
+            {"EID": "122320", "ElectionName": "2024 Special School", "Date": "9/17/2024 12:00:00 AM"},
+        ]
+    )
     assert _county.find_election(entries, "2024-11-05") == "122845"
 
 
 def test_elections_listing_ignores_wrong_year_and_primaries():
-    entries = _county.parse_elections([
-        {"EID": "1", "ElectionName": "2026 Primary Election", "Date": "6/2/2026 12:00:00 AM"},
-        {"EID": "2", "ElectionName": "2025 General Election", "Date": "11/4/2025 12:00:00 AM"},
-    ])
+    entries = _county.parse_elections(
+        [
+            {"EID": "1", "ElectionName": "2026 Primary Election", "Date": "6/2/2026 12:00:00 AM"},
+            {"EID": "2", "ElectionName": "2025 General Election", "Date": "11/4/2025 12:00:00 AM"},
+        ]
+    )
     assert _county.find_election(entries, "2026-11-03") is None
 
 
 def test_county_override_from_env(monkeypatch):
     monkeypatch.delenv("TX_COUNTY_FEEDS", raising=False)
     assert [c["county"] for c in tx_counties.counties("2026-11-03")][0] == "Dallas"
-    monkeypatch.setenv("TX_COUNTY_FEEDS", json.dumps([
-        {"county": "Harris", "election_id": "123456", "date": "2026-11-03"},
-        {"county": "Bexar", "election_id": "123457", "date": "2024-11-05"},
-    ]))
+    monkeypatch.setenv(
+        "TX_COUNTY_FEEDS",
+        json.dumps(
+            [
+                {"county": "Harris", "election_id": "123456", "date": "2026-11-03"},
+                {"county": "Bexar", "election_id": "123457", "date": "2024-11-05"},
+            ]
+        ),
+    )
     got = tx_counties.counties("2026-11-03")
     assert got == [{"county": "Harris", "slug": "harris", "election_id": "123456"}]
     with pytest.raises(SourceUnavailable):
@@ -137,10 +146,10 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
     }
 
     def handler(request: httpx.Request) -> httpx.Response:
-        parts = request.url.path.strip("/").split("/")           # TX/<County>/<id>/<...>
+        parts = request.url.path.strip("/").split("/")  # TX/<County>/<id>/<...>
         key = (parts[1], parts[2])
         if key not in bodies:
-            return httpx.Response(503)                            # Travis is pinned but down
+            return httpx.Response(503)  # Travis is pinned but down
         if request.url.path.endswith("current_ver.txt"):
             return httpx.Response(200, text="355989")
         if request.url.path.endswith("summary.json"):
@@ -149,8 +158,7 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await tx_counties.TxCounties().fetch(
-                [parse("TX SEN"), parse("TX-16"), parse("TX GOV")], c)
+            return await tx_counties.TxCounties().fetch([parse("TX SEN"), parse("TX-16"), parse("TX GOV")], c)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"TX SEN", "TX-16"}
@@ -159,12 +167,10 @@ def test_fetch_merges_pinned_counties_and_skips_a_dead_one(monkeypatch):
 
 def test_fetch_reports_unavailable_when_no_county_answers(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
-    monkeypatch.setenv("TX_COUNTY_FEEDS", json.dumps([
-        {"county": "Harris", "election_id": "1", "date": "2024-11-05"}]))
+    monkeypatch.setenv("TX_COUNTY_FEEDS", json.dumps([{"county": "Harris", "election_id": "1", "date": "2024-11-05"}]))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda request: httpx.Response(503))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(503))) as c:
             await tx_counties.TxCounties().fetch([parse("TX SEN")], c)
 
     with pytest.raises(SourceUnavailable):
@@ -172,6 +178,7 @@ def test_fetch_reports_unavailable_when_no_county_answers(monkeypatch):
 
 
 # --- the eleven counties added 2026-10-27 -------------------------------------------------
+
 
 def _parse(county_file: str, county: str):
     return tx_counties.parse_tx_county(load(county_file), None, county=county, fetched_at=AT)
@@ -187,8 +194,19 @@ def merged_all_2024():
 
 def test_county_list_covers_nineteen_clarity_feeds():
     assert len(tx_counties.COUNTIES) == 19
-    for county in ("Galveston", "Bell", "Comal", "Midland", "Gregg", "Kaufman",
-                   "Rockwall", "Lamar", "Rusk", "Bastrop", "Hood"):
+    for county in (
+        "Galveston",
+        "Bell",
+        "Comal",
+        "Midland",
+        "Gregg",
+        "Kaufman",
+        "Rockwall",
+        "Lamar",
+        "Rusk",
+        "Bastrop",
+        "Hood",
+    ):
         assert county in tx_counties.COUNTIES
         assert tx_counties.COUNTIES[county] == county.lower()
     # Harris runs its own JSON feed (tx_counties.parse_harris), not Clarity; Bexar moved
@@ -220,36 +238,36 @@ def test_repeated_party_prefix_is_stripped_before_merging():
 
 
 def test_house_district_name_variants():
-    assert "TX-25" in by_key(_parse("hood_2024_summary.json", "Hood"))       # "U. S. ..."
-    assert "TX-11" in by_key(_parse("bell_2024_summary.json", "Bell"))       # "Dist 11"
+    assert "TX-25" in by_key(_parse("hood_2024_summary.json", "Hood"))  # "U. S. ..."
+    assert "TX-11" in by_key(_parse("bell_2024_summary.json", "Bell"))  # "Dist 11"
     assert "TX-73" not in by_key(_parse("comal_2024_summary.json", "Comal"))  # HD, not US House
     assert "TX HD-73" in by_key(_parse("comal_2024_summary.json", "Comal"))  # double space
 
 
 def test_abbreviated_shared_courts_and_board_of_education():
     bell = by_key(_parse("bell_2024_summary.json", "Bell"))
-    assert "TX LOCAL presiding-judge-court-criminal-appeals" in bell      # "Ct of Crim App"
-    assert "TX LOCAL state-board-of-education-10" in bell                 # "State BoE, Dist 10"
-    assert "TX LOCAL supreme-court-place-2" in bell                       # "Pl 2"
+    assert "TX LOCAL presiding-judge-court-criminal-appeals" in bell  # "Ct of Crim App"
+    assert "TX LOCAL state-board-of-education-10" in bell  # "State BoE, Dist 10"
+    assert "TX LOCAL supreme-court-place-2" in bell  # "Pl 2"
     hood = by_key(_parse("hood_2024_summary.json", "Hood"))
-    assert "TX LOCAL supreme-court-place-6" in hood                       # "Superme Court"
-    assert "TX LOCAL hood-sheriff" in hood                                # still local
+    assert "TX LOCAL supreme-court-place-6" in hood  # "Superme Court"
+    assert "TX LOCAL hood-sheriff" in hood  # still local
 
 
 def test_2026_aliases_for_land_commissioner_and_unexpired_terms():
     kaufman = by_key(_parse("kaufman_2026_summary.json", "Kaufman"))
-    assert kaufman["TX LANDCOM"].key.level is Level.GOVERNOR           # "Comm General Land Office"
+    assert kaufman["TX LANDCOM"].key.level is Level.GOVERNOR  # "Comm General Land Office"
     assert kaufman["TX LANDCOM"].candidates[0].votes == 0
-    assert "TX LOCAL supreme-court-place-2" in kaufman                 # "Pl 2 Unexp"
+    assert "TX LOCAL supreme-court-place-2" in kaufman  # "Pl 2 Unexp"
     galveston = by_key(_parse("galveston_2026_summary.json", "Galveston"))
     assert galveston["TX GOV"].title == "Governor"
-    assert "TX LOCAL supreme-court-place-2" in galveston               # "... Unexpired Term"
+    assert "TX LOCAL supreme-court-place-2" in galveston  # "... Unexpired Term"
 
 
 def test_rejected_and_unassigned_write_in_rows_are_not_candidates():
     keys = by_key(_parse("hood_2024_summary.json", "Hood"))
     names = [c.name for c in keys["TX-25"].candidates]
-    assert names == ["Roger Williams", "Chad Hagg"]      # counted write-in kept, tallies dropped
+    assert names == ["Roger Williams", "Chad Hagg"]  # counted write-in kept, tallies dropped
 
 
 def test_president_merges_across_every_county_that_reports_it():
@@ -286,8 +304,8 @@ def test_travis_districts_and_propositions():
     assert "TX LOCAL travis-travis-county-proposition-a" in keys
 
 
-
 # --- Tarrant, Fort Bend, Bexar pins and Harris County's own feed (2026-10-27) -------------
+
 
 def test_pinned_ids_for_counties_whose_elections_json_is_empty():
     pins24 = tx_counties.ELECTIONS["2024-11-05"]
@@ -295,15 +313,14 @@ def test_pinned_ids_for_counties_whose_elections_json_is_empty():
     assert (pins24["Tarrant"], pins26["Tarrant"]) == ("122489", "127297")
     assert (pins24["Fort_Bend"], pins26["Fort_Bend"]) == ("122596", "127480")
     assert pins26["Bexar"] == "127291"
-    assert "Williamson" in tx_counties.COUNTIES   # discovered from elections.json
+    assert "Williamson" in tx_counties.COUNTIES  # discovered from elections.json
 
 
 def test_fort_bend_repeated_district_suffix_maps_to_shared_keys():
     got = by_key(_parse("fort_bend_2024_general.json", "Fort_Bend"))
     assert set(got) == {"TX SEN", "TX-07", "TX SD-17", "TX HD-26"}
     assert got["TX SEN"].total_votes == 356419
-    assert tx_counties.shared_key("UNITED STATES REPRESENTATIVE, DISTRICT 7 District 7") \
-        == parse("TX-07")
+    assert tx_counties.shared_key("UNITED STATES REPRESENTATIVE, DISTRICT 7 District 7") == parse("TX-07")
 
 
 def test_tarrant_and_bexar_2026_files_parse_with_zero_votes():
@@ -319,8 +336,7 @@ def test_tarrant_and_bexar_2026_files_parse_with_zero_votes():
 
 
 def test_harris_2024_feed_parses_party_suffixes_and_totals():
-    got = by_key(tx_counties.parse_harris(load("harris_2024_resultsbyballot.json"),
-                                          fetched_at=AT))
+    got = by_key(tx_counties.parse_harris(load("harris_2024_resultsbyballot.json"), fetched_at=AT))
     sen = got["TX SEN"]
     cands = {c.name.upper(): (c.party, c.votes) for c in sen.candidates}
     assert cands["TED CRUZ"] == ("REP", 666027)
@@ -335,8 +351,7 @@ def test_harris_2024_feed_parses_party_suffixes_and_totals():
 def test_harris_merges_with_clarity_counties():
     tarrant = _parse("tarrant_2024_general.json", "Tarrant")
     harris = tx_counties.parse_harris(load("harris_2024_resultsbyballot.json"), fetched_at=AT)
-    sen = by_key(_county.merge(tarrant + harris, source="tx_counties",
-                               url=tx_counties.HUMAN))["TX SEN"]
+    sen = by_key(_county.merge(tarrant + harris, source="tx_counties", url=tx_counties.HUMAN))["TX SEN"]
     assert sen.total_votes == 821473 + 1548914
     cruz = next(c for c in sen.candidates if c.name.upper() == "TED CRUZ")
     assert cruz.votes == 399927 + 666027
@@ -346,8 +361,13 @@ def test_harris_merges_with_clarity_counties():
 def test_harris_2026_file_and_wrong_date_guard():
     payload = load("harris_2026_resultsbyballot.json")
     got = by_key(tx_counties.parse_harris(payload, fetched_at=AT, date="2026-11-03"))
-    assert {"TX SEN", "TX-07", "TX GOV", "TX LOCAL court-of-appeals-15-chief-justice",
-            "TX LOCAL harris-county-judge"} <= set(got)
+    assert {
+        "TX SEN",
+        "TX-07",
+        "TX GOV",
+        "TX LOCAL court-of-appeals-15-chief-justice",
+        "TX LOCAL harris-county-judge",
+    } <= set(got)
     assert got["TX SEN"].total_votes == 0
     assert tx_counties.parse_harris(payload, fetched_at=AT, date="2026-11-10") == []
 
@@ -365,8 +385,7 @@ def test_harris_election_code_and_switch(monkeypatch):
 def test_fetch_includes_harris_alongside_clarity(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
     monkeypatch.delenv("TX_HARRIS_CODE", raising=False)
-    monkeypatch.setenv("TX_COUNTY_FEEDS", json.dumps([
-        {"county": "Tarrant", "election_id": "122489"}]))
+    monkeypatch.setenv("TX_COUNTY_FEEDS", json.dumps([{"county": "Tarrant", "election_id": "122489"}]))
 
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.host == "appfiles.harrisvotes.com":
@@ -384,4 +403,4 @@ def test_fetch_includes_harris_alongside_clarity(monkeypatch):
 
     got = by_key(asyncio.run(go()))
     assert got["TX SEN"].total_votes == 821473 + 1548914
-    assert got["TX-07"].total_votes == 173438       # Harris only
+    assert got["TX-07"].total_votes == 173438  # Harris only

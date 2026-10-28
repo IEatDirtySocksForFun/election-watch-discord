@@ -72,12 +72,10 @@ def test_race_key_mapping():
     assert format_key(race_key("Secretary of State")) == "CO SOS"
     assert format_key(race_key("State Treasurer")) == "CO TREAS"
     assert format_key(race_key("Attorney General")) == "CO AG"
-    assert format_key(race_key("Representative to the 120th United States Congress - District 3")) == \
-        "CO-03"
+    assert format_key(race_key("Representative to the 120th United States Congress - District 3")) == "CO-03"
     assert format_key(race_key("State Senator - District 35")) == "CO SD-35"
     assert format_key(race_key("State Representative - District 65")) == "CO HD-65"
-    assert format_key(race_key("Amendment 79 (CONSTITUTIONAL)")) == \
-        "CO LOCAL amendment-79-constitutional"
+    assert format_key(race_key("Amendment 79 (CONSTITUTIONAL)")) == "CO LOCAL amendment-79-constitutional"
 
 
 def test_empty_summary_is_not_an_error():
@@ -106,7 +104,7 @@ def test_fetch_resolves_version_then_summary(monkeypatch):
             return await co_sos.CoSos().fetch([parse("CO GOV"), parse("CO-01")], client)
 
     got = by_key(asyncio.run(go()))
-    assert set(got) == {"CO-01"}          # no 2024 governor race in the feed
+    assert set(got) == {"CO-01"}  # no 2024 governor race in the feed
     assert got["CO-01"].source == "co_sos"
     assert got["CO-01"].url == "https://results.enr.clarityelections.com/CO/122598/"
     assert seen[0].endswith("/CO/122598/current_ver.txt")

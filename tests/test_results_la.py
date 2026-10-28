@@ -15,8 +15,7 @@ def load(name):
 
 
 def parse():
-    return parse_la(load("2024_general_races.json"), load("2024_general_votes.json"),
-                    fetched_at=AT)
+    return parse_la(load("2024_general_races.json"), load("2024_general_votes.json"), fetched_at=AT)
 
 
 def by_key():
@@ -30,8 +29,8 @@ def test_presidential_electors_party_and_turnout():
     assert trump.name == 'Donald J. Trump, "JD" Vance'
     assert trump.party == "REP"
     assert trump.votes == 1208505
-    assert trump.winner is True                     # Outcome "Elected"
-    assert r.total_votes == 2021164                 # VoterCountVoted, not the candidate sum
+    assert trump.winner is True  # Outcome "Elected"
+    assert r.total_votes == 2021164  # VoterCountVoted, not the candidate sum
     assert r.registered_voters == 3046376
     assert r.precincts_reporting == r.precincts_total == 3805
     assert r.expected_vote_pct == 100.0
@@ -52,7 +51,10 @@ def test_local_races_keep_a_stable_slug():
     assert "LA LOCAL psc-district-2" in keys
     assert "LA LOCAL mayor-town-of-delcambre" in keys
     assert "LA LOCAL district-judge-21st-judicial-district-court-division-l" in keys
-    assert "LA LOCAL ca-no-1-act-no-408-2024-hb-300-provides-relative-to-federal-proceeds-from-alternative-energy-production" in keys
+    assert (
+        "LA LOCAL ca-no-1-act-no-408-2024-hb-300-provides-relative-to-federal-proceeds-from-alternative-energy-production"
+        in keys
+    )
 
 
 def test_2026_feed_maps_senate_and_legislative_districts():
@@ -61,7 +63,7 @@ def test_2026_feed_maps_senate_and_legislative_districts():
     senate = keys["LA SEN"]
     assert senate.candidates[0].name == '"Jamie" Davis'
     assert senate.candidates[0].party == "DEM"
-    assert senate.total_votes == 0                   # no votes counted yet
+    assert senate.total_votes == 0  # no votes counted yet
     assert "LA-01" in keys
     assert "LA HD-92" in keys
 

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from electionwatch.models import Level, RaceKey, RaceCall
+from electionwatch.models import Level, RaceKey
 from electionwatch.sources.calls.ap import APSource, parse_ap_response
 
 FIX = Path(__file__).parent / "fixtures" / "ap"
@@ -38,9 +38,7 @@ def test_no_winner_no_call():
             {
                 "statePostal": "TX",
                 "officeID": "S",
-                "candidates": [
-                    {"first": "A", "last": "B", "party": "Dem", "voteCount": 1}
-                ],
+                "candidates": [{"first": "A", "last": "B", "party": "Dem", "voteCount": 1}],
             }
         ]
     }

@@ -4,6 +4,7 @@ Each tick asks every enabled source that is due under its request budget
 (electionwatch/ratelimit.py): results, calls, exit polls and odds for the watched races, polls
 every 30 minutes, plus the races users asked about (electionwatch/demand.py). Everything is
 stored in MongoDB, which is what the data commands (/odds, /polls, /earlyvote) read."""
+
 from __future__ import annotations
 
 import asyncio
@@ -28,12 +29,13 @@ logger = logging.getLogger(__name__)
 _PARTY_COLOR = {"REP": 0xE03C31, "DEM": 0x2F6FDB}
 
 
-TOP_CANDIDATES = 5   # results posts show only the leading five candidates
+TOP_CANDIDATES = 5  # results posts show only the leading five candidates
 
 
 def _party_marker(party: str | None) -> str:
     try:  # full party table (electionwatch/data/parties.yaml) when installed
         from electionwatch.parties import party_emoji
+
         return party_emoji(party)
     except ImportError:
         return {"REP": "🔴", "DEM": "🔵"}.get(normalize_party(party) or "", "⚪")
@@ -47,9 +49,7 @@ def format_result(result: RaceResult, *, turnout: bool = False) -> Post:
         pct = f" · {candidate.pct:.1f}%" if candidate.pct is not None else ""
         party = f" ({candidate.party})" if candidate.party else ""
         winner = " ✓" if candidate.winner else ""
-        lines.append(
-            f"{_party_marker(candidate.party)} {candidate.name}{party} {candidate.votes:,}{pct}{winner}"
-        )
+        lines.append(f"{_party_marker(candidate.party)} {candidate.name}{party} {candidate.votes:,}{pct}{winner}")
     reporting = []
     if result.expected_vote_pct is not None:
         reporting.append(f"{result.expected_vote_pct:.1f}".removesuffix(".0") + "% expected vote")
@@ -93,9 +93,15 @@ def format_call(call: RaceCall) -> Post:
     else:
         party = f" ({call.party})" if call.party else ""
         lines = [f"{_party_marker(call.party)} Projected winner: {call.winner}{party}", f"Outlet: {outlet}"]
-    return Post("call", str(call.key), f"Race call · {describe(call.key)}", lines, url=call.url,
-                color=None if call.retracted else _PARTY_COLOR.get(normalize_party(call.party) or ""),
-                footer=f"Called {_as_utc(call.called_at):%b %d %H:%M} UTC")
+    return Post(
+        "call",
+        str(call.key),
+        f"Race call · {describe(call.key)}",
+        lines,
+        url=call.url,
+        color=None if call.retracted else _PARTY_COLOR.get(normalize_party(call.party) or ""),
+        footer=f"Called {_as_utc(call.called_at):%b %d %H:%M} UTC",
+    )
 
 
 def format_exit_poll(poll: ExitPoll) -> Post:
@@ -115,13 +121,18 @@ def best_result(answers: list[RaceResult]) -> RaceResult | None:
 
 
 #: Which kind of source each fetch method belongs to (ratelimit.FLOORS, EW_INTERVALS).
-METHOD_KIND = {"fetch": "results", "fetch_calls": "calls", "fetch_exit_polls": "exitpolls",
-               "fetch_odds": "odds", "fetch_polls": "polls"}
+METHOD_KIND = {
+    "fetch": "results",
+    "fetch_calls": "calls",
+    "fetch_exit_polls": "exitpolls",
+    "fetch_odds": "odds",
+    "fetch_polls": "polls",
+}
 POLLS_CACHE = "polls"
 #: A results source's last answer stands in for it while it is not due or backing off, for at
 #: most this long; after that the fallbacks answer for its races.
 ANSWER_REUSE = timedelta(minutes=10)
-ODDS_CHECKED = "odds_checked"   # races the odds refresh asked about and no market answered
+ODDS_CHECKED = "odds_checked"  # races the odds refresh asked about and no market answered
 
 
 def polls_ident(source: str, key) -> str:
@@ -131,6 +142,7 @@ def polls_ident(source: str, key) -> str:
 def dump_polls(polls: list[Poll]) -> str:
     def conv(value):
         return value.isoformat() if hasattr(value, "isoformat") else value
+
     return json.dumps([{k: conv(v) for k, v in to_doc(poll).items()} for poll in polls])
 
 
@@ -189,14 +201,14 @@ class Poller:
         # shown, so a vote change further down (multi-seat races) can render an identical
         # post; those are skipped. In memory: at most one repeat after a restart.
         self._last_body: dict[tuple[int, str, str], tuple[str, ...]] = {}
-        self._backoff: dict[str, tuple[int, datetime | None]] = {}   # source -> (failures, skip until)
-        self._flags_specials: set[str] = set()   # sources seen answering for a special key itself
+        self._backoff: dict[str, tuple[int, datetime | None]] = {}  # source -> (failures, skip until)
+        self._flags_specials: set[str] = set()  # sources seen answering for a special key itself
         # Request budgets (electionwatch/ratelimit.py): None asks every source every tick.
         self.rates = rates
         self.demand = demand
-        self._answers: dict[str, tuple] = {}     # source -> (when, its last results), see _fetch
-        self._odds_checked: dict[str, datetime] = {}   # race -> when its "no market" marker was written
-        self._lock = asyncio.Lock()              # /refresh and the minute loop never overlap
+        self._answers: dict[str, tuple] = {}  # source -> (when, its last results), see _fetch
+        self._odds_checked: dict[str, datetime] = {}  # race -> when its "no market" marker was written
+        self._lock = asyncio.Lock()  # /refresh and the minute loop never overlap
 
     def _watched(self, guild: GuildSettings) -> set[str]:
         return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
@@ -232,7 +244,7 @@ class Poller:
         failures, until = self._backoff.get(name, (0, None))
         now = self.clock()
         kind = METHOD_KIND.get(method, method)
-        budget_name = f"{name}:{kind}"   # one adapter can be a results and a calls source
+        budget_name = f"{name}:{kind}"  # one adapter can be a results and a calls source
         if until is not None and now < until:
             return self.last_answers(source, method, keys)
         if self.rates is not None and not self.rates.due(budget_name, kind):
@@ -309,9 +321,7 @@ class Poller:
         # Outlets and markets don't flag special elections (OH/FL Senate 2026 are specials):
         # ask them for the plain key too and file their answers under the watched special.
         self._aliases = {
-            replace(key, special=False): key
-            for key in keys
-            if key.special and replace(key, special=False) not in keys
+            replace(key, special=False): key for key in keys if key.special and replace(key, special=False) not in keys
         }
         outlet_keys = keys + list(self._aliases)
         await self._calls(now, guilds, outlet_keys)
@@ -370,9 +380,7 @@ class Poller:
             allowed = set(guild.results_sources)
             for race in watched:
                 candidates = by_race.get(race, [])
-                result = best_result(
-                    [item for item in candidates if not allowed or item.source in allowed]
-                )
+                result = best_result([item for item in candidates if not allowed or item.source in allowed])
                 if result is None:
                     continue
                 try:
@@ -380,9 +388,7 @@ class Poller:
                     changed_at = await self.store.result_changed_at(result.key)
                     updated = changed_at is not None and (last is None or changed_at > last)
                     if post_due(guild, last, now, updated):
-                        await self._post(
-                            guild, "results", race, format_result(result, turnout=guild.post_turnout), now
-                        )
+                        await self._post(guild, "results", race, format_result(result, turnout=guild.post_turnout), now)
                 except Exception:
                     logger.exception("Could not process results for guild %s", guild.guild_id)
 
@@ -426,14 +432,8 @@ class Poller:
                 if not new:
                     continue
                 for guild in guilds:
-                    if (
-                        str(call.key) in self._watched(guild)
-                        and guild.post_calls
-                        and call.outlet in guild.call_outlets
-                    ):
-                        await self._post(
-                            guild, "call", f"{call.key}:{call.outlet}", format_call(call), now
-                        )
+                    if str(call.key) in self._watched(guild) and guild.post_calls and call.outlet in guild.call_outlets:
+                        await self._post(guild, "call", f"{call.key}:{call.outlet}", format_call(call), now)
 
     async def _exit_polls(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         for source in self.sources.get("exitpolls", []):
@@ -470,8 +470,9 @@ class Poller:
                 by_key[str(poll.key)].append(poll)
             for key in keys:
                 try:
-                    await self.store.put_cached(POLLS_CACHE, polls_ident(name, key),
-                                                dump_polls(by_key.get(str(key), [])), now)
+                    await self.store.put_cached(
+                        POLLS_CACHE, polls_ident(name, key), dump_polls(by_key.get(str(key), [])), now
+                    )
                 except Exception:
                     logger.exception("Could not store polls for %s", key)
 
@@ -530,9 +531,7 @@ class Poller:
                     last = await self.store.last_posted(guild.guild_id, "odds_swing", ref)
                     if last is not None and now - last < window:
                         continue
-                    history = await self.store.odds_since(
-                        snapshot.key, snapshot.market, snapshot.outcome, now - window
-                    )
+                    history = await self.store.odds_since(snapshot.key, snapshot.market, snapshot.outcome, now - window)
                     # detect_swing takes a timedelta window (see electionwatch/swings.py).
                     swing = detect_swing(history, guild.odds_swing_pts, window)
                     if not swing:

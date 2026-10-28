@@ -16,12 +16,8 @@ def _load(name: str):
 
 
 def test_event_title_to_key():
-    assert _event_title_to_key("Texas Senate Election Winner") == RaceKey(
-        "TX", Level.SENATE, "SEN"
-    )
-    assert _event_title_to_key("California Governor Election Winner") == RaceKey(
-        "CA", Level.GOVERNOR, "GOV"
-    )
+    assert _event_title_to_key("Texas Senate Election Winner") == RaceKey("TX", Level.SENATE, "SEN")
+    assert _event_title_to_key("California Governor Election Winner") == RaceKey("CA", Level.GOVERNOR, "GOV")
     assert _event_title_to_key("New York House Election Winner District 14") == RaceKey(
         "NY", Level.HOUSE, "HOUSE", "14"
     )
@@ -97,11 +93,21 @@ def test_two_candidates_of_one_party_do_not_share_an_outcome_label():
     from electionwatch.sources.odds.polymarket import parse_polymarket_event
 
     def market(mid, title, price):
-        return {"id": mid, "groupItemTitle": title, "outcomes": '["Yes", "No"]',
-                "outcomePrices": f'["{price}", "{1 - price}"]'}
+        return {
+            "id": mid,
+            "groupItemTitle": title,
+            "outcomes": '["Yes", "No"]',
+            "outcomePrices": f'["{price}", "{1 - price}"]',
+        }
 
-    event = {"title": "California Governor Election Winner", "slug": "ca-gov", "markets": [
-        market(1, "Alice Adams (D)", 0.7), market(2, "Bob Brown (D)", 0.25),
-        market(3, "Carl Cole (R)", 0.05)]}
+    event = {
+        "title": "California Governor Election Winner",
+        "slug": "ca-gov",
+        "markets": [
+            market(1, "Alice Adams (D)", 0.7),
+            market(2, "Bob Brown (D)", 0.25),
+            market(3, "Carl Cole (R)", 0.05),
+        ],
+    }
     outcomes = {s.outcome: s.prob for s in parse_polymarket_event(event)}
     assert outcomes == {"Alice Adams (D)": 0.7, "Bob Brown (D)": 0.25, "REP": 0.05}

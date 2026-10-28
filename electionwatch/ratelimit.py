@@ -26,6 +26,7 @@ A source can be budgeted in parts, named "source:kind:part" (race lists: one par
 each refreshed on its own). A part that has never run is expected to cost what its sibling
 last cost, so the hourly check holds back a sweep of new parts too.
 """
+
 from __future__ import annotations
 
 import contextvars
@@ -36,8 +37,8 @@ from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 
-WINDOW = 3600.0   # the allowance is per hour
-TARGET = 0.9      # plan for 90% of the allowance; the hourly check catches the rest
+WINDOW = 3600.0  # the allowance is per hour
+TARGET = 0.9  # plan for 90% of the allowance; the hourly check catches the rest
 
 
 @dataclass(frozen=True)
@@ -58,8 +59,9 @@ class Limit:
 #: parent domain matches too (www.cnn.com -> cnn.com).
 HOST_LIMITS: dict[str, Limit] = {
     "gamma-api.polymarket.com": Limit(300, 10, "Polymarket docs: /markets 300 per 10 s per IP"),
-    "api.elections.kalshi.com": Limit(10, 1, "Kalshi publishes 20/s for its basic keyed tier only; "
-                                             "keyless calls are unpublished, so half of that"),
+    "api.elections.kalshi.com": Limit(
+        10, 1, "Kalshi publishes 20/s for its basic keyed tier only; keyless calls are unpublished, so half of that"
+    ),
     "en.wikipedia.org": Limit(200, 60, "Wikimedia: 200/min for a bot whose User-Agent has contact info"),
     "api.ap.org": Limit(10, 1, "elex docs: most AP keys allow 10/s; check your key's quota"),
     # Clarity's ENR files are static JSON on a CDN; nothing published. Many county adapters
@@ -82,10 +84,13 @@ DEFAULT_LIMIT = Limit(1, 1, "none published: a request a second")
 
 #: The fastest each kind of source is refreshed, whatever its budget allows.
 FLOORS: dict[str, float] = {
-    "results": 60, "calls": 60, "exitpolls": 60, "odds": 60,
-    "polls": 30 * 60,        # polls are published a few times a day
-    "earlyvote": 60 * 60,    # civicAPI updates early-vote numbers about once a day
-    "racelists": 60 * 60,    # a state's list of races rarely changes (one entry per state)
+    "results": 60,
+    "calls": 60,
+    "exitpolls": 60,
+    "odds": 60,
+    "polls": 30 * 60,  # polls are published a few times a day
+    "earlyvote": 60 * 60,  # civicAPI updates early-vote numbers about once a day
+    "racelists": 60 * 60,  # a state's list of races rarely changes (one entry per state)
 }
 DEFAULT_FLOOR = 60.0
 
@@ -93,7 +98,7 @@ current_source: contextvars.ContextVar[str | None] = contextvars.ContextVar("cur
 
 
 def parse_limits(raw: str) -> dict[str, Limit]:
-    """"civicapi.org=600/60,api.votehub.com=1000/3600" -> {host: Limit}. Bad parts are skipped."""
+    """ "civicapi.org=600/60,api.votehub.com=1000/3600" -> {host: Limit}. Bad parts are skipped."""
     out: dict[str, Limit] = {}
     for part in raw.split(","):
         host, sep, value = part.partition("=")
@@ -108,7 +113,7 @@ def parse_limits(raw: str) -> dict[str, Limit]:
 
 
 def parse_seconds(raw: str) -> dict[str, float]:
-    """"odds=120,polymarket=300" -> {name: seconds}. Bad or negative parts are skipped."""
+    """ "odds=120,polymarket=300" -> {name: seconds}. Bad or negative parts are skipped."""
     out: dict[str, float] = {}
     for part in raw.split(","):
         name, sep, value = part.partition("=")
@@ -136,14 +141,14 @@ class RateBook:
         self.safety = max(1.0, float(safety))
         self.intervals = dict(intervals or {})
         self.clock = clock
-        self._hits: dict[str, deque[float]] = defaultdict(deque)   # bucket -> request times
-        self._cost: dict[str, Counter] = {}       # source -> requests per bucket in its last refresh
+        self._hits: dict[str, deque[float]] = defaultdict(deque)  # bucket -> request times
+        self._cost: dict[str, Counter] = {}  # source -> requests per bucket in its last refresh
         self._running: dict[str, Counter] = {}
-        self._held: dict[str, Counter] = {}       # source -> requests it is still expected to make
-        self._next: dict[str, float] = {}         # source -> when it is due again
-        self._last: dict[str, float] = {}         # source -> when its last refresh ended
+        self._held: dict[str, Counter] = {}  # source -> requests it is still expected to make
+        self._next: dict[str, float] = {}  # source -> when it is due again
+        self._last: dict[str, float] = {}  # source -> when its last refresh ended
         self._kind: dict[str, str] = {}
-        self._family: dict[str, Counter] = {}     # "source:kind" -> cost of its last part's refresh
+        self._family: dict[str, Counter] = {}  # "source:kind" -> cost of its last part's refresh
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str], clock: Callable[[], float] = time.monotonic) -> "RateBook":
@@ -151,8 +156,12 @@ class RateBook:
             safety = float(environ.get("EW_RATE_SAFETY", "") or 2)
         except ValueError:
             safety = 2.0
-        return cls(parse_limits(environ.get("EW_RATE_LIMITS", "")), safety=safety,
-                   intervals=parse_seconds(environ.get("EW_INTERVALS", "")), clock=clock)
+        return cls(
+            parse_limits(environ.get("EW_RATE_LIMITS", "")),
+            safety=safety,
+            intervals=parse_seconds(environ.get("EW_INTERVALS", "")),
+            clock=clock,
+        )
 
     # ------------------------------------------------------------------ counting
     def bucket(self, host: str) -> str:
@@ -333,13 +342,16 @@ class RateBook:
         demands = self._demands()
         for name, kind in sorted(self._kind.items(), key=lambda item: (item[1], item[0])):
             cost = self._cost.get(name, Counter())
-            rows.append({
-                "source": name, "kind": kind,
-                "interval": self.interval(name, kind, demands),
-                "floor": FLOORS.get(kind, DEFAULT_FLOOR),
-                "overridden": self._override(name, kind) is not None,
-                "next_in": self.wait(name),
-                "requests_per_refresh": sum(cost.values()),
-                "hosts": {bucket: (self.used(bucket), self.allowance(bucket)) for bucket in sorted(cost)},
-            })
+            rows.append(
+                {
+                    "source": name,
+                    "kind": kind,
+                    "interval": self.interval(name, kind, demands),
+                    "floor": FLOORS.get(kind, DEFAULT_FLOOR),
+                    "overridden": self._override(name, kind) is not None,
+                    "next_in": self.wait(name),
+                    "requests_per_refresh": sum(cost.values()),
+                    "hosts": {bucket: (self.used(bucket), self.allowance(bucket)) for bucket in sorted(cost)},
+                }
+            )
         return rows

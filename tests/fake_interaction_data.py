@@ -6,6 +6,7 @@
 * ``check_embed`` / ``check_view`` / ``check_content`` / ``check_choices`` validate payloads
   against Discord's hard limits. Every recorded message goes through ``check_message``.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -94,7 +95,7 @@ def check_choices(choices: list) -> None:
 
 @dataclass
 class Event:
-    kind: str                 # defer | send_message | edit_message | followup | edit_original
+    kind: str  # defer | send_message | edit_message | followup | edit_original
     content: Any = None
     embed: discord.Embed | None = None
     view: discord.ui.View | None = None
@@ -160,8 +161,15 @@ class FakeFollowup:
 class FakeInteraction:
     """Minimal stand-in for discord.Interaction; ``kind`` is 'command' or 'component'."""
 
-    def __init__(self, client, *, user_id: int = 9, guild_id: int | None = 1,
-                 kind: str = "command", values: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        client,
+        *,
+        user_id: int = 9,
+        guild_id: int | None = 1,
+        kind: str = "command",
+        values: list[str] | None = None,
+    ) -> None:
         self.client = client
         self.user = SimpleNamespace(id=user_id, guild_permissions=None, roles=[])
         self.guild_id = guild_id
@@ -257,8 +265,9 @@ class RefreshedRaceLists(RaceLists):
                 races = await source.list_races(state, self.http)
             except Exception:
                 continue
-            await self.store.put_cached(CACHE, cache_ident(state, source.name), dump_list(races),
-                                        datetime.now(timezone.utc))
+            await self.store.put_cached(
+                CACHE, cache_ident(state, source.name), dump_list(races), datetime.now(timezone.utc)
+            )
         return await super().stored(state)
 
 

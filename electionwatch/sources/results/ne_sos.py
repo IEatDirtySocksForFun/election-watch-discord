@@ -36,6 +36,7 @@ and natural-resource districts, ballot questions) becomes a stable LOCAL slug.
 
 The site publishes no last-updated timestamp, so source_updated_at stays None.
 """
+
 from __future__ import annotations
 
 import re
@@ -55,14 +56,21 @@ UA = "election-watch-discord/0.1 (+https://github.com/election-watch-discord)"
 
 #: contest family -> map mode, in the order the site lists them.
 PAGES: dict[str, str] = {
-    "SW": "CTY",   # US Senate, Governor, Secretary of State, Treasurer, AG, Auditor
+    "SW": "CTY",  # US Senate, Governor, Secretary of State, Treasurer, AG, Auditor
     "CG": "DIST",  # US House
     "LD": "DIST",  # Legislature (unicameral)
     "SE": "DIST",  # State Board of Education
     "PS": "DIST",  # Public Service Commission
     "RG": "DIST",  # Regents
-    "CC": "CTY", "ED": "CTY", "JD": "CTY", "LC": "CTY",
-    "NR": "CTY", "PA": "CTY", "PP": "CTY", "RD": "CTY", "UT": "CTY",
+    "CC": "CTY",
+    "ED": "CTY",
+    "JD": "CTY",
+    "LC": "CTY",
+    "NR": "CTY",
+    "PA": "CTY",
+    "PP": "CTY",
+    "RD": "CTY",
+    "UT": "CTY",
 }
 
 #: Families that only ever hold local contests.
@@ -146,36 +154,46 @@ def parse_ne_page(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 continue
             party_node = group.css_first("div.display-results-box-d h2")
             votes_node = group.css_first("div.display-results-box-f h1")
-            cands.append(CandidateResult(
-                name=name,
-                party=c.norm_party(_clean(party_node.text() if party_node else "")),
-                votes=c.to_int(_clean(votes_node.text() if votes_node else "")),
-                incumbent=incumbent,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=c.norm_party(_clean(party_node.text() if party_node else "")),
+                    votes=c.to_int(_clean(votes_node.text() if votes_node else "")),
+                    incumbent=incumbent,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         total_node = block.css_first("div.display-results-box-total h2")
         total = c.to_int(_clean(total_node.text() if total_node else ""))
         reporting, precinct_total = _precincts(block)
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=NeSos.name,
-            url=HUMAN,
-            total_votes=total or sum(x.votes for x in cands),
-            precincts_reporting=reporting,
-            precincts_total=precinct_total,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=NeSos.name,
+                url=HUMAN,
+                total_votes=total or sum(x.votes for x in cands),
+                precincts_reporting=reporting,
+                precincts_total=precinct_total,
+            )
+        )
     return out
 
 
 async def _page(client: httpx.AsyncClient, family: str) -> str:
     url = f"{BASE}?type={family}&map={PAGES[family]}"
     try:
-        resp = await client.get(url, headers={
-            "Accept": "text/html,application/xhtml+xml",
-            "User-Agent": UA,
-        })
+        resp = await client.get(
+            url,
+            headers={
+                "Accept": "text/html,application/xhtml+xml",
+                "User-Agent": UA,
+            },
+        )
     except httpx.HTTPError as exc:
         raise SourceUnavailable(f"GET {url} failed: {exc}") from exc
     if resp.status_code >= 400:

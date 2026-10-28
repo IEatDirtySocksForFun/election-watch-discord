@@ -35,6 +35,7 @@ Notes:
 - Candidate names arrive in upper case ("BEN R LUJAN"); they are kept verbatim.
 - There is no "last updated" stamp; `source_updated_at` stays None.
 """
+
 from __future__ import annotations
 
 import re
@@ -125,21 +126,28 @@ def parse_nm(html: str, *, fetched_at: datetime) -> list[RaceResult]:
                 continue
             party_node = row.css_first("div.display-results-box-d h2")
             votes_node = row.css_first("div.display-results-box-f h1")
-            cands.append(CandidateResult(
-                name=name,
-                party=c.norm_party(party_node.text() if party_node is not None else None),
-                votes=c.to_int(votes_node.text() if votes_node is not None else None),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=c.norm_party(party_node.text() if party_node is not None else None),
+                    votes=c.to_int(votes_node.text() if votes_node is not None else None),
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=NmSos.name,
-            url=HUMAN,
-            precincts_reporting=reporting,
-            precincts_total=total,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=NmSos.name,
+                url=HUMAN,
+                precincts_reporting=reporting,
+                precincts_total=total,
+            )
+        )
     return out
 
 

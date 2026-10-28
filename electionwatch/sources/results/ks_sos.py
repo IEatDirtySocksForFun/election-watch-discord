@@ -42,6 +42,7 @@ Things worth knowing:
 - The category pages are discovered from the navigation of the first page, so a renaming
   of a tab does not need a code change.
 """
+
 from __future__ import annotations
 
 import re
@@ -60,8 +61,14 @@ BOOTSTRAP = BASE + "statewide.html"
 HUMAN = "https://www.sos.ks.gov/elections/election-results.html"
 
 #: Used when the navigation cannot be read (county pages are never fetched).
-FALLBACK_PAGES = ("national.html", "statewide.html", "ks-house.html", "ks-boe.html",
-                  "judicial.html", "constitutional.html")
+FALLBACK_PAGES = (
+    "national.html",
+    "statewide.html",
+    "ks-house.html",
+    "ks-boe.html",
+    "judicial.html",
+    "constitutional.html",
+)
 
 _SKIP_PAGES = {"favorite-races.html", "democratic.html", "republican.html"}
 _PAGE_LINK = re.compile(r"href=['\"]([a-z0-9-]+\.html)['\"]")
@@ -108,10 +115,7 @@ def race_key(name: str) -> RaceKey:
 
 def nav_pages(html: str) -> list[str]:
     """Race-category pages linked from the site's navigation."""
-    pages = [
-        p for p in dict.fromkeys(_PAGE_LINK.findall(html or ""))
-        if p not in _SKIP_PAGES
-    ]
+    pages = [p for p in dict.fromkeys(_PAGE_LINK.findall(html or "")) if p not in _SKIP_PAGES]
     return pages or list(FALLBACK_PAGES)
 
 
@@ -137,12 +141,14 @@ def _candidate_rows(doc: HTMLParser) -> tuple[list[CandidateResult], int | None]
             total = c.to_int(votes.text())
             continue
         raw_pct = row.css_first("div.col-1 p")
-        cands.append(CandidateResult(
-            name=name,
-            party=None,
-            votes=c.to_int(votes.text()),
-            pct=c.to_pct(raw_pct.text() if raw_pct is not None else None),
-        ))
+        cands.append(
+            CandidateResult(
+                name=name,
+                party=None,
+                votes=c.to_int(votes.text()),
+                pct=c.to_pct(raw_pct.text() if raw_pct is not None else None),
+            )
+        )
     return cands, total
 
 
@@ -173,15 +179,20 @@ def parse_ks(html: str, *, fetched_at: datetime) -> list[RaceResult]:
             if str(key) in seen:
                 continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, name, cands, fetched_at,
-            source=KsSos.name,
-            url=HUMAN,
-            total_votes=total if total is not None else sum(x.votes for x in cands),
-            precincts_reporting=reporting,
-            precincts_total=precincts,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                name,
+                cands,
+                fetched_at,
+                source=KsSos.name,
+                url=HUMAN,
+                total_votes=total if total is not None else sum(x.votes for x in cands),
+                precincts_reporting=reporting,
+                precincts_total=precincts,
+                source_updated_at=updated,
+            )
+        )
     return out
 
 

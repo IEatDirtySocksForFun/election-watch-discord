@@ -8,6 +8,7 @@ It is the site's own JSON (no documented API), so this counts as a scraper:
 The feed exposes one entry per state (Senate/Governor) or per district (House)
 under ``mapData``; ``tooltip.candidates[].isWinner`` is NBC's projection.
 """
+
 from __future__ import annotations
 
 import re
@@ -16,9 +17,9 @@ from typing import ClassVar
 
 import httpx
 
-from electionwatch.sources.results._common import election_date
 from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.sources.base import CallSource, SourceUnavailable, register
+from electionwatch.sources.results._common import election_date
 
 from ._common import (
     district_key,
@@ -46,9 +47,7 @@ class NBCSource(CallSource):
     BASE = "https://www.nbcnews.com/firecracker/api/v2/national-results"
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
-    async def fetch_calls(
-        self, keys: list[RaceKey], client: httpx.AsyncClient
-    ) -> list[RaceCall]:
+    async def fetch_calls(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceCall]:
         offices = {_OFFICE_SLUGS[k.level] for k in keys if k.level in _OFFICE_SLUGS}
         if not offices:
             return []
@@ -85,17 +84,13 @@ def parse_nbc_results(payload: dict) -> list[RaceCall]:
     for geo, entry in (payload.get("mapData") or {}).items():
         try:
             tooltip = entry.get("tooltip") or {}
-            winner = next(
-                (c for c in tooltip.get("candidates") or [] if c.get("isWinner")), None
-            )
+            winner = next((c for c in tooltip.get("candidates") or [] if c.get("isWinner")), None)
             if winner is None:
                 continue
             key = _tooltip_key(geo, tooltip)
             if key is None:
                 continue
-            name = winner.get("name") or " ".join(
-                p for p in (winner.get("firstName"), winner.get("lastName")) if p
-            )
+            name = winner.get("name") or " ".join(p for p in (winner.get("firstName"), winner.get("lastName")) if p)
             calls.append(
                 RaceCall(
                     key=key,
@@ -140,7 +135,4 @@ def _results_url(key: RaceKey, year: str) -> str | None:
     slug = _OFFICE_SLUGS.get(key.level)
     if slug is None:
         return None
-    return (
-        f"https://www.nbcnews.com/politics/{year}-elections/"
-        f"{key.state.lower()}-{slug}-results"
-    )
+    return f"https://www.nbcnews.com/politics/{year}-elections/{key.state.lower()}-{slug}-results"

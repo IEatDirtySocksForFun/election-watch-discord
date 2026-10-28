@@ -16,9 +16,7 @@ CASES = [
 
 
 def _load(outlet: str):
-    return json.loads(
-        (Path(__file__).parent / "fixtures" / outlet / "calls.json").read_text()
-    )
+    return json.loads((Path(__file__).parent / "fixtures" / outlet / "calls.json").read_text())
 
 
 @pytest.mark.parametrize("outlet,source,parse", CASES)

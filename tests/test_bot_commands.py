@@ -2,6 +2,7 @@
 
 No gateway connection is made: the bot is constructed with fakes and never started.
 """
+
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -14,8 +15,25 @@ from electionwatch.store.memory import MemoryStore
 
 #: The command surface the brief specifies.
 EXPECTED_COMMANDS = {
-    "setup", "watch", "posting", "calls", "oddsalerts", "odds", "polls", "turnout", "exitpolls",
-    "pause", "resume", "settings", "races", "favorite", "faq", "earlyvote", "earlyvote_posts", "refresh", "limits",
+    "setup",
+    "watch",
+    "posting",
+    "calls",
+    "oddsalerts",
+    "odds",
+    "polls",
+    "turnout",
+    "exitpolls",
+    "pause",
+    "resume",
+    "settings",
+    "races",
+    "favorite",
+    "faq",
+    "earlyvote",
+    "earlyvote_posts",
+    "refresh",
+    "limits",
 }
 
 
@@ -27,20 +45,27 @@ async def test_bot_registers_every_command_and_the_error_handler():
             commands = {command.name: command for command in bot.tree.get_commands()}
             assert set(commands) == EXPECTED_COMMANDS
             assert {parameter.name for parameter in commands["setup"].parameters} == {
-                "channel", "admin_role",
+                "channel",
+                "admin_role",
             }
             assert {parameter.name for parameter in commands["watch"].parameters} == {
-                "action", "race",
+                "action",
+                "race",
             }
             assert {parameter.name for parameter in commands["posting"].parameters} == {
-                "mode", "minutes",
+                "mode",
+                "minutes",
             }
             assert {parameter.name for parameter in commands["oddsalerts"].parameters} == {
-                "enabled", "threshold", "window",
+                "enabled",
+                "threshold",
+                "window",
             }
             assert {parameter.name for parameter in commands["odds"].parameters} == {"race"}
             assert {parameter.name for parameter in commands["polls"].parameters} == {
-                "race", "count", "internals",
+                "race",
+                "count",
+                "internals",
             }
             poll_parameters = {parameter.name: parameter for parameter in commands["polls"].parameters}
             assert poll_parameters["count"].default == 5
@@ -73,9 +98,7 @@ class _Followup:
 @pytest.mark.asyncio
 async def test_command_errors_are_reported_without_leaking_internals():
     response = _Response(done=False)
-    interaction = SimpleNamespace(
-        command=SimpleNamespace(name="watch"), response=response, followup=_Followup()
-    )
+    interaction = SimpleNamespace(command=SimpleNamespace(name="watch"), response=response, followup=_Followup())
 
     await handle_app_command_error(interaction, RuntimeError("token=secret"))
 
@@ -89,9 +112,7 @@ async def test_command_errors_are_reported_without_leaking_internals():
 async def test_command_errors_use_followup_when_the_interaction_was_answered():
     response = _Response(done=True)
     followup = _Followup()
-    interaction = SimpleNamespace(
-        command=SimpleNamespace(name="races"), response=response, followup=followup
-    )
+    interaction = SimpleNamespace(command=SimpleNamespace(name="races"), response=response, followup=followup)
 
     await handle_app_command_error(interaction, RuntimeError("boom"))
 

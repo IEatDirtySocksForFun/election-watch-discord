@@ -23,6 +23,7 @@ daily post
   [x] off by default: no requests; on: one post per snapshot day; paused / no channel skipped
   [x] only the server's watched states; nothing when none of them has data
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -32,19 +33,25 @@ from datetime import date
 import discord
 import httpx
 import pytest
+from fake_civicapi_early_vote import fixture_client, mock_http_client
+from fake_interaction_data import FakeInteraction, check_choices, check_embed, make_client
 
 from electionwatch.bot.discord import (
-    early_vote_command, early_vote_posts_command, early_vote_state_autocomplete,
+    early_vote_command,
+    early_vote_posts_command,
+    early_vote_state_autocomplete,
 )
 from electionwatch.bot.early_vote import (
-    format_overview, format_state, post_daily_summaries, resolve_state, state_choices,
+    format_overview,
+    format_state,
+    post_daily_summaries,
+    resolve_state,
+    state_choices,
 )
 from electionwatch.racekeys import STATES
 from electionwatch.settings import GuildSettings
 from electionwatch.sources.early_vote import Comparison, EarlyVote, EarlyVoteClient, National, Tally
 from electionwatch.store.memory import MemoryStore
-from fake_civicapi_early_vote import fixture_client, mock_http_client
-from fake_interaction_data import FakeInteraction, check_choices, check_embed, make_client
 
 
 @pytest.fixture
@@ -63,8 +70,10 @@ def _embed(interaction: FakeInteraction) -> discord.Embed:
 
 
 def _text(embed: discord.Embed) -> str:
-    return "\n".join([embed.title or "", embed.description or "", embed.footer.text or ""]
-                     + [f"{f.name}\n{f.value}" for f in embed.fields])
+    return "\n".join(
+        [embed.title or "", embed.description or "", embed.footer.text or ""]
+        + [f"{f.name}\n{f.value}" for f in embed.fields]
+    )
 
 
 # --------------------------------------------------------------------------- /earlyvote
@@ -76,7 +85,7 @@ async def test_overview_lists_every_state_with_data(client, guild_id):
     assert embed.title == "Early vote · United States"
     assert embed.url == "https://civicapi.org/early-vote"
     assert embed.footer.text == "Early vote: civicAPI · updated 2026-10-27"
-    assert embed.description.index("**TX**") < embed.description.index("**NC**")   # most ballots first
+    assert embed.description.index("**TX**") < embed.description.index("**NC**")  # most ballots first
     assert "**IL** 0 (grace period 2,513)" in embed.description
 
 
@@ -117,7 +126,7 @@ async def test_missing_breakdowns_say_so(client):
 async def test_invalid_state_is_one_ephemeral_error_without_defer(client, state):
     interaction = FakeInteraction(client)
     if state == "":
-        await early_vote_command.callback(interaction, state)   # empty = overview
+        await early_vote_command.callback(interaction, state)  # empty = overview
         assert interaction.kinds == ["defer", "followup"]
         return
     await early_vote_command.callback(interaction, state)
@@ -155,6 +164,7 @@ async def test_client_is_created_from_the_bot_http_client_when_missing():
         bot = make_client(MemoryStore())
         bot.http_client = http
         from electionwatch.bot.early_vote import early_vote_client
+
         created = early_vote_client(bot)
         assert created is early_vote_client(bot) and created.client is http
 
@@ -171,7 +181,10 @@ def _huge_state(parties: int = 60, counties: int = 300) -> EarlyVote:
     party = {f"Party {'X' * 150} {i}": 10**12 + i for i in range(parties)}
     tallies = {c: Tally(c, 10**15, dict(party), "L" * 300) for c in ("returned", "inperson", "requested", "grace")}
     return EarlyVote(
-        "NC", tallies, date(2026, 10, 27), "https://civicapi.org/early-vote/nc",
+        "NC",
+        tallies,
+        date(2026, 10, 27),
+        "https://civicapi.org/early-vote/nc",
         comparison=Comparison(2022, date(2022, 11, 1), 10**14, dict(party), ("L" * 500,) * 5),
         counties={f"{'County ' * 30}{i}": 10**12 - i for i in range(counties)},
         age={f"Age {'9' * 200} {i}": 10**9 for i in range(80)},
@@ -195,14 +208,22 @@ def test_overview_fits_with_every_state_and_huge_numbers():
 
 
 # --------------------------------------------------------------------------- autocomplete
-@pytest.mark.parametrize("current,expected", [
-    ("", None), ("n", "NC"), ("NORTH", "NC"), ("georgia", "GA"), ("carolina", "NC"), ("new y", None),
-])
+@pytest.mark.parametrize(
+    "current,expected",
+    [
+        ("", None),
+        ("n", "NC"),
+        ("NORTH", "NC"),
+        ("georgia", "GA"),
+        ("carolina", "NC"),
+        ("new y", None),
+    ],
+)
 async def test_autocomplete_offers_states_with_data(client, current, expected):
     choices = await early_vote_state_autocomplete(FakeInteraction(client), current)
     check_choices(choices)
     values = [c.value for c in choices]
-    assert "NY" not in values and "AL" not in values      # no civicAPI data
+    assert "NY" not in values and "AL" not in values  # no civicAPI data
     if expected:
         assert expected in values
     if current == "new y":
@@ -231,7 +252,7 @@ async def test_autocomplete_answers_in_time_with_a_slow_cold_civicapi(monkeypatc
         choices = await early_vote_state_autocomplete(FakeInteraction(bot), "")
         assert time.monotonic() - started < 1
         check_choices(choices)
-        assert len(choices) == 25                       # fallback: every state, capped
+        assert len(choices) == 25  # fallback: every state, capped
         gate.set()
         await bot.early_vote._warming
 
@@ -273,15 +294,15 @@ async def test_daily_post_is_off_by_default_and_makes_no_requests():
 async def test_daily_post_once_per_snapshot_for_watched_states_only():
     async with mock_http_client() as http:
         store = MemoryStore()
-        await store.save_guild(GuildSettings(1, channel_id=10, important=["NC SEN", "GA-06", "NY-17"],
-                                             post_early_vote=True))
-        await store.save_guild(GuildSettings(2, channel_id=20, important=["NC SEN"], post_early_vote=True,
-                                             paused=True))
-        await store.save_guild(GuildSettings(3, important=["NC SEN"], post_early_vote=True))   # no channel
+        await store.save_guild(
+            GuildSettings(1, channel_id=10, important=["NC SEN", "GA-06", "NY-17"], post_early_vote=True)
+        )
+        await store.save_guild(GuildSettings(2, channel_id=20, important=["NC SEN"], post_early_vote=True, paused=True))
+        await store.save_guild(GuildSettings(3, important=["NC SEN"], post_early_vote=True))  # no channel
         await store.save_guild(GuildSettings(4, channel_id=40, important=["NY-17"], post_early_vote=True))
         bot = PostBot(store, fixture_client(http))
         assert await post_daily_summaries(bot) == 1
-        assert await post_daily_summaries(bot) == 0          # same snapshot day: no repeat
+        assert await post_daily_summaries(bot) == 0  # same snapshot day: no repeat
     assert set(bot.channels) == {10}
     (embed,) = bot.channels[10].embeds
     assert embed.title == "Early vote · 2026-10-27" and embed.url == "https://civicapi.org/early-vote"

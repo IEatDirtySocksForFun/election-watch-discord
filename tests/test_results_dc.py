@@ -63,7 +63,12 @@ def test_over_under_votes_are_excluded():
 def test_race_key_mapping():
     assert format_key(race_key("DELEGATE TO THE HOUSE OF REPRESENTATIVES FROM THE DISTRICT OF COLUMBIA")) == "DC-AL"
     assert format_key(race_key("UNITED STATES SENATOR")) == "DC LOCAL shadow-senator"
-    assert format_key(race_key("AT-LARGE MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA")) == "DC LOCAL council-at-large"
-    assert format_key(race_key("WARD TWO MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA")) == "DC LOCAL council-ward-2"
+    assert (
+        format_key(race_key("AT-LARGE MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA"))
+        == "DC LOCAL council-at-large"
+    )
+    assert (
+        format_key(race_key("WARD TWO MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA")) == "DC LOCAL council-ward-2"
+    )
     assert format_key(race_key("INITIATIVE 83")) == "DC LOCAL initiative-83"
     assert format_key(race_key("ANC-8E05")) == "DC LOCAL anc-8e05"

@@ -28,6 +28,7 @@ Two quirks, both handled here:
 The precinct-level breakdown (``precinctResults``) and ``localResults`` are not parsed; the
 bot reports county totals only.
 """
+
 from __future__ import annotations
 
 import re
@@ -43,8 +44,7 @@ BASE = "https://app.enhancedvoting.com/cdn/results"
 HUMAN = "https://app.enhancedvoting.com/results/public"
 
 #: Georgia-style party suffix in a candidate name ("Jane Doe (Dem)").
-_PARTY_SUFFIX = re.compile(
-    r"\s*\((?:REP|DEM|LIB|GRN|GRE|IND|CON|CST|GOP|NPA|REF|WRI|WRITE-?IN)\)\s*$", re.I)
+_PARTY_SUFFIX = re.compile(r"\s*\((?:REP|DEM|LIB|GRN|GRE|IND|CON|CST|GOP|NPA|REF|WRI|WRITE-?IN)\)\s*$", re.I)
 
 #: County municipal races are nonpartisan; the vendor writes the word out.
 _PARTY_ALIASES = {"NONPARTISAN": "NPA"}
@@ -103,7 +103,7 @@ def parse_items(
         if not title:
             continue
         key = key_fn(title)
-        if str(key) in seen:      # the same office can appear per district
+        if str(key) in seen:  # the same office can appear per district
             continue
         cands: list[CandidateResult] = []
         for option in item.get("ballotOptions") or []:
@@ -114,22 +114,29 @@ def parse_items(
             name = split_party_prefix(name, party_code)
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=party_code,
-                votes=c.to_int(option.get("voteCount")),
-                incumbent=incumbent,
-                winner=False,     # the export publishes no winner flag
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=party_code,
+                    votes=c.to_int(option.get("voteCount")),
+                    incumbent=incumbent,
+                    winner=False,  # the export publishes no winner flag
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=source,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
-            precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=source,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
+                precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
+            )
+        )
     return out

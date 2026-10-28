@@ -1,4 +1,5 @@
 """discord.py 2.x application-command bot. Discord I/O stays in this module/view."""
+
 from __future__ import annotations
 
 import asyncio
@@ -15,8 +16,13 @@ from discord.ext import commands, tasks
 from electionwatch.bot.command_data import CommandData
 from electionwatch.bot.cooldown import Cooldowns
 from electionwatch.bot.early_vote import (
-    AUTOCOMPLETE_TIMEOUT, BREAKDOWNS, early_vote_client, early_vote_embed, post_daily_summaries,
-    resolve_state, state_choices,
+    AUTOCOMPLETE_TIMEOUT,
+    BREAKDOWNS,
+    early_vote_client,
+    early_vote_embed,
+    post_daily_summaries,
+    resolve_state,
+    state_choices,
 )
 from electionwatch.bot.logic import (
     change_calls,
@@ -34,12 +40,13 @@ from electionwatch.bot.logic import (
 from electionwatch.bot.navigator import RaceNavigator, race_lists
 from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
+from electionwatch.demand import Demand
 from electionwatch.poller import Poller
 from electionwatch.racekeys import STATES, describe, parse
-from electionwatch.settings import GuildSettings, UserSettings
-from electionwatch.demand import Demand
-from electionwatch.racelists import KIND as RACELISTS, READ_TIMEOUT, RaceLists, typed_state
+from electionwatch.racelists import KIND as RACELISTS
+from electionwatch.racelists import READ_TIMEOUT, RaceLists, typed_state
 from electionwatch.ratelimit import RateBook
+from electionwatch.settings import GuildSettings, UserSettings
 from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
 logger = logging.getLogger(__name__)
@@ -68,7 +75,7 @@ class ElectionBot(commands.Bot):
         self.http_client = http_client
         clock = clock or (lambda: datetime.now(timezone.utc))
 
-        def seconds() -> float:   # budgets and cooldowns run on the bot's clock (replays speed it up)
+        def seconds() -> float:  # budgets and cooldowns run on the bot's clock (replays speed it up)
             now = clock()
             return (now if now.tzinfo else now.replace(tzinfo=timezone.utc)).timestamp()
 
@@ -95,8 +102,15 @@ class ElectionBot(commands.Bot):
             demand=self.demand,
         )
         # The /races browser and race autocomplete read the lists this refresher stores.
-        self.race_lists = RaceLists(store, sources, http_client, clock, rates=self.rates, demand=self.demand,
-                                    default_races=self.poller.default_races)
+        self.race_lists = RaceLists(
+            store,
+            sources,
+            http_client,
+            clock,
+            rates=self.rates,
+            demand=self.demand,
+            default_races=self.poller.default_races,
+        )
         self.tree.on_error = handle_app_command_error
         for command in (
             setup_command,
@@ -239,7 +253,9 @@ async def _cooldown(interaction: discord.Interaction, command: str, target: str,
         return True
     await interaction.followup.send(
         f"You can ask for this again in {_span(wait)}: {kind} data refreshes about every {_span(every)}, "
-        "so a repeat would show the same numbers.", ephemeral=True)
+        "so a repeat would show the same numbers.",
+        ephemeral=True,
+    )
     return False
 
 
@@ -304,9 +320,7 @@ async def posting_command(
 
 
 @app_commands.command(name="calls", description="Configure race-call outlets")
-async def calls_command(
-    interaction: discord.Interaction, outlets: str, enabled: Literal["on", "off"]
-) -> None:
+async def calls_command(interaction: discord.Interaction, outlets: str, enabled: Literal["on", "off"]) -> None:
     gs = await _guild(interaction, admin=True)
     if gs is None:
         return
@@ -489,7 +503,8 @@ async def refresh_command(
     wait = bot.cooldowns.refresh_hit(gs.guild_id, bot.cooldowns.refresh_seconds(every, gs.refresh_cooldown_seconds))
     if wait:
         await interaction.response.send_message(
-            f"This server can refresh {what} again in {_span(wait)}.", ephemeral=True)
+            f"This server can refresh {what} again in {_span(wait)}.", ephemeral=True
+        )
         return
     await interaction.response.defer(ephemeral=True)
     forced = set(bot.rates.force(kinds))
@@ -522,11 +537,11 @@ async def refresh_command(
         rows = [row for row in bot.rates.status() if row["source"] in forced and row["kind"] in kinds]
         done = [row for row in rows if (bot.rates.last_run(row["source"]) or -1) >= started]
         held = sorted({row["source"].split(":")[0] for row in rows if row not in done})
-        message = (f"Refreshed {len(done)} source" + ("s" if len(done) != 1 else "") + "."
-                   if rows else "Refreshed.") + message
+        message = (
+            f"Refreshed {len(done)} source" + ("s" if len(done) != 1 else "") + "." if rows else "Refreshed."
+        ) + message
         if held:
-            message += (" Waiting for their hourly request allowance or a back-off: "
-                        + clip(", ".join(held), 1500) + ".")
+            message += " Waiting for their hourly request allowance or a back-off: " + clip(", ".join(held), 1500) + "."
     await interaction.followup.send(message.strip(), ephemeral=True)
 
 
@@ -593,7 +608,7 @@ async def races_command(interaction: discord.Interaction) -> None:
     # Several database reads before the reply: defer so the 3 s deadline cannot expire.
     await interaction.response.defer(ephemeral=True)
     settings = await _user(interaction)
-    watched = None   # outside a server, or a server without its own list: the default races
+    watched = None  # outside a server, or a server without its own list: the default races
     if interaction.guild_id is not None:
         try:
             gs = await interaction.client.store.get_guild(interaction.guild_id)
@@ -608,9 +623,7 @@ async def races_command(interaction: discord.Interaction) -> None:
 
 
 @app_commands.command(name="favorite", description="Add or remove a favorite race")
-async def favorite_command(
-    interaction: discord.Interaction, action: Literal["add", "remove"], race: str
-) -> None:
+async def favorite_command(interaction: discord.Interaction, action: Literal["add", "remove"], race: str) -> None:
     settings = await _user(interaction)
     try:
         message = change_favorite(settings, action, race)
@@ -674,7 +687,8 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
     # Stored lists only; a slow database must not cost the whole answer (3 s deadline).
     try:
         listed = await asyncio.wait_for(
-            asyncio.gather(*(lists.stored(state) for state in sorted(states))), READ_TIMEOUT)
+            asyncio.gather(*(lists.stored(state) for state in sorted(states))), READ_TIMEOUT
+        )
     except Exception:
         logger.warning("Race autocomplete answered without the stored race lists", exc_info=True)
         listed = []

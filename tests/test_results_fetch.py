@@ -1,4 +1,5 @@
 """Offline end-to-end fetch() tests: adapters + httpx.MockTransport, no network."""
+
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -53,8 +54,7 @@ def test_tx_fetch_uses_pinned_election(monkeypatch):
 
 def test_nc_fetch_reads_enr_files(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
-    files = {"contest.txt": "contest.txt", "results_0.txt": "results_0.txt",
-             "county.txt": "county.txt"}
+    files = {"contest.txt": "contest.txt", "results_0.txt": "results_0.txt", "county.txt": "county.txt"}
 
     def handler(request: httpx.Request) -> httpx.Response:
         name = request.url.path.rsplit("/", 1)[-1]
@@ -75,8 +75,7 @@ def test_ga_fetch_parses_export(monkeypatch):
 
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/export-2024NovGen.json")
-        return httpx.Response(
-            200, json=json.loads((FIX / "ga_sos" / "export-2020NovGen.json").read_text()))
+        return httpx.Response(200, json=json.loads((FIX / "ga_sos" / "export-2020NovGen.json").read_text()))
 
     async def go():
         async with client(handler) as c:
@@ -117,8 +116,9 @@ def test_pa_fetch_queries_every_office(monkeypatch):
 
 def test_clarity_fetch_resolves_version_then_summary(monkeypatch):
     monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
-    monkeypatch.setenv("CLARITY_FEEDS", json.dumps(
-        [{"state": "IL", "jurisdiction": "McLean", "election_id": "127349"}]))
+    monkeypatch.setenv(
+        "CLARITY_FEEDS", json.dumps([{"state": "IL", "jurisdiction": "McLean", "election_id": "127349"}])
+    )
     summary = (FIX / "clarity" / "il_mclean_2026_general_summary.json").read_text()
     paths = []
 
@@ -140,8 +140,7 @@ def test_clarity_fetch_resolves_version_then_summary(monkeypatch):
     # A county feed answers for its local races only, never with one county's IL SEN total.
     assert set(got) == {"IL LOCAL county-clerk"}
     assert got["IL LOCAL county-clerk"].source == "clarity"
-    assert got["IL LOCAL county-clerk"].source_updated_at == datetime(
-        2026, 10, 26, 16, 42, 44, tzinfo=timezone.utc)
+    assert got["IL LOCAL county-clerk"].source_updated_at == datetime(2026, 10, 26, 16, 42, 44, tzinfo=timezone.utc)
     assert any(p.endswith("/127349/current_ver.txt") for p in paths)
 
 

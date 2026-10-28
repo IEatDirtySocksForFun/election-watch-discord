@@ -72,13 +72,18 @@ def parse_results(payload: dict, fetched_at) -> list[RaceResult]:
         try:
             key = parse(race["key"])
         except ValueError:
-            continue                      # never fail the batch for one odd race
-        out.append(RaceResult(
-            key=key, source="example_sos", fetched_at=fetched_at, url=race.get("url"),
-            candidates=[CandidateResult(c["name"], c.get("party"), int(c["votes"]))
-                        for c in race["candidates"]],
-            precincts_reporting=race.get("reporting"), precincts_total=race.get("precincts"),
-        ).finalize())
+            continue  # never fail the batch for one odd race
+        out.append(
+            RaceResult(
+                key=key,
+                source="example_sos",
+                fetched_at=fetched_at,
+                url=race.get("url"),
+                candidates=[CandidateResult(c["name"], c.get("party"), int(c["votes"])) for c in race["candidates"]],
+                precincts_reporting=race.get("reporting"),
+                precincts_total=race.get("precincts"),
+            ).finalize()
+        )
     return out
 
 
@@ -94,6 +99,7 @@ class ExampleSos(ResultsSource):
         if r.status_code >= 500:
             raise SourceUnavailable(f"{self.name}: HTTP {r.status_code}")
         from datetime import datetime, timezone
+
         wanted = {str(k) for k in keys}
         return [x for x in parse_results(r.json(), datetime.now(timezone.utc)) if str(x.key) in wanted]
 ```

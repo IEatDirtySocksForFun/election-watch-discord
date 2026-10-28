@@ -63,8 +63,9 @@ def test_race_key_mapping():
     assert format_key(race_key("Governor")) == "DE GOV"
     assert format_key(race_key("State Senator District 2")) == "DE SD-02"
     assert format_key(race_key("State Representative District 10")) == "DE HD-10"
-    assert format_key(race_key("New Castle County Clerk of the Peace")) == \
-        "DE LOCAL new-castle-county-clerk-of-the-peace"
+    assert (
+        format_key(race_key("New Castle County Clerk of the Peace")) == "DE LOCAL new-castle-county-clerk-of-the-peace"
+    )
 
 
 async def test_url_is_built_not_discovered_so_no_directory_index_request(monkeypatch):

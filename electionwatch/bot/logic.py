@@ -1,4 +1,5 @@
 """Pure command and navigator logic, kept separate from Discord I/O for testing."""
+
 from __future__ import annotations
 
 import yaml
@@ -108,9 +109,7 @@ def change_calls(gs: GuildSettings, outlets: str, enabled: bool) -> str:
     return f"Race calls off (stopped {', '.join(selected)}; no outlets left)"
 
 
-def change_odds(
-    gs: GuildSettings, enabled: bool, threshold: float | None = None, window: int | None = None
-) -> str:
+def change_odds(gs: GuildSettings, enabled: bool, threshold: float | None = None, window: int | None = None) -> str:
     if threshold is not None and not 0 < threshold <= 100:
         raise ValueError("threshold must be greater than 0 and at most 100 points")
     if window is not None and not 1 <= window <= 1440:
@@ -129,8 +128,12 @@ def change_odds(
 MAX_LIMIT_SECONDS = 7 * 24 * 3600
 
 
-def change_limits(gs: GuildSettings, user_cooldown: int | None = None, user_hourly: int | None = None,
-                  refresh_cooldown: int | None = None) -> str:
+def change_limits(
+    gs: GuildSettings,
+    user_cooldown: int | None = None,
+    user_hourly: int | None = None,
+    refresh_cooldown: int | None = None,
+) -> str:
     """/limits: -1 resets a value to the default; omitted values are unchanged."""
     changes = []
     for field, value, label in (
@@ -177,8 +180,8 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
         refresh = cooldowns.refresh_seconds(min(every(k) for k in FLOORS), server.refresh_cooldown_seconds)
         lines += [
             "Command limits in this server:",
-            "  same race/state again: " + (f"after {_span(user)}" if set_user
-                                            else f"after 2 refreshes of its data (odds: {_span(user)})"),
+            "  same race/state again: "
+            + (f"after {_span(user)}" if set_user else f"after 2 refreshes of its data (odds: {_span(user)})"),
             "  per user per hour: " + (f"{hourly:g}" if hourly else "no cap"),
             "  /refresh: once every " + _span(refresh) + ("" if set_refresh else " (longer for slower data)"),
         ]
@@ -193,18 +196,24 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
             if row["kind"] == kind and (name not in mine or row["interval"] > mine[name]["interval"]):
                 mine[name] = row
         slowed = [row for row in mine.values() if row["overridden"] or row["interval"] > row["floor"] + 1]
-        lines.append(f"  {kind}: every {_span(every(kind))}"
-                     + (f" ({len(mine) - len(slowed)} sources at this rate)" if len(mine) > len(slowed) else ""))
+        lines.append(
+            f"  {kind}: every {_span(every(kind))}"
+            + (f" ({len(mine) - len(slowed)} sources at this rate)" if len(mine) > len(slowed) else "")
+        )
         for row in slowed:
             budget = ", ".join(f"{host} {used}/{allow:g} per h" for host, (used, allow) in row["hosts"].items())
             n = row["requests_per_refresh"]
-            lines.append(f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
-                         + (" (set by operator)" if row["overridden"] else "")
-                         + (f"; {n} request{'s' if n != 1 else ''} per refresh" if n else "")
-                         + (f"; {budget}" if budget else ""))
+            lines.append(
+                f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
+                + (" (set by operator)" if row["overridden"] else "")
+                + (f"; {n} request{'s' if n != 1 else ''} per refresh" if n else "")
+                + (f"; {budget}" if budget else "")
+            )
     if rates is not None:
-        lines.append(f"Each host gets at most 1/{rates.safety:g} of its published limit per hour, "
-                     "shared evenly by the sources that use it.")
+        lines.append(
+            f"Each host gets at most 1/{rates.safety:g} of its published limit per hour, "
+            "shared evenly by the sources that use it."
+        )
     return _clip_lines(lines, limit=1950, marker="… (more sources slowed by their budget)")
 
 
@@ -300,7 +309,8 @@ def faq_text(states, outlets, state: str | None = None) -> str:
         # All 51 states never fit in one message: point at what is installed instead of
         # dumping a truncated YAML blob.
         codes = (
-            sorted(states) if isinstance(states, dict)
+            sorted(states)
+            if isinstance(states, dict)
             else sorted({getattr(entry, "state", "") for entry in states} - {""})
         )
         head = [
@@ -323,8 +333,7 @@ def faq_text(states, outlets, state: str | None = None) -> str:
         data = states.get(code) or states.get(STATES[code])
         if data is None:
             return _clip_lines(
-                [f"No FAQ data for {STATES[code]}", ""]
-                + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
+                [f"No FAQ data for {STATES[code]}", ""] + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
             )
         body = _yaml_lines({code: data})
     else:

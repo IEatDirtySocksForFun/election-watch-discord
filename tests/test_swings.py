@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from electionwatch.models import OddsSnapshot, RaceKey
+from electionwatch.models import OddsSnapshot
 from electionwatch.racekeys import parse
 from electionwatch.swings import detect_swing
 

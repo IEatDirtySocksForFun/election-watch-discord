@@ -13,6 +13,7 @@ use the Division's own convention, ``GE<year>.csv`` (the general-election report
 published election night, and until then the URL answers 404 — reported as
 SourceUnavailable rather than treated as an outage).
 """
+
 from __future__ import annotations
 
 import csv
@@ -47,8 +48,12 @@ def race_key(office: str) -> RaceKey:
         return c.local_key("DE", "us-president")
     if n in ("U.S. SENATOR", "UNITED STATES SENATOR", "US SENATOR"):
         return RaceKey("DE", Level.SENATE, "SEN", None, special)
-    if n in ("U.S. REPRESENTATIVE IN CONGRESS", "US REPRESENTATIVE",
-             "UNITED STATES REPRESENTATIVE", "U.S. REPRESENTATIVE"):
+    if n in (
+        "U.S. REPRESENTATIVE IN CONGRESS",
+        "US REPRESENTATIVE",
+        "UNITED STATES REPRESENTATIVE",
+        "U.S. REPRESENTATIVE",
+    ):
         return RaceKey("DE", Level.HOUSE, "HOUSE", "AL", special)
     if n == "GOVERNOR":
         return RaceKey("DE", Level.GOVERNOR, "GOV", None, special)
@@ -125,13 +130,18 @@ def parse_de(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, office, cands, fetched_at,
-            source=DeDoe.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                office,
+                cands,
+                fetched_at,
+                source=DeDoe.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
@@ -154,8 +164,7 @@ async def fetch_rows(client: httpx.AsyncClient, date: str) -> list[dict]:
         text = await c.get_text(client, url)
     except SourceUnavailable as exc:
         if "HTTP 404" in str(exc):
-            raise SourceUnavailable(
-                f"DE: {url} is not published yet for {date}") from exc
+            raise SourceUnavailable(f"DE: {url} is not published yet for {date}") from exc
         raise
     return list(csv.DictReader(text.splitlines()))
 

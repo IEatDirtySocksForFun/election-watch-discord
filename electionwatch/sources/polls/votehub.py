@@ -11,6 +11,7 @@ Caveat: ``answers[].choice`` is a candidate name only. VoteHub publishes no
 party per answer, so ``PollResult.party`` is ``None`` for candidate polls
 (party-word answers such as the generic ballot are normalised instead).
 """
+
 from __future__ import annotations
 
 import logging
@@ -44,9 +45,15 @@ AT_LARGE = frozenset({"AK", "DE", "ND", "SD", "VT", "WY"})
 
 # VoteHub's generic-ballot answers are party words ("Dem"/"Rep"), not names.
 _PARTY_ANSWERS = {
-    "dem": "DEM", "democrat": "DEM", "democratic": "DEM",
-    "rep": "REP", "republican": "REP", "gop": "REP",
-    "independent": "IND", "libertarian": "LIB", "green": "GRN",
+    "dem": "DEM",
+    "democrat": "DEM",
+    "democratic": "DEM",
+    "rep": "REP",
+    "republican": "REP",
+    "gop": "REP",
+    "independent": "IND",
+    "libertarian": "LIB",
+    "green": "GRN",
 }
 
 _SUBJECT = re.compile(r"^(?P<year>\d{4})\s+(?P<body>.+?)(?:\s+special)?$")
@@ -154,7 +161,7 @@ class VoteHubPollSource(PollSource):
     enabled_by_default = True
     scrape = False
 
-    CACHE_SECONDS = 30 * 60   # the instance lives for the whole process: refresh periodically
+    CACHE_SECONDS = 30 * 60  # the instance lives for the whole process: refresh periodically
 
     def __init__(self) -> None:
         self._cache: list[dict] | None = None
@@ -170,7 +177,7 @@ class VoteHubPollSource(PollSource):
                 raise SourceUnavailable(f"votehub: HTTP {resp.status_code}")
             try:
                 data = resp.json()
-            except ValueError as exc:   # an HTML error/challenge page instead of JSON
+            except ValueError as exc:  # an HTML error/challenge page instead of JSON
                 raise SourceUnavailable("votehub: response is not JSON") from exc
             if not isinstance(data, list):
                 raise SourceUnavailable("votehub: unexpected payload")

@@ -1,4 +1,5 @@
 """abc_results parses ABC News' server-rendered state results widget."""
+
 from datetime import datetime, timezone
 from pathlib import Path
 

@@ -2,6 +2,7 @@
 
 Keep this file stable: adapters, storage and Discord code all rely on it. Times are UTC-aware.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -15,31 +16,33 @@ from enum import Enum
 
 class Level(str, Enum):
     """Navigator tabs (Congressional, Senate, State, Local) plus statewide executive."""
-    HOUSE = "house"          # US House
-    SENATE = "senate"        # US Senate
-    GOVERNOR = "governor"    # governor + other statewide executive offices
-    STATE = "state"          # state legislature (state senate / state house)
-    LOCAL = "local"          # county, municipal, school board, ballot measures, ...
+
+    HOUSE = "house"  # US House
+    SENATE = "senate"  # US Senate
+    GOVERNOR = "governor"  # governor + other statewide executive offices
+    STATE = "state"  # state legislature (state senate / state house)
+    LOCAL = "local"  # county, municipal, school board, ballot measures, ...
 
 
 @dataclass(frozen=True)
 class RaceKey:
     """Canonical race identity. Build with electionwatch.racekeys.parse(), print with str()."""
-    state: str                    # USPS code, "TX"
+
+    state: str  # USPS code, "TX"
     level: Level
-    office: str                   # "SEN", "GOV", "AG", "HOUSE", "SD", "HD", or a local slug
-    district: str | None = None   # "01", "AL" (at-large), "12", local sub-key
-    special: bool = False         # special election (second race for the same seat)
+    office: str  # "SEN", "GOV", "AG", "HOUSE", "SD", "HD", or a local slug
+    district: str | None = None  # "01", "AL" (at-large), "12", local sub-key
+    special: bool = False  # special election (second race for the same seat)
 
     def __post_init__(self) -> None:
         # Single-seat states: feeds number the seat "1" / "01" / "0", the bot calls it AL.
         # Normalising here makes every adapter, user input and history row agree.
-        if (self.level is Level.HOUSE and self.district in _SEAT_ONE
-                and self.state in at_large_states()):
+        if self.level is Level.HOUSE and self.district in _SEAT_ONE and self.state in at_large_states():
             object.__setattr__(self, "district", "AL")
 
     def __str__(self) -> str:
         from electionwatch.racekeys import format_key
+
         return format_key(self)
 
 
@@ -57,28 +60,28 @@ def at_large_states() -> frozenset[str]:
 @dataclass
 class CandidateResult:
     name: str
-    party: str | None             # "DEM", "REP", "LIB", "GRN", "IND", "NPA", ...
+    party: str | None  # "DEM", "REP", "LIB", "GRN", "IND", "NPA", ...
     votes: int
-    pct: float | None = None      # 0-100; computed by RaceResult.finalize() if None
+    pct: float | None = None  # 0-100; computed by RaceResult.finalize() if None
     incumbent: bool = False
-    winner: bool = False          # only as declared by the *source* (official/certified)
+    winner: bool = False  # only as declared by the *source* (official/certified)
 
 
 @dataclass
 class RaceResult:
     key: RaceKey
     candidates: list[CandidateResult]
-    source: str                              # adapter name, e.g. "tx_sos"
+    source: str  # adapter name, e.g. "tx_sos"
     fetched_at: datetime
     source_updated_at: datetime | None = None
     precincts_reporting: int | None = None
     precincts_total: int | None = None
-    expected_vote_pct: float | None = None   # 0-100 if the source estimates it
+    expected_vote_pct: float | None = None  # 0-100 if the source estimates it
     total_votes: int | None = None
-    registered_voters: int | None = None     # for turnout
-    turnout_pct: float | None = None         # 0-100; total ballots / registered
-    url: str | None = None                   # human-readable results page
-    title: str | None = None                 # source's own race name, e.g. "U.S. Senate"
+    registered_voters: int | None = None  # for turnout
+    turnout_pct: float | None = None  # 0-100; total ballots / registered
+    url: str | None = None  # human-readable results page
+    title: str | None = None  # source's own race name, e.g. "U.S. Senate"
 
     def finalize(self) -> "RaceResult":
         # Feeds mix ballot statistics into the candidate list ("Blank Ballots", "Times Over
@@ -86,7 +89,7 @@ class RaceResult:
         # dilute the percentages; keep a registered-voter count for turnout.
         kept = []
         for c in self.candidates:
-            label = c.name.strip().strip(":*").strip().lower()   # "Overvotes:", "Write-In**"
+            label = c.name.strip().strip(":*").strip().lower()  # "Overvotes:", "Write-In**"
             if _NOT_A_CANDIDATE.fullmatch(label):
                 if label.startswith("registered") and self.registered_voters is None:
                     self.registered_voters = c.votes
@@ -95,7 +98,7 @@ class RaceResult:
             kept.append(c)
         if len(kept) != len(self.candidates):
             for c in kept:
-                c.pct = None          # the source's shares included the dropped rows
+                c.pct = None  # the source's shares included the dropped rows
             self.candidates = kept
         tot = sum(c.votes for c in self.candidates)
         if self.total_votes is None:
@@ -122,8 +125,8 @@ class RaceResult:
 @dataclass
 class RaceCall:
     key: RaceKey
-    outlet: str                   # "AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"
-    winner: str                   # candidate name as the outlet prints it
+    outlet: str  # "AP", "CBS", "FOX", "NBC", "CNN", "ABC", "DDHQ", "VOTEHUB", "NYT"
+    winner: str  # candidate name as the outlet prints it
     party: str | None
     called_at: datetime
     url: str | None = None
@@ -133,9 +136,9 @@ class RaceCall:
 @dataclass
 class OddsSnapshot:
     key: RaceKey
-    market: str                   # "kalshi" | "polymarket"
-    outcome: str                  # party or candidate the price is for, e.g. "REP"
-    prob: float                   # 0-1 implied probability (last trade or mid)
+    market: str  # "kalshi" | "polymarket"
+    outcome: str  # party or candidate the price is for, e.g. "REP"
+    prob: float  # 0-1 implied probability (last trade or mid)
     ts: datetime
     market_id: str | None = None
     url: str | None = None
@@ -146,15 +149,15 @@ class ExitPoll:
     key: RaceKey
     outlet: str
     url: str
-    summary: str | None = None    # 1-3 short lines, condensed; None = link only
+    summary: str | None = None  # 1-3 short lines, condensed; None = link only
     fetched_at: datetime | None = None
 
 
 @dataclass
 class PollResult:
-    name: str                     # candidate (or "Generic D")
+    name: str  # candidate (or "Generic D")
     party: str | None
-    pct: float                    # 0-100
+    pct: float  # 0-100
 
 
 @dataclass
@@ -162,13 +165,13 @@ class Poll:
     key: RaceKey
     pollster: str
     results: list[PollResult]
-    end_date: date                # last field date
+    end_date: date  # last field date
     start_date: date | None = None
     sample_size: int | None = None
-    population: str | None = None # "LV", "RV", "A"
-    sponsor: str | None = None    # who paid for it
-    partisan: str | None = None   # "DEM"/"REP" for internal / partisan-sponsored polls, else None
-    source: str = ""              # adapter name, e.g. "270towin"
+    population: str | None = None  # "LV", "RV", "A"
+    sponsor: str | None = None  # who paid for it
+    partisan: str | None = None  # "DEM"/"REP" for internal / partisan-sponsored polls, else None
+    source: str = ""  # adapter name, e.g. "270towin"
     url: str | None = None
 
     @property
@@ -179,13 +182,15 @@ class Poll:
 @dataclass
 class ImportantRace:
     """One entry of the guild's watch list (config/races.yaml or /watch add)."""
+
     key: RaceKey
-    label: str | None = None      # display override, "Texas Senate"
+    label: str | None = None  # display override, "Texas Senate"
     notes: str | None = None
 
 
 def to_doc(obj) -> dict:
     """dataclass -> Mongo/JSON-safe dict (RaceKey becomes its string form)."""
+
     def conv(v):
         if isinstance(v, RaceKey):
             return str(v)
@@ -196,18 +201,27 @@ def to_doc(obj) -> dict:
         if isinstance(v, dict):
             return {k: conv(x) for k, x in v.items()}
         return v
-    return {k: conv(v) for k, v in asdict(obj).items()} | (
-        {"key": str(obj.key)} if hasattr(obj, "key") else {}
-    )
 
-
+    return {k: conv(v) for k, v in asdict(obj).items()} | ({"key": str(obj.key)} if hasattr(obj, "key") else {})
 
 
 _PARTY_ALIASES = {
-    "R": "REP", "GOP": "REP", "REPUBLICAN": "REP", "REP": "REP",
-    "D": "DEM", "DEMOCRAT": "DEM", "DEMOCRATIC": "DEM", "DFL": "DEM", "DEM": "DEM",
-    "L": "LIB", "LIBERTARIAN": "LIB", "G": "GRN", "GREEN": "GRN",
-    "I": "IND", "INDEPENDENT": "IND", "NONPARTISAN": "NP",
+    "R": "REP",
+    "GOP": "REP",
+    "REPUBLICAN": "REP",
+    "REP": "REP",
+    "D": "DEM",
+    "DEMOCRAT": "DEM",
+    "DEMOCRATIC": "DEM",
+    "DFL": "DEM",
+    "DEM": "DEM",
+    "L": "LIB",
+    "LIBERTARIAN": "LIB",
+    "G": "GRN",
+    "GREEN": "GRN",
+    "I": "IND",
+    "INDEPENDENT": "IND",
+    "NONPARTISAN": "NP",
 }
 
 
@@ -231,7 +245,7 @@ _NOT_A_CANDIDATE = re.compile(
     r"|undervotes?|overvotes?|times cast"
 )
 _CHOICES = ("yes", "no", "for", "against")
-_VOWELLESS_NAMES = {"ng"}   # real two-letter names a feed may have title-cased correctly
+_VOWELLESS_NAMES = {"ng"}  # real two-letter names a feed may have title-cased correctly
 _SURNAME = re.compile(r"[A-Za-z][A-Za-z'\-]+")
 _SUFFIX = {"ii": "II", "iii": "III", "iv": "IV", "jr": "Jr.", "sr": "Sr."}
 
@@ -263,9 +277,14 @@ def pretty_name(name: str) -> str:
     # "Angus King, Jr." as is.
     if n.count(",") == 1:
         last, first = (x.strip() for x in n.split(","))
-        if (_SURNAME.fullmatch(last) and 1 <= len(first.split()) <= 3 and '"' not in first
-                and first.strip(".").lower() not in _SUFFIX
-                and last.lower() not in _CHOICES and first.split()[0].lower() not in _CHOICES):
+        if (
+            _SURNAME.fullmatch(last)
+            and 1 <= len(first.split()) <= 3
+            and '"' not in first
+            and first.strip(".").lower() not in _SUFFIX
+            and last.lower() not in _CHOICES
+            and first.split()[0].lower() not in _CHOICES
+        ):
             if last.isupper() and not first.isupper():
                 last = last.title()
             n = f"{first} {last}"
@@ -277,8 +296,14 @@ def pretty_name(name: str) -> str:
         bare = word.strip(".,").lower()
         if bare in _SUFFIX and i > 0:
             word = _SUFFIX[bare] + ("," if word.endswith(",") else "")
-        elif (i == 0 and len(word) == 2 and word.isalpha() and not set(bare) & set("aeiouy")
-              and (caps or (word.istitle() and bare not in _VOWELLESS_NAMES)) and " " in n):
+        elif (
+            i == 0
+            and len(word) == 2
+            and word.isalpha()
+            and not set(bare) & set("aeiouy")
+            and (caps or (word.istitle() and bare not in _VOWELLESS_NAMES))
+            and " " in n
+        ):
             # Vowel-less two-letter first names are initials: "JB PRITZKER" -> "JB Pritzker",
             # and feeds that title-cased them already ("Jd Vance") -> "JD Vance".
             word = word.upper()

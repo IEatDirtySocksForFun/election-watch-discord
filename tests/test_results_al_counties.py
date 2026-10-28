@@ -1,4 +1,5 @@
 """al_counties: Madison County, Alabama (Clarity ENR) as a partial Alabama feed."""
+
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -20,9 +21,15 @@ def load(name):
 
 
 def parsed():
-    return {format_key(r.key): r for r in al_counties.parse_al_county(
-        load("madison_2022_summary.json"), load("madison_2022_electionsettings.json"),
-        county="Madison", fetched_at=AT)}
+    return {
+        format_key(r.key): r
+        for r in al_counties.parse_al_county(
+            load("madison_2022_summary.json"),
+            load("madison_2022_electionsettings.json"),
+            county="Madison",
+            fetched_at=AT,
+        )
+    }
 
 
 def test_keys_for_federal_statewide_and_legislative_contests():
@@ -37,11 +44,11 @@ def test_keys_for_federal_statewide_and_legislative_contests():
 def test_truncated_house_name_and_totals():
     got = parsed()
     sen = got["AL SEN"]
-    assert sen.total_votes == 120500 - 345      # the aggregated WRITE-IN row is dropped
+    assert sen.total_votes == 120500 - 345  # the aggregated WRITE-IN row is dropped
     assert {c.name.upper() for c in sen.candidates} >= {"KATIE BRITT", "WILL BOYD"}
     assert (sen.precincts_reporting, sen.precincts_total) == (76, 76)
     assert sen.source_updated_at is not None
-    assert got["AL-05"].total_votes == 120275 - 246      # minus its WRITE-IN tally
+    assert got["AL-05"].total_votes == 120275 - 246  # minus its WRITE-IN tally
 
 
 def test_write_in_rows_are_dropped():
@@ -94,7 +101,8 @@ def test_unlisted_2026_general_is_unavailable(monkeypatch):
 
 
 def test_override_from_env(monkeypatch):
-    monkeypatch.setenv("AL_COUNTY_FEEDS", json.dumps(
-        [{"county": "Madison", "election_id": "127999", "date": "2026-11-03"}]))
+    monkeypatch.setenv(
+        "AL_COUNTY_FEEDS", json.dumps([{"county": "Madison", "election_id": "127999", "date": "2026-11-03"}])
+    )
     assert al_counties.counties("2026-11-03") == [{"county": "Madison", "election_id": "127999"}]
     assert al_counties.counties("2024-11-05") == []

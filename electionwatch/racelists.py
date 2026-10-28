@@ -29,6 +29,7 @@ first answer of "no races" is not stored straight away: several adapters answer 
 their feed is down or not live yet, so it is asked again in 5 and then 15 minutes, and only
 the third empty answer is stored (the state keeps showing "loading" until then).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -43,15 +44,15 @@ from electionwatch.racekeys import ALL_JURISDICTIONS, parse
 
 logger = logging.getLogger(__name__)
 
-CACHE = "racelist"        # store cache kind; ident "<state>|<source>"
-KIND = "racelists"        # budget kind (ratelimit.FLOORS), demand kind and /refresh kind
-STATES_PER_TICK = 3       # states listed per source per refresh
+CACHE = "racelist"  # store cache kind; ident "<state>|<source>"
+KIND = "racelists"  # budget kind (ratelimit.FLOORS), demand kind and /refresh kind
+STATES_PER_TICK = 3  # states listed per source per refresh
 #: An empty answer does not replace a non-empty list younger than this: a feed that is briefly
 #: down often answers "no races" rather than failing, and race lists don't vanish overnight.
 KEEP_ON_EMPTY = timedelta(days=1)
-READ_TIMEOUT = 2.0        # autocomplete must answer within Discord's 3 s deadline
-FAILURES_PER_TICK = 2     # a source stops for this refresh after this many failed states
-EMPTY_RETRIES = (timedelta(minutes=5), timedelta(minutes=15))   # before an empty answer is stored
+READ_TIMEOUT = 2.0  # autocomplete must answer within Discord's 3 s deadline
+FAILURES_PER_TICK = 2  # a source stops for this refresh after this many failed states
+EMPTY_RETRIES = (timedelta(minutes=5), timedelta(minutes=15))  # before an empty answer is stored
 
 
 def budget_name(source: str, state: str) -> str:
@@ -73,8 +74,9 @@ def lists_races(source) -> bool:
 def dump_list(races: Iterable[tuple[RaceKey, str]]) -> str:
     """Store the key's fields, not its text: reading thousands of local races back must be
     cheap, and a slug that the key parser would spell differently survives the round trip."""
-    return json.dumps([[key.state, key.level.value, key.office, key.district, key.special, label]
-                       for key, label in races])
+    return json.dumps(
+        [[key.state, key.level.value, key.office, key.district, key.special, label] for key, label in races]
+    )
 
 
 def load_list(text: str) -> list[tuple[RaceKey, str]]:
@@ -111,8 +113,18 @@ def _utc(value: datetime) -> datetime:
 class RaceLists:
     """Refreshes the stored race lists (background) and reads them (commands)."""
 
-    def __init__(self, store, sources: dict[str, list], http, clock: Callable[[], datetime] | None = None,
-                 *, rates=None, demand=None, default_races: Iterable = (), timeout: float = 30.0) -> None:
+    def __init__(
+        self,
+        store,
+        sources: dict[str, list],
+        http,
+        clock: Callable[[], datetime] | None = None,
+        *,
+        rates=None,
+        demand=None,
+        default_races: Iterable = (),
+        timeout: float = 30.0,
+    ) -> None:
         self.store = store
         self.sources = sources
         self.http = http
@@ -122,12 +134,12 @@ class RaceLists:
         self.default_races = list(default_races)
         self.timeout = timeout
         self._lock = asyncio.Lock()
-        self._backoff: dict[str, tuple[int, datetime]] = {}   # source -> (failures, skip until)
-        self._failures: dict[str, int] = {}       # budget entry (source and state) -> failures in a row
-        self._empties: dict[str, int] = {}        # budget entry -> empty answers with nothing stored
-        self._hold: dict[str, datetime] = {}      # budget entry -> not before
-        self._wanted: dict[str, datetime] = {}    # state -> when someone last looked at it
-        self._stale_before: datetime | None = None             # set by force()
+        self._backoff: dict[str, tuple[int, datetime]] = {}  # source -> (failures, skip until)
+        self._failures: dict[str, int] = {}  # budget entry (source and state) -> failures in a row
+        self._empties: dict[str, int] = {}  # budget entry -> empty answers with nothing stored
+        self._hold: dict[str, datetime] = {}  # budget entry -> not before
+        self._wanted: dict[str, datetime] = {}  # state -> when someone last looked at it
+        self._stale_before: datetime | None = None  # set by force()
 
     def _now(self) -> datetime:
         return _utc(self.clock())
@@ -181,7 +193,8 @@ class RaceLists:
         # fallbacks' local races would be duplicates under other names.
         official_local = any(
             key.level is Level.LOCAL
-            for source, races in listed if not getattr(source, "fallback", False)
+            for source, races in listed
+            if not getattr(source, "fallback", False)
             for key, _ in races
         )
         found: dict[str, tuple[RaceKey, str]] = {}
@@ -251,6 +264,7 @@ class RaceLists:
         if self.rates is not None:
             return self.rates.interval(name, KIND)
         from electionwatch.ratelimit import FLOORS
+
         return FLOORS[KIND]
 
     def _stale(self, at: datetime | None, name: str, now: datetime) -> bool:
@@ -260,8 +274,9 @@ class RaceLists:
             return True
         return (now - at).total_seconds() >= self._max_age(name)
 
-    def _order(self, source, name: str, stored: dict[str, datetime], demanded: list[str],
-               watched: list[str]) -> list[str]:
+    def _order(
+        self, source, name: str, stored: dict[str, datetime], demanded: list[str], watched: list[str]
+    ) -> list[str]:
         covered = set(source.states)
 
         def at(state: str) -> datetime | None:
@@ -272,15 +287,19 @@ class RaceLists:
             return (0, 0.0, state) if when is None else (1, when.timestamp(), state)
 
         # Someone is looking at these now: newest request first.
-        waiting = [state for state in demanded if state in covered and state in self._wanted
-                   and (at(state) is None or self._wanted[state] > at(state))]
+        waiting = [
+            state
+            for state in demanded
+            if state in covered and state in self._wanted and (at(state) is None or self._wanted[state] > at(state))
+        ]
         waiting.sort(key=lambda state: self._wanted[state], reverse=True)
         known = {state for state in [*demanded, *watched] if state in covered} - set(waiting)
         rest = covered - known - set(waiting)
         return waiting + sorted(known, key=lambda state: age(state)[1:]) + sorted(rest, key=age)
 
-    async def _refresh_source(self, source, now: datetime, stored: dict[str, datetime],
-                              demanded: list[str], watched: list[str]) -> int:
+    async def _refresh_source(
+        self, source, now: datetime, stored: dict[str, datetime], demanded: list[str], watched: list[str]
+    ) -> int:
         name = getattr(source, "name", repr(source))
         failures, until = self._backoff.get(name, (0, None))
         if until is not None and now < until:

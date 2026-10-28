@@ -3,6 +3,7 @@
 The ``fake`` parameter runs MongoStore against a tiny in-memory stand-in for pymongo so the
 document round-trips are exercised even on a machine without a MongoDB server.
 """
+
 from __future__ import annotations
 
 import os
@@ -299,8 +300,10 @@ async def test_race_lists_round_trip_and_survive_a_restart(store):
 
         async def list_races(self, state, client):
             self.asked.append(state)
-            return [(RaceKey(state, Level.SENATE, "SEN"), "Senate"),
-                    (RaceKey(state, Level.LOCAL, "LOCAL", "Advisory-Vote-10"), "Advisory Vote No. 10")]
+            return [
+                (RaceKey(state, Level.SENATE, "SEN"), "Senate"),
+                (RaceKey(state, Level.LOCAL, "LOCAL", "Advisory-Vote-10"), "Advisory Vote No. 10"),
+            ]
 
     sources = {"results": [Lister()]}
     lists = RaceLists(store, sources, None, lambda: NOW, rates=RateBook(clock=lambda: 0.0))

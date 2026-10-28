@@ -26,6 +26,7 @@ Every ballot item in the export is type "State" (the export has no county/munici
 races); `localResults` is the county-by-county breakdown and is not parsed here.
 Georgia publishes no winner flag and no precinct counts in this file.
 """
+
 from __future__ import annotations
 
 import re
@@ -60,8 +61,7 @@ _STATEWIDE = {
     "COMMISSIONER OF LABOR": "LABCOM",
 }
 
-_PARTY_SUFFIX = re.compile(
-    r"\s*\((?:REP|DEM|LIB|GRN|GRE|IND|CON|CST|GOP|NPA|REF|WRI|WRITE-?IN)\)\s*$", re.I)
+_PARTY_SUFFIX = re.compile(r"\s*\((?:REP|DEM|LIB|GRN|GRE|IND|CON|CST|GOP|NPA|REF|WRI|WRITE-?IN)\)\s*$", re.I)
 
 
 def _english(name: str) -> str:
@@ -128,24 +128,31 @@ def parse_ga(payload, *, fetched_at: datetime) -> list[RaceResult]:
             name, incumbent = _clean_name(option.get("name"))
             if not name:
                 continue
-            cands.append(CandidateResult(
-                name=name,
-                party=c.norm_party(option.get("politicalParty")),
-                votes=c.to_int(option.get("voteCount")),
-                incumbent=incumbent,
-                winner=False,  # GA publishes no winner flag in the export
-            ))
+            cands.append(
+                CandidateResult(
+                    name=name,
+                    party=c.norm_party(option.get("politicalParty")),
+                    votes=c.to_int(option.get("voteCount")),
+                    incumbent=incumbent,
+                    winner=False,  # GA publishes no winner flag in the export
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, title, cands, fetched_at,
-            source=GaSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
-            precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                title,
+                cands,
+                fetched_at,
+                source=GaSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(item.get("precinctsReporting")) or None,
+                precincts_total=c.to_int(item.get("precinctsParticipating")) or None,
+            )
+        )
     return out
 
 
@@ -183,5 +190,4 @@ class GaSos(ResultsSource):
             payload = await c.get_json(client, export_url(c.election_date()))
         except SourceUnavailable:
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in parse_ga(payload, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_ga(payload, fetched_at=c.utcnow())]

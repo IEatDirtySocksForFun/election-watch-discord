@@ -29,6 +29,7 @@ Discovery: the results page for a general election is
 `/elections/electionresults_aspx/elections_results_<YYYY>_general.aspx`; the CSV link on it
 is followed instead of hard-coding the file name, so 2026 works once the page exists.
 """
+
 from __future__ import annotations
 
 import csv
@@ -65,8 +66,7 @@ _STATEWIDE = (
 )
 
 #: "Presidential Electors for X for President and Y for Vice President"
-_ELECTORS = re.compile(
-    r"^Presidential Electors for (.+?) for President and (.+?) for Vice President$", re.I)
+_ELECTORS = re.compile(r"^Presidential Electors for (.+?) for President and (.+?) for Vice President$", re.I)
 
 
 def _candidate_name(office: str, name: str) -> str:
@@ -134,19 +134,21 @@ def parse_ms(text: str, *, fetched_at: datetime) -> list[RaceResult]:
         key = race_key(office)
         if str(key) in seen:
             continue
-        cands = [
-            CandidateResult(name=name, party=party or None, votes=votes)
-            for (name, party), votes in tally.items()
-        ]
+        cands = [CandidateResult(name=name, party=party or None, votes=votes) for (name, party), votes in tally.items()]
         if not cands:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, office, cands, fetched_at,
-            source=MsSos.name,
-            url=HUMAN,
-            total_votes=sum(x.votes for x in cands),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                office,
+                cands,
+                fetched_at,
+                source=MsSos.name,
+                url=HUMAN,
+                total_votes=sum(x.votes for x in cands),
+            )
+        )
     return out
 
 
@@ -185,5 +187,4 @@ class MsSos(ResultsSource):
         if state != "MS":
             return []
         text = await c.get_text(client, await _feed(client, c.election_date()))
-        return [(r.key, r.title or str(r.key))
-                for r in parse_ms(text, fetched_at=c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in parse_ms(text, fetched_at=c.utcnow())]

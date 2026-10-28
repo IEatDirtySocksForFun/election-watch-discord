@@ -44,7 +44,7 @@ def test_missing_config_raises():
 
 def test_extract_accepts_double_quotes():
     config = {"page": {"content": {}}}
-    html = "<script>window[\"__abcnews__\"]=" + json.dumps(config) + "</script>"
+    html = '<script>window["__abcnews__"]=' + json.dumps(config) + "</script>"
     assert extract_abc_config(html) == config
 
 

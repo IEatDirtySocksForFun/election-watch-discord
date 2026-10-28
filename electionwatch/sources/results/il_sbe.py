@@ -29,6 +29,7 @@ not, the adapter reports itself unavailable (and IL_ELECTION_ID can pin the opaq
 ID for a past election: "?ID=<token>"). 2026 general election: the SBE has not
 published that election's page yet (checked 2026-10-27 with the 2026 primary live).
 """
+
 from __future__ import annotations
 
 import os
@@ -138,23 +139,30 @@ def parse_il(html: str, *, fetched_at: datetime, url: str | None = None) -> list
                 continue
             if cells[0].upper() in ("VOTE TOTALS", "TOTAL", "TOTALS"):
                 continue  # the page's own footer row: total votes for the office
-            cands.append(CandidateResult(
-                name=cells[0],
-                party=c.norm_party(cells[1]),
-                votes=c.to_int(cells[2]),
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cells[0],
+                    party=c.norm_party(cells[1]),
+                    votes=c.to_int(cells[2]),
+                )
+            )
         if not cands:
             continue
         key = race_key(office)
         if str(key) in seen:
             continue
         seen.add(str(key))
-        out.append(c.make_result(
-            key, office, cands, fetched_at,
-            source=IlSbe.name,
-            url=url,
-            total_votes=sum(x.votes for x in cands),
-        ))
+        out.append(
+            c.make_result(
+                key,
+                office,
+                cands,
+                fetched_at,
+                source=IlSbe.name,
+                url=url,
+                total_votes=sum(x.votes for x in cands),
+            )
+        )
     return out
 
 
@@ -177,13 +185,15 @@ async def _pages(client: httpx.AsyncClient, date: str) -> list[tuple[str, str]]:
     if not expected:
         raise SourceUnavailable(
             f"IL: no SBE election name configured for {date}; add it to ELECTIONS "
-            f"(the dropdown on {HUMAN} lists every election)")
+            f"(the dropdown on {HUMAN} lists every election)"
+        )
     first = await _get(client, page_url(date))
     label = election_label(first)
     if label and _upper(label) != expected.upper():
         raise SourceUnavailable(
             f"IL: the SBE page shows {label!r}, not {expected!r} - the {expected} "
-            f"results are not published yet (set IL_ELECTION_ID to pin a past election)")
+            f"results are not published yet (set IL_ELECTION_ID to pin a past election)"
+        )
     pages = [(first, page_url(date))]
     for href in categories(first):
         url = href if href.startswith("http") else BASE + href
@@ -218,5 +228,4 @@ class IlSbe(ResultsSource):
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
         if state != "IL":
             return []
-        return [(r.key, r.title or str(r.key))
-                for r in await _all_races(client, c.election_date(), c.utcnow())]
+        return [(r.key, r.title or str(r.key)) for r in await _all_races(client, c.election_date(), c.utcnow())]

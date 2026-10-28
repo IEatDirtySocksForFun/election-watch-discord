@@ -1,4 +1,5 @@
 """In-memory Store for tests and the replay sandbox."""
+
 from __future__ import annotations
 
 import bisect
@@ -69,7 +70,7 @@ class MemoryStore:
         return [copy.deepcopy(c) for (k, _), c in self.calls.items() if k == str(key)]
 
     async def add_odds(self, s: OddsSnapshot):
-        s = copy.copy(s)          # OddsSnapshot has no mutable fields; a shallow copy suffices
+        s = copy.copy(s)  # OddsSnapshot has no mutable fields; a shallow copy suffices
         self.odds.append(s)
         series = self._odds_by[(s.key, s.market, s.outcome)]
         if series and series[-1].ts > s.ts:
@@ -83,8 +84,7 @@ class MemoryStore:
         return [copy.copy(s) for s in series[i:]]
 
     async def latest_odds(self, key):
-        return [copy.copy(series[-1]) for (k, _, _), series in self._odds_by.items()
-                if k == key and series]
+        return [copy.copy(series[-1]) for (k, _, _), series in self._odds_by.items() if k == key and series]
 
     async def put_cached(self, kind, ident, data, at):
         self.cache[(kind, ident)] = (at, data)

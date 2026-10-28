@@ -2,6 +2,7 @@
 
 The poller's background refresh stores odds snapshots and each poll source's polls; nothing
 here calls a source (see CommandData)."""
+
 from __future__ import annotations
 
 import logging
@@ -10,7 +11,13 @@ from datetime import datetime, timedelta, timezone
 import discord
 
 from electionwatch.bot.poster import (
-    MAX_DESCRIPTION, MAX_EMBED_TOTAL, MAX_FIELD_NAME, MAX_FIELD_VALUE, MAX_FOOTER, MAX_TITLE, clip,
+    MAX_DESCRIPTION,
+    MAX_EMBED_TOTAL,
+    MAX_FIELD_NAME,
+    MAX_FIELD_VALUE,
+    MAX_FOOTER,
+    MAX_TITLE,
+    clip,
 )
 from electionwatch.models import OddsSnapshot, Poll, RaceKey, normalize_party
 from electionwatch.racekeys import describe
@@ -37,7 +44,9 @@ def latest_odds(snapshots: list[OddsSnapshot]) -> list[OddsSnapshot]:
     return sorted(
         latest.values(),
         key=lambda item: (
-            _MARKET_ORDER.get(item.market.casefold(), 99), item.market, item.outcome,
+            _MARKET_ORDER.get(item.market.casefold(), 99),
+            item.market,
+            item.outcome,
         ),
     )
 
@@ -101,9 +110,7 @@ def format_odds_overview(items: list[tuple[RaceKey, list[OddsSnapshot]]]) -> dis
                 markets.append(snapshot.market)
         parts = []
         for market in markets:
-            outcomes = " / ".join(
-                _outcome_text(item) for item in snapshots if item.market == market
-            )
+            outcomes = " / ".join(_outcome_text(item) for item in snapshots if item.market == market)
             parts.append(f"{_market_name(market)}: {outcomes}")
         lines.append(f"**{key}** · " + " · ".join(parts))
         updates.extend(_utc(item.ts) for item in snapshots)
@@ -120,8 +127,14 @@ def format_odds_overview(items: list[tuple[RaceKey, list[OddsSnapshot]]]) -> dis
 def poll_completeness(poll: Poll) -> int:
     """Number of populated fields, used to choose between duplicate source records."""
     fields = (
-        poll.start_date, poll.sample_size, poll.population, poll.sponsor,
-        poll.partisan, poll.source, poll.url, poll.results,
+        poll.start_date,
+        poll.sample_size,
+        poll.population,
+        poll.sponsor,
+        poll.partisan,
+        poll.source,
+        poll.url,
+        poll.results,
     )
     return sum(value is not None and value != "" and value != [] for value in fields) + sum(
         result.party is not None for result in poll.results
@@ -154,8 +167,12 @@ def _numbers(poll: Poll) -> tuple[float, ...]:
 
 
 def _same_poll(a: Poll, b: Poll) -> bool:
-    return (str(a.key) == str(b.key) and bool(_names(a) & _names(b))
-            and _numbers(a) == _numbers(b) and abs((a.end_date - b.end_date).days) <= 7)
+    return (
+        str(a.key) == str(b.key)
+        and bool(_names(a) & _names(b))
+        and _numbers(a) == _numbers(b)
+        and abs((a.end_date - b.end_date).days) <= 7
+    )
 
 
 def _poll_dates(poll: Poll) -> str:
@@ -203,19 +220,22 @@ def format_polls(
             details.append(poll.population)
         if poll.sponsor:
             details.append(f"Sponsor: {poll.sponsor}")
-        results = " · ".join(
-            f"{_PARTY_MARKERS.get(normalize_party(result.party) or '', '⚪')} "
-            f"{result.name} {result.pct:.1f}%"
-            for result in poll.results
-        ) or "No candidate results supplied"
+        results = (
+            " · ".join(
+                f"{_PARTY_MARKERS.get(normalize_party(result.party) or '', '⚪')} {result.name} {result.pct:.1f}%"
+                for result in poll.results
+            )
+            or "No candidate results supplied"
+        )
         lines = [" · ".join(details), results]
         if poll.url:
             lines.append(f"[Poll link]({poll.url})")
-        fields.append((clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME),
-                       clip("\n".join(lines), MAX_FIELD_VALUE)))
+        fields.append(
+            (clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME), clip("\n".join(lines), MAX_FIELD_VALUE))
+        )
     # Discord rejects the whole message (400) when an embed's text exceeds 6000 characters in
     # total: ten polls with many candidates can. Keep the newest polls that fit.
-    budget = MAX_EMBED_TOTAL - len(embed.title) - 100   # room for the description below
+    budget = MAX_EMBED_TOTAL - len(embed.title) - 100  # room for the description below
     shown = 0
     for name, value in fields:
         if len(name) + len(value) > budget:
@@ -223,14 +243,18 @@ def format_polls(
         budget -= len(name) + len(value)
         shown += 1
         embed.add_field(name=name, value=value, inline=False)
-    embed.description = f"Showing {shown} most recent poll" + ("s" if shown != 1 else "") + (
-        "; partisan internals included." if internals else "; partisan internals excluded."
+    embed.description = (
+        f"Showing {shown} most recent poll"
+        + ("s" if shown != 1 else "")
+        + ("; partisan internals included." if internals else "; partisan internals excluded.")
     )
     return embed
 
 
-QUEUED = ("Nothing is stored for this race yet: it is queued for the next {kind} refresh "
-          "(about every {every}). Try again then.")
+QUEUED = (
+    "Nothing is stored for this race yet: it is queued for the next {kind} refresh "
+    "(about every {every}). Try again then."
+)
 
 
 def _every(seconds: float) -> str:
@@ -244,8 +268,7 @@ class CommandData:
     so users repeating a command never reach those APIs. A race nobody watches is queued
     (electionwatch/demand.py) and fetched by the next refresh."""
 
-    def __init__(self, store, sources: dict[str, list], http_client, clock=None, *,
-                 rates=None, demand=None) -> None:
+    def __init__(self, store, sources: dict[str, list], http_client, clock=None, *, rates=None, demand=None) -> None:
         self.store = store
         self.sources = sources
         self.http_client = http_client
@@ -274,6 +297,7 @@ class CommandData:
         if self.rates is not None:
             return self.rates.kind_interval(kind)
         from electionwatch.ratelimit import FLOORS
+
         return FLOORS.get(kind, 60)
 
     async def get_odds(self, key: RaceKey) -> list[OddsSnapshot]:
@@ -307,6 +331,7 @@ class CommandData:
 
     async def _odds_checked(self, key: RaceKey) -> bool:
         from electionwatch.poller import ODDS_CHECKED
+
         try:
             return await self.store.get_cached(ODDS_CHECKED, str(key)) is not None
         except Exception:

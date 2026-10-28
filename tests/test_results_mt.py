@@ -32,8 +32,11 @@ def test_senate_and_congressional_districts():
     senate = got["MT SEN"]
     assert senate.key.level is Level.SENATE
     assert [(c.name, c.party, c.votes) for c in senate.candidates] == [
-        ("Tim Sheehy", "REP", 319682), ("Jon Tester", "DEM", 276305),
-        ("Sid Daoud", "LIB", 7272), ("Robert Barb", "GRN", 4003)]
+        ("Tim Sheehy", "REP", 319682),
+        ("Jon Tester", "DEM", 276305),
+        ("Sid Daoud", "LIB", 7272),
+        ("Robert Barb", "GRN", 4003),
+    ]
     assert senate.precincts_reporting == 727 and senate.precincts_total == 727
     assert senate.turnout_pct == 76.57
     assert senate.source_updated_at == datetime(2024, 12, 19, 20, 25, 20, tzinfo=timezone.utc)
@@ -77,8 +80,8 @@ def test_column_header_row_is_skipped():
 def test_non_partisan_judges_and_retention_questions():
     scj = by_key("2024_general_supreme_court.html")
     judge = scj["MT LOCAL supreme-court-chief-justice"]
-    assert judge.candidates[0].party == "NP"          # page prints "Non-Partisan"
-    assert judge.precincts_reporting == 726           # 726 fully + 0 partially of 727
+    assert judge.candidates[0].party == "NP"  # page prints "Non-Partisan"
+    assert judge.precincts_reporting == 726  # 726 fully + 0 partially of 727
 
     court = by_key("2024_general_district_court.html")
     retention = court["MT LOCAL retain-judge-mike-menahan"]
@@ -124,5 +127,4 @@ def test_race_key_mapping():
     assert format_key(race_key("STATE SENATOR DISTRICT 7")) == "MT SD-07"
     assert format_key(race_key("STATE REPRESENTATIVE DISTRICT 12")) == "MT HD-12"
     assert format_key(race_key("CI-126 A CONSTITUTIONAL AMENDMENT")) == "MT LOCAL ci-126"
-    assert format_key(race_key("SUPREME COURT JUSTICE #3")) == \
-        "MT LOCAL supreme-court-justice-3"
+    assert format_key(race_key("SUPREME COURT JUSTICE #3")) == "MT LOCAL supreme-court-justice-3"

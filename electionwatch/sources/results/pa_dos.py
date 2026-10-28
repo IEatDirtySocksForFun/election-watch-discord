@@ -29,6 +29,7 @@ publishes county breakdowns (GetCountyBreak / GetCountyData), which need one req
 2026 general election id is already published (117, GetLatestElection 2026-10-27); the
 adapter also discovers it, so a new id does not need a code change.
 """
+
 from __future__ import annotations
 
 import json
@@ -87,8 +88,7 @@ def race_key(office: str, group: dict | None = None) -> RaceKey:
     """Map a PA office name (+ district group) to a RaceKey."""
     name = re.sub(r"\s+", " ", (office or "").strip()).upper()
     if name in _TITLES:
-        return RaceKey("PA", Level.GOVERNOR if _TITLES[name] != "SEN" else Level.SENATE,
-                       _TITLES[name])
+        return RaceKey("PA", Level.GOVERNOR if _TITLES[name] != "SEN" else Level.SENATE, _TITLES[name])
     dist = _district_number(group) if group else None
     if name == "REPRESENTATIVE IN CONGRESS":
         return RaceKey("PA", Level.HOUSE, "HOUSE", dist or "AL")
@@ -136,29 +136,35 @@ def parse_pa(payload, *, fetched_at: datetime) -> list[RaceResult]:
                         continue
                     cands = []
                     for cand in race.get("Candidates") or []:
-                        cand_name, incumbent = c.strip_incumbent(
-                            str(cand.get("CandidateName") or "").strip())
+                        cand_name, incumbent = c.strip_incumbent(str(cand.get("CandidateName") or "").strip())
                         if not cand_name:
                             continue
-                        cands.append(CandidateResult(
-                            name=cand_name,
-                            party=c.norm_party(cand.get("PartyName")),
-                            votes=c.to_int(cand.get("Votes")),
-                            pct=c.to_pct(cand.get("Percentage")),
-                            incumbent=incumbent,
-                            winner=False,  # PA publishes no winner flag in this API
-                        ))
+                        cands.append(
+                            CandidateResult(
+                                name=cand_name,
+                                party=c.norm_party(cand.get("PartyName")),
+                                votes=c.to_int(cand.get("Votes")),
+                                pct=c.to_pct(cand.get("Percentage")),
+                                incumbent=incumbent,
+                                winner=False,  # PA publishes no winner flag in this API
+                            )
+                        )
                     if not cands:
                         continue
                     seen.add(str(key))
                     district = str(race.get("District") or "")
                     title = office if district.lower() in ("", "statewide") else district
-                    results.append(c.make_result(
-                        key, title, cands, fetched_at,
-                        source=PaDos.name,
-                        url=HUMAN,
-                        total_votes=sum(x.votes for x in cands),
-                    ))
+                    results.append(
+                        c.make_result(
+                            key,
+                            title,
+                            cands,
+                            fetched_at,
+                            source=PaDos.name,
+                            url=HUMAN,
+                            total_votes=sum(x.votes for x in cands),
+                        )
+                    )
     return results
 
 
@@ -179,19 +185,19 @@ async def _resolve(client: httpx.AsyncClient, date: str) -> dict:
     pinned = ELECTIONS.get(date)
     if pinned:
         return dict(pinned)
-    rows = latest_rows(await c.get_json(
-        client, f"{API}/GetLatestElection?methodName=GetLatestElection"))
+    rows = latest_rows(await c.get_json(client, f"{API}/GetLatestElection?methodName=GetLatestElection"))
     for row in rows:
         if str(row.get("ElectionDate", ""))[:10] == date:
-            return {"election_id": str(row["ElectionID"]),
-                    "election_type": str(row.get("ElectionType") or "G")}
+            return {"election_id": str(row["ElectionID"]), "election_type": str(row.get("ElectionType") or "G")}
     raise SourceUnavailable(f"PA: GetLatestElection does not list {date}")
 
 
 async def _office(client: httpx.AsyncClient, office_id: int, election: dict) -> dict | None:
-    params = (f"officeId={office_id}&methodName=GetOfficeData"
-              f"&electionid={election['election_id']}"
-              f"&electiontype={election['election_type']}")
+    params = (
+        f"officeId={office_id}&methodName=GetOfficeData"
+        f"&electionid={election['election_id']}"
+        f"&electiontype={election['election_type']}"
+    )
     for active in ("1", "0"):
         doc = _decode(await c.get_json(client, f"{API}/GetOfficeData?{params}&isactive={active}"))
         if doc.get("Election"):

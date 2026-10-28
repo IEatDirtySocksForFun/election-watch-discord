@@ -1,4 +1,5 @@
 """Party table: codes, aliases, buckets and the emoji markers the bot shows."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -183,8 +184,13 @@ def test_emojis_are_distinct_outside_the_shared_buckets(table):
 
 
 def test_constitution_affiliates_use_the_scroll(table):
-    for label in ["Constitution Party", "American Independent Party", "American Independent",
-                  "Independent American Party", "Taxpayers Party of New York"]:
+    for label in [
+        "Constitution Party",
+        "American Independent Party",
+        "American Independent",
+        "Independent American Party",
+        "Taxpayers Party of New York",
+    ]:
         assert party_emoji(label) == "📜", label
 
 
@@ -239,10 +245,22 @@ def test_malformed_table_is_rejected(tmp_path, monkeypatch):
         yaml.safe_dump(
             {
                 "parties": [
-                    {"code": "AAA", "name": "A Party", "bucket": "other", "emoji": "🅰️",
-                     "aliases": ["Shared"], "source": "https://example.org/a"},
-                    {"code": "BBB", "name": "B Party", "bucket": "other", "emoji": "🅱️",
-                     "aliases": ["shared"], "source": "https://example.org/b"},
+                    {
+                        "code": "AAA",
+                        "name": "A Party",
+                        "bucket": "other",
+                        "emoji": "🅰️",
+                        "aliases": ["Shared"],
+                        "source": "https://example.org/a",
+                    },
+                    {
+                        "code": "BBB",
+                        "name": "B Party",
+                        "bucket": "other",
+                        "emoji": "🅱️",
+                        "aliases": ["shared"],
+                        "source": "https://example.org/b",
+                    },
                 ]
             },
             allow_unicode=True,
@@ -264,8 +282,9 @@ def test_malformed_table_is_rejected(tmp_path, monkeypatch):
 
 def test_truncated_feed_names_map_to_their_party():
     from electionwatch.parties import party_code, party_emoji
+
     assert party_code("DEMOCRATIC P") == "DEM" and party_emoji("REPUBLICAN P") == "🔴"
     assert party_code("WORKING FAMI") == "WFP"
     assert party_code("WOR") == "WFP" and party_code("LBN") == "LIB"
-    assert party_emoji("NON PARTISAN") == "⚪"        # no party stays white
-    assert party_code("Green") in {"GRN"}             # exact alias wins over prefix
+    assert party_emoji("NON PARTISAN") == "⚪"  # no party stays white
+    assert party_code("Green") in {"GRN"}  # exact alias wins over prefix

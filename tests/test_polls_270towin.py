@@ -1,4 +1,5 @@
 """270toWin poll-list adapter, tested against trimmed real fragments."""
+
 import asyncio
 from datetime import date
 from pathlib import Path
@@ -42,7 +43,8 @@ def test_senate_rows_are_mapped_to_races():
 
 def test_house_districts_and_at_large():
     polls = two70win.parse_270towin_polls(
-        _fixture("house-polls.html"), Level.HOUSE,
+        _fixture("house-polls.html"),
+        Level.HOUSE,
         [parse("CA-34"), parse("AK-AL"), parse("MI-07"), parse("TX-15")],
     )
     by_key = {str(p.key): p for p in polls}
@@ -53,14 +55,15 @@ def test_house_districts_and_at_large():
     assert by_key["TX-15"].population == "LV"
     ak = by_key["AK-AL"]
     assert [(r.name, r.party) for r in ak.results] == [
-        ("Begich", "REP"), ("Hill", "IND"), ("Hafner", "DEM"), ("McDermott", "LIB"),
+        ("Begich", "REP"),
+        ("Hill", "IND"),
+        ("Hafner", "DEM"),
+        ("McDermott", "LIB"),
     ]
 
 
 def test_unrequested_races_are_dropped():
-    polls = two70win.parse_270towin_polls(
-        _fixture("senate-polls.html"), Level.SENATE, [parse("GA SEN")]
-    )
+    polls = two70win.parse_270towin_polls(_fixture("senate-polls.html"), Level.SENATE, [parse("GA SEN")])
     assert polls == []
 
 
@@ -71,9 +74,7 @@ def test_non_general_rows_are_skipped():
 
 
 def test_wrong_level_keys_are_ignored():
-    polls = two70win.parse_270towin_polls(
-        _fixture("senate-polls.html"), Level.GOVERNOR, [parse("ME GOV")]
-    )
+    polls = two70win.parse_270towin_polls(_fixture("senate-polls.html"), Level.GOVERNOR, [parse("ME GOV")])
     assert polls == []
 
 
@@ -86,9 +87,7 @@ def test_fetch_asks_once_per_office_with_the_documented_parameters():
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
-            return await two70win.Two70toWinPollSource().fetch_polls(
-                [parse("TX SEN"), parse("MI GOV")], client
-            )
+            return await two70win.Two70toWinPollSource().fetch_polls([parse("TX SEN"), parse("MI GOV")], client)
 
     polls = asyncio.run(go())
     assert len(seen) == 2  # one senate list, one governor list

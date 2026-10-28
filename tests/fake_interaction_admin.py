@@ -8,6 +8,7 @@ Discord's own rules are enforced so a command that breaks them fails the test in
 failing in production: a second initial response raises, and content over 2000 characters
 raises ``discord.HTTPException`` (Discord answers 400 to it).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -28,7 +29,7 @@ def http_exception(status: int = 400, message: str = "Bad Request") -> discord.H
 
 @dataclass
 class Sent:
-    via: str                       # "response" | "followup" | "defer"
+    via: str  # "response" | "followup" | "defer"
     content: str | None = None
     embed: Any = None
     view: Any = None
@@ -83,6 +84,7 @@ class FakeRole:
 @dataclass
 class FakeMember:
     """A guild member: has guild permissions and roles."""
+
     id: int
     manage_guild: bool = False
     roles: list = field(default_factory=list)
@@ -95,6 +97,7 @@ class FakeMember:
 @dataclass
 class FakeUser:
     """A DM (or user-install) user: discord.User has neither guild_permissions nor roles."""
+
     id: int
 
 
@@ -141,9 +144,7 @@ def make_user(kind: str, user_id: int = 501):
 
 
 def make_interaction(client, kind: str, user_id: int = 501, command: str = "cmd") -> FakeInteraction:
-    return FakeInteraction(
-        client, make_user(kind, user_id), None if kind == "dm" else GUILD_ID, command
-    )
+    return FakeInteraction(client, make_user(kind, user_id), None if kind == "dm" else GUILD_ID, command)
 
 
 def stand_in_client(store):

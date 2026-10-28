@@ -14,9 +14,17 @@ FIX = Path(__file__).parent / "fixtures" / "oh_sos" / "oh"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 DETAILS = [
-    "governor.json", "attorney_general.json", "supreme_court.json", "us_senator_special.json",
-    "congress_01.json", "congress_02.json", "state_senate_01.json", "state_senate_03.json",
-    "state_rep_01.json", "state_rep_02.json", "issue_3.json",
+    "governor.json",
+    "attorney_general.json",
+    "supreme_court.json",
+    "us_senator_special.json",
+    "congress_01.json",
+    "congress_02.json",
+    "state_senate_01.json",
+    "state_senate_03.json",
+    "state_rep_01.json",
+    "state_rep_02.json",
+    "issue_3.json",
 ]
 
 
@@ -65,7 +73,9 @@ def test_votes_sum_across_county_rows():
             cand["voteCount"] = str(per_row[row["name"]])
     got = by_key(parse_oh(load("contest_list.json"), [detail], fetched_at=AT))["OH-01"]
     assert {c.name: c.votes for c in got.candidates} == {
-        "Eric Conroy": 1110, "Greg Landsman": 1110, "Nathan Weise": 1110,
+        "Eric Conroy": 1110,
+        "Greg Landsman": 1110,
+        "Nathan Weise": 1110,
     }
     assert got.total_votes == 3330
     assert got.candidates[0].pct == 33.33
@@ -101,8 +111,7 @@ def test_race_key_mapping():
     assert format_key(race_key("Representative to Congress - District 11")) == "OH-11"
     assert format_key(race_key("State Senator - District 07")) == "OH SD-07"
     assert format_key(race_key("State Representative - District 99")) == "OH HD-99"
-    assert format_key(race_key("State Issue 3 To require photo ID")) == \
-        "OH LOCAL state-issue-3-to-require-photo-id"
+    assert format_key(race_key("State Issue 3 To require photo ID")) == "OH LOCAL state-issue-3-to-require-photo-id"
 
 
 def test_empty_payloads_are_not_errors():
@@ -134,4 +143,4 @@ def test_fetch_requests_only_wanted_contests(monkeypatch):
     got = by_key(asyncio.run(go()))
     assert set(got) == {"OH GOV", "OH-01"}
     assert seen[0].endswith("/getContestList")
-    assert len(seen) == 3            # list + two detail calls, nothing else
+    assert len(seen) == 3  # list + two detail calls, nothing else

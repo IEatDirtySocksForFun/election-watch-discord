@@ -31,6 +31,7 @@ Clarity primary feeds split one office into "... - REP" and "... - DEM" contests
 are skipped (the bot tracks the general election), while anything unrecognised becomes a
 LOCAL race so ballot questions and county offices still show up.
 """
+
 from __future__ import annotations
 
 import json
@@ -64,24 +65,36 @@ ELECTIONS: dict[str, list[dict]] = {
 _PRIMARY_SUFFIX = re.compile(r"\s*-\s*(?:REP|DEM|LIB|GRE|GRN|CON|CST|IND|NPA|NP)\s*$", re.I)
 
 _ABBREV = {
-    "U.S. SENATOR": "SEN", "US SENATOR": "SEN", "UNITED STATES SENATOR": "SEN",
-    "GOVERNOR": "GOV", "GOV. AND LT. GOV": "GOV",
+    "U.S. SENATOR": "SEN",
+    "US SENATOR": "SEN",
+    "UNITED STATES SENATOR": "SEN",
+    "GOVERNOR": "GOV",
+    "GOV. AND LT. GOV": "GOV",
     "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
-    "LT. GOV": "LTGOV", "LT. GOVERNOR": "LTGOV", "LIEUTENANT GOVERNOR": "LTGOV",
-    "ATT. GEN": "AG", "ATTORNEY GENERAL": "AG",
-    "SEC. OF STATE": "SOS", "SECRETARY OF STATE": "SOS",
-    "COMPTROLLER": "COMP", "STATE COMPTROLLER": "COMP",
-    "TREASURER": "TREAS", "STATE TREASURER": "TREAS",
-    "AUDITOR": "AUD", "STATE AUDITOR": "AUD",
+    "LT. GOV": "LTGOV",
+    "LT. GOVERNOR": "LTGOV",
+    "LIEUTENANT GOVERNOR": "LTGOV",
+    "ATT. GEN": "AG",
+    "ATTORNEY GENERAL": "AG",
+    "SEC. OF STATE": "SOS",
+    "SECRETARY OF STATE": "SOS",
+    "COMPTROLLER": "COMP",
+    "STATE COMPTROLLER": "COMP",
+    "TREASURER": "TREAS",
+    "STATE TREASURER": "TREAS",
+    "AUDITOR": "AUD",
+    "STATE AUDITOR": "AUD",
 }
 
 _CONGRESS = re.compile(
     r"^(?:REP\.?|REPRESENTATIVE|U\.S\. REP\.?|US REP\.?)\s+IN\s+CONGRESS[, ]*"
-    r"(?:DISTRICT|DIST\.?|D)\s*(\d+)$")
+    r"(?:DISTRICT|DIST\.?|D)\s*(\d+)$"
+)
 _STATE_SENATE = re.compile(r"^STATE SENA(?:TE|TOR)\b")
 _STATE_HOUSE = re.compile(
     r"^(?:REP\.? IN THE G\.A\.|REP\.? IN GENERAL ASSEMBLY|STATE REPRESENTATIVE|"
-    r"STATE HOUSE|HOUSE OF DELEGATES|ASSEMBLY ?MEMBER|REPRESENTATIVE IN THE GENERAL ASSEMBLY)")
+    r"STATE HOUSE|HOUSE OF DELEGATES|ASSEMBLY ?MEMBER|REPRESENTATIVE IN THE GENERAL ASSEMBLY)"
+)
 
 
 def _district_of(name: str) -> str | None:
@@ -105,8 +118,7 @@ def race_key(state: str, name: str) -> RaceKey:
         office = _ABBREV[n]
         level = Level.SENATE if office == "SEN" else Level.GOVERNOR
         return RaceKey(state, level, office, None, special)
-    m = _CONGRESS.match(n) or re.match(
-        r"^(?:U\.S\.|US )?HOUSE[, ]*(?:DISTRICT|DIST\.?|D)\s*(\d+)$", n)
+    m = _CONGRESS.match(n) or re.match(r"^(?:U\.S\.|US )?HOUSE[, ]*(?:DISTRICT|DIST\.?|D)\s*(\d+)$", n)
     if m:
         return RaceKey(state, Level.HOUSE, "HOUSE", f"{int(m.group(1)):02d}", special)
     if "HOUSE OF REPRESENTATIVES" in n or "CONGRESSIONAL DISTRICT" in n:
@@ -123,12 +135,19 @@ def race_key(state: str, name: str) -> RaceKey:
 
 
 _ZONES = {
-    "EDT": "America/New_York", "EST": "America/New_York",
-    "CDT": "America/Chicago", "CST": "America/Chicago",
-    "MDT": "America/Denver", "MST": "America/Denver",
-    "PDT": "America/Los_Angeles", "PST": "America/Los_Angeles",
-    "AKDT": "America/Anchorage", "AKST": "America/Anchorage",
-    "HST": "Pacific/Honolulu", "UTC": "UTC", "GMT": "UTC",
+    "EDT": "America/New_York",
+    "EST": "America/New_York",
+    "CDT": "America/Chicago",
+    "CST": "America/Chicago",
+    "MDT": "America/Denver",
+    "MST": "America/Denver",
+    "PDT": "America/Los_Angeles",
+    "PST": "America/Los_Angeles",
+    "AKDT": "America/Anchorage",
+    "AKST": "America/Anchorage",
+    "HST": "Pacific/Honolulu",
+    "UTC": "UTC",
+    "GMT": "UTC",
 }
 
 
@@ -156,8 +175,11 @@ def parse_clarity(
     fetched_at: datetime,
 ) -> list[RaceResult]:
     """Pure parse of one Clarity summary.json (+ optional electionsettings.json)."""
-    contests = summary if isinstance(summary, list) else (
-        (summary or {}).get("Contests") or (summary or {}).get("contests") or [])
+    contests = (
+        summary
+        if isinstance(summary, list)
+        else ((summary or {}).get("Contests") or (summary or {}).get("contests") or [])
+    )
     updated = parse_settings(settings)
     out: list[RaceResult] = []
     seen: set[str] = set()
@@ -180,29 +202,36 @@ def parse_clarity(
             cand_name, incumbent = c.strip_incumbent(str(choice or "").strip())
             if not cand_name or cand_name.upper() == "NO CANDIDATE FILED":
                 continue
-            cands.append(CandidateResult(
-                name=cand_name,
-                party=c.norm_party(parties[i] if i < len(parties) else None),
-                votes=c.to_int(votes[i] if i < len(votes) else 0),
-                pct=c.to_pct(pcts[i] if i < len(pcts) else None),
-                incumbent=incumbent,
-                winner=c.to_int(winners[i] if i < len(winners) else 0) == 1,
-            ))
+            cands.append(
+                CandidateResult(
+                    name=cand_name,
+                    party=c.norm_party(parties[i] if i < len(parties) else None),
+                    votes=c.to_int(votes[i] if i < len(votes) else 0),
+                    pct=c.to_pct(pcts[i] if i < len(pcts) else None),
+                    incumbent=incumbent,
+                    winner=c.to_int(winners[i] if i < len(winners) else 0) == 1,
+                )
+            )
         if not cands:
             continue
         seen.add(str(key))
         total = con.get("T")
         if isinstance(total, list):
             total = total[0] if total else None
-        out.append(c.make_result(
-            key, name, cands, fetched_at,
-            source=Clarity.name,
-            url=HUMAN,
-            total_votes=c.to_int(total) or sum(x.votes for x in cands),
-            precincts_reporting=c.to_int(con.get("PR")) or None,
-            precincts_total=c.to_int(con.get("TP")) or None,
-            source_updated_at=updated,
-        ))
+        out.append(
+            c.make_result(
+                key,
+                name,
+                cands,
+                fetched_at,
+                source=Clarity.name,
+                url=HUMAN,
+                total_votes=c.to_int(total) or sum(x.votes for x in cands),
+                precincts_reporting=c.to_int(con.get("PR")) or None,
+                precincts_total=c.to_int(con.get("TP")) or None,
+                source_updated_at=updated,
+            )
+        )
     return out
 
 
@@ -255,10 +284,7 @@ def configured_states() -> frozenset[str]:
     """States with a configured Clarity feed: the built-in ELECTIONS entries plus
     whatever CLARITY_FEEDS adds. A state without a feed is not covered by this
     adapter, so it must not be advertised as such to the coverage/navigator code."""
-    states = {
-        str(entry["state"]).upper()
-        for entries in ELECTIONS.values() for entry in entries if entry.get("state")
-    }
+    states = {str(entry["state"]).upper() for entries in ELECTIONS.values() for entry in entries if entry.get("state")}
     raw = os.environ.get("CLARITY_FEEDS")
     if raw:
         try:
@@ -296,9 +322,7 @@ class Clarity(ResultsSource):
         date = c.election_date()
         selected = [f for f in feeds(date) if str(f["state"]).upper() in wanted]
         if not selected:
-            raise SourceUnavailable(
-                f"clarity: no feed configured for {sorted(wanted)} on {date}; "
-                f"set CLARITY_FEEDS")
+            raise SourceUnavailable(f"clarity: no feed configured for {sorted(wanted)} on {date}; set CLARITY_FEEDS")
         results: list[RaceResult] = []
         for entry in selected:
             base = feed_base(entry)
@@ -306,10 +330,10 @@ class Clarity(ResultsSource):
             if not version or not re.fullmatch(r"[\w.\-]+", version):
                 raise SourceUnavailable(f"clarity: bad current_ver.txt from {base}")
             summary = await c.get_json(client, f"{base}/{version}/json/en/summary.json")
-            settings = await _optional_settings(
-                client, f"{base}/{version}/json/en/electionsettings.json")
-            results.extend(scope(entry, parse_clarity(
-                summary, settings, state=str(entry["state"]).upper(), fetched_at=c.utcnow())))
+            settings = await _optional_settings(client, f"{base}/{version}/json/en/electionsettings.json")
+            results.extend(
+                scope(entry, parse_clarity(summary, settings, state=str(entry["state"]).upper(), fetched_at=c.utcnow()))
+            )
         return c.select(results, keys)
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -323,6 +347,8 @@ class Clarity(ResultsSource):
                 summary = await c.get_json(client, f"{base}/{version}/json/en/summary.json")
             except SourceUnavailable:
                 continue
-            return [(r.key, r.title or str(r.key))
-                    for r in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))]
+            return [
+                (r.key, r.title or str(r.key))
+                for r in scope(entry, parse_clarity(summary, state=state, fetched_at=c.utcnow()))
+            ]
         return []

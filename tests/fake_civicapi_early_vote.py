@@ -3,6 +3,7 @@ an httpx MockTransport, so command and payload tests run the real client without
 
 Anything not recorded answers 404 with civicAPI's real "not found" body (a state without data).
 """
+
 from __future__ import annotations
 
 import json

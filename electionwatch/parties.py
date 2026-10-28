@@ -14,6 +14,7 @@ party's ``aliases`` case- and punctuation-insensitively, so ``"Lbt."``, ``"LIBER
 Data files are parsed with ``yaml.safe_load`` once and cached; the returned objects are frozen
 and shared.
 """
+
 from __future__ import annotations
 
 import re
@@ -177,9 +178,7 @@ def _index() -> dict[str, str]:
                 continue
             other = index.get(key)
             if other is not None and other != party.code:
-                raise PartyDataError(
-                    f"parties.yaml: {label!r} maps to both {other} and {party.code}"
-                )
+                raise PartyDataError(f"parties.yaml: {label!r} maps to both {other} and {party.code}")
             index[key] = party.code
     return index
 

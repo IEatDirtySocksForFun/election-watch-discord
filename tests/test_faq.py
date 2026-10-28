@@ -1,4 +1,5 @@
 """Schema tests for the static FAQ data (no network)."""
+
 from __future__ import annotations
 
 import copy
@@ -16,8 +17,7 @@ from electionwatch.faq import loader  # noqa: E402
 from electionwatch.racekeys import STATES  # noqa: E402
 
 NCSL_MAIL = (
-    "https://www.ncsl.org/elections-and-campaigns/"
-    "table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots"
+    "https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots"
 )
 
 
@@ -144,8 +144,9 @@ def test_validation_rejects_unknown_key():
 
 
 def test_validation_rejects_missing_outlet():
-    data = {key: {"name": key, "results_url": "https://example.gov",
-                  "exit_poll_url": None, "notes": "x"}
-            for key in loader.REQUIRED_OUTLETS - {"AP"}}
+    data = {
+        key: {"name": key, "results_url": "https://example.gov", "exit_poll_url": None, "notes": "x"}
+        for key in loader.REQUIRED_OUTLETS - {"AP"}
+    }
     with pytest.raises(loader.FAQDataError, match="missing outlets"):
         loader._validate_outlets(data)

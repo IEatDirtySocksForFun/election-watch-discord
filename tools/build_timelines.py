@@ -11,12 +11,13 @@ mail), spread over ~6 h after polls close with seeded jitter. Batches lean the w
 do (mail D, election day R) but every county still ends on its exact certified total.
 Every line carries "synthetic": true. Real (NYT) files are never overwritten.
 """
+
 from __future__ import annotations
 
 import argparse
-import os
 import csv
 import json
+import os
 import random
 import re
 import sys
@@ -31,7 +32,14 @@ if str(ROOT) not in sys.path:
 from electionwatch.racekeys import RaceKeyError, parse  # noqa: E402
 
 DEFAULT_DATA = Path.home() / "Downloads" / "election-test-data"
-ELECTION_DAY = {"2014": "2014-11-04", "2016": "2016-11-08", "2018": "2018-11-06", "2020": "2020-11-03", "2022": "2022-11-08", "2024": "2024-11-05"}
+ELECTION_DAY = {
+    "2014": "2014-11-04",
+    "2016": "2016-11-08",
+    "2018": "2018-11-06",
+    "2020": "2020-11-03",
+    "2022": "2022-11-08",
+    "2024": "2024-11-05",
+}
 BATCHES = ("early", "eday", "mail")
 WEIGHT = {"early": 0.35, "eday": 0.45, "mail": 0.20}
 LEAN = {"early": {"DEM": 1.1, "REP": 0.9}, "eday": {"DEM": 0.8, "REP": 1.2}, "mail": {"DEM": 1.4, "REP": 0.6}}
@@ -46,12 +54,12 @@ def count_order(state: str, states_yaml: Path | None = None) -> list[str]:
     path = states_yaml or ROOT / "electionwatch" / "faq" / "states.yaml"
     try:
         import yaml
+
         text = yaml.safe_load(path.read_text())[state]["count_order"]
     except Exception:
         return list(DEFAULT_ORDER)
     text = (" ".join(map(str, text)) if isinstance(text, list) else str(text)).lower()
-    pats = {"early": r"early|in-person absentee|advance", "eday": r"election[- ]day",
-            "mail": r"mail|absentee|postal"}
+    pats = {"early": r"early|in-person absentee|advance", "eday": r"election[- ]day", "mail": r"mail|absentee|postal"}
     pos = {}
     for b, pat in pats.items():
         m = re.search(pat, text)
@@ -80,8 +88,14 @@ def split_votes(votes: int, party: str, order: list[str]) -> dict[str, int]:
     return out
 
 
-def synthesise(key: str, counties: dict[str, list[tuple[str, str, int]]], year: str,
-               order: list[str], close_utc: str = "01:00", seed: int = 0) -> list[dict]:
+def synthesise(
+    key: str,
+    counties: dict[str, list[tuple[str, str, int]]],
+    year: str,
+    order: list[str],
+    close_utc: str = "01:00",
+    seed: int = 0,
+) -> list[dict]:
     canon = str(parse(key))
     rng = random.Random(f"{seed}:{year}:{canon}")
     day = datetime.fromisoformat(ELECTION_DAY[year]).replace(tzinfo=timezone.utc)
@@ -108,17 +122,24 @@ def synthesise(key: str, counties: dict[str, list[tuple[str, str, int]]], year: 
         for n, v in add.items():
             cum[n] += v
         if i + 1 < len(events) and events[i + 1][0] == at:
-            continue            # one snapshot per minute
+            continue  # one snapshot per minute
         tot = sum(cum.values())
         if not tot:
             continue
-        lines.append({
-            "ts": at.strftime("%Y-%m-%dT%H:%M:%SZ"), "key": canon, "source": "synthetic", "synthetic": True,
-            "candidates": [{"name": n, "party": parties[n] or None, "votes": v}
-                           for n, v in sorted(cum.items(), key=lambda kv: -kv[1])],
-            "total_votes": tot,
-            "expected_vote_pct": round(100.0 * tot / final_total, 1) if final_total else None,
-        })
+        lines.append(
+            {
+                "ts": at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "key": canon,
+                "source": "synthetic",
+                "synthetic": True,
+                "candidates": [
+                    {"name": n, "party": parties[n] or None, "votes": v}
+                    for n, v in sorted(cum.items(), key=lambda kv: -kv[1])
+                ],
+                "total_votes": tot,
+                "expected_vote_pct": round(100.0 * tot / final_total, 1) if final_total else None,
+            }
+        )
     return lines
 
 
@@ -130,8 +151,15 @@ def is_real(path: Path) -> bool:
         return False
 
 
-def run(data: Path, years: list[str], states: list[str] | None, levels: list[str],
-        races: list[str] | None = None, force: bool = False, seed: int = 0) -> int:
+def run(
+    data: Path,
+    years: list[str],
+    states: list[str] | None,
+    levels: list[str],
+    races: list[str] | None = None,
+    force: bool = False,
+    seed: int = 0,
+) -> int:
     n = 0
     for year in years:
         # Race keys depend on the year (Montana had one House seat until 2022), so parse
@@ -174,10 +202,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
     years = [y.strip() for y in a.years.split(",") if y.strip() in ELECTION_DAY]
-    return run(Path(a.data_dir).expanduser(), years,
-               [s.strip().upper() for s in a.states.split(",") if s.strip()] or None,
-               [x.strip() for x in a.levels.split(",")],
-               [r.strip() for r in a.races.split(",") if r.strip()] or None, a.force, a.seed)
+    return run(
+        Path(a.data_dir).expanduser(),
+        years,
+        [s.strip().upper() for s in a.states.split(",") if s.strip()] or None,
+        [x.strip() for x in a.levels.split(",")],
+        [r.strip() for r in a.races.split(",") if r.strip()] or None,
+        a.force,
+        a.seed,
+    )
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 """civicAPI: race-key mapping, results, calls, test-data filtering and paging."""
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,7 +13,13 @@ from electionwatch.models import Level, RaceKey
 from electionwatch.racekeys import parse
 from electionwatch.sources.base import REGISTRY, load_all
 from electionwatch.sources.calls.civicapi import (
-    API, PAGE_SIZE, CivicAPICallSource, CivicAPIResultsSource, _CivicAPI, parse_call, parse_race,
+    API,
+    PAGE_SIZE,
+    CivicAPICallSource,
+    CivicAPIResultsSource,
+    _CivicAPI,
+    parse_call,
+    parse_race,
     race_key,
 )
 
@@ -40,19 +47,35 @@ def test_race_keys_from_search_rows():
     assert keys["Texas US House 35"] == parse("TX-35")
     assert keys["Texas Lieutenant Governor"] == parse("TX LTGOV")
     assert keys["Texas State House 121"] == parse("TX HD-121")
-    assert keys["Texas State House"] is None          # chamber-control summary, not a race
+    assert keys["Texas State House"] is None  # chamber-control summary, not a race
     assert keys["El Paso District Judge, 327th Judicial District"] == parse(
-        "TX LOCAL el-paso-district-judge-327th-judicial-district")
+        "TX LOCAL el-paso-district-judge-327th-judicial-district"
+    )
 
 
-@pytest.mark.parametrize("row,expected", [
-    ({"country": "US", "province": "AK", "type": "House of Representatives", "district": "AK-AL"}, "AK-AL"),
-    ({"country": "US", "province": "GA", "type": "US Senate", "election_name": "Georgia US Senate Special"}, "GA SEN S"),
-    ({"country": "US", "province": "TX", "type": "Treasurer", "election_type": "Local", "district": "Bexar",
-      "election_name": "Bexar County Treasurer"}, "TX LOCAL bexar-county-treasurer"),
-    ({"country": "CA", "province": "ON", "type": "Mayor", "election_name": "Toronto Mayor"}, None),
-    ({"country": "US", "province": "TX", "type": "House of Representatives", "district": "garbage"}, None),
-])
+@pytest.mark.parametrize(
+    "row,expected",
+    [
+        ({"country": "US", "province": "AK", "type": "House of Representatives", "district": "AK-AL"}, "AK-AL"),
+        (
+            {"country": "US", "province": "GA", "type": "US Senate", "election_name": "Georgia US Senate Special"},
+            "GA SEN S",
+        ),
+        (
+            {
+                "country": "US",
+                "province": "TX",
+                "type": "Treasurer",
+                "election_type": "Local",
+                "district": "Bexar",
+                "election_name": "Bexar County Treasurer",
+            },
+            "TX LOCAL bexar-county-treasurer",
+        ),
+        ({"country": "CA", "province": "ON", "type": "Mayor", "election_name": "Toronto Mayor"}, None),
+        ({"country": "US", "province": "TX", "type": "House of Representatives", "district": "garbage"}, None),
+    ],
+)
 def test_race_key_edge_cases(row, expected):
     key = race_key(row)
     assert (key if expected is None else key == parse(expected)) in (None, True)
@@ -64,8 +87,7 @@ def test_parse_a_real_race():
     assert result.url == "https://civicapi.org/results/elections/107793"
     assert result.expected_vote_pct == 100
     cruz = result.candidates[0]
-    assert (cruz.name, cruz.party, cruz.votes, cruz.incumbent, cruz.winner) == (
-        "Ted Cruz", "REP", 5990741, True, False)
+    assert (cruz.name, cruz.party, cruz.votes, cruz.incumbent, cruz.winner) == ("Ted Cruz", "REP", 5990741, True, False)
     assert result.total_votes == sum(c.votes for c in result.candidates)
 
 
@@ -100,8 +122,8 @@ async def test_sources_share_one_request_per_race():
         races = await CivicAPIResultsSource(api).list_races("TX", client)
     assert [r.key for r in results] == [TX_SEN]
     assert [(c.outlet, c.winner) for c in calls] == [("CIVICAPI", "Ted Cruz")]
-    assert search.call_count == 2          # TX (cached afterwards) and PA
-    assert detail.call_count == 1          # results and calls share the cached race
+    assert search.call_count == 2  # TX (cached afterwards) and PA
+    assert detail.call_count == 1  # results and calls share the cached race
     assert (TX_SEN, "Texas US Senate") in races
 
 
@@ -150,7 +172,7 @@ async def test_a_called_race_is_not_asked_again():
     source = CivicAPICallSource(_CivicAPI())
     async with httpx.AsyncClient() as client:
         first = await source.fetch_calls([TX_SEN], client)
-        source.api.races.clear()                      # even with nothing cached
+        source.api.races.clear()  # even with nothing cached
         second = await source.fetch_calls([TX_SEN], client)
     assert first == second and len(first) == 1
     assert detail.call_count == 1
@@ -169,20 +191,49 @@ async def test_uncalled_races_are_rechecked_every_five_minutes_not_every_tick(mo
         for minute in range(6):
             clock[0] = 1000.0 + minute * 60
             await source.fetch_calls([TX_SEN], client)
-    assert detail.call_count == 2                     # t=0 and t=300 s
+    assert detail.call_count == 2  # t=0 and t=300 s
 
 
-@pytest.mark.parametrize("row,expected", [
-    # AZ/CA/DE/MD label their US Senate race "Senate".
-    ({"country": "US", "province": "AZ", "type": "Senate", "district": None,
-      "election_name": "Arizona Senate"}, "AZ SEN"),
-    ({"country": "US", "province": "TX", "type": "House of Representatives", "district": "TX-18",
-      "election_name": "Texas US House 18 Special"}, "TX-18 S"),
-    ({"country": "US", "province": "TX", "type": "State House", "district": "TX-HD-56",
-      "election_name": "Texas State House 56 Special"}, "TX HD-56 S"),
-    ({"country": "US", "province": "VA", "type": "House of Representatives", "district": "VA-05",
-      "election_name": "Virginia US House 5 Democratic Primary"}, None),
-])
+@pytest.mark.parametrize(
+    "row,expected",
+    [
+        # AZ/CA/DE/MD label their US Senate race "Senate".
+        (
+            {"country": "US", "province": "AZ", "type": "Senate", "district": None, "election_name": "Arizona Senate"},
+            "AZ SEN",
+        ),
+        (
+            {
+                "country": "US",
+                "province": "TX",
+                "type": "House of Representatives",
+                "district": "TX-18",
+                "election_name": "Texas US House 18 Special",
+            },
+            "TX-18 S",
+        ),
+        (
+            {
+                "country": "US",
+                "province": "TX",
+                "type": "State House",
+                "district": "TX-HD-56",
+                "election_name": "Texas State House 56 Special",
+            },
+            "TX HD-56 S",
+        ),
+        (
+            {
+                "country": "US",
+                "province": "VA",
+                "type": "House of Representatives",
+                "district": "VA-05",
+                "election_name": "Virginia US House 5 Democratic Primary",
+            },
+            None,
+        ),
+    ],
+)
 def test_race_key_specials_primaries_and_plain_senate(row, expected):
     key = race_key(row)
     assert key == (parse(expected) if expected else None)
@@ -190,8 +241,15 @@ def test_race_key_specials_primaries_and_plain_senate(row, expected):
 
 @respx.mock
 async def test_the_row_with_a_county_breakdown_wins_over_a_shadow_row():
-    shadow = {"id": 1, "country": "US", "province": "MA", "type": "US Senate", "district": None,
-              "election_name": "Massachusetts US Senate", "has_breakdown": False}
+    shadow = {
+        "id": 1,
+        "country": "US",
+        "province": "MA",
+        "type": "US Senate",
+        "district": None,
+        "election_name": "Massachusetts US Senate",
+        "has_breakdown": False,
+    }
     live = dict(shadow, id=2, has_breakdown=True)
     respx.get(f"{API}/race/search").respond(json={"races": [shadow, live]})
     async with httpx.AsyncClient() as client:
@@ -209,4 +267,4 @@ def test_zero_percent_reporting_with_votes_is_unknown():
 def test_party_names_use_the_party_table():
     race = _load("race_tx_sen_2024.json")
     parties = {c.name: c.party for c in parse_race(race, 107793, TX_SEN, NOW).candidates}
-    assert parties["Analisa Roche"] == "ASP"     # "American Solidarity"
+    assert parties["Analisa Roche"] == "ASP"  # "American Solidarity"

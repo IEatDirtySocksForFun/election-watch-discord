@@ -1,4 +1,5 @@
 """Persistence contract. MemoryStore (tests/replay) and MongoStore (production) implement it."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -18,11 +19,13 @@ class Store(Protocol):
     async def upsert_result(self, r: RaceResult) -> bool:
         """Save r as the latest result for r.key. True iff r.fingerprint() differs from the
         stored one (this is the README's `updated_results`). Keeps a history snapshot on change."""
+
     async def latest_result(self, key: RaceKey) -> RaceResult | None: ...
     async def result_changed_at(self, key: RaceKey) -> datetime | None: ...
 
     async def record_call(self, c: RaceCall) -> bool:
         """True iff (key, outlet) was not called before (or the winner changed / retracted)."""
+
     async def calls_for(self, key: RaceKey) -> list[RaceCall]: ...
 
     async def add_odds(self, s: OddsSnapshot) -> None: ...

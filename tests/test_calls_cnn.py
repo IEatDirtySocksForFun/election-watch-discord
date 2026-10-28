@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
 
-from electionwatch.models import Level, RaceKey, RaceCall
-from electionwatch.sources.calls.cnn import CNNSource, parse_cnn_race
+from electionwatch.models import Level, RaceCall, RaceKey
 from electionwatch.sources.calls._common import cnn_code_to_key, key_to_cnn_code
+from electionwatch.sources.calls.cnn import CNNSource, parse_cnn_race
 
 FIX = Path(__file__).parent / "fixtures" / "cnn"
 

@@ -10,6 +10,7 @@ The poller is constructed as:
     await poller.tick()      # one cycle; the bot calls it every 60 s, replay calls it per
                              # simulated minute after advancing its fake clock
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,12 +22,12 @@ PostKind = Literal["results", "call", "turnout", "exitpoll", "odds_swing"]
 @dataclass
 class Post:
     kind: PostKind
-    race: str                      # canonical race key string, "TX SEN"
-    title: str                     # "Texas Senate"
-    lines: list[str]               # body lines, already formatted (no markdown tables)
-    url: str | None = None         # source link
-    color: int | None = None       # embed colour; None = by leading party
-    footer: str | None = None      # "Source: Texas SOS · 62% expected vote · 9:41 PM CT"
+    race: str  # canonical race key string, "TX SEN"
+    title: str  # "Texas Senate"
+    lines: list[str]  # body lines, already formatted (no markdown tables)
+    url: str | None = None  # source link
+    color: int | None = None  # embed colour; None = by leading party
+    footer: str | None = None  # "Source: Texas SOS · 62% expected vote · 9:41 PM CT"
     fields: list[tuple[str, str]] = field(default_factory=list)
 
 

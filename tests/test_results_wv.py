@@ -7,7 +7,8 @@ import httpx
 import pytest
 
 from electionwatch.models import Level
-from electionwatch.racekeys import format_key, parse as parse_key
+from electionwatch.racekeys import format_key
+from electionwatch.racekeys import parse as parse_key
 from electionwatch.sources.results import clarity
 from electionwatch.sources.results.clarity import parse_clarity
 
@@ -45,8 +46,9 @@ def test_keys_federal_statewide_legislature():
     assert got["WV SD-17"].key.level is Level.STATE
     assert got["WV HD-01"].key.level is Level.STATE
     assert got["WV HD-100"].key.level is Level.STATE
-    assert "WV LOCAL" in format_key(got["WV LOCAL amendment-no-1-protection-of-persons-"
-                                     "against-medically-assisted-suicide"].key)
+    assert "WV LOCAL" in format_key(
+        got["WV LOCAL amendment-no-1-protection-of-persons-against-medically-assisted-suicide"].key
+    )
 
 
 def test_votes_parties_winner_and_precincts():
@@ -71,7 +73,7 @@ def test_ballot_measure_and_nonpartisan_judge_are_local():
     assert all(c.party is None for c in amendment.candidates)
     judge = next(r for k, r in got.items() if "circuit-court-judge" in k)
     assert judge.candidates[0].name == "Michael E. Froble"
-    assert judge.precincts_reporting is None      # PR == 0 in the source
+    assert judge.precincts_reporting is None  # PR == 0 in the source
 
 
 def test_fetch_uses_configured_wv_feed(monkeypatch):
@@ -90,8 +92,7 @@ def test_fetch_uses_configured_wv_feed(monkeypatch):
 
     async def go():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as c:
-            return await clarity.Clarity().fetch(
-                [parse_key("WV GOV"), parse_key("WV HD-100")], c)
+            return await clarity.Clarity().fetch([parse_key("WV GOV"), parse_key("WV HD-100")], c)
 
     got = by_key(asyncio.run(go()))
     assert set(got) == {"WV GOV", "WV HD-100"}
@@ -105,8 +106,7 @@ def test_2026_general_feed_is_not_published_yet(monkeypatch):
     assert all(f["state"] != "WV" for f in clarity.feeds("2026-11-03"))
 
     async def go():
-        async with httpx.AsyncClient(transport=httpx.MockTransport(
-                lambda request: httpx.Response(404))) as c:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(404))) as c:
             return await clarity.Clarity().fetch([parse_key("WV GOV")], c)
 
     with pytest.raises(Exception, match="no feed configured"):

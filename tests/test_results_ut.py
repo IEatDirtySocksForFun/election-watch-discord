@@ -7,7 +7,8 @@ import httpx
 import pytest
 
 from electionwatch.models import Level
-from electionwatch.racekeys import format_key, parse as parse_key
+from electionwatch.racekeys import format_key
+from electionwatch.racekeys import parse as parse_key
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.results import ut_lgov
 from electionwatch.sources.results.ut_lgov import export_url, parse_ut, race_key
@@ -65,8 +66,7 @@ def test_district_markers_are_dropped():
     assert format_key(race_key("State House 59  (Multi-County)")) == "UT HD-59"
     assert format_key(race_key("U.S. House 3")) == "UT-03"
     assert format_key(race_key("U.S. President")) == "UT LOCAL us-president"
-    assert format_key(race_key("State School Board 3 (Multi-County)")) == \
-        "UT LOCAL state-school-board-3"
+    assert format_key(race_key("State School Board 3 (Multi-County)")) == "UT LOCAL state-school-board-3"
 
 
 def test_export_slug_and_url():

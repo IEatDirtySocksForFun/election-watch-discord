@@ -11,6 +11,7 @@ Status: OK (returned results), EMPTY (reachable, nothing for these races yet: no
 the feed is published), UNAVAILABLE (the adapter reported the feed down/blocked), ERROR (an
 exception: a bug or an unexpected response), TIMEOUT.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,8 +32,11 @@ UA = "election-watch-discord/0.1 (open-source election results bot)"  # NBC refu
 
 def probe_keys(state: str) -> list[RaceKey]:
     first = "AL" if state in {"AK", "DE", "ND", "SD", "VT", "WY", "DC"} else "01"
-    return [RaceKey(state, Level.SENATE, "SEN"), RaceKey(state, Level.GOVERNOR, "GOV"),
-            RaceKey(state, Level.HOUSE, "HOUSE", first)]
+    return [
+        RaceKey(state, Level.SENATE, "SEN"),
+        RaceKey(state, Level.GOVERNOR, "GOV"),
+        RaceKey(state, Level.HOUSE, "HOUSE", first),
+    ]
 
 
 async def check(name: str, cls, state: str, client: httpx.AsyncClient, timeout: float) -> dict:
@@ -41,8 +45,9 @@ async def check(name: str, cls, state: str, client: httpx.AsyncClient, timeout: 
     try:
         res = await asyncio.wait_for(cls().fetch(probe_keys(state), client), timeout)
         row["status"] = "OK" if res else "EMPTY"
-        row["detail"] = ", ".join(f"{r.key}: {r.candidates[0].name if r.candidates else '-'}"
-                                  f" {r.total_votes or 0:,}" for r in res[:3])
+        row["detail"] = ", ".join(
+            f"{r.key}: {r.candidates[0].name if r.candidates else '-'} {r.total_votes or 0:,}" for r in res[:3]
+        )
     except SourceUnavailable as e:
         row["status"], row["detail"] = "UNAVAILABLE", str(e)[:160]
     except asyncio.TimeoutError:
@@ -64,6 +69,7 @@ async def main() -> int:
     rows: list[dict] = []
     sem = asyncio.Semaphore(8)
     async with httpx.AsyncClient(timeout=40, follow_redirects=True, headers={"User-Agent": UA}) as client:
+
         async def one(name, cls, st):
             async with sem:
                 rows.append(await check(name, cls, st, client, a.timeout))
@@ -81,16 +87,32 @@ async def main() -> int:
                         by_state.setdefault(r.key.state, []).append(r)
                     for st in sorted(cls.states):
                         res = by_state.get(st, [])
-                        rows.append({"adapter": name, "state": st, "default": cls.enabled_by_default,
-                                     "status": "OK" if res else "EMPTY", "secs": round(time.monotonic() - t0, 1),
-                                     "detail": ", ".join(f"{r.key}: {r.candidates[0].name if r.candidates else '-'}"
-                                                         f" {r.total_votes or 0:,}" for r in res[:3])})
+                        rows.append(
+                            {
+                                "adapter": name,
+                                "state": st,
+                                "default": cls.enabled_by_default,
+                                "status": "OK" if res else "EMPTY",
+                                "secs": round(time.monotonic() - t0, 1),
+                                "detail": ", ".join(
+                                    f"{r.key}: {r.candidates[0].name if r.candidates else '-'} {r.total_votes or 0:,}"
+                                    for r in res[:3]
+                                ),
+                            }
+                        )
                 except Exception as e:  # noqa: BLE001
                     status = "UNAVAILABLE" if isinstance(e, SourceUnavailable) else "ERROR"
                     for st in sorted(cls.states):
-                        rows.append({"adapter": name, "state": st, "default": cls.enabled_by_default,
-                                     "status": status, "secs": round(time.monotonic() - t0, 1),
-                                     "detail": f"{type(e).__name__}: {str(e)[:150]}"})
+                        rows.append(
+                            {
+                                "adapter": name,
+                                "state": st,
+                                "default": cls.enabled_by_default,
+                                "status": status,
+                                "secs": round(time.monotonic() - t0, 1),
+                                "detail": f"{type(e).__name__}: {str(e)[:150]}",
+                            }
+                        )
 
         async def civic(st, gate=asyncio.Semaphore(2)):
             # civicAPI serves test data before election night (fake winners, test_data: true)
@@ -112,10 +134,11 @@ async def main() -> int:
                         if result and result.total_votes:
                             shown.append(f"{key}: {result.candidates[0].name} {result.total_votes:,}")
                     federal = sum(1 for k in index if k.level in (Level.SENATE, Level.GOVERNOR, Level.HOUSE))
-                    row["status"] = ("OK" if shown else "TEST" if any(flags) else
-                                     "EMPTY")
-                    row["detail"] = (f"{len(index)} races ({federal} federal/governor); "
-                                     f"test_data on {sum(flags)}/{len(flags)} probed; " + ", ".join(shown))
+                    row["status"] = "OK" if shown else "TEST" if any(flags) else "EMPTY"
+                    row["detail"] = (
+                        f"{len(index)} races ({federal} federal/governor); "
+                        f"test_data on {sum(flags)}/{len(flags)} probed; " + ", ".join(shown)
+                    )
                 except Exception as e:  # noqa: BLE001
                     row["status"] = "UNAVAILABLE" if isinstance(e, SourceUnavailable) else "ERROR"
                     row["detail"] = f"{type(e).__name__}: {str(e)[:150]}"
@@ -124,11 +147,20 @@ async def main() -> int:
 
         nat = {n: c for n, c in reg.items() if n.endswith("_results") and len(c.states) > 40}
         special = set(nat) | {"civicapi"}
-        await asyncio.gather(*(national(n, c) for n, c in nat.items() if not only or n in only),
-                             *(civic(st) for st in sorted(reg["civicapi"].states)
-                               if "civicapi" in reg and (not only or "civicapi" in only)),
-                             *(one(n, c, st) for n, c in reg.items() if n not in special
-                               and (not only or n in only) for st in sorted(c.states)))
+        await asyncio.gather(
+            *(national(n, c) for n, c in nat.items() if not only or n in only),
+            *(
+                civic(st)
+                for st in sorted(reg["civicapi"].states)
+                if "civicapi" in reg and (not only or "civicapi" in only)
+            ),
+            *(
+                one(n, c, st)
+                for n, c in reg.items()
+                if n not in special and (not only or n in only)
+                for st in sorted(c.states)
+            ),
+        )
     rows.sort(key=lambda r: (r["state"], r["adapter"]))
     for r in rows:
         print(f"{r['state']}  {r['adapter']:<16} {r['status']:<11} {r['secs']:>5}s  {r['detail']}")
