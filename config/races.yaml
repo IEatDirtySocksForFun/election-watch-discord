@@ -8,7 +8,43 @@
 #   TX SD-05         Texas State Senate District 5;  TX HD-121 = State House District 121
 #   TX LOCAL harris-county-judge   local race (slug understood by the results adapter)
 # Long names work too: "Texas Senate", "North Carolina Congressional District 1".
+# Here is a list of generic important races 
 election_date: 2026-11-03
-important:
+important:important:
+  # U.S. Senate
   - key: TX SEN
     label: Texas Senate
+  - key: OH SEN
+    label: Ohio Senate
+  - key: ME SEN
+    label: Maine Senate
+  - key: MI SEN
+    label: Michigan Senate
+
+  # U.S. House
+  - key: PA-01
+    label: Pennsylvania Congressional District 1
+  - key: PA-07
+    label: Pennsylvania Congressional District 7
+  - key: CA-01
+    label: California Congressional District 1
+  - key: NE-02
+    label: Nebraska Congressional District 2
+  - key: NJ-07
+    label: New Jersey Congressional District 7
+  - key: AZ-06
+    label: Arizona Congressional District 6
+  - key: TX-34
+    label: Texas Congressional District 34
+
+  # Governor
+  - key: GA GOV
+    label: Georgia Governor
+  - key: KS GOV
+    label: Kansas Governor
+  - key: NV GOV
+    label: Nevada Governor
+  - key: OH GOV
+    label: Ohio Governor
+  - key: WI GOV
+    label: Wisconsin Governor
