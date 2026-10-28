@@ -129,6 +129,7 @@ Replies are private (only you see them) unless they're posts in the election cha
 | `/favorite add·remove <race>`            | pin races in your browser                           |
 | `/settings`                              | this server's settings                              |
 | `/limits`                                | how often data refreshes, and this server's limits  |
+| `/menu`                                  | all of the above as buttons, if you'd rather click  |
 
 **For admins** (Manage Server, or the admin role from `/setup`)
 
@@ -144,6 +145,8 @@ Replies are private (only you see them) unless they're posts in the election cha
 | `/pause`, `/resume`                                        | stop and restart all posting                                     |
 | `/refresh [what]`                                          | fetch fresh data now instead of waiting for the next refresh     |
 | `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | change this server's command limits (`-1` puts back the default) |
+| `/menu_post [channel]`, `/menu_remove`                     | post a button menu anyone can click (posting again replaces it)  |
+| `/menu_private on·off`                                     | whether members can open their own `/menu` (on by default)       |
 
 ## Where the numbers come from
 

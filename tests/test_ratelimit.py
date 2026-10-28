@@ -382,7 +382,8 @@ def test_limits_text_fits_one_message_with_every_adapter_and_leads_with_command_
 def test_the_cooldown_key_ignores_presentation_options():
     import inspect
 
-    from electionwatch.bot.discord import polls_command
+    from electionwatch.bot.discord import polls_command, show_polls
 
-    source = inspect.getsource(polls_command.callback)
-    assert '_cooldown(interaction, "polls", str(key), "polls")' in source
+    # /polls and the menu's Polls picker both go through show_polls.
+    assert "show_polls(interaction, key, count, internals)" in inspect.getsource(polls_command.callback)
+    assert '_cooldown(interaction, "polls", str(key), "polls")' in inspect.getsource(show_polls)

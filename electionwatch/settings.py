@@ -41,6 +41,11 @@ class GuildSettings:
     user_cooldown_seconds: int | None = None  # per user, per command and race/state
     user_commands_per_hour: int | None = None  # per user, across /odds /polls /earlyvote
     refresh_cooldown_seconds: int | None = None  # between two /refresh in this server
+    # Button menus (electionwatch/bot/menu.py): /menu works for everyone unless an admin ran
+    # /menu_private off; the ids are the channel menu from /menu_post, to replace or remove it.
+    private_menu: bool = True
+    menu_channel_id: int | None = None
+    menu_message_id: int | None = None
 
 
 @dataclass

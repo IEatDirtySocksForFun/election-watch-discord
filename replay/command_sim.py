@@ -1037,6 +1037,7 @@ class Night:
             "settings",
             "faq",
             "faq state=PA",
+            "menu",
         ]
         for cmd in battery:
             await self._maybe_concurrent(
@@ -1603,6 +1604,9 @@ ADMIN_CMDS = [
     "turnout off",
     "exitpolls off",
     "setup channel=999 admin_role=555",
+    "menu_post",
+    "menu_remove",
+    "menu_private off",
 ]
 
 

@@ -34,6 +34,10 @@ EXPECTED_COMMANDS = {
     "earlyvote_posts",
     "refresh",
     "limits",
+    "menu",
+    "menu_post",
+    "menu_remove",
+    "menu_private",
 }
 
 
@@ -70,6 +74,8 @@ async def test_bot_registers_every_command_and_the_error_handler():
             poll_parameters = {parameter.name: parameter for parameter in commands["polls"].parameters}
             assert poll_parameters["count"].default == 5
             assert poll_parameters["internals"].default is True
+            assert {parameter.name for parameter in commands["menu_post"].parameters} == {"channel"}
+            assert {parameter.name for parameter in commands["menu_private"].parameters} == {"enabled"}
             assert bot.tree.on_error is handle_app_command_error
         finally:
             await bot.close()
