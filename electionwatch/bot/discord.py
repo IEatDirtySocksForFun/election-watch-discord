@@ -13,6 +13,10 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from electionwatch.bot.command_data import CommandData
+from electionwatch.bot.early_vote import (
+    AUTOCOMPLETE_TIMEOUT, BREAKDOWNS, early_vote_client, early_vote_embed, post_daily_summaries,
+    resolve_state, state_choices,
+)
 from electionwatch.bot.logic import (
     change_calls,
     change_favorite,
@@ -28,8 +32,9 @@ from electionwatch.bot.navigator import RaceNavigator, list_races
 from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.poller import Poller
-from electionwatch.racekeys import describe, parse
+from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.settings import GuildSettings, UserSettings
+from electionwatch.sources.early_vote import EarlyVoteClient
 
 logger = logging.getLogger(__name__)
 MAX_MESSAGE = 2000  # Discord's message content limit
@@ -56,6 +61,7 @@ class ElectionBot(commands.Bot):
         self.sources = sources
         self.http_client = http_client
         self.command_data = CommandData(store, sources, http_client, clock)
+        self.early_vote = EarlyVoteClient(http_client)
         self.poller = Poller(
             store,
             sources,
@@ -80,6 +86,8 @@ class ElectionBot(commands.Bot):
             races_command,
             favorite_command,
             faq_command,
+            early_vote_command,
+            early_vote_posts_command,
         ):
             self.tree.add_command(command)
 
@@ -92,6 +100,7 @@ class ElectionBot(commands.Bot):
         else:
             await self.tree.sync()
         self.poll_results.start()
+        self.early_vote_posts.start()
 
     @tasks.loop(seconds=60)
     async def poll_results(self) -> None:
@@ -102,6 +111,18 @@ class ElectionBot(commands.Bot):
 
     @poll_results.before_loop
     async def before_poll(self) -> None:
+        await self.wait_until_ready()
+
+    @tasks.loop(hours=1)
+    async def early_vote_posts(self) -> None:
+        # Posts at most once per civicAPI snapshot day, only for servers that opted in.
+        try:
+            await post_daily_summaries(self)
+        except Exception:
+            logger.exception("Early-vote summary failed")
+
+    @early_vote_posts.before_loop
+    async def before_early_vote_posts(self) -> None:
         await self.wait_until_ready()
 
 
@@ -294,6 +315,48 @@ async def turnout_command(interaction: discord.Interaction, enabled: Literal["on
 @app_commands.command(name="exitpolls", description="Post exit polls")
 async def exitpolls_command(interaction: discord.Interaction, enabled: Literal["on", "off"]) -> None:
     await _toggle(interaction, "post_exit_polls", enabled == "on")
+
+
+@app_commands.command(name="earlyvote_posts", description="Post a daily early-vote summary for watched states")
+async def early_vote_posts_command(interaction: discord.Interaction, enabled: Literal["on", "off"]) -> None:
+    await _toggle(interaction, "post_early_vote", enabled == "on")
+
+
+@app_commands.command(name="earlyvote", description="Show early-vote turnout (civicAPI)")
+@app_commands.describe(
+    state="State code or name; omit it for every state with data",
+    breakdown="Detail to show for the state",
+)
+async def early_vote_command(
+    interaction: discord.Interaction,
+    state: str | None = None,
+    breakdown: Literal[BREAKDOWNS] | None = None,
+) -> None:
+    code = None
+    if state:
+        try:
+            code = resolve_state(state)
+        except ValueError as exc:
+            await _error(interaction, exc)
+            return
+    # Up to a few civicAPI requests spaced a second apart: defer before the 3 s deadline.
+    await interaction.response.defer(ephemeral=True)
+    embed = await early_vote_embed(early_vote_client(interaction.client), code, breakdown)
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+
+async def early_vote_state_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    states = await early_vote_client(interaction.client).states_with_data(AUTOCOMPLETE_TIMEOUT)
+    # Cold cache or civicAPI down: offer every state; the command says when one has no data.
+    return [
+        app_commands.Choice(name=name, value=value)
+        for name, value in state_choices(states if states is not None else list(STATES), current)
+    ]
+
+
+early_vote_command.autocomplete("state")(early_vote_state_autocomplete)
 
 
 @app_commands.command(name="pause", description="Pause all election posts")

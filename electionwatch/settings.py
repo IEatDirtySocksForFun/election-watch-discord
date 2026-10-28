@@ -35,6 +35,7 @@ class GuildSettings:
     odds_swing_pts: float = 50.0                 # alert when implied prob moves >= this many points
     odds_window_minutes: int = 60                #   ... within this look-back window
     paused: bool = False
+    post_early_vote: bool = False                # daily civicAPI early-vote summary (/earlyvote_posts)
 
 
 @dataclass

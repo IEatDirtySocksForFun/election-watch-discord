@@ -30,6 +30,7 @@ from electionwatch.models import (
     CandidateResult, Level, OddsSnapshot, Poll, PollResult, RaceKey, RaceResult,
 )
 from electionwatch.store.memory import MemoryStore
+from fake_civicapi_early_vote import fixture_client, mock_http_client
 
 GUILD = 100000000000000001
 CHANNEL = 100000000000000002
@@ -259,11 +260,14 @@ async def harness():
         bot._connection.user = discord.ClientUser(state=bot._connection, data=_user(APP) | {"bot": True})
         bot._connection._add_guild_from_data(json.loads(json.dumps(GUILD_CREATE)))
         h = Harness(bot, recorder, odds)
+        early_vote_http = mock_http_client()   # /earlyvote reads recorded civicAPI responses
+        bot.early_vote = fixture_client(early_vote_http)
         try:
             yield h
         finally:
             for view in list(bot._connection._view_store.persistent_views) + h.views():
                 view.stop()
+            await early_vote_http.aclose()
             await bot.close()
             async_context.reset(reset)
             navigator._list_cache.clear()
@@ -432,6 +436,15 @@ CASES = [
     ("faq-tx", "faq", [opt("state", "TX")], None, {}, "```yaml"),
     ("faq-territory", "faq", [opt("state", "PR")], None, {}, ""),
     ("faq-bad", "faq", [opt("state", "ZZ")], None, {}, "unknown state"),
+    ("earlyvote-overview", "earlyvote", [], None, {"dm": True}, "Early vote · United States"),
+    ("earlyvote-state", "earlyvote", [opt("state", "nc")], None, {"permissions": 0}, "North Carolina"),
+    ("earlyvote-county", "earlyvote", [opt("state", "Georgia"), opt("breakdown", "county")], None, {},
+     "Top counties"),
+    ("earlyvote-no-data", "earlyvote", [opt("state", "NY")], None, {}, "no early-vote data"),
+    ("earlyvote-bad", "earlyvote", [opt("state", "ZZ")], None, {}, "Unknown state"),
+    ("earlyvote-posts-on", "earlyvote_posts", [opt("enabled", "on")], None, {}, "early vote on"),
+    ("earlyvote-posts-not-admin", "earlyvote_posts", [opt("enabled", "on")], None, {"permissions": 0},
+     "Manage Server"),
 ]
 
 
