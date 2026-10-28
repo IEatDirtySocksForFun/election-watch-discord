@@ -208,9 +208,43 @@ class FakeInteraction:
         return replies[-1]
 
 
-def make_client(store, sources: dict | None = None, *, clock=None, poller=None):
+class RefreshedCommandData(CommandData):
+    """CommandData whose store the background refresh has just filled for the asked race.
+
+    The commands read only the store; the poller's refresh is what calls the sources. These
+    matrix tests are about what the commands render, so each read is preceded by the refresh
+    the poller would have done (source failures are skipped, as the poller skips them)."""
+
+    async def get_odds(self, key):
+        from electionwatch.poller import ODDS_CHECKED
+
+        for source in self._available("odds"):
+            try:
+                fetched = [s for s in await source.fetch_odds([key], self.http_client) if s.key == key]
+            except Exception:
+                continue
+            for snapshot in fetched:
+                await self.store.add_odds(snapshot)
+            if not fetched:
+                await self.store.put_cached(ODDS_CHECKED, str(key), "", self._now())
+        return await super().get_odds(key)
+
+    async def get_polls(self, key):
+        from electionwatch.poller import POLLS_CACHE, dump_polls, polls_ident
+
+        for source in self._available("polls"):
+            try:
+                polls = [poll for poll in await source.fetch_polls([key], self.http_client) if poll.key == key]
+            except Exception:
+                continue
+            await self.store.put_cached(POLLS_CACHE, polls_ident(source.name, key), dump_polls(polls), self._now())
+        return await super().get_polls(key)
+
+
+def make_client(store, sources: dict | None = None, *, clock=None, poller=None, refreshed: bool = True):
     """A bot stand-in exposing what the commands and navigator read from ``interaction.client``."""
     sources = sources or {}
     client = SimpleNamespace(store=store, sources=sources, http_client=object(), poller=poller)
-    client.command_data = CommandData(store, sources, client.http_client, clock)
+    data = RefreshedCommandData if refreshed else CommandData
+    client.command_data = data(store, sources, client.http_client, clock)
     return client

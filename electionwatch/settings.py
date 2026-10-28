@@ -35,6 +35,11 @@ class GuildSettings:
     odds_window_minutes: int = 60                #   ... within this look-back window
     paused: bool = False
     post_early_vote: bool = False                # daily civicAPI early-vote summary (/earlyvote_posts)
+    # /limits overrides for this server; None = the operator's value, else computed
+    # (electionwatch/bot/cooldown.py). Hourly cap 0 = no cap.
+    user_cooldown_seconds: int | None = None     # per user, per command and race/state
+    user_commands_per_hour: int | None = None    # per user, across /odds /polls /earlyvote
+    refresh_cooldown_seconds: int | None = None  # between two /refresh in this server
 
 
 @dataclass

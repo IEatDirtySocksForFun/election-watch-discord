@@ -18,7 +18,7 @@ from electionwatch.racekeys import STATES, parse
 from electionwatch.settings import GuildSettings
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.early_vote import (
-    CATEGORY_LABELS, EarlyVote, EarlyVoteClient, National, page_url,
+    CATEGORY_LABELS, EarlyVote, EarlyVoteClient, National, NotCached, page_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -238,6 +238,13 @@ async def early_vote_embed(client: EarlyVoteClient, state: str | None, breakdown
                                          MAX_DESCRIPTION)
             return embed
         ev = await client.state(state, counties=breakdown == "county", age=breakdown == "age")
+    except NotCached:
+        embed = _embed(f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}",
+                       page_url(state), None)
+        embed.description = ("Early-vote numbers are still being loaded by the background refresh "
+                             "(civicAPI pages download one a second). Try again in a few minutes.")
+        embed.set_footer(text="Early vote: civicAPI")
+        return embed
     except SourceUnavailable:
         logger.warning("civicAPI early-vote unavailable", exc_info=True)
         return unavailable_embed(state)

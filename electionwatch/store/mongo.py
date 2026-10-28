@@ -82,6 +82,7 @@ class MongoStore:
         self.calls = self.db.calls
         self.odds = self.db.odds
         self.posts = self.db.posts
+        self.cache = self.db.cache
         self._indexes_ready = False
 
     async def create_indexes(self) -> None:
@@ -93,6 +94,7 @@ class MongoStore:
         await self.posts.create_index(
             [("guild_id", ASCENDING), ("kind", ASCENDING), ("ref", ASCENDING)], unique=True
         )
+        await self.cache.create_index([("kind", ASCENDING)])
         self._indexes_ready = True
 
     async def ping(self, wait: float = STARTUP_WAIT_SECONDS) -> None:
@@ -174,6 +176,27 @@ class MongoStore:
             {"key": str(key), "market": market, "outcome": outcome, "ts": {"$gte": since}}
         ).sort("ts", ASCENDING)
         return [_odds(doc) async for doc in cursor]
+
+    async def latest_odds(self, key: RaceKey) -> list[OddsSnapshot]:
+        pipeline = [
+            {"$match": {"key": str(key)}},
+            {"$sort": {"ts": -1}},
+            {"$group": {"_id": {"market": "$market", "outcome": "$outcome"}, "doc": {"$first": "$$ROOT"}}},
+        ]
+        cursor = await self.odds.aggregate(pipeline)
+        return [_odds(row["doc"]) async for row in cursor]
+
+    async def put_cached(self, kind: str, ident: str, data: str, at: datetime) -> None:
+        await self.cache.replace_one(
+            {"_id": f"{kind}|{ident}"}, {"kind": kind, "ident": ident, "data": data, "at": at}, upsert=True)
+
+    async def get_cached(self, kind: str, ident: str) -> tuple[datetime, str] | None:
+        doc = await self.cache.find_one({"_id": f"{kind}|{ident}"})
+        return (_utc(doc["at"]), doc["data"]) if doc else None
+
+    async def cached_idents(self, kind: str) -> dict[str, datetime]:
+        return {doc["ident"]: _utc(doc["at"])
+                async for doc in self.cache.find({"kind": kind}, {"ident": 1, "at": 1})}
 
     async def last_posted(self, guild_id: int, kind: str, ref: str) -> datetime | None:
         doc = await self.posts.find_one(

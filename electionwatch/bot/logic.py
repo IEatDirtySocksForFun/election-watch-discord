@@ -126,6 +126,79 @@ def change_odds(
     )
 
 
+MAX_LIMIT_SECONDS = 7 * 24 * 3600
+
+
+def change_limits(gs: GuildSettings, user_cooldown: int | None = None, user_hourly: int | None = None,
+                  refresh_cooldown: int | None = None) -> str:
+    """/limits: -1 resets a value to the default; omitted values are unchanged."""
+    changes = []
+    for field, value, label in (
+        ("user_cooldown_seconds", user_cooldown, "user cooldown"),
+        ("user_commands_per_hour", user_hourly, "commands per user per hour"),
+        ("refresh_cooldown_seconds", refresh_cooldown, "/refresh cooldown"),
+    ):
+        if value is None:
+            continue
+        if value < -1 or value > MAX_LIMIT_SECONDS:
+            raise ValueError(f"{label} must be between 0 and {MAX_LIMIT_SECONDS} (-1 = default)")
+        setattr(gs, field, None if value == -1 else int(value))
+        changes.append(f"{label} {'default' if value == -1 else value}")
+    if not changes:
+        raise ValueError("give at least one of user_cooldown, user_hourly, refresh_cooldown")
+    return "Limits set: " + ", ".join(changes)
+
+
+def _span(seconds: float) -> str:
+    seconds = round(seconds)
+    if seconds < 120:
+        return f"{seconds} s"
+    if seconds < 7200:
+        return f"{round(seconds / 60)} min"
+    return f"{seconds / 3600:.1f} h".replace(".0 h", " h")
+
+
+def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
+    """/limits: refresh intervals, request budgets and this server's command limits."""
+    lines = ["Data refresh (background; commands read the database only):"]
+    rows = rates.status() if rates is not None else []
+    kinds: dict[str, list[dict]] = {}
+    for row in rows:
+        kinds.setdefault(row["kind"], []).append(row)
+    from electionwatch.ratelimit import FLOORS
+    for kind in FLOORS:
+        every = rates.kind_interval(kind) if rates is not None else FLOORS[kind]
+        lines.append(f"  {kind}: every {_span(every)}")
+        for row in kinds.get(kind, []):
+            budget = ", ".join(f"{host} {used}/{allow:g} per h" for host, (used, allow) in row["hosts"].items())
+            lines.append(f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
+                         + (" (set by operator)" if row["overridden"] else "")
+                         + (f"; {row['requests_per_refresh']} request{'s' if row['requests_per_refresh'] != 1 else ''} per refresh"
+                            if row["requests_per_refresh"] else "")
+                         + (f"; {budget}" if budget else ""))
+    if rates is not None:
+        lines.append(f"Each host gets at most 1/{rates.safety:g} of its published limit per hour.")
+    if cooldowns is not None:
+        server = gs or GuildSettings(0)
+        odds = rates.kind_interval("odds") if rates is not None else FLOORS["odds"]
+        user = cooldowns.user_seconds(odds, server.user_cooldown_seconds)
+        hourly = server.user_commands_per_hour if server.user_commands_per_hour is not None else cooldowns.user_hourly
+        refresh = cooldowns.refresh_seconds(min(FLOORS.values()) if rates is None else
+                                            min(rates.kind_interval(k) for k in FLOORS),
+                                            server.refresh_cooldown_seconds)
+        lines += [
+            "Command limits in this server:",
+            "  same race/state again: " + (f"after {_span(user)}" if server.user_cooldown_seconds is not None
+                                            or cooldowns.user_cooldown is not None
+                                            else "after 2 refreshes of its data (odds: " + _span(user) + ")"),
+            "  per user per hour: " + (f"{hourly:g}" if hourly else "no cap"),
+            "  /refresh: once every " + _span(refresh) + " (or more, for slower data)"
+            if server.refresh_cooldown_seconds is None and cooldowns.refresh_cooldown is None
+            else "  /refresh: once every " + _span(refresh),
+        ]
+    return "\n".join(lines)
+
+
 def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.

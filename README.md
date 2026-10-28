@@ -196,9 +196,11 @@ Admin commands need **Manage Server**, or the admin role set in `/setup`. Replie
 | `/turnout on·off`, `/exitpolls on·off` | admin | extra lines and posts |
 | `/earlyvote_posts on·off` | admin | daily early-vote summary for watched states (off by default) |
 | `/pause`, `/resume` | admin | stop or restart all posting |
+| `/refresh [what:all·results·odds·polls·earlyvote]` | admin | fetch fresh data now instead of waiting for the next refresh (once per 2 refresh intervals per server; the hourly request allowance still applies) |
+| `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | everyone sees · admin sets | refresh rates, request budgets and this server's command limits (`-1` = back to default) |
 | `/settings` | everyone | this server's settings (private) |
 | `/races` | everyone | private race browser with Odds and Polls buttons |
-| `/odds [race]` | everyone | private Kalshi + Polymarket probabilities with 1 h / 24 h moves |
+| `/odds [race]` | everyone | private Kalshi + Polymarket probabilities with 1 h / 24 h moves (read from the database; see [rate limits](docs/customizing.md#refresh-rates-and-limits)) |
 | `/polls race:<race> [count] [internals]` | everyone | private latest polls, internals tagged |
 | `/favorite add·remove <race>` | everyone | pin races in your browser |
 | `/faq [state]` | everyone | private per-state election FAQ |
@@ -270,8 +272,16 @@ and register it with `@register`. The rules (contract in
             per server: posting rule, outlets, thresholds
                           ▼
               DiscordPoster ─► embeds in #election-night
- slash commands ─► MongoDB settings · private views read the same store + live odds/polls
+ every 60 s ─► the same tick refreshes odds and polls; early vote has its own hourly refresh
+                each source only when its request budget allows (half its published limit)
+ slash commands ─► MongoDB only: odds, polls, early vote and results are never fetched for a user
 ```
+
+Commands never call a data source: `/odds`, `/polls` and `/earlyvote` read what the background
+refresh stored, so users repeating a command cannot hammer an API. A race nobody watches is
+queued by the first request and fetched by the next refresh. How often each source is asked is
+computed from its host's published rate limit; every number is configurable
+([docs/customizing.md](docs/customizing.md#refresh-rates-and-limits)).
 
 ## License
 

@@ -2,15 +2,17 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from collections import defaultdict
+from contextlib import nullcontext
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 import httpx
 
 from electionwatch.config import load_races
-from electionwatch.models import ExitPoll, OddsSnapshot, RaceCall, RaceResult, normalize_party
+from electionwatch.models import ExitPoll, OddsSnapshot, Poll, RaceCall, RaceResult, normalize_party, to_doc
 from electionwatch.poster import Post, Poster
 from electionwatch.racekeys import describe
 from electionwatch.settings import GuildSettings, post_due
@@ -107,6 +109,41 @@ def best_result(answers: list[RaceResult]) -> RaceResult | None:
     return next((r for r in answers if not is_partial(r)), answers[0] if answers else None)
 
 
+#: Which kind of source each fetch method belongs to (ratelimit.FLOORS, EW_INTERVALS).
+METHOD_KIND = {"fetch": "results", "fetch_calls": "calls", "fetch_exit_polls": "exitpolls",
+               "fetch_odds": "odds", "fetch_polls": "polls"}
+POLLS_CACHE = "polls"
+ODDS_CHECKED = "odds_checked"   # races the odds refresh asked about and no market answered
+
+
+def polls_ident(source: str, key) -> str:
+    return f"{key}|{source}"
+
+
+def dump_polls(polls: list[Poll]) -> str:
+    def conv(value):
+        return value.isoformat() if hasattr(value, "isoformat") else value
+    return json.dumps([{k: conv(v) for k, v in to_doc(poll).items()} for poll in polls])
+
+
+def load_polls(text: str) -> list[Poll]:
+    from datetime import date
+
+    from electionwatch.models import PollResult
+    from electionwatch.racekeys import parse
+
+    polls = []
+    for item in json.loads(text):
+        item = dict(item)
+        item["key"] = parse(item["key"])
+        item["results"] = [PollResult(**result) for result in item["results"]]
+        for field in ("end_date", "start_date"):
+            if item.get(field):
+                item[field] = date.fromisoformat(item[field])
+        polls.append(Poll(**item))
+    return polls
+
+
 def swing_detail(swing, history: list[OddsSnapshot], fallback: OddsSnapshot):
     """Turn detect_swing()'s answer into (move in points or None, latest snapshot).
 
@@ -130,6 +167,8 @@ class Poller:
         http: httpx.AsyncClient,
         *,
         fetch_timeout: float = 30.0,
+        rates=None,
+        demand=None,
     ) -> None:
         self.store = store
         self.sources = sources
@@ -144,6 +183,11 @@ class Poller:
         self._last_body: dict[tuple[int, str, str], tuple[str, ...]] = {}
         self._backoff: dict[str, tuple[int, datetime | None]] = {}   # source -> (failures, skip until)
         self._flags_specials: set[str] = set()   # sources seen answering for a special key itself
+        # Request budgets (electionwatch/ratelimit.py): None asks every source every tick.
+        self.rates = rates
+        self.demand = demand
+        self._answers: dict[str, list] = {}      # source -> its last results, reused until it is due
+        self._lock = asyncio.Lock()              # /refresh and the minute loop never overlap
 
     def _watched(self, guild: GuildSettings) -> set[str]:
         return set(guild.important) if guild.important else {str(r.key) for r in self.default_races}
@@ -167,14 +211,25 @@ class Poller:
         now = self.clock()
         if until is not None and now < until:
             return []
+        kind = METHOD_KIND.get(method, method)
+        budget_name = f"{name}:{kind}"   # one adapter can be a results and a calls source
+        if self.rates is not None and not self.rates.due(budget_name, kind):
+            # Not due yet: results sources answer with what they said last time, so the
+            # fallbacks are not asked about races an official feed already answered.
+            asked = {str(key) for key in keys}
+            return [r for r in self._answers.get(budget_name, []) if str(r.key) in asked]
+        tracking = self.rates.track(budget_name, kind) if self.rates is not None else nullcontext()
         try:
-            got = await asyncio.wait_for(getattr(source, method)(keys, self.http), timeout=self.fetch_timeout)
+            with tracking:
+                got = await asyncio.wait_for(getattr(source, method)(keys, self.http), timeout=self.fetch_timeout)
         except Exception:
             failures += 1
             self._backoff[name] = (failures, now + timedelta(minutes=min(2 ** (failures - 1), 15)))
             raise
         if failures:
             self._backoff.pop(name, None)
+        if kind == "results":
+            self._answers[budget_name] = list(got)
         return got
 
     async def _post(self, guild: GuildSettings, kind: str, ref: str, post: Post, now: datetime) -> None:
@@ -191,6 +246,27 @@ class Poller:
             logger.exception("Could not deliver %s post to guild %s", kind, guild.guild_id)
 
     async def tick(self) -> None:
+        async with self._lock:
+            await self._tick()
+
+    def _demanded(self, kind: str, keys: list) -> list:
+        """keys plus the races users asked about with a command (electionwatch/demand.py)."""
+        if self.demand is None:
+            return keys
+        from electionwatch.racekeys import parse
+
+        out, seen = list(keys), {str(key) for key in keys}
+        for text in self.demand.items(kind):
+            if text in seen:
+                continue
+            try:
+                out.append(parse(text))
+            except ValueError:
+                continue
+            seen.add(text)
+        return out
+
+    async def _tick(self) -> None:
         now = self.clock()
         guilds = await self.store.all_guilds()
         if not guilds:
@@ -221,7 +297,8 @@ class Poller:
         outlet_keys = keys + list(self._aliases)
         await self._calls(now, guilds, outlet_keys)
         await self._exit_polls(now, guilds, outlet_keys)
-        await self._odds(now, guilds, outlet_keys)
+        await self._odds(now, guilds, self._demanded("odds", outlet_keys))
+        await self._polls(now, self._demanded("polls", keys))
 
     def _canonical_batch(self, source, items: list) -> list:
         """Apply the special-election alias to one source's answers, unless the source flags
@@ -356,22 +433,59 @@ class Poller:
                     if await self.store.last_posted(guild.guild_id, "exitpoll", ref) is None:
                         await self._post(guild, "exitpoll", ref, format_exit_poll(poll), now)
 
+    async def _polls(self, now: datetime, keys: list) -> None:
+        """Store each poll source's polls per race; /polls reads them from the store."""
+        for source in self.sources.get("polls", []):
+            if not self._enabled(source):
+                continue
+            name = getattr(source, "name", repr(source))
+            if self.rates is not None and not self.rates.due(f"{name}:polls", "polls"):
+                continue
+            try:
+                polls = await self._fetch(source, "fetch_polls", keys)
+            except Exception:
+                logger.exception("Poll source %s failed", name)
+                continue
+            by_key: dict[str, list[Poll]] = defaultdict(list)
+            for poll in polls:
+                by_key[str(poll.key)].append(poll)
+            for key in keys:
+                try:
+                    await self.store.put_cached(POLLS_CACHE, polls_ident(name, key),
+                                                dump_polls(by_key.get(str(key), [])), now)
+                except Exception:
+                    logger.exception("Could not store polls for %s", key)
+
     async def _odds(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         snapshots: list[OddsSnapshot] = []
+        asked = False
         for source in self.sources.get("odds", []):
             if not self._enabled(source):
+                continue
+            name = getattr(source, "name", repr(source))
+            if self.rates is not None and not self.rates.due(f"{name}:odds", "odds"):
                 continue
             try:
                 fetched = await self._fetch(source, "fetch_odds", keys)
             except Exception:
                 logger.exception("Odds source %s failed", source.name)
                 continue
+            asked = True
             for snapshot in self._canonical_batch(source, fetched):
                 try:
                     await self.store.add_odds(snapshot)
                     snapshots.append(snapshot)
                 except Exception:
                     logger.exception("Could not store odds for %s", snapshot.key)
+        if asked:
+            # /odds tells "no market for this race" apart from "not fetched yet" with this.
+            priced = {str(snapshot.key) for snapshot in snapshots}
+            for key in keys:
+                if str(key) not in priced:
+                    try:
+                        await self.store.put_cached(ODDS_CHECKED, str(key), "", now)
+                    except Exception:
+                        logger.exception("Could not store the odds check for %s", key)
         if not snapshots or not any(guild.odds_alerts for guild in guilds):
             return
         try:

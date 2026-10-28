@@ -7,6 +7,47 @@
 - `electionwatch/settings.py`: defaults for new servers (posting interval, call outlets, odds
   threshold and window). These are shared contracts: change values, not field names.
 
+## Refresh rates and limits
+
+The bot asks each data source on a schedule and stores the answers in MongoDB; `/odds`,
+`/polls` and `/earlyvote` read only the database. The schedule is computed so the bot uses at
+most half of each host's published rate limit per hour (`electionwatch/ratelimit.py`):
+
+```
+allowance per hour = host's limit per hour / EW_RATE_SAFETY        (default 2)
+refresh interval   = max(floor for its kind, requests per refresh x 3600 / allowance)
+```
+
+Requests are counted per host as they happen, so a bigger watch list slows a source down rather
+than sending more requests, and sources sharing a host (civicAPI results, calls and early vote)
+share its allowance. Floors: results, calls, exit polls and odds 60 s; polls 30 min; early vote
+1 h. Published limits used by default (researched 2026-10-28):
+
+| host | limit | note |
+|---|---|---|
+| gamma-api.polymarket.com | 300 / 10 s | Polymarket docs (`/markets`) |
+| api.elections.kalshi.com | 10 / s | only a keyed tier (20/s) is published; half of it |
+| en.wikipedia.org | 200 / min | needs a User-Agent with contact info (the bot sends one) |
+| api.ap.org | 10 / s | typical key quota; check yours with AP |
+| civicapi.org, api.votehub.com, other hosts | 1 / s | nothing published |
+| CNN, NBC, Fox, CBS, ABC feeds, 270toWin | 10 / min | undocumented; CNN and NBC block bursts |
+
+User commands follow the same rule: a refresh is the most that can change between two looks, so
+a user can repeat a command for the same race or state once every **2 refresh intervals** of its
+data (odds: 2 min), and a server can `/refresh` once every 2 intervals of what it refreshes.
+
+| setting | where | meaning |
+|---|---|---|
+| `EW_RATE_SAFETY=2` | env | use at most 1/N of each published limit |
+| `EW_RATE_LIMITS=civicapi.org=600/60,...` | env | your own limits, `host=requests/seconds` |
+| `EW_INTERVALS=odds=120,polls=1800,polymarket:odds=300` | env | fixed intervals in seconds, by kind (`results`, `calls`, `exitpolls`, `odds`, `polls`, `earlyvote`) or source; replaces the computed value, the hourly allowance still applies |
+| `EW_USER_COOLDOWN`, `EW_USER_HOURLY`, `EW_REFRESH_COOLDOWN` | env | operator defaults for every server (seconds; commands per user per hour, 0 = no cap) |
+| `EW_DEMAND_MAX=200`, `EW_DEMAND_HOURS=24` | env | races users asked about that no server watches: how many are refreshed, and for how long after the last request |
+| `/limits user_cooldown user_hourly refresh_cooldown` | Discord, admin | this server's values; `-1` returns to the default |
+
+`/limits` with no options shows the current intervals, each source's requests per refresh and
+its hosts' usage against the allowance.
+
 ## Adding a results adapter
 
 Create `electionwatch/sources/results/<name>.py`:
@@ -68,3 +109,4 @@ or timing looks across a real election night.
 - No LLM or AI calls in the product, and no model SDKs as dependencies.
 - No secrets in the repo; everything sensitive comes from the environment.
 - Scrapers off by default, descriptive User-Agent, at most one request per minute per site.
+- Commands read the database only; sources are called by the background refresh, on budget.

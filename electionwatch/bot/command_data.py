@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -227,23 +226,29 @@ def format_polls(
     return embed
 
 
-@dataclass
-class _CacheEntry:
-    at: datetime
-    value: list
-    ttl: timedelta | None = None   # None = the caller's normal TTL
+QUEUED = ("Nothing is stored for this race yet: it is queued for the next {kind} refresh "
+          "(about every {every}). Try again then.")
+
+
+def _every(seconds: float) -> str:
+    minutes = round(seconds / 60)
+    return f"{minutes} min" if minutes < 120 else f"{minutes // 60} h"
 
 
 class CommandData:
-    """Per-race command cache. Source failures are isolated just like in the poller."""
+    """What /odds and /polls show. They read only the database: the poller's background refresh
+    (electionwatch/ratelimit.py budgets) is the only thing that calls the odds and poll sources,
+    so users repeating a command never reach those APIs. A race nobody watches is queued
+    (electionwatch/demand.py) and fetched by the next refresh."""
 
-    def __init__(self, store, sources: dict[str, list], http_client, clock=None) -> None:
+    def __init__(self, store, sources: dict[str, list], http_client, clock=None, *,
+                 rates=None, demand=None) -> None:
         self.store = store
         self.sources = sources
         self.http_client = http_client
         self.clock = clock or (lambda: datetime.now(timezone.utc))
-        self._odds_cache: dict[str, _CacheEntry] = {}
-        self._polls_cache: dict[str, _CacheEntry] = {}
+        self.rates = rates
+        self.demand = demand
 
     def _now(self) -> datetime:
         return _utc(self.clock())
@@ -258,44 +263,25 @@ class CommandData:
                 logger.warning("Could not check availability of %s source %s", kind, getattr(source, "name", "?"))
         return enabled
 
+    def _queue(self, kind: str, key: RaceKey) -> None:
+        if self.demand is not None:
+            self.demand.add(kind, str(key))
+
+    def refresh_every(self, kind: str) -> float:
+        if self.rates is not None:
+            return self.rates.kind_interval(kind)
+        from electionwatch.ratelimit import FLOORS
+        return FLOORS.get(kind, 60)
+
     async def get_odds(self, key: RaceKey) -> list[OddsSnapshot]:
-        cache_key = str(key)
-        now = self._now()
-        cached = self._odds_cache.get(cache_key)
-        if cached and now - cached.at < timedelta(seconds=60):
-            return cached.value
-
-        stored: list[OddsSnapshot] = []
-        # Stores with native latest-per-outcome lookups avoid a needless source request.
-        # Older Store implementations simply take the live-fetch path.
-        getter = getattr(self.store, "latest_odds", None)
-        if getter is not None:
-            try:
-                stored = latest_odds(await getter(key))
-            except Exception:
-                logger.exception("Could not read stored odds for %s", key)
-        if stored and max(_utc(item.ts) for item in stored) >= now - timedelta(minutes=2):
-            self._odds_cache[cache_key] = _CacheEntry(now, stored)
-            return stored
-
-        fetched: list[OddsSnapshot] = []
-        for source in self._available("odds"):
-            try:
-                values = await source.fetch_odds([key], self.http_client)
-            except Exception:
-                logger.exception("Odds source %s failed", getattr(source, "name", "?"))
-                continue
-            for snapshot in values:
-                if snapshot.key != key:
-                    continue
-                fetched.append(snapshot)
-                try:
-                    await self.store.add_odds(snapshot)
-                except Exception:
-                    logger.exception("Could not store odds for %s", key)
-        result = latest_odds(fetched or stored)
-        self._odds_cache[cache_key] = _CacheEntry(now, result)
-        return result
+        try:
+            stored = latest_odds(await self.store.latest_odds(key))
+        except Exception:
+            logger.exception("Could not read stored odds for %s", key)
+            return []
+        if not stored:
+            self._queue("odds", key)
+        return stored
 
     async def _moves(self, snapshots: list[OddsSnapshot], now: datetime) -> dict[tuple[str, str], dict[int, float]]:
         moves: dict[tuple[str, str], dict[int, float]] = {}
@@ -316,35 +302,48 @@ class CommandData:
                     ) * 100
         return moves
 
+    async def _odds_checked(self, key: RaceKey) -> bool:
+        from electionwatch.poller import ODDS_CHECKED
+        try:
+            return await self.store.get_cached(ODDS_CHECKED, str(key)) is not None
+        except Exception:
+            logger.exception("Could not read the odds check for %s", key)
+            return False
+
     async def odds_embed(self, key: RaceKey) -> discord.Embed:
         snapshots = await self.get_odds(key)
-        return format_odds(key, snapshots, await self._moves(snapshots, self._now()))
+        embed = format_odds(key, snapshots, await self._moves(snapshots, self._now()))
+        if not snapshots and self._available("odds") and not await self._odds_checked(key):
+            embed.description = QUEUED.format(kind="odds", every=_every(self.refresh_every("odds")))
+        return embed
 
     async def odds_overview(self, keys: list[RaceKey]) -> discord.Embed:
         return format_odds_overview([(key, await self.get_odds(key)) for key in keys])
 
-    async def get_polls(self, key: RaceKey) -> list[Poll]:
-        cache_key = str(key)
-        now = self._now()
-        cached = self._polls_cache.get(cache_key)
-        if cached and now - cached.at < (cached.ttl or timedelta(minutes=15)):
-            return cached.value
+    async def get_polls(self, key: RaceKey) -> list[Poll] | None:
+        """Stored polls from every poll source; None when no source has stored this race yet."""
+        from electionwatch.poller import POLLS_CACHE, load_polls, polls_ident
+
         polls: list[Poll] = []
-        failed = False
+        stored = False
         for source in self._available("polls"):
             try:
-                values = await source.fetch_polls([key], self.http_client)
+                hit = await self.store.get_cached(POLLS_CACHE, polls_ident(source.name, key))
             except Exception:
-                logger.exception("Poll source %s failed", getattr(source, "name", "?"))
-                failed = True
+                logger.exception("Could not read stored polls for %s", key)
                 continue
-            polls.extend(poll for poll in values if poll.key == key)
-        result = merge_polls(polls)
-        # A failed source is retried after a minute instead of hiding its polls for 15.
-        self._polls_cache[cache_key] = _CacheEntry(now, result, timedelta(minutes=1) if failed else None)
-        return result
+            if hit is not None:
+                stored = True
+                polls.extend(load_polls(hit[1]))
+        if not stored:
+            self._queue("polls", key)
+            return None
+        return merge_polls(polls)
 
     async def polls_embed(self, key: RaceKey, count: int = 5, internals: bool = True) -> discord.Embed:
         available = bool(self._available("polls"))
         polls = await self.get_polls(key) if available else []
-        return format_polls(key, polls, count=count, internals=internals, sources_available=available)
+        embed = format_polls(key, polls or [], count=count, internals=internals, sources_available=available)
+        if polls is None:
+            embed.description = QUEUED.format(kind="polls", every=_every(self.refresh_every("polls")))
+        return embed

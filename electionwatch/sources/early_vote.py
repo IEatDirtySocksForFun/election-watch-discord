@@ -26,11 +26,12 @@ least a second apart, one at a time.
 from __future__ import annotations
 
 import asyncio
+import json
 import math
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import httpx
@@ -58,6 +59,11 @@ UNSPECIFIED = "unspecified"
 MAX_COMPARISON_DAYS = 60      # only compare during the early-vote season
 
 _MISS = object()
+CACHE_KIND = "earlyvote"   # store cache kind for downloaded pages
+
+
+class NotCached(SourceUnavailable):
+    """A command asked for a page the background refresh has not stored yet."""
 
 
 def page_url(state: str | None = None) -> str:
@@ -240,6 +246,11 @@ class EarlyVoteClient:
     Raises SourceUnavailable on network, HTTP (other than 404) and JSON errors; a 404 or an
     ``{"error": ...}`` body means "no data" and is cached like any answer. Failures are not
     cached, so the next command retries.
+
+    With a ``store``, every downloaded page is also saved there. The bot runs two clients:
+    the refresher downloads (``refresh()``, on the request budget of ratelimit.py) and the
+    commands' client has ``cache_only=True``: it reads saved pages and never calls civicAPI,
+    raising NotCached for a page that is not saved yet.
     """
 
     def __init__(
@@ -251,8 +262,12 @@ class EarlyVoteClient:
         min_interval: float = MIN_INTERVAL,
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
+        store=None,
+        cache_only: bool = False,
     ) -> None:
         self.client = client
+        self.store = store
+        self.cache_only = cache_only and store is not None
         self.ttl = ttl
         self.history_ttl = history_ttl
         self.min_interval = min_interval
@@ -272,38 +287,60 @@ class EarlyVoteClient:
     async def _get(self, path: str, params: dict | None = None, *, ttl: float | None = None) -> dict | None:
         url = f"{API}/{path}"
         key = url + ("?" + urlencode(sorted(params.items())) if params else "")
+        if self.cache_only:
+            hit = await self.store.get_cached(CACHE_KIND, key)
+            if hit is None:
+                raise NotCached(key)
+            return json.loads(hit[1])
         if (cached := self._fresh(key)) is not _MISS:
             return cached
         async with self._lock:
             if (cached := self._fresh(key)) is not _MISS:   # filled while we waited
                 return cached
-            wait = self._last + self.min_interval - self._clock()
-            if wait > 0:
-                await self._sleep(wait)
-            try:
-                response = await self.client.get(
-                    url, params=params, timeout=TIMEOUT,
-                    headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
-                )
-            except httpx.HTTPError as exc:
-                raise SourceUnavailable(f"civicapi early-vote unreachable: {type(exc).__name__}") from exc
-            finally:
-                self._last = self._clock()
-            if response.status_code == 404:
-                payload = None
-            elif response.status_code >= 400:
-                raise SourceUnavailable(f"civicapi early-vote HTTP {response.status_code}")
-            else:
-                try:
-                    payload = response.json()
-                except ValueError as exc:
-                    raise SourceUnavailable("civicapi early-vote sent invalid JSON") from exc
-                if not isinstance(payload, dict):
-                    raise SourceUnavailable("civicapi early-vote sent an unexpected payload")
-                if payload.get("error"):
-                    payload = None
+            payload = await self._download(url, params)
             self._cache[key] = (self._clock() + (self.ttl if ttl is None else ttl), payload)
-            return payload
+        if self.store is not None:
+            await self.store.put_cached(CACHE_KIND, key, json.dumps(payload), datetime.now(timezone.utc))
+        return payload
+
+    async def _download(self, url: str, params: dict | None) -> dict | None:
+        """One request, spaced from the previous one; the caller holds the lock."""
+        wait = self._last + self.min_interval - self._clock()
+        if wait > 0:
+            await self._sleep(wait)
+        try:
+            response = await self.client.get(
+                url, params=params, timeout=TIMEOUT,
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            )
+        except httpx.HTTPError as exc:
+            raise SourceUnavailable(f"civicapi early-vote unreachable: {type(exc).__name__}") from exc
+        finally:
+            self._last = self._clock()
+        if response.status_code == 404:
+            payload = None
+        elif response.status_code >= 400:
+            raise SourceUnavailable(f"civicapi early-vote HTTP {response.status_code}")
+        else:
+            try:
+                payload = response.json()
+            except ValueError as exc:
+                raise SourceUnavailable("civicapi early-vote sent invalid JSON") from exc
+            if not isinstance(payload, dict):
+                raise SourceUnavailable("civicapi early-vote sent an unexpected payload")
+            if payload.get("error"):
+                payload = None
+        return payload
+
+    async def refresh(self) -> int:
+        """Download every page the commands can show (national totals, then each state with
+        data: counties, age, the comparison with four years earlier) into the store. Pages of
+        past elections stay cached for 12 hours. Returns the number of states refreshed."""
+        self._cache = {k: v for k, v in self._cache.items() if "/historical/" in k}
+        national = await self.national()
+        for code in sorted(national.states):
+            await self.state(code, counties=True, age=True)
+        return len(national.states)
 
     async def national(self) -> National:
         """Every state's totals per category (four requests, shared by every command)."""
@@ -312,6 +349,8 @@ class EarlyVoteClient:
 
     def cached_states(self) -> list[str] | None:
         """States with data from a fresh national answer, without any request; None if cold."""
+        if self.cache_only:
+            return None
         payloads = {}
         for c in CATEGORIES:
             cached = self._fresh(f"{API}/US/{c}")

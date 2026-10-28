@@ -260,6 +260,9 @@ async def harness():
         bot._connection.user = discord.ClientUser(state=bot._connection, data=_user(APP) | {"bot": True})
         bot._connection._add_guild_from_data(json.loads(json.dumps(GUILD_CREATE)))
         h = Harness(bot, recorder, odds)
+        # What the background refresh stores; /odds and /polls read only the store.
+        await bot.poller._odds(NOW, [], [TX_SEN, RaceKey("CA", Level.SENATE, "SEN")])
+        await bot.poller._polls(NOW, [TX_SEN])
         early_vote_http = mock_http_client()   # /earlyvote reads recorded civicAPI responses
         bot.early_vote = fixture_client(early_vote_http)
         try:
@@ -418,6 +421,11 @@ CASES = [
     ("polls-10-no-internals", "polls", [opt("race", "TX SEN"), opt("count", 10, 4),
                                         opt("internals", False, 5)], None, {}, "internals excluded"),
     ("polls-bad-race", "polls", [opt("race", "Narnia SEN")], None, {}, ""),
+    ("refresh", "refresh", [opt("what", "odds")], None, {}, "Refreshed"),
+    ("refresh-not-admin", "refresh", [], None, {"permissions": 0}, "Manage Server"),
+    ("limits", "limits", [], None, {"permissions": 0}, "Data refresh"),
+    ("limits-set", "limits", [opt("user_cooldown", 30, 4)], None, {}, "Limits set"),
+    ("limits-set-not-admin", "limits", [opt("user_cooldown", 30, 4)], None, {"permissions": 0}, "Manage Server"),
     ("turnout-on", "turnout", [opt("enabled", "on")], None, {}, "turnout on"),
     ("exitpolls-off", "exitpolls", [opt("enabled", "off")], None, {}, "exit polls off"),
     ("pause", "pause", [], None, {}, "paused"),
@@ -527,9 +535,11 @@ async def test_unknown_command_is_answered_ephemerally(harness):
 
 async def test_failing_odds_source_still_renders_an_ephemeral_embed(harness):
     harness.odds.fail = True
-    sent = await harness.dispatch(command_payload("odds", [opt("race", "CA SEN")]))
+    harness.bot.rates.force({"odds"})
+    await harness.bot.poller._odds(NOW, [], [RaceKey("NV", Level.SENATE, "SEN")])   # refresh fails
+    sent = await harness.dispatch(command_payload("odds", [opt("race", "NV SEN")]))
     assert_ephemeral_reply(sent)
-    assert "No current prediction-market odds" in text_of(sent)
+    assert "queued for the next odds refresh" in text_of(sent)
 
 
 # --------------------------------------------------------------------------- autocomplete
@@ -714,3 +724,13 @@ async def test_command_schema_follows_discord_rules(harness):
     count = next(o for o in by_name["polls"]["options"] if o["name"] == "count")
     assert (count["min_value"], count["max_value"]) == (1, 10)
     json.dumps(payloads)
+
+
+async def test_repeating_a_data_command_for_the_same_race_hits_the_cooldown(harness):
+    first = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    assert "Kalshi" in text_of(first)
+    again = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    assert_ephemeral_reply(again)
+    assert "You can ask for this again in 2 min" in text_of(again)
+    other = await harness.dispatch(command_payload("odds", [opt("race", "CA SEN")]))
+    assert "Kalshi" in text_of(other)

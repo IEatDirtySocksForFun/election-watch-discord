@@ -321,9 +321,10 @@ async def test_stale_stored_odds_are_replaced_by_live_odds():
 @pytest.mark.parametrize("error", [RuntimeError("x"), SourceUnavailable("gone"),
                                    httpx.ReadTimeout("slow"), asyncio.TimeoutError()])
 async def test_odds_source_errors_render_no_odds(error):
+    # The refresh failed, so nothing is stored: the race is queued, not a crash.
     client = make_client(Store(), {"odds": [Odds(error=error)]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
-    assert "No current prediction-market odds" in embed.description
+    assert "queued for the next odds refresh" in embed.description
 
 
 # --------------------------------------------------------------------------- /polls
@@ -422,29 +423,28 @@ async def test_poll_source_failures_leave_the_other_sources(bad):
     assert [f.name for f in embed.fields] == ["Survivor"]
 
 
-async def test_failed_poll_source_does_not_cache_an_empty_answer():
-    clock = [NOW]
+async def test_failed_poll_refresh_queues_the_race_and_the_next_refresh_shows_it():
     source = Polls(error=httpx.ReadTimeout("slow"))
-    client = make_client(Store(), {"polls": [source]}, clock=lambda: clock[0])
+    client = make_client(Store(), {"polls": [source]}, clock=lambda: NOW)
     first = deferred_embed(await run(polls_command, client, "TX SEN"))
-    assert first.description.startswith("No recent polls")
+    assert "queued for the next polls refresh" in first.description
     source.error, source.polls = None, [poll("Back")]
-    clock[0] = NOW + timedelta(minutes=1)
     second = deferred_embed(await run(polls_command, client, "TX SEN"))
     assert [f.name for f in second.fields] == ["Back"]
 
 
-async def test_successful_poll_answers_are_cached_for_15_minutes():
-    clock = [NOW]
-    source = Polls([poll("One")])
-    client = make_client(Store(), {"polls": [source]}, clock=lambda: clock[0])
-    for minutes in (0, 14):
-        clock[0] = NOW + timedelta(minutes=minutes)
+async def test_commands_never_call_the_poll_or_odds_sources():
+    from electionwatch.demand import Demand
+
+    polls, odds = Polls([poll("One")]), Odds()
+    client = make_client(Store(), {"polls": [polls], "odds": [odds]}, clock=lambda: NOW, refreshed=False)
+    client.command_data.demand = Demand()
+    for _ in range(5):
         deferred_embed(await run(polls_command, client, "TX SEN"))
-    assert source.calls == 1
-    clock[0] = NOW + timedelta(minutes=16)
-    deferred_embed(await run(polls_command, client, "TX SEN"))
-    assert source.calls == 2
+        deferred_embed(await run(odds_command, client, race="GA SEN"))
+    assert polls.calls == odds.calls == 0
+    assert client.command_data.demand.items("polls") == ["TX SEN"]
+    assert client.command_data.demand.items("odds") == ["GA SEN"]
 
 
 # --------------------------------------------------------------------------- /faq

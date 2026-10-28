@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 
 YEAR = 2026
 API_URL = "https://en.wikipedia.org/w/api.php"
-USER_AGENT = "election-watch-discord/0.1 (polling bot; +https://github.com/election-watch-discord)"
+USER_AGENT = "election-watch-discord/0.1 (polling bot; +https://github.com/IEatDirtySocksForFun/election-watch-discord)"
 
 PARAMS = {
     "action": "parse",

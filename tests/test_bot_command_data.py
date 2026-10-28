@@ -46,6 +46,12 @@ class FakeStore:
             if item.key == key and item.market == market and item.outcome == outcome and item.ts >= since
         ]
 
+    async def get_cached(self, kind, ident):
+        return getattr(self, "cache", {}).get((kind, ident))
+
+    async def put_cached(self, kind, ident, data, at):
+        self.__dict__.setdefault("cache", {})[(kind, ident)] = (at, data)
+
 
 class FakeOdds(OddsSource):
     name = "fake"
@@ -118,24 +124,30 @@ def test_poll_format_has_sample_sponsor_markers_internal_tag_and_link():
 
 
 @pytest.mark.asyncio
-async def test_fresh_stored_odds_avoid_fetch_and_live_odds_are_cached_for_60_seconds():
+async def test_odds_come_from_the_store_only_and_unknown_races_are_queued():
+    from electionwatch.demand import Demand
+
     source = FakeOdds([snapshot(prob=0.6)])
     store = FakeStore([snapshot(prob=0.55)])
-    clock = [NOW]
-    data = CommandData(store, {"odds": [source]}, object(), lambda: clock[0])
+    data = CommandData(store, {"odds": [source]}, object(), lambda: NOW, demand=Demand())
 
-    assert (await data.get_odds(KEY))[0].prob == 0.55
+    for _ in range(3):
+        assert (await data.get_odds(KEY))[0].prob == 0.55
     assert source.calls == 0
+    other = parse("GA SEN")
+    embed = await data.odds_embed(other)
+    assert "queued for the next odds refresh (about every 1 min)" in embed.description
+    assert data.demand.items("odds") == ["GA SEN"] and source.calls == 0
 
-    clock[0] += timedelta(seconds=121)
-    assert (await data.get_odds(KEY))[0].prob == 0.6
-    assert source.calls == 1
-    clock[0] += timedelta(seconds=59)
-    await data.get_odds(KEY)
-    assert source.calls == 1
-    clock[0] += timedelta(seconds=1)
-    await data.get_odds(KEY)
-    assert source.calls == 2
+
+@pytest.mark.asyncio
+async def test_a_race_the_refresh_found_no_market_for_says_so():
+    from electionwatch.poller import ODDS_CHECKED
+
+    store = FakeStore()
+    await store.put_cached(ODDS_CHECKED, "TX SEN", "", NOW)
+    data = CommandData(store, {"odds": [FakeOdds([])]}, object(), lambda: NOW)
+    assert "No current prediction-market odds" in (await data.odds_embed(KEY)).description
 
 
 @pytest.mark.asyncio
@@ -154,21 +166,20 @@ async def test_odds_history_supplies_one_and_24_hour_moves():
 
 
 @pytest.mark.asyncio
-async def test_poll_sources_are_merged_deduped_and_cached_for_15_minutes():
+async def test_stored_poll_answers_are_merged_and_deduped_without_calling_the_sources():
+    from electionwatch.poller import POLLS_CACHE, dump_polls, polls_ident
+
     first = FakePolls([poll(sponsor=None)])
     second = FakePolls([poll(sponsor="Newsroom")])
-    clock = [NOW]
-    data = CommandData(FakeStore(), {"polls": [first, second]}, object(), lambda: clock[0])
-
+    second.name = "fake_polls_2"
+    store = FakeStore()
+    data = CommandData(store, {"polls": [first, second]}, object(), lambda: NOW)
+    assert await data.get_polls(KEY) is None            # nothing stored yet
+    for source in (first, second):
+        await store.put_cached(POLLS_CACHE, polls_ident(source.name, KEY), dump_polls(source.values), NOW)
     values = await data.get_polls(KEY)
     assert len(values) == 1 and values[0].sponsor == "Newsroom"
-    assert first.calls == second.calls == 1
-    clock[0] += timedelta(minutes=14)
-    await data.get_polls(KEY)
-    assert first.calls == second.calls == 1
-    clock[0] += timedelta(minutes=1)
-    await data.get_polls(KEY)
-    assert first.calls == second.calls == 2
+    assert first.calls == second.calls == 0
 
 
 @pytest.mark.asyncio
