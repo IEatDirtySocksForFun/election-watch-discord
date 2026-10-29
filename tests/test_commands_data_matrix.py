@@ -529,7 +529,8 @@ async def test_faq_without_a_state():
     for code in STATES:
         assert code in content
     assert "Associated Press" in content
-    yaml_body(content)  # valid YAML, truncated or not
+    assert not content.startswith("```")
+    assert len(content) <= 2000
 
 
 @pytest.mark.parametrize("code", sorted(STATES))
@@ -538,17 +539,18 @@ async def test_faq_every_state(code, case):
     from electionwatch.faq.loader import load_states
 
     content = faq_reply(await run(faq_command, make_client(Store()), state=case(code)))
-    faq = yaml_body(content)
-    assert load_states()[code]["official_results_url"] in content
-    assert "truncated" not in content  # every shipped state fits whole
-    assert set(faq) >= {code}
+    record = load_states()[code]
+    assert not content.startswith("```")
+    assert content.startswith(f"# {STATES[code]}")
+    assert record["official_results_url"] in content
+    assert "**When to expect a call:**" in content
+    assert len(content) <= 2000
 
 
 @pytest.mark.parametrize("code", sorted(TERRITORIES))
 async def test_faq_territories_answer_without_crashing(code):
     content = faq_reply(await run(faq_command, make_client(Store()), state=code.lower()))
     assert f"No FAQ data for {TERRITORIES[code]}" in content
-    yaml_body(content)
 
 
 @pytest.mark.parametrize("code", ["ZZ", "Texas", "T", "", "TXX", "U.S."])
