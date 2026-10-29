@@ -22,6 +22,10 @@ overridden by the operator (docs/customizing.md):
 
 An interval set in EW_INTERVALS replaces the computed one; the hourly allowance still applies.
 
+With EW_COMMAND_DATA=live (electionwatch/live.py) commands may also fetch between refreshes.
+Those requests are counted on the same hosts, so they come out of the same hourly allowance:
+has_room() says whether one more fits, spacing() how far apart to send them.
+
 A source can be budgeted in parts, named "source:kind:part" (race lists: one part per state,
 each refreshed on its own). A part that has never run is expected to cost what its sibling
 last cost, so the hourly check holds back a sweep of new parts too.
@@ -282,6 +286,21 @@ class RateBook:
             if used and used + cost > self.allowance(bucket):
                 return False
         return True
+
+    def has_room(self, name: str) -> bool:
+        """Whether a command may fetch for `name` right now (EW_COMMAND_DATA=live): every host
+        it used still has room in the hour, counting refreshes already running. Unlike due()
+        it ignores the refresh interval. The request is counted like any other, so live
+        commands and the background refresh share one allowance."""
+        for bucket in self._expected(name):
+            if self.used(bucket) + self.reserved(bucket) + 1 > self.allowance(bucket):
+                return False
+        return True
+
+    def spacing(self, name: str) -> float:
+        """Seconds to leave between two command fetches for `name`: an even share of its
+        busiest host's hourly allowance (0 for a source that hasn't run yet)."""
+        return max((WINDOW / self.allowance(bucket) for bucket in self._expected(name)), default=0.0)
 
     @contextmanager
     def track(self, name: str, kind: str):

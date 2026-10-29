@@ -45,9 +45,11 @@ Source: tx_sos · Nov 04 03:41 UTC
   picker, favorites, and Odds and Polls buttons on every race. Only you see it.
 - **Voting FAQ** for all 50 states + DC: when polls close, what gets counted first, mail
   deadlines, recount rules and typical call times, each with official sources.
-- **Polite to its sources.** No command ever calls a data source. A background refresh stores
-  everything in MongoDB, and each site gets at most half of its published rate limit, so spamming
-  a command can't make the bot hammer anyone.
+- **Polite to its sources.** A background refresh stores everything in MongoDB, and each site
+  gets at most half of its published rate limit, so spamming a command can't make the bot hammer
+  anyone. By default commands only read the database. If you'd rather they fetch fresh numbers,
+  set `EW_COMMAND_DATA=live`: commands then go to the source when what's stored is over a minute
+  old, within the same limits ([details](docs/customizing.md#database-or-live-commands)).
 
 ## Get it running
 
@@ -119,17 +121,17 @@ Replies are private (only you see them) unless they're posts in the election cha
 
 **For everyone**
 
-| Command                                  | What it does                                        |
-| ---------------------------------------- | --------------------------------------------------- |
-| `/races`                                 | your private race browser                           |
-| `/odds [race]`                           | Kalshi and Polymarket odds, with 1 h and 24 h moves |
-| `/polls race:<race> [count] [internals]` | the latest polls for a race                         |
-| `/earlyvote [state] [breakdown]`         | early-vote numbers (party, method, age, county)     |
-| `/faq [state]`                           | a state's voting FAQ                                |
-| `/favorite add·remove <race>`            | pin races in your browser                           |
-| `/oddsalerts`                            | this server's odds-alert settings                   |
-| `/settings`                              | this server's settings                              |
-| `/limits`                                | how often data refreshes, and this server's limits  |
+| Command                                   | What it does                                                                     |
+| ----------------------------------------- | -------------------------------------------------------------------------------- |
+| `/races`                                  | your private race browser                                                        |
+| `/odds [race]`                            | Kalshi and Polymarket odds, with 1 h and 24 h moves                              |
+| `/polls race:<race> [count] [internals]`  | the latest polls for a race                                                      |
+| `/earlyvote [state] [breakdown] [county]` | early-vote numbers (party, method, age, county; one county with its party split) |
+| `/faq [state]`                            | a state's voting FAQ                                                             |
+| `/favorite add·remove <race>`             | pin races in your browser                                                        |
+| `/oddsalerts`                             | this server's odds-alert settings                                                |
+| `/settings`                               | this server's settings                                                           |
+| `/limits`                                 | how often data refreshes, and this server's limits                               |
 
 **For admins** (Manage Server, or the admin role from `/setup`)
 
@@ -230,6 +232,10 @@ or as short keys:
 | `TX SD-05`, `TX HD-121`        | state senate / state house district                               |
 | `TX LOCAL harris-county-judge` | a local race                                                      |
 | `PR-AL`, `GU GOV`              | territories                                                       |
+
+Commands don't mind how you type the state or the district: `pa 08`, `PA08`,
+`pennsylvania-08`, `Penn. 8` and even `pensylvaniua 08` all mean `PA-08`. `/faq` and
+`/earlyvote` take a state's code, name, abbreviation (`N.C.`, `Calif.`) or a close misspelling.
 
 Parties get markers: 🔵 Democratic · 🔴 Republican · 🟡 Libertarian · 🟢 Green · 📜
 Constitution · ⚪ independent or no party, and a marker each for 97 smaller parties. See
