@@ -142,6 +142,7 @@ class OddsSnapshot:
     ts: datetime
     market_id: str | None = None
     url: str | None = None
+    candidate: str | None = None  # who the outcome stands for, when the market names them
 
 
 @dataclass
