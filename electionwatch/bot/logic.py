@@ -406,7 +406,7 @@ def faq_text(states, outlets, state: str | None = None) -> str:
 
     code = state.strip().upper()
     if code in TERRITORIES:
-        return f"# {TERRITORIES[code]}\nNo FAQ data yet: territories are not covered."
+        return f"# {TERRITORIES[code]}\nNo FAQ data for {TERRITORIES[code]}: territories are not covered yet."
     if code not in STATES:
         raise ValueError("unknown state")
 
