@@ -1,10 +1,11 @@
 """Deterministic embeds for the public /odds and /polls commands, read from the database.
 
 The poller's background refresh stores odds snapshots and each poll source's polls; nothing
-here calls a source (see CommandData)."""
+here calls a source unless the bot runs with EW_COMMAND_DATA=live (see CommandData)."""
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -267,18 +268,24 @@ def _every(seconds: float) -> str:
 
 
 class CommandData:
-    """What /odds and /polls show. They read only the database: the poller's background refresh
-    (electionwatch/ratelimit.py budgets) is the only thing that calls the odds and poll sources,
-    so users repeating a command never reach those APIs. A race nobody watches is queued
-    (electionwatch/demand.py) and fetched by the next refresh."""
+    """What /odds and /polls show. By default they read only the database: the poller's
+    background refresh (electionwatch/ratelimit.py budgets) is the only thing that calls the
+    odds and poll sources, so users repeating a command never reach those APIs. A race nobody
+    watches is queued (electionwatch/demand.py) and fetched by the next refresh.
 
-    def __init__(self, store, sources: dict[str, list], http_client, clock=None, *, rates=None, demand=None) -> None:
+    With EW_COMMAND_DATA=live, `live` (electionwatch/live.py) first fetches the race from the
+    sources, within the same budgets, and the answer is read back from the database."""
+
+    def __init__(
+        self, store, sources: dict[str, list], http_client, clock=None, *, rates=None, demand=None, live=None
+    ) -> None:
         self.store = store
         self.sources = sources
         self.http_client = http_client
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.rates = rates
         self.demand = demand
+        self.live = live
 
     def _now(self) -> datetime:
         return _utc(self.clock())
@@ -305,6 +312,8 @@ class CommandData:
         return FLOORS.get(kind, 60)
 
     async def get_odds(self, key: RaceKey) -> list[OddsSnapshot]:
+        if self.live is not None:
+            await self.live.odds(key)
         try:
             stored = latest_odds(await self.store.latest_odds(key))
         except Exception:
@@ -350,12 +359,16 @@ class CommandData:
         return embed
 
     async def odds_overview(self, keys: list[RaceKey]) -> discord.Embed:
+        if self.live is not None:
+            await asyncio.gather(*(self.live.odds(key) for key in keys))
         return format_odds_overview([(key, await self.get_odds(key)) for key in keys])
 
     async def get_polls(self, key: RaceKey) -> list[Poll] | None:
         """Stored polls from every poll source; None when no source has stored this race yet."""
         from electionwatch.poller import POLLS_CACHE, load_polls, polls_ident
 
+        if self.live is not None:
+            await self.live.polls(key)
         polls: list[Poll] = []
         stored = False
         for source in self._available("polls"):

@@ -663,6 +663,7 @@ async def test_fallback_sources_are_only_asked_about_races_without_a_complete_an
 
 def test_civicapi_calls_are_opt_in_and_attributed():
     from datetime import datetime, timezone
+    from urllib.parse import urlparse
 
     from electionwatch.models import Level, RaceCall, RaceKey
     from electionwatch.poller import format_call
@@ -678,7 +679,10 @@ def test_civicapi_calls_are_opt_in_and_attributed():
         "https://civicapi.org/results/elections/1",
     )
     post = format_call(call)
-    assert "Outlet: civicAPI (its own decision desk)" in post.lines and post.url.startswith("https://civicapi.org")
+    assert "Outlet: civicAPI (its own decision desk)" in post.lines
+    parsed = urlparse(post.url)
+    assert parsed.scheme == "https"
+    assert parsed.hostname == "civicapi.org"
 
 
 async def test_outlet_flagging_specials_does_not_alias_the_regular_race():

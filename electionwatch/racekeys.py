@@ -110,6 +110,128 @@ def _state(tok: str) -> str:
     return st
 
 
+#: Abbreviations people type for a state besides its two-letter code (dots and case ignored).
+_ABBREVIATIONS = {
+    "ala": "AL", "alaba": "AL", "bama": "AL", "ariz": "AZ", "ark": "AR",
+    "cal": "CA", "cali": "CA", "calif": "CA", "socal": "CA", "norcal": "CA",
+    "colo": "CO", "conn": "CT", "del": "DE", "fla": "FL", "ga": "GA",
+    "ill": "IL", "ind": "IN", "kan": "KS", "kans": "KS", "ky": "KY",
+    "la": "LA", "md": "MD", "mass": "MA", "mich": "MI", "minn": "MN",
+    "miss": "MS", "mo": "MO", "mont": "MT", "neb": "NE", "nebr": "NE",
+    "nev": "NV", "okla": "OK", "ore": "OR", "oreg": "OR", "penn": "PA",
+    "penna": "PA", "tenn": "TN", "tex": "TX", "ut": "UT", "vt": "VT",
+    "va": "VA", "wash": "WA", "wis": "WI", "wisc": "WI", "wyo": "WY",
+    "wva": "WV", "w va": "WV", "n carolina": "NC", "s carolina": "SC",
+    "n dakota": "ND", "s dakota": "SD", "w virginia": "WV", "n mexico": "NM",
+    "n hampshire": "NH", "n jersey": "NJ", "n york": "NY", "r island": "RI",
+    "washington dc": "DC", "washington d c": "DC", "d c": "DC", "district of columbia": "DC",
+    "virgin islands": "VI", "us virgin islands": "VI", "usvi": "VI", "samoa": "AS",
+    "american samoa": "AS", "northern marianas": "MP", "mariana islands": "MP",
+    "cnmi": "MP", "puerto rico": "PR", "pr": "PR", "guam": "GU",
+}  # fmt: skip
+FUZZY_CUTOFF = 0.8  # how close a misspelt name must be (difflib ratio) to count as that state
+
+
+def _normalize(text: str) -> str:
+    """'N.C.' -> 'nc', 'the State of  Texas' -> 'texas', 'New York State' -> 'new york'."""
+    cleaned = " ".join(text.replace(".", "").replace("-", " ").casefold().split())
+    for prefix in ("the state of ", "state of ", "commonwealth of "):
+        cleaned = cleaned.removeprefix(prefix)
+    return cleaned.removesuffix(" state")
+
+
+def _state_match(text: str, allowed) -> tuple[str, float] | None:
+    """(code, closeness 0-1) for a state typed any common way: code, name, abbreviation,
+    or a misspelt name or abbreviation (closeness < 1). None if no state is clearly meant."""
+    import difflib
+
+    cleaned = _normalize(text)
+    if not cleaned:
+        return None
+    names = {name.casefold().replace(".", ""): code for code, name in allowed.items()}
+    exact = {**{code.casefold(): code for code in allowed}, **names}
+    exact.update({abbr: code for abbr, code in _ABBREVIATIONS.items() if code in allowed})
+    if cleaned in exact:
+        return exact[cleaned], 1.0
+    if cleaned.replace(" ", "") in exact:  # "n c", "w va"
+        return exact[cleaned.replace(" ", "")], 1.0
+    if len(cleaned) < 4:  # too short to guess at: "nx" could be several states
+        return None
+    spelled = {spelling: code for spelling, code in exact.items() if len(spelling) >= 4}
+    scored = sorted(
+        ((difflib.SequenceMatcher(None, cleaned, spelling).ratio(), code) for spelling, code in spelled.items()),
+        reverse=True,
+    )
+    best, code = scored[0]
+    runner_up = next((score for score, other in scored if other != code), 0.0)
+    # Close enough, and clearly closer to one state than to any other.
+    if best >= FUZZY_CUTOFF and best - runner_up >= 0.05:
+        return code, best
+    return None
+
+
+def resolve_state(text: str, allowed=None) -> str:
+    """The state someone typed: 'PA', 'pa', 'Pennsylvania', 'Penn.', 'N.C.', 'pensylvania'.
+    RaceKeyError if no state (in `allowed`, default every jurisdiction) is clearly meant."""
+    match = _state_match(text, ALL_JURISDICTIONS if allowed is None else allowed)
+    if match is None:
+        raise RaceKeyError(f"unknown state {text.strip()[:60]!r}")
+    return match[0]
+
+
+def _leading_state(raw: str) -> tuple[str, str] | None:
+    """('PA', ' 08') from 'pensylvaniua 08', ('NY', '-12') from 'new york-12', ('PA', '08')
+    from 'pa08': the state the text starts with, and the rest. Exact spellings win; otherwise
+    the closest misspelling of the first one to four words."""
+    words = []
+    end = 0
+    for word in re.finditer(r"[A-Za-z.']+", raw):
+        if raw[end : word.start()].strip(" -"):
+            break
+        words.append(word)
+        end = word.end()
+        if len(words) == 4:
+            break
+    best = None
+    for count in range(len(words), 0, -1):
+        head_end = words[count - 1].end()
+        match = _state_match(raw[words[0].start() : head_end], ALL_JURISDICTIONS)
+        if match is not None and (best is None or match[1] > best[1]):
+            best = (match[0], match[1], head_end)
+            if match[1] == 1.0:
+                break  # an exact spelling, longest first: "west virginia" before "west"
+    if best is None:
+        return None
+    return best[0], raw[best[2] :]
+
+
+def parse_typed(text: str) -> RaceKey:
+    """parse() for what people type into commands, forgiving about the state: 'pa 08', 'PA08',
+    'pa-8', 'Pennsylvania-08', 'pensylvaniua 08', 'Penn. sen', 'N.C. 1', 'new york gov' all
+    work. Feeds and races.yaml use the strict parse()."""
+    try:
+        return parse(text)
+    except RaceKeyError as exc:
+        error = exc
+    raw = " ".join(text.split())
+    split = _leading_state(raw)
+    if split is None:
+        raise error
+    state, rest = split[0], split[1].strip(" -")
+    if not rest:
+        raise RaceKeyError(f"missing office in {raw!r}")
+    house = re.fullmatch(r"(\d{1,2}|al|at[\s-]?large)(?:\s+(s|special))?", rest, re.I)
+    if house:
+        district = "AL" if house.group(1)[0] in "aA" else house.group(1)
+        return parse(f"{state}-{district}" + (" S" if house.group(2) else ""))
+    for candidate in (f"{ALL_JURISDICTIONS[state]} {rest}", f"{state} {rest}"):
+        try:
+            return parse(candidate)  # long forms ("senate", "congressional district 8"), then short
+        except RaceKeyError:
+            continue
+    raise error
+
+
 def _special(rest: list[str]) -> bool:
     if not rest:
         return False
