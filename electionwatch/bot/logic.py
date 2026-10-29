@@ -1,10 +1,8 @@
 """Pure command and navigator logic, kept separate from Discord I/O for testing."""
 
 from __future__ import annotations
-import yaml
-from datetime import datetime
 from urllib.parse import urlparse
-from zoneinfo import ZoneInfo
+import yaml
 from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
@@ -299,12 +297,15 @@ TIMEZONE_NAMES = {
 def link(label: str, url: str) -> str:
     return f"[{label}](<{url}>)"
 
+
 def clean(text) -> str:
     """Fold YAML's wrapped text onto one line."""
     return " ".join(str(text).split())
 
+
 def timezone_names(zone: str) -> str:
     return TIMEZONE_NAMES.get(zone, zone.rsplit("/", 1)[-1].replace("_", " "))
+
 
 def sources_line(urls) -> str | None:
     """One link per site, labelled by domain, so 7 NCSL/SOS URLs don't eat the message."""
@@ -316,9 +317,11 @@ def sources_line(urls) -> str | None:
         return None
     return "-# Sources: " + " · ".join(link(host, url) for host, url in seen.items())
 
+
 def ranked_choice(value) -> str:
     text = clean(value)
     return {"false": "No", "true": "Yes"}.get(text.lower(), text)
+
 
 def state_message(code: str, rec: dict) -> str:
     unverified = set(rec.get("unverified") or ())
@@ -356,8 +359,8 @@ def state_message(code: str, rec: dict) -> str:
 
     return fit(
         header + body + notes + sources,
-        header + body + notes,       # drop sources first
-        header + body,               # then the notes
+        header + body + notes,  # drop sources first
+        header + body,  # then the notes
     )
 
 
@@ -388,9 +391,7 @@ def outlet_lines(outlets, with_notes: bool) -> list[str]:
 def faq_text(states, outlets, state: str | None = None) -> str:
     """Render installed FAQ data as a Discord message (markdown, one message)."""
     if state is None:
-        codes = sorted(states) if isinstance(states, dict) else sorted(
-            {getattr(e, "state", "") for e in states} - {""}
-        )
+        codes = sorted(states) if isinstance(states, dict) else sorted({getattr(e, "state", "") for e in states} - {""})
         head = [
             "# State election FAQs",
             "-# Use `/faq state:<code>` for one state.",
@@ -406,9 +407,13 @@ def faq_text(states, outlets, state: str | None = None) -> str:
     if code not in STATES:
         raise ValueError("unknown state")
 
-    rec = states.get(code) if isinstance(states, dict) else next(
-        (to_doc(e) for e in states if getattr(e, "state", None) == code), None
+    rec = (
+        states.get(code)
+        if isinstance(states, dict)
+        else next((to_doc(e) for e in states if getattr(e, "state", None) == code), None)
     )
     if not rec:
-        return f"# {STATES[code]}\nNo FAQ data installed for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
+        return (
+            f"# {STATES[code]}\nNo FAQ data installed for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
+        )
     return state_message(code, rec)
