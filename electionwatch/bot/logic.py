@@ -310,7 +310,7 @@ STATE_FIELDS = (
     ("Mail processing", "mail_processing"),
     ("When to expect a call", "typical_call_time"),
     ("Recount", "recount_threshold"),
-    ("Ranked-choice voting", "ranked_choice"),
+    ("RCV", "ranked_choice"),
 )
 HEADER_KEYS = {
     "official_results_url",
