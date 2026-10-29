@@ -296,6 +296,26 @@ TIMEZONE_NAMES = {
     "Pacific/Honolulu": "Hawaii",
 }
 
+STATE_FIELDS = (
+    ("Count order", "count_order"),
+    ("Mail deadline", "mail_deadline"),
+    ("Mail processing", "mail_processing"),
+    ("When to expect a call", "typical_call_time"),
+    ("Recount", "recount_threshold"),
+    ("Ranked-choice voting", "ranked_choice"),
+)
+HEADER_KEYS = {
+    "official_results_url",
+    "sos_url",
+    "results_vendor",
+    "polls_close_local",
+    "polls_close_note",
+    "timezones",
+    "notes",
+    "sources",
+    "unverified",
+}
+
 
 def link(label: str, url: str) -> str:
     return f"[{label}](<{url}>)"
@@ -326,38 +346,42 @@ def ranked_choice(value) -> str:
     return {"false": "No", "true": "Yes"}.get(text.lower(), text)
 
 
-def state_message(code: str, rec: dict) -> str:
-    unverified = set(rec.get("unverified") or ())
-    zones = rec.get("timezones") or []
+def state_message(code: str, record: dict) -> str:
+    unverified = set(record.get("unverified") or ())
+    zones = record.get("timezones") or []
 
-    # Header + small-text links
     header = [f"# {STATES[code]}"]
-    links = [link("Official results", rec["official_results_url"]), link("Election office", rec["sos_url"])]
-    vendor = rec.get("results_vendor")
+    links = [
+        link(label, record[key])
+        for label, key in (("Official results", "official_results_url"), ("Election office", "sos_url"))
+        if record.get(key)
+    ]
+    vendor = record.get("results_vendor")
     if vendor and "results_vendor" not in unverified:
         links.append(f"Results via {vendor}")
-    header.append("-# " + " · ".join(links))
+    if links:
+        header.append("-# " + " · ".join(links))
 
-    timezone = " / ".join(dict.fromkeys(timezone_names(zone) for zone in zones))
-    header.append(f"-# Polls close {rec['polls_close_local']} {timezone}")
-    if rec.get("polls_close_note"):
-        header.append(f"-# {clean(rec['polls_close_note'])}")
+    if record.get("polls_close_local"):
+        timezone = " / ".join(dict.fromkeys(timezone_names(zone) for zone in zones))
+        header.append(f"-# Polls close {record['polls_close_local']} {timezone}".rstrip())
+    if record.get("polls_close_note"):
+        header.append(f"-# {clean(record['polls_close_note'])}")
 
-    def field(label: str, key: str, transform=clean) -> str:
+    body = [""]
+    for label, key in STATE_FIELDS:
+        if record.get(key) in (None, ""):
+            continue
+        value = ranked_choice(record[key]) if key == "ranked_choice" else clean(record[key])
         flag = " *(unverified)*" if key in unverified else ""
-        return f"**{label}:**{flag} {transform(rec[key])}"
+        body.append(f"**{label}:**{flag} {value}")
+    shown_keys = {key for _, key in STATE_FIELDS} | HEADER_KEYS
+    for key, value in record.items():
+        if key not in shown_keys and value not in (None, ""):
+            body.append(f"**{key.replace('_', ' ').capitalize()}:** {clean(value)}")
 
-    body = [
-        "",
-        field("Count order", "count_order"),
-        field("Mail deadline", "mail_deadline"),
-        field("Mail processing", "mail_processing"),
-        field("When to expect a call", "typical_call_time"),
-        field("Recount", "recount_threshold"),
-        field("Ranked-choice voting", "ranked_choice", ranked_choice),
-    ]
-    notes = ["", f"> {clean(rec['notes'])}"] if rec.get("notes") else []
-    sources = sources_line(rec.get("sources"))
+    notes = ["", f"> {clean(record['notes'])}"] if record.get("notes") else []
+    sources = sources_line(record.get("sources"))
     sources = [sources] if sources else []
 
     return fit(
@@ -378,27 +402,31 @@ def fit(*candidates: list[str]) -> str:
 
 def outlet_lines(outlets, with_notes: bool) -> list[str]:
     lines = ["", "## Decision desks & outlets"]
-    for code, rec in outlets.items():
-        if not isinstance(rec, dict):
-            lines.append(f"**{code}** · {rec}")
+    for code, record in outlets.items():
+        if not isinstance(record, dict):
+            lines.append(f"**{code}** · {record}")
             continue
-        parts = [f"**{code}**", link(rec.get("name", code), rec["results_url"])]
-        if rec.get("exit_poll_url"):
-            parts.append(link("voter survey", rec["exit_poll_url"]))
+        parts = [f"**{code}**", link(record.get("name", code), record["results_url"])]
+        if record.get("exit_poll_url"):
+            parts.append(link("voter survey", record["exit_poll_url"]))
         lines.append(" · ".join(parts))
-        if with_notes and rec.get("notes"):
-            lines.append(f"-# {clean(rec['notes'])}")
+        if with_notes and record.get("notes"):
+            lines.append(f"-# {clean(record['notes'])}")
     return lines
 
 
 def faq_text(states, outlets, state: str | None = None) -> str:
     """Render installed FAQ data as a Discord message (markdown, one message)."""
     if state is None:
-        codes = sorted(states) if isinstance(states, dict) else sorted({getattr(e, "state", "") for e in states} - {""})
+        codes = (
+            sorted(states)
+            if isinstance(states, dict)
+            else sorted({getattr(entry, "state", "") for entry in states} - {""})
+        )
         head = [
-            "  # State FAQs",
+            "# State FAQs",
             "-# Use `/faq state:<code>` for one state.",
-            " · ".join(f"`{c}`" for c in codes) if codes else "No state FAQ data installed.",
+            " · ".join(f"`{state_code}`" for state_code in codes) if codes else "No state FAQ data installed.",
         ]
         if not outlets:
             return fit(head)
@@ -410,13 +438,13 @@ def faq_text(states, outlets, state: str | None = None) -> str:
     if code not in STATES:
         raise ValueError("unknown state")
 
-    rec = (
+    record = (
         states.get(code)
         if isinstance(states, dict)
-        else next((to_doc(e) for e in states if getattr(e, "state", None) == code), None)
+        else next((to_doc(entry) for entry in states if getattr(entry, "state", None) == code), None)
     )
-    if not rec:
+    if not record:
         return (
             f"# {STATES[code]}\nNo FAQ data installed for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
         )
-    return state_message(code, rec)
+    return state_message(code, record)
