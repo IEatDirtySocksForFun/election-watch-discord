@@ -1,5 +1,22 @@
 # civicAPI accuracy vs official results (2026-10-27)
 
+Spot checks of civicAPI's results and calls against certified official results, used to decide
+how far the bot trusts civicAPI. The per-race tables keep the numbers exactly as captured.
+
+- [Bottom line](#bottom-line)
+- [Calls / test data](#calls--test-data)
+- [Data quirks and adapter safeguards](#data-quirks-and-adapter-safeguards)
+- [Remaining cautions](#remaining-cautions)
+- [Coverage gaps](#coverage-gaps)
+- [Method caveats](#method-caveats)
+- [VA 2025 general (ENR certified)](#va-2025-general-enr-certified)
+- [NJ 2025 general (DOS certified PDF)](#nj-2025-general-dos-certified-pdf)
+- [NC 2024 general (nc_sbe ENR final)](#nc-2024-general-nc_sbe-enr-final)
+- [2024 general, other states (MEDSL precinct-derived reference)](#2024-general-other-states-medsl-precinct-derived-reference)
+- [NC 2026-03-03 primary (nc_sbe ENR)](#nc-2026-03-03-primary-nc_sbe-enr)
+
+---
+
 ## Bottom line
 
 - **Statewide and federal races after certification: trustworthy in these spot checks.** VA
@@ -12,12 +29,16 @@
 - Use civicAPI for election-night numbers and leads, not as the final authority. Keep its calls
   opt in until real call times can be checked.
 
+---
+
 ## Calls / test data
 
 - `called_at` was **absent on every real race** (108 race details from 2024, 2025 and 2026 primaries/specials). It appears only on current **test_data=true** 2026-11-03 races with fake winners and times (TX Senate "Talarico" winner, called_at 2026-10-27T13:34Z; VA Senate called 2026-10-27T11:00Z). So call-time plausibility against AP **cannot be measured**. CivicAPICallSource has never produced a real call in the archive.
 - No past race has test_data=true. Search rows never carry `test_data`; only the race detail does (the adapter already reads the detail).
 - At capture, TX and VA 2026-11-03 carried test votes (40 TX rows, 12 VA rows). The adapter
-  drops them.
+  drops those rows.
+
+---
 
 ## Data quirks and adapter safeguards
 
@@ -34,11 +55,15 @@
 5. **Party strings vary.** The source uses several labels for nonpartisan and write-in
    candidates. The adapter normalises `party_code` through the shared party table.
 
+---
+
 ## Remaining cautions
 
 - Candidate names often differ from official sources through initials, suffix punctuation and
   nicknames. The bot displays the source's names rather than trying to merge identities.
 - Keep civicAPI calls opt in until a real `called_at` appears on a non-test race.
+
+---
 
 ## Coverage gaps
 
@@ -46,6 +71,8 @@
 - **MA and VT legislature:** named districts, so 194 of 205 MA rows and 127 of 136 VT rows get no key.
 - **No region_results for single-county districts:** 15 NJ districts, 5 TX/CA/AZ House seats and NC-02.
 - **VA specials (2025-01-07, 2025-09-09, 2026-01-13) and the 2026-08-04 primary were not checked.** The VA ENR jurisdiction listing (`/api/elections/virginia`) returned **404**, so `va_elect._election_id` discovery failed for unpinned dates. Pin the date or fix discovery before relying on it.
+
+---
 
 ## Method caveats
 
@@ -55,6 +82,8 @@
   - 2024 county comparisons all use MEDSL.
 - **Unresolved:** AZ SD-25 (Dunn, uncontested): civic 59,826 vs MEDSL 88,531.
 - **NJ party column:** the "party issues" for NJ in the JSON are artifacts of the PDF party-column slicing and should be ignored.
+
+---
 
 ## VA 2025 general (ENR certified)
 
@@ -169,6 +198,8 @@
 | VA HD-99  | exact   | 0       | 0.0    | 0.0    | 35411          | 35411       | yes     | 100  |                           |                                                                    |
 | VA LTGOV  | differs | 1       | 0.0001 | 0.0    | 3414177        | 3414176     | yes     | 100  | 133/133, 1                |                                                                    |
 
+---
+
 ## NJ 2025 general (DOS certified PDF)
 
 - Races listed: 42; compared: 42; exact (every candidate): 1; votes exact but write-in/label differs: 0; differ: 41; reference incomplete: 0; not comparable: 0
@@ -220,6 +251,8 @@
 | NJ HD-38           | differs | 1200    | 2.6265  | 0.769  | 156075         | 152777      | yes     | 99    | 0/1, 0                    |             |
 | NJ HD-39           | differs | 1260    | 2.5993  | 0.636  | 198190         | 194237      | yes     | 99    | 0/1, 0                    |             |
 | NJ HD-40           | differs | 1996    | 4.3514  | 1.037  | 192441         | 186277      | yes     | 99    | 3/3, 3                    |             |
+
+---
 
 ## NC 2024 general (nc_sbe ENR final)
 
@@ -421,6 +454,8 @@
 | NC-12     | exact                              | 0       | 0.0     | 0.0    | 350755         | 350755      | yes     | 100  |                           |                                                                                                            |
 | NC-13     | exact                              | 0       | 0.0     | 0.0    | 415490         | 415490      | yes     | 100  | 8/8, 1                    |                                                                                                            |
 | NC-14     | exact                              | 0       | 0.0     | 0.0    | 401256         | 401256      | yes     | 100  | 6/6, 1                    | name: Tim Moore → Timothy K. Moore                                                                         |
+
+---
 
 ## 2024 general, other states (MEDSL precinct-derived reference)
 
@@ -1077,6 +1112,8 @@
 | VT SOS             | exact (votes); write-in/label only              | 0       | 0.0       | 0.0     | 344051         | 344524      | yes     | 100  | 14/14, 14                 | only civic: Write-In                                                |
 | VT TREAS           | exact (votes); write-in/label only              | 0       | 0.0       | 0.0     | 346897         | 347312      | yes     | 100  | 14/14, 14                 | only civic: Write-In                                                |
 
+---
+
 ## NC 2026-03-03 primary (nc_sbe ENR)
 
 - Races listed: 81; compared: 81; exact (every candidate): 81; votes exact but write-in/label differs: 0; differ: 0; reference incomplete: 0; not comparable: 0
@@ -1167,3 +1204,10 @@
 | State House 81 Republican  | exact  | 0       | 0.0   | 0.0    | 8336           | 8336        | yes     | 100  |                           |                                                                                                  |
 | State House 113 Republican | exact  | 0       | 0.0   | 0.0    | 12026          | 12026       | yes     | 100  |                           |                                                                                                  |
 | US House 3 Democratic      | exact  | 0       | 0.0   | 0.0    | 41572          | 41572       | yes     | 100  |                           |                                                                                                  |
+
+---
+
+## See also
+
+- [sources-signals.md](sources-signals.md): how civicAPI calls are used
+- [state-coverage-plan.md](state-coverage-plan.md): where civicAPI fills gaps

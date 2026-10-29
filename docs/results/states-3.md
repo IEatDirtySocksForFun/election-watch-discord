@@ -6,6 +6,14 @@ Every adapter below registers itself through `@register` in
 Seven states have an implemented adapter (KS, LA, MD, MS, MT, ND and NM). The other four have
 no usable statewide adapter; the notes below explain why.
 
+- [Summary](#summary)
+- [Notes per state](#notes-per-state)
+- [Not possible / not implemented](#not-possible--not-implemented)
+- [Tests](#tests)
+- [See also](#see-also)
+
+---
+
 ## Summary
 
 | State | Adapter        | Feed                                                                                                                          | Status                                                                                                                                                 |
@@ -26,6 +34,8 @@ All adapters map US Senate → `XX SEN`, US House → `XX-DD` (at-large → `XX-
 statewide executive offices → `XX GOV`, `XX AG`, ... , state legislature → `XX SD-DD` /
 `XX HD-DD`, and everything else (ballot measures, judges, school boards, county races) to
 `XX LOCAL <slug>` with a stable slug.
+
+---
 
 ## Notes per state
 
@@ -67,7 +77,7 @@ statewide executive offices → `XX GOV`, `XX AG`, ... , state legislature → `
 - Published with the certified results, **not** on election night; there is no JSON feed
   and the election-night HTML pages could not be located on the current site (the old
   `.../results/gen_results/index.html` paths now return the 404 page).
-- The 2026 files (`PG26_*`) are not published yet; the adapter discovers them by following
+- The 2026 files (`PG26_*`) are not published yet; the adapter discovers the files by following
   the `*BreakDown.csv` links on `/elections/archive/2026/election_data`.
 - Maryland held no state legislative election in 2024, so the legislative-district path is
   unit-tested via `race_key` but not against a fixture row.
@@ -103,6 +113,8 @@ President`.
   have not been observed through this adapter yet.
 - No archived 2024 page in this markup (`Results.aspx?ID=...` returns an empty shell).
 
+---
+
 ## Not possible / not implemented
 
 ### KY — blocked by an access gate
@@ -119,7 +131,7 @@ The Secretary of the Commonwealth states that Massachusetts does not publish res
 election night; PD43+ (`https://electionstats.state.ma.us/`) publishes **certified**
 results only. It does offer clean per-election CSVs, verified for 2024:
 
-```
+```text
 GET https://electionstats.state.ma.us/elections/download/165300/
     -> Content-Disposition: attachment; filename=PD43+__2024_President_General_Election.csv
 City/Town,,,"Harris/ Walz","Trump/ Vance",...
@@ -152,9 +164,11 @@ result PDFs; the page contains no `.csv`, `.xlsx` or `.json` links. There is no 
 and the per-county PDFs are re-typeset during the night, so NJ is left unadapted rather than
 scraped unreliably.
 
+---
+
 ## Tests
 
-```
+```bash
 pytest -q \
     tests/test_results_la.py tests/test_results_ms.py tests/test_results_ks.py \
     tests/test_results_nd.py tests/test_results_md.py tests/test_results_nm.py
@@ -162,3 +176,10 @@ pytest -q \
 
 Fixtures live in `tests/fixtures/<adapter>/<ST>/` with a `README.txt` recording the URLs,
 the capture date and exactly what was trimmed.
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan

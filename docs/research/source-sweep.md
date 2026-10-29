@@ -10,7 +10,17 @@ Evidence labels used below:
 - **[doc]**: provider documentation or an official notice says so.
 - **[prior]**: observed in an earlier election cycle; check it again before relying on it.
 
-A parser needs a real fixture. An interesting endpoint alone is not enough to ship an adapter.
+> **Note:** A parser needs a real fixture. An interesting endpoint alone is not enough to ship
+> an adapter.
+
+- [AP and DDHQ](#ap-and-ddhq)
+- [API keys and public data](#api-keys-and-public-data)
+- [National results fallbacks](#national-results-fallbacks)
+- [Per-state research](#per-state-research)
+- [Texas on election night](#texas-on-election-night)
+- [Before election day](#before-election-day)
+
+---
 
 ## AP and DDHQ
 
@@ -40,6 +50,8 @@ vote counts.
 DDHQ has no public free results API either. Do not treat a widget or a news site's JSON as
 permission to republish the underlying data.
 
+---
+
 ## API keys and public data
 
 Only enable a keyed source after reviewing its price, quota and redistribution terms.
@@ -60,9 +72,11 @@ Only enable a keyed source after reviewing its price, quota and redistribution t
 
 There is no reason to sign up for a key until an adapter uses it.
 
+---
+
 ## National results fallbacks
 
-These adapters reuse outlet feeds for Senate, Governor and US House vote counts. They are
+These adapters reuse outlet feeds for Senate, Governor and US House vote counts. Each one is
 `scrape=True` and `enabled_by_default=False`. Outlet projections stay in the call adapters;
 the results adapters do not mark winners themselves.
 
@@ -76,16 +90,18 @@ the results adapters do not mark winners themselves.
 
 Enable one with `EW_ENABLED_SOURCES`, for example:
 
-```sh
+```env
 EW_ENABLED_SOURCES=cbs_results
 ```
 
-Use `EW_SOURCE_STATES` to limit it to states that need a fallback. The 2026 URLs may not serve
-live data until election night, so check them on election morning.
+Use `EW_SOURCE_STATES` to limit an enabled fallback to the states that need one. The 2026 URLs
+may not serve live data until election night, so check each URL on election morning.
 
-**Fox is a special case.** Its election-feed `robots.txt` disallows automated access. That is
-why both `fox` and `fox_results` are opt in. Review the current rules before choosing to enable
-them.
+> **Warning:** Fox is a special case. Its election-feed `robots.txt` disallows automated
+> access, which is why both `fox` and `fox_results` are opt in. Review the current rules before
+> choosing to enable either adapter.
+
+---
 
 ## Per-state research
 
@@ -100,23 +116,34 @@ The current state-by-state notes live in:
 Do not bypass a challenge, captcha, WAF or IP block to reach a feed. Use another official
 publisher, civicAPI or a deliberately enabled national fallback.
 
+---
+
 ## Texas on election night
 
 `results.texas-election.com` can present a Cloudflare challenge to some networks. Do not try to
 solve or bypass it. The available options are:
 
 1. Use `tx_sos` where the state site serves its JSON normally.
-2. Use the official county feeds through `tx_counties`. Their titles say
+2. Use the official county feeds through `tx_counties`. Post titles say
    `(partial: N counties)`, and a complete statewide result takes precedence.
-3. Use the paid Texas SOS media feed if its terms fit your deployment. This needs a new
+3. Use the paid Texas SOS media feed if its terms fit the deployment. This needs a new
    adapter and the feed specification.
 4. Enable a national results fallback, optionally limited to Texas with `EW_SOURCE_STATES`.
 
+---
+
 ## Before election day
 
-1. Run `python tools/health_check.py` with the watch list and sources you plan to use.
-2. Confirm that runtime-discovered election ids resolve. Several states publish them only
+1. Run `python tools/health_check.py` with the watch list and sources planned for the night.
+2. Confirm that runtime-discovered election ids resolve. Several states publish the ids only
    shortly before counting starts.
 3. Check the live 2026 URL for each enabled national fallback.
-4. Keep race-call sources and scrapers off unless you have chosen their terms and request
-   costs deliberately.
+4. Keep race-call sources and scrapers off unless the terms and request costs of each one were
+   accepted deliberately.
+
+---
+
+## See also
+
+- [../state-coverage-plan.md](../state-coverage-plan.md): coverage plan for election night
+- [../sources-signals.md](../sources-signals.md): race calls, betting markets and exit polls

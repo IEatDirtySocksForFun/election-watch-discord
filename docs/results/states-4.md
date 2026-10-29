@@ -22,9 +22,11 @@ network access.
 Race keys follow the shared vocabulary: `XX SEN`, `XX-01` (U.S. House), `XX GOV` and the
 other statewide abbreviations, `XX SD-01` / `XX HD-01` for the legislature, and
 `XX LOCAL <slug>` for everything else (ballot questions, judicial retention, county offices).
-Percentages are only used when the source publishes them; otherwise they are computed from
-the vote totals. Precinct counts are only reported when the source reports them for the
-contest.
+Percentages are only used when the source publishes percentages; otherwise the bot derives
+the percentages from the vote totals. Precinct counts are only reported when the source reports precinct
+counts for the contest.
+
+---
 
 ## Adapter notes
 
@@ -88,6 +90,8 @@ general-election id is not published yet; set it with `CLARITY_FEEDS` when the s
 ENR site, e.g.
 `CLARITY_FEEDS='[{"state":"WV","election_id":"<id>","date":"2026-11-03"}]'`.
 
+---
+
 ## Blocked or unavailable original feeds
 
 OR and SD later gained adapters through alternate official endpoints; see [alt-c.md](alt-c.md).
@@ -140,3 +144,10 @@ fingerprint; no bypass attempted.
 The Secretary of State results pages (`https://sos.wyo.gov/Elections/Docs/<year>/...Results.aspx`)
 are link hubs to per-county and per-office **PDFs** (no tables, no JSON/CSV/XML). Wyoming has
 no statewide machine-readable results feed.
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan
