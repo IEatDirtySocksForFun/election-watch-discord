@@ -11,44 +11,61 @@ For the underlying feed notes, read
 [`alt-b.md`](results/alt-b.md), [`alt-c.md`](results/alt-c.md) and
 [`states-*.md`](results/).
 
+- [Summary: expected coverage](#summary-expected-coverage)
+- [How to turn the fallback on for just these states](#how-to-turn-the-fallback-on-for-just-these-states)
+- [Texas](#texas) · [Tennessee](#tennessee) · [Alabama](#alabama) · [Kentucky](#kentucky) ·
+  [Nevada](#nevada) · [Oklahoma](#oklahoma) ·
+  [Massachusetts, Maine, New Hampshire](#massachusetts-maine-new-hampshire) ·
+  [Wyoming](#wyoming) · [Mississippi](#mississippi)
+- [Partial states: MI, WI, MO, NY, NJ](#partial-states-mi-wi-mo-ny-nj)
+- [Third-party aggregators](#third-party-aggregators)
+- [Anything else found](#anything-else-found)
+- [Election-morning checklist](#election-morning-checklist)
+
+---
+
 ## Summary: expected coverage
 
 "Share" is a county's share of the state's **2024 US Senate vote**. AL uses 2022 instead,
 because it had no 2024 Senate race. Denominators: TX 11,291,854 and TN 3,007,608 (from the CBS
-2024 fixtures in the repo, `logs/health/final-2024.json`); AL 2022 ≈ 1.41 M. County numerators
+2024 results archive read by `cbs_results`); AL 2022 ≈ 1.41 M. County numerators
 were read from the counties' own 2024 (AL: 2022) files.
 
-| State      | Initial official feed                                              | Current official feed                                                                                                                                                             | Ready for 2026 at the check                                                                                                                                       | National fallback              |
-| ---------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| **TX**     | 14 Clarity counties = **17.9%** (tx_sos 403 Cloudflare)            | + Harris (own JSON) 13.7%, Tarrant 7.3%, Bexar 6.6%, Fort Bend 3.2% = **48.6%** verified; Dallas (≈8%) and Williamson (≈3.6%) are picked up when they list the general → **≈60%** | 13 county feeds answer for 2026 now = **40.5%**; Travis, Bell, Midland, Gregg and Comal (8.1%) list their 2026 primaries and should list the general before Nov 3 | fox_results OK (Sen/Gov/House) |
-| **TN**     | Shelby 10.6% (2026 export appears on the night)                    | unchanged; no other county publishes an open feed                                                                                                                                 | 0% until Shelby's export appears                                                                                                                                  | fox_results OK                 |
-| **AL**     | none                                                               | **Madison County 8.5%** (`al_counties`, new)                                                                                                                                      | 0% until Madison lists the general (its 2026 primary runoff is listed)                                                                                            | fox_results OK                 |
-| KY         | none (SBE live-results host blocks this IP: "acceptable use" page) | unchanged; **sanctioned route: ask SBE**, which publishes a documented XML feed                                                                                                   | —                                                                                                                                                                 | fox_results OK                 |
-| NV         | none (Imperva; Clark is Blazor/SignalR, Washoe PDF)                | unchanged; **ask SOS for media-site access**                                                                                                                                      | —                                                                                                                                                                 | fox_results OK                 |
-| OK         | none (results host 403 for every UA)                               | unchanged; **ask State Election Board**                                                                                                                                           | —                                                                                                                                                                 | fox_results OK                 |
-| MA, ME, NH | none (no live state feed; towns report)                            | unchanged                                                                                                                                                                         | —                                                                                                                                                                 | fox_results OK                 |
-| WY         | none (certified XLSX/PDF only)                                     | unchanged                                                                                                                                                                         | —                                                                                                                                                                 | fox_results OK                 |
-| MS         | certified only (`ms_sos`)                                          | unchanged                                                                                                                                                                         | —                                                                                                                                                                 | fox_results OK                 |
-| MI         | Ottawa (+3 configured)                                             | unchanged                                                                                                                                                                         | per `mi_county`                                                                                                                                                   | fox_results OK                 |
-| WI         | Dane (opt-in)                                                      | unchanged                                                                                                                                                                         | per `wi_dane`                                                                                                                                                     | fox_results OK                 |
-| MO         | St. Louis Co.                                                      | unchanged (Jackson, St. Charles: no Clarity directory)                                                                                                                            | export appears on the night                                                                                                                                       | fox_results OK                 |
-| NY         | NYC (opt-in)                                                       | unchanged (Monroe, Erie, Westchester: no Clarity directory)                                                                                                                       | per `ny_nycboe`                                                                                                                                                   | fox_results OK                 |
-| NJ         | 14 Clarity counties                                                | unchanged                                                                                                                                                                         | per `nj_counties`                                                                                                                                                 | fox_results OK                 |
+| State      | Initial official feed                                              | Current official feed                                                                                                                                                                     | Ready for 2026 at the check                                                                                                                                     | National fallback              |
+| ---------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| **TX**     | 14 Clarity counties = **17.9%** (tx_sos 403 Cloudflare)            | + Harris (own JSON) 13.7%, Tarrant 7.3%, Bexar 6.6%, Fort Bend 3.2% = **48.6%** verified; Dallas (≈8%) and Williamson (≈3.6%) are picked up once each county lists the general → **≈60%** | 13 county feeds answer for 2026 now = **40.5%**; Travis, Bell, Midland, Gregg and Comal (8.1%) list the 2026 primaries and should list the general before Nov 3 | fox_results OK (Sen/Gov/House) |
+| **TN**     | Shelby 10.6% (2026 export appears on the night)                    | unchanged; no other county publishes an open feed                                                                                                                                         | 0% until Shelby's export appears                                                                                                                                | fox_results OK                 |
+| **AL**     | none                                                               | **Madison County 8.5%** (`al_counties`, new)                                                                                                                                              | 0% until Madison lists the general (its 2026 primary runoff is listed)                                                                                          | fox_results OK                 |
+| KY         | none (SBE live-results host blocks this IP: "acceptable use" page) | unchanged; **sanctioned route: ask SBE**, which publishes a documented XML feed                                                                                                           | —                                                                                                                                                               | fox_results OK                 |
+| NV         | none (Imperva; Clark is Blazor/SignalR, Washoe PDF)                | unchanged; **ask SOS for media-site access**                                                                                                                                              | —                                                                                                                                                               | fox_results OK                 |
+| OK         | none (results host 403 for every UA)                               | unchanged; **ask State Election Board**                                                                                                                                                   | —                                                                                                                                                               | fox_results OK                 |
+| MA, ME, NH | none (no live state feed; towns report)                            | unchanged                                                                                                                                                                                 | —                                                                                                                                                               | fox_results OK                 |
+| WY         | none (certified XLSX/PDF only)                                     | unchanged                                                                                                                                                                                 | —                                                                                                                                                               | fox_results OK                 |
+| MS         | certified only (`ms_sos`)                                          | unchanged                                                                                                                                                                                 | —                                                                                                                                                               | fox_results OK                 |
+| MI         | Ottawa (+3 configured)                                             | unchanged                                                                                                                                                                                 | per `mi_county`                                                                                                                                                 | fox_results OK                 |
+| WI         | Dane (opt-in)                                                      | unchanged                                                                                                                                                                                 | per `wi_dane`                                                                                                                                                   | fox_results OK                 |
+| MO         | St. Louis Co.                                                      | unchanged (Jackson, St. Charles: no Clarity directory)                                                                                                                                    | export appears on the night                                                                                                                                     | fox_results OK                 |
+| NY         | NYC (opt-in)                                                       | unchanged (Monroe, Erie, Westchester: no Clarity directory)                                                                                                                               | per `ny_nycboe`                                                                                                                                                 | fox_results OK                 |
+| NJ         | 14 Clarity counties                                                | unchanged                                                                                                                                                                                 | per `nj_counties`                                                                                                                                               | fox_results OK                 |
 
 The poller prefers the first complete result and uses a partial county tally only when no
 complete source answers (`poller.best_result`). With a national fallback enabled, these states
 get a statewide Senate/Governor/House picture plus official county detail for every down-ballot
 race the counties publish.
 
+---
+
 ## How to turn the fallback on for just these states
 
-National fallbacks read news sites' public JSON. They set `scrape = True` and
-`enabled_by_default = False`, so turning one on is your decision. **Fox's election-feed
-`robots.txt` disallows automated access. Keep `fox_results` off unless you have reviewed the
-current terms and deliberately chosen to use it.** `EW_SOURCE_STATES` narrows an enabled
-adapter to a list of states:
+National fallbacks read news sites' public JSON. Each one sets `scrape = True` and
+`enabled_by_default = False`, so turning one on is the bot owner's decision.
 
-```sh
+> **Warning:** Fox's election-feed `robots.txt` disallows automated access. Keep `fox_results`
+> off unless the current terms have been reviewed and the choice to use it is deliberate.
+
+`EW_SOURCE_STATES` narrows an enabled adapter to a list of states:
+
+```env
 EW_ENABLED_SOURCES=fox_results
 EW_SOURCE_STATES=fox_results=AL,KY,MA,ME,MI,MO,MS,NH,NJ,NV,NY,OK,TN,TX,WI,WY
 ```
@@ -67,8 +84,8 @@ source.
 | `nbc_results` | HTTP 403                                                   | 403                                                                              | —                               | —                                                                                                            | NBC blocks this IP; do not retry in bursts                     |
 
 None of the fallbacks has down-ballot races (statewide row offices, legislature, local). Those
-come only from the official state and county feeds above. All of them carry AP- or
-outlet-desk-sourced numbers, updated every few minutes on the night. Their terms are the
+come only from the official state and county feeds above. Every fallback carries AP- or
+outlet-desk-sourced numbers, updated every few minutes on the night. The terms are the
 outlets' site terms, which do not grant redistribution: hence opt-in.
 
 ---
@@ -80,13 +97,13 @@ outlets' site terms, which do not grant redistribution: hence opt-in.
 
 ### Ranked options
 
-| #   | Option                                                                                                                             | Evidence (2026-10-27)                                                                      | Effort                                                    | Risk                                                                              | Terms                                                                 | Recommendation                      |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------- |
-| 1   | **County feeds, extended** (built)                                                                                                 | see county table below                                                                     | done                                                      | counties may rename contests on the night; one dead county never hides the others | public county results; no terms restrict reading them                 | **On by default (`tx_counties`)**   |
-| 2   | **TX SOS media feed** (XML over SFTP; $250 per election in 2022; reservation deadline was in September)                            | Texas Press Assn. notice `texaspress.com/.../SOSGeneralMediaFeed.pdf`; TAB notice for 2023 | email/phone + payment; then a new parser for the XML spec | the 2026 deadline has probably passed; ask about late enrolment                   | subscriber agreement; ask whether an open-source bot may redistribute | not pursued                         |
-| 3   | **Ask SOS to allowlist the bot's User-Agent** on results.texas-election.com, or to publish the static JSON on an unchallenged host | same 403                                                                                   | one email                                                 | none                                                                              | —                                                                     | not pursued                         |
-| 4   | Run the bot from a host that the site does not challenge (`tx_sos` works unchanged where the site serves JSON)                     | the challenge depends on the IP range                                                      | deployment choice                                         | none, provided the host is your normal network (no proxy or IP rotation)          | —                                                                     | your choice; see the research guide |
-| 5   | `fox_results` via `EW_SOURCE_STATES`                                                                                               | OK for TX SEN/GOV/TX-01 in 2026                                                            | config                                                    | outlet terms                                                                      | opt-in                                                                | **Enable for TX**                   |
+| #   | Option                                                                                                                             | Evidence (2026-10-27)                                                                      | Effort                                                    | Risk                                                                               | Terms                                                                 | Recommendation                                |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| 1   | **County feeds, extended** (built)                                                                                                 | see county table below                                                                     | done                                                      | counties may rename contests on the night; one dead county never hides the others  | public county results; no terms restrict reading the files            | **On by default (`tx_counties`)**             |
+| 2   | **TX SOS media feed** (XML over SFTP; $250 per election in 2022; reservation deadline was in September)                            | Texas Press Assn. notice `texaspress.com/.../SOSGeneralMediaFeed.pdf`; TAB notice for 2023 | email/phone + payment; then a new parser for the XML spec | the 2026 deadline has probably passed; ask about late enrolment                    | subscriber agreement; ask whether an open-source bot may redistribute | not pursued                                   |
+| 3   | **Ask SOS to allowlist the bot's User-Agent** on results.texas-election.com, or to publish the static JSON on an unchallenged host | same 403                                                                                   | one email                                                 | none                                                                               | —                                                                     | not pursued                                   |
+| 4   | Run the bot from a host that the site does not challenge (`tx_sos` works unchanged where the site serves JSON)                     | the challenge depends on the IP range                                                      | deployment choice                                         | none, provided the host is the operator's normal network (no proxy or IP rotation) | —                                                                     | the operator's choice; see the research guide |
+| 5   | `fox_results` via `EW_SOURCE_STATES`                                                                                               | OK for TX SEN/GOV/TX-01 in 2026                                                            | config                                                    | outlet terms                                                                       | opt-in                                                                | **Enable for TX**                             |
 
 ### Texas counties by 2024 Senate vote
 
@@ -100,7 +117,7 @@ outlets' site terms, which do not grant redistribution: hence opt-in.
 | Collin                                                                                | ≈ 4.6% (520,196 ballots)                                        | —      | —          | own PDFs plus a post-canvass precinct CSV at an unpredictable Sitefinity URL; `TX/Collin` is 404 on Clarity                                                       | not feasible (PDF)                                              |
 | Denton                                                                                | 448,459                                                         | 3.97%  | 36.7%      | Clarity 127398                                                                                                                                                    | pinned                                                          |
 | Fort Bend                                                                             | 356,419                                                         | 3.16%  | 39.8%      | Clarity 122596 / **127480** (linked from fortbendcountytx.gov)                                                                                                    | **pinned**; name fix for "District 7 District 7"                |
-| Williamson                                                                            | ≈ 3.6%                                                          | —      | —          | Clarity: `TX/Williamson/elections.json` lists the 2026 runoff (127277); wilcotx.gov answers 403 to our UA                                                         | **added**, discovered                                           |
+| Williamson                                                                            | ≈ 3.6%                                                          | —      | —          | Clarity: `TX/Williamson/elections.json` lists the 2026 runoff (127277); wilcotx.gov answers 403 to the bot's UA                                                   | **added**, discovered                                           |
 | El Paso                                                                               | 245,124                                                         | 2.17%  | 42.0%      | Clarity                                                                                                                                                           | pinned                                                          |
 | Montgomery                                                                            | ≈ 3.3%                                                          | —      | —          | `TX/Montgomery` 404 on Clarity; county results page not found                                                                                                     | not feasible yet                                                |
 | Hidalgo                                                                               | ≈ 1.9%                                                          | —      | —          | Clarity until 2020 only; now Hart HTML cumulative report on CivicPlus                                                                                             | not feasible (HTML report at unpredictable DocumentCenter URLs) |
@@ -108,8 +125,8 @@ outlets' site terms, which do not grant redistribution: hence opt-in.
 | Brazoria, Hays                                                                        | —                                                               | —      | —          | `TX/<county>` 404 on Clarity                                                                                                                                      | not feasible yet                                                |
 
 **Total verified: 48.6%** of the 2024 Texas Senate vote (5,485,910 of 11,291,854), up from
-17.9%. Dallas and Williamson, already configured, would take it to about 60% once they list the
-general. A single live poll on 2026-10-27 merged **13 counties** for `TX SEN`, all at 0 votes.
+17.9%. Dallas and Williamson, already configured, would take it to about 60% once both list
+the general. A single live poll on 2026-10-27 merged **13 counties** for `TX SEN`, all at 0 votes.
 
 What to watch on the night: `tx_counties` merges whichever counties answer. Each title says
 `(partial: N counties)`. A reachable `tx_sos` or an enabled national fallback takes precedence
@@ -164,12 +181,16 @@ Kentucky counties' Clarity paths answered 403 earlier (alt-b.md).
 
 Not pursued: the bot uses civicAPI, then `fox_results`.
 
+---
+
 ## Nevada
 
 The statewide site is Imperva, Clark County is Blazor/SignalR, and Washoe publishes PDFs
 (alt-a.md). The SOS runs "a secure, closed website" that gives a small number of media outlets
 results at poll close (_Nevada Independent_, 2026 primary). `NV/Washoe` is 404 on Clarity. The bot uses civicAPI, then
 `fox_results`.
+
+---
 
 ## Oklahoma
 
@@ -178,19 +199,27 @@ board's own pages (oklahoma.gov) say its results "Export" tab offers zipped coun
 precinct files. Those sit behind the same host. Tulsa's Clarity listing ends in 2012.
 The bot uses civicAPI, then `fox_results`.
 
+---
+
 ## Massachusetts, Maine, New Hampshire
 
 No live state feed exists (MA: PD43+ is certified-only; ME and NH towns report by phone/PDF;
 NH's SOS is CloudFront 403). Use civicAPI or an enabled national fallback.
 
+---
+
 ## Wyoming
 
 Certified XLSX/PDF only. `WY/Laramie` is 404 on Clarity. Use `fox_results`.
+
+---
 
 ## Mississippi
 
 `ms_sos` reads the certified recap after the election (2026 page 404 until then). No
 election-night feed exists. Use `fox_results` on the night.
+
+---
 
 ## Partial states: MI, WI, MO, NY, NJ
 
@@ -208,6 +237,8 @@ For all five, a complete statewide source takes precedence over the county tally
 `EW_SOURCE_STATES=fox_results=...`, the statewide Senate/Governor/House picture can come from
 Fox, while county detail and down-ballot races come from the official county feeds.
 
+---
+
 ## Third-party aggregators
 
 | Source                                                | Results?                                                                                                                                        | Terms                                                                                                                                                                                                                                                     | Verdict                                                                                                                                                                                                                                         |
@@ -221,6 +252,8 @@ Fox, while county detail and down-ballot races come from the official county fee
 | Newspapers' JSON (NYT, WaPo, Houston Chronicle, KPRC) | AP-licensed data                                                                                                                                | site terms                                                                                                                                                                                                                                                | not recommended (redistribution of AP data)                                                                                                                                                                                                     |
 | tnfirefly.com                                         | mirror of TN SOS                                                                                                                                | unknown                                                                                                                                                                                                                                                   | not recommended                                                                                                                                                                                                                                 |
 
+---
+
 ## Anything else found
 
 - Harris County also publishes per-precinct JSON (`Data/<code>/pv-<contestId>.json`) and a
@@ -228,10 +261,14 @@ Fox, while county detail and down-ballot races come from the official county fee
 - Bexar's 2024 ES&S HTML summary (`home.bexar.org/el45a.html`) is parseable, but it is moot:
   Bexar moved to Clarity for 2026.
 - Collin publishes a full precinct CSV after the canvass, not on the night.
-- When running from a source checkout, put it on `PYTHONPATH` so `tools/health_check.py`
-  imports that copy of `electionwatch`:
+- When running from a source checkout, put the checkout on `PYTHONPATH` so
+  `tools/health_check.py` imports that copy of `electionwatch`:
 
-  `PYTHONPATH=$PWD python tools/health_check.py`
+  ```bash
+  PYTHONPATH=$PWD python tools/health_check.py
+  ```
+
+---
 
 ## Election-morning checklist
 
@@ -240,7 +277,15 @@ Fox, while county detail and down-ballot races come from the official county fee
 2. If Dallas, Travis or Williamson still list no general by evening, find the id on the
    county's results page and pin it:
    `TX_COUNTY_FEEDS='[{"county":"Dallas","election_id":"<id>","date":"2026-11-03"}]'`.
-   Note that `TX_COUNTY_FEEDS` replaces the whole Clarity list, so include every county you
-   want.
+   `TX_COUNTY_FEEDS` replaces the whole Clarity list, so include every county that should be
+   read.
 3. Harris switches to `Data/1126/` automatically. `TX_HARRIS_CODE` overrides it.
 4. Decide on `EW_ENABLED_SOURCES=fox_results` + `EW_SOURCE_STATES` (above).
+
+---
+
+## See also
+
+- [sources-results.md](sources-results.md): official results adapters
+- [sources-signals.md](sources-signals.md): national results fallbacks and race calls
+- [results/](results/): per-state and per-county feed notes

@@ -79,7 +79,7 @@ def test_odds_embeds_show_name_and_party():
     text = "\n".join(field.value for field in format_odds(PA, snapshots).fields)
     assert "[Paige Cognetti (DEM)](https://kalshi.com/markets/housepa8) · 55.0%" in text
     assert "Rob Bresnahan (REP) · 45.0%" in text
-    assert "Jane Doe (D) · 50.0%" in text  # the label already names her
+    assert "Jane Doe (D) · 50.0%" in text  # the label already names the candidate
     assert "Paige Cognetti (DEM)" in format_odds_overview([(PA, snapshots)]).description
 
 

@@ -3,7 +3,7 @@ Fixtures for the ny_nycboe adapter (New York City Board of Elections recap CSVs)
 Captured 2026-10-27 from the official index page
 https://www.vote.nyc/page/election-results-summary-2024 with a plain GET and the
 descriptive User-Agent "Mozilla/5.0 (compatible; election-watch-discord/0.1; ...)".
-URLs contain spaces, so they are percent-encoded when fetched.
+URLs contain spaces, which are percent-encoded when fetched.
 
 nyc_2024_senator_citywide.csv
   https://www.vote.nyc/sites/default/files/pdf/election_results/2024/20241105General Election/00000800000Citywide United States Senator Citywide Recap.csv

@@ -18,7 +18,7 @@ Older elections use numeric ids and the file carries the names:
 
 Elections from 2026 on are addressed by UUID and use a newer shape
 (`ElectionData` / `TurnoutData` / `ContestData[].ContestID` + `Choices`) that has
-*no contest names in the file* - the app resolves them through an authenticated
+*no contest names in the file* - the app resolves the names through an authenticated
 API. Those files cannot be mapped to races, so the adapter raises SourceUnavailable
 with an explanation instead of guessing. 2026 TODO: revisit if the SOS starts
 publishing a named feed (or a contest-name dictionary) for the new format.

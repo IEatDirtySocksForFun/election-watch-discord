@@ -45,7 +45,7 @@ def test_party_prefix_stripped_from_names():
     assert house.candidates[0].party == "REP"
     assert house.candidates[1].name == "Michael B Moore"
     assert house.candidates[1].party == "DEM"
-    # NON party entries (write-ins) keep their plain name.
+    # NON party entries (write-ins) keep the plain name.
     assert house.candidates[-1].name == "Write-In"
     assert house.candidates[-1].party is None
 

@@ -197,7 +197,7 @@ async def test_uncalled_races_are_rechecked_every_five_minutes_not_every_tick(mo
 @pytest.mark.parametrize(
     "row,expected",
     [
-        # AZ/CA/DE/MD label their US Senate race "Senate".
+        # AZ/CA/DE/MD label the US Senate race "Senate".
         (
             {"country": "US", "province": "AZ", "type": "Senate", "district": None, "election_name": "Arizona Senate"},
             "AZ SEN",

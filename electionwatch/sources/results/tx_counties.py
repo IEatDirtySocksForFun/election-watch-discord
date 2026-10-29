@@ -2,7 +2,7 @@
 is behind its Cloudflare challenge.
 
 The Secretary of State's statewide site (`tx_sos`) is the primary source; this adapter is the
-official alternate. The largest counties publish their own Clarity ENR feeds, which carry the
+official alternate. The largest counties publish county Clarity ENR feeds, which carry the
 full county ballot: US Senate, the congressional district(s) the county sits in, the statewide
 executives, the legislature, the appeals courts and the local races.
 
@@ -19,9 +19,9 @@ are namespaced with the county slug so two counties' "Sheriff" do not collide.
 
 Twenty Clarity counties are configured, plus Harris County, which publishes its own JSON
 (`_harris`, merged into the same results). Tarrant, Fort Bend and Bexar list nothing in
-`elections.json`; their ids come from the links on the counties' own results pages and are
-pinned in ELECTIONS. Dallas and Williamson list their 2026 primaries/runoffs and are picked up
-from `elections.json` once they list the general. Collin, Montgomery, Brazoria, Hays and
+`elections.json`; those ids come from the links on the counties' own results pages and are
+pinned in ELECTIONS. Dallas and Williamson list the 2026 primaries/runoffs and are picked up
+from `elections.json` once the general is listed. Collin, Montgomery, Brazoria, Hays and
 Hidalgo (Clarity only until 2020) have no current directory on the CDN; see
 docs/state-coverage-plan.md. Pin any Clarity county with TX_COUNTY_FEEDS:
 
@@ -58,7 +58,7 @@ COUNTIES: dict[str, str] = {
     "Fort_Bend": "fort-bend",
     "Tarrant": "tarrant",
     "Travis": "travis",
-    # Added 2026-10-27 from the same CDN, verified with their 2024 (and where published,
+    # Added 2026-10-27 from the same CDN, verified with each county's 2024 (and where published,
     # 2026) general-election feeds.
     "Bastrop": "bastrop",
     "Bell": "bell",
@@ -95,7 +95,7 @@ ELECTIONS: dict[str, dict[str, str]] = {
         "Rockwall": "122491",
         "Rusk": "122760",
         "Travis": "122432",
-        # From the counties' own 2024 results pages (their elections.json lists nothing):
+        # From the counties' own 2024 results pages (elections.json lists nothing for these):
         # tarrantcountytx.gov ".../november-5--2024--general-election-results.html" and
         # fortbendcountytx.gov ".../2024-election-results".
         "Tarrant": "122489",

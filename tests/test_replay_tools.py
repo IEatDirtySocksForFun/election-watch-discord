@@ -103,7 +103,7 @@ def test_aggregate_openelections_sums_mode_columns():
 
 
 def test_candidate_names_are_not_title_cased_blindly():
-    """All-caps feeds go through pretty_name; mixed-case feeds keep their own casing."""
+    """All-caps feeds go through pretty_name; mixed-case feeds keep the feed's own casing."""
     import io
 
     medsl = (

@@ -4,7 +4,7 @@ Only what electionwatch/bot/discord.py touches: ``guild_id``, ``user`` (a member
 ``guild_permissions.manage_guild`` and ``roles``, or a DM user with neither), ``client.store``,
 ``command.name``, ``response`` (``send_message`` / ``defer`` / ``is_done``) and ``followup.send``.
 
-Discord's own rules are enforced so a command that breaks them fails the test instead of
+Discord's own rules are enforced so a command that breaks a rule fails the test instead of
 failing in production: a second initial response raises, and content over 2000 characters
 raises ``discord.HTTPException`` (Discord answers 400 to it).
 """

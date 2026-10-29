@@ -2,8 +2,8 @@
 
 Michigan's statewide site is out of reach for an automated client: mielections.us
 times out (and mvic.sos.state.mi.us answers 403 with a Cloudflare interstitial), and the
-SOS's results/data page is behind the state WAF. The counties run their own reporting
-systems though, and the four largest of them that use Clarity/Scytl publish the standard
+SOS's results/data page is behind the state WAF. The counties run separate reporting
+systems though, and the four largest counties that use Clarity/Scytl publish the standard
 vendor feeds:
 
     https://results.enr.clarityelections.com/MI/<County>/elections.json      election index
@@ -15,7 +15,7 @@ vendor feeds:
 jurisdiction (EID, name, date), so the election id for the tracked date is found instead
 of hard-coded. Pin ids with ``MI_CLARITY_FEEDS`` (JSON list of
 ``{"county": "Ottawa", "election_id": "127391", "date": "..."}``) when a county does not
-list them or publishes under an unexpected date.
+list an election or publishes under an unexpected date.
 
 Each county only reports its own precincts, so results are a partial picture: every
 contest is titled ``"<contest> (partial: N counties)"`` and links to the state results

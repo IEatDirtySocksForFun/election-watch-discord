@@ -8,7 +8,7 @@ candidate's party as a ``fill-D`` / ``fill-R`` / ``fill-I`` class on the row.
 
 Notes:
 - only ``limit=40`` is accepted by the endpoint (other values 404);
-- candidate cells hold surnames as the site prints them ("Collins *" for the
+- candidate cells hold surnames as printed on the site ("Collins *" for the
   incumbent), fieldwork dates are the site's single date column;
 - 270toWin lists no sponsor / partisan marker in this fragment, so ``sponsor``
   is None and ``partisan`` stays None (see the Wikipedia adapter for internals).
@@ -93,7 +93,7 @@ def _parse_row(row, level: Level) -> Poll | None:
     if not match:
         return None
     if _OFFICE_OF[match.group("office")] is not level:
-        return None  # a row for a different office than the list we asked for
+        return None  # a row for a different office than the requested list
     state = state_code(match.group("state").replace("-", " ")) or state_code(node_text(location))
     if state is None:
         return None

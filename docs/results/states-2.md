@@ -2,10 +2,12 @@
 
 Each section lists the adapter, its feed and how it was verified. "Verified fixture" means
 `tests/test_results_<st>.py` parses a trimmed real response. The fixture's README records the
-source URL and fetch date. Some adapters were also checked against their live feeds.
+source URL and fetch date. Some adapters were also checked against the live feeds.
 
 Fixtures sit directly in `tests/fixtures/<adapter>/` because each of these adapters serves one
 state.
+
+---
 
 ## Summary
 
@@ -22,6 +24,8 @@ state.
 | DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture                                                           |
 | DE    | `de_doe`  | `elections.delaware.gov/reports/GE<year>.csv`                         | verified fixture                                                           |
 | HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                           |
+
+---
 
 ## AK — `electionwatch/sources/results/ak_doe.py`
 
@@ -40,6 +44,8 @@ state.
   fetching. Nothing in the adapter disables verification; the fetch starts working
   when the Division fixes its chain or the deployment trusts the missing intermediate.
 
+---
+
 ## AL — not possible
 
 - The unofficial-results app is
@@ -57,6 +63,8 @@ state.
   not include, and the data is a certified snapshot rather than a feed usable on election
   night.
 - Revisit if the SOS republishes a working results app or a CSV/JSON export.
+
+---
 
 ## AR — `electionwatch/sources/results/ar_sos.py`
 
@@ -80,12 +88,14 @@ state.
   explaining this instead of guessing. Dated TODO: re-check the 2026 feed once the
   general election is published.
 
+---
+
 ## ID — `electionwatch/sources/results/id_sos.py`
 
 - The live app (`results.voteidaho.gov`) is an Angular SPA whose API is
   per-jurisdiction (one per county plus a statewide `id` slug); the election document
   returns contest groups but not vote totals, and the bundle exposes no endpoint that
-  returns them, so the app was not used.
+  returns the totals, so the app was not used.
 - Feed: the SOS archive, `https://archive.voteidaho.gov/results/<year>/<kind>/`
   (`general` in November, `primary` in May), which carries the same numbers as
   reactable widgets: each contest is an `<h4>` heading followed by a
@@ -102,6 +112,8 @@ state.
   legislative pages.
 - Status: verified fixture; a live run for 2024 general returned `ID-01` (Fulcher
   466,232) and `ID SD-01` (Woodward 30,859).
+
+---
 
 ## IL — `electionwatch/sources/results/il_sbe.py`
 
@@ -124,6 +136,8 @@ state.
 - Status: verified fixture; a live run for 2026-03-17 returned `IL SEN`, `IL-01`,
   `IL SD-02` and `IL HD-01`.
 
+---
+
 ## IN — `electionwatch/sources/results/in_sos.py`
 
 - Feed: static Angular data files under
@@ -136,3 +150,10 @@ state.
 - Status: verified fixture; a live run for 2024 returned `IN SEN` (Jim Banks).
 - `source_updated_at` is the JSON file's own `WriteTime` (a build stamp), not a
   live update clock.
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan

@@ -9,7 +9,7 @@ party's ``aliases`` case- and punctuation-insensitively, so ``"Lbt."``, ``"LIBER
 
     party_code("Constitution Party of Oregon")   # 'CST'
     party_emoji("gop")                           # '🔴'
-    party_emoji("Nobody We Know")                # '⚪'
+    party_emoji("No Such Party")                 # '⚪'
 
 Data files are parsed with ``yaml.safe_load`` once and cached; the returned objects are frozen
 and shared.
@@ -186,7 +186,7 @@ def _index() -> dict[str, str]:
 def party_code(raw: str | None) -> str:
     """Canonical code for a feed's party string (``"GOP"`` -> ``"REP"``).
 
-    Case- and punctuation-insensitive. A string we do not know is returned uppercased and
+    Case- and punctuation-insensitive. An unknown string is returned uppercased and
     stripped, unchanged apart from a trailing period, so callers can still display it.
     """
     if raw is None:
@@ -215,7 +215,7 @@ def _truncated(key: str) -> str | None:
 
 
 def party_info(code: str | None) -> Party | None:
-    """The :class:`Party` for a code or any known alias, or ``None`` if we do not know it."""
+    """The :class:`Party` for a code or any known alias, or ``None`` for an unknown one."""
     resolved = party_code(code)
     return load_parties().get(resolved) if resolved else None
 

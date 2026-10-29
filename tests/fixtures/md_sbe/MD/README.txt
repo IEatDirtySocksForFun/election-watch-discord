@@ -8,8 +8,8 @@ Source (fetched 2026-10-27, HTTP 200, Content-Type application/octet-stream):
   https://elections.maryland.gov/elections/archive/2024/election_data/PG24_LegislativeBreakDown.csv
 
 Election: 2024-11-05 general (certified). The 2026 files are not published yet; the adapter
-finds them by following the *BreakDown.csv links on
-/elections/archive/2026/election_data when they appear.
+finds the files by following the *BreakDown.csv links on
+/elections/archive/2026/election_data once published.
 
 Fixture: 2024_general_congressional_breakdown.csv
   Header plus every County "00" (State of Maryland) row for President - Vice Pres (34),
@@ -39,7 +39,7 @@ board refreshes while counting, for the tracked election (2026-11-03 general):
   2026_general_index.html
       https://elections.maryland.gov/elections/2026/general_results/index.html
       Trimmed to the contest anchors only: 146 <a href="gen_results_2026_*.html"> /
-      gen_qresults_2026_*.html links with their original labels ("Governor / Lt. Governor",
+      gen_qresults_2026_*.html links with the original labels ("Governor / Lt. Governor",
       "Representative in Congress" + "1".."8", "State Senator" + districts, "House of
       Delegates" + districts such as "1A", judges, "Question 1".."Question 3").
 

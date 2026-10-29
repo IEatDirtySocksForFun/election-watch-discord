@@ -37,7 +37,7 @@ Rows are semicolon-delimited, one per candidate per contest, no header:
     6 candidate code        15 total votes cast in the contest
     7 candidate name
 
-Precinct counts and the contest total repeat on every row, so they are read once per
+Precinct counts and the contest total repeat on every row, so both are read once per
 contest. Percentages are recomputed by ``RaceResult.finalize()`` when absent.
 """
 
@@ -57,7 +57,7 @@ BASE = "https://electionresultsfiles.sos.mn.gov"
 HUMAN = "https://electionresults.sos.mn.gov/"
 
 #: Office-group files fetched by default. ``local.txt``/``SDRaceQuestions.txt`` hold the
-#: municipal and school district contests; add them to ``FILES`` if the deployment wants
+#: municipal and school district contests; add those files to ``FILES`` if the deployment wants
 #: every township race (thousands of keys).
 FILES = (
     "ussenate.txt",

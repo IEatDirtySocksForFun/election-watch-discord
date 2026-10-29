@@ -22,5 +22,5 @@ The 2026 general feed is already configured and serves the real candidate list w
 0 votes (websiteupdatedat 10/19/2026), which is why precinct totals are present but
 nothing has reported.
 
-Oakland, Macomb and Genesee also live on the vendor host but their elections.json was
+Oakland, Macomb and Genesee also live on the vendor host, but each county's elections.json was
 empty on the capture date (Clarity fills it when the county configures the general).

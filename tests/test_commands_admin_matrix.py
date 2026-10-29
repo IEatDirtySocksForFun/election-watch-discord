@@ -1028,7 +1028,7 @@ VALID_KEYS = (
     + [("Puerto Rico Governor", "PR GOV"), ("Guam Governor", "GU GOV")]
 )
 VALID_KEYS = [(text, expected.replace("ca ", "CA ")) for text, expected in VALID_KEYS]
-# People type districts and states every which way; they all land on the same key.
+# Districts and states get typed every which way; every spelling lands on the same key.
 VALID_KEYS += [
     ("nc 01", "NC-01"),
     ("NC 1", "NC-01"),
@@ -1283,7 +1283,7 @@ async def test_settings_for_a_guild_never_configured(memory_store):
 
 
 def test_settings_card_shows_every_setting():
-    """Changing any one setting changes what /settings shows: none of them is hidden."""
+    """Changing any one setting changes what /settings shows: no setting is hidden."""
     base = dict(post_mode=PostMode.INTERVAL, menu_channel_id=5, menu_message_id=9)
     changed = {
         "channel_id": 10,

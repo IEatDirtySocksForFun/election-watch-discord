@@ -2,7 +2,7 @@
 
 Several states' statewide results sites are behind a bot check or publish nothing the bot can
 read. For those, the bot uses official county feeds instead and labels every result
-`(partial: N counties)` so nobody mistakes a county tally for a state total.
+`(partial: N counties)` so no county tally is mistaken for a state total.
 
 County adapters follow the same ground rules:
 
@@ -16,11 +16,20 @@ results bot)`) — no browser User-Agent, no UA rotation, no headless browser;
 
 Checks below were run on **2026-10-27**.
 
-> **Newer additions:** Tarrant, Fort Bend and Bexar are Clarity counties. Their ids are linked
-> from the counties' own pages and are now pinned. Dallas and Williamson list their 2026
+> **Newer additions:** Tarrant, Fort Bend and Bexar are Clarity counties. The election ids are
+> linked from the counties' own pages and are now pinned. Dallas and Williamson list the 2026
 > elections. Harris publishes its own JSON, now merged by `tx_counties`. Alabama's Madison
 > County has its own adapter, `al_counties`. See `docs/state-coverage-plan.md` for the current
 > coverage estimates; older statements below describe the initial county set.
+
+- [How the shared pieces fit](#how-the-shared-pieces-fit)
+- [Texas — `tx_counties`](#texas--tx_counties)
+- [Tennessee — `tn_counties`](#tennessee--tn_counties)
+- [States checked, nothing usable with a plain GET](#states-checked-nothing-usable-with-a-plain-get)
+- [Re-running these checks](#re-running-these-checks)
+- [See also](#see-also)
+
+---
 
 ## How the shared pieces fit
 
@@ -36,6 +45,8 @@ Races every configured county publishes (US Senate, governor, the statewide cour
 one result. A race that only one county publishes keeps its own county title. Purely local
 races are namespaced with the county slug (`TX LOCAL galveston-sheriff`,
 `TN LOCAL shelby-collierville-mayor`) so two counties' "Sheriff" cannot collide.
+
+---
 
 ## Texas — `tx_counties`
 
@@ -76,9 +87,9 @@ fixture, because the 2026 general is the one tests need).
 
 Largest counties **not** configured — no Clarity directory on the vendor host, or a directory
 with no election row for the tracked date: Harris, Bexar, Collin, Hidalgo, Williamson,
-Montgomery, Brazoria, Nueces, Cameron, Lubbock, Webb, McLennan, Hays, Smith, Jefferson. They run
-their own systems (Harris: HarrisVotes; Bexar/Collin/Montgomery: different vendors), which are
-separate adapters, not Clarity.
+Montgomery, Brazoria, Nueces, Cameron, Lubbock, Webb, McLennan, Hays, Smith, Jefferson. Each runs a
+separate system (Harris: HarrisVotes; Bexar/Collin/Montgomery: different vendors), which would
+need separate adapters, not Clarity.
 
 Feed quirks the mapping absorbs (`race_key` in `tx_counties.py`):
 
@@ -93,24 +104,26 @@ Feed quirks the mapping absorbs (`race_key` in `tx_counties.py`):
   `Rep. John Lewis` is untouched;
 - presidential tickets written three ways — `Donald J. Trump/JD Vance` (most),
   `Donald J. Trump JD Vance` (Comal drops the slash) and `Donald J. Trump` (Travis omits the
-  running mate). They are folded onto the presidential name so the per-county tallies add up
+  running mate). All three are folded onto the presidential name so the per-county tallies add up
   (live 2024: Trump 1,031,964 / Harris 969,950 across 14 counties);
 - `Rejected write-ins` and `Unassigned write-ins` tally rows are dropped; a counted write-in
   candidate (`Chad Hagg`, 93 votes in Hood) is kept.
 
 Pin or add a county without touching code:
 
-```sh
+```bash
 TX_COUNTY_FEEDS='[{"county":"Harris","election_id":"123456","date":"2026-11-03"}]'
 ```
 
+---
+
 ## Tennessee — `tn_counties`
 
-| Source                                     | Why not                                                                                            | Status                        |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------- | ----------------------------- |
-| `sos.tn.gov/elections/results` (statewide) | answers **403** to the bot User-Agent (CloudFront block)                                           | not used; no bypass attempted |
-| Davidson County                            | publishes a PDF precinct report, no JSON                                                           | skipped (PDF-only)            |
-| Knox County (`elections.knoxcounty.org`)   | single-page app; its result feed needs a per-session token we could not reproduce with a plain GET | skipped                       |
+| Source                                     | Why not                                                                                      | Status                        |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------- |
+| `sos.tn.gov/elections/results` (statewide) | answers **403** to the bot User-Agent (CloudFront block)                                     | not used; no bypass attempted |
+| Davidson County                            | publishes a PDF precinct report, no JSON                                                     | skipped (PDF-only)            |
+| Knox County (`elections.knoxcounty.org`)   | single-page app; its result feed needs a per-session token that a plain GET cannot reproduce | skipped                       |
 
 Shelby County (Memphis, the state's largest) publishes a machine-readable export:
 
@@ -124,13 +137,15 @@ The 2026 export (`export-General11032026.json`) answered 404 on 2026-10-27; Enha
 counties publish on election night, so the slug is configured and `tn_counties.fetch` raises
 `SourceUnavailable` until it appears. Pin another county or slug with:
 
-```sh
+```bash
 TN_COUNTY_FEEDS='[{"county":"Shelby","slug":"General11032026","date":"2026-11-03"}]'
 ```
 
+---
+
 ## States checked, nothing usable with a plain GET
 
-| State | Counties checked                  | What they publish                                                                                                                           | Verdict                                            |
+| State | Counties checked                  | What is published                                                                                                                           | Verdict                                            |
 | ----- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | NV    | Clark, Washoe                     | Clark's `ElectionResults_NV/EnrMain` is an SPA shell with no data in the HTML and no documented JSON endpoint; Washoe publishes PDF reports | skipped                                            |
 | KY    | Jefferson, Fayette                | county clerk CMS pages (`jeffersoncountyclerk.org`, `fayettekyclerk.gov`) with PDF/HTML summaries only                                      | skipped (PDF-only)                                 |
@@ -146,12 +161,14 @@ TN_COUNTY_FEEDS='[{"county":"Shelby","slug":"General11032026","date":"2026-11-03
 
 A county is only added to an adapter when a plain GET with the bot User-Agent returns the
 results document; PDFs would need a PDF parser dependency (`AGENTS.md`: no new dependencies
-without saying why) and the states above are better served by a statewide adapter if they ever
-expose one.
+without saying why) and the states above are better served by a statewide adapter if a state site ever
+exposes one.
+
+---
 
 ## Re-running these checks
 
-```sh
+```bash
 UA='election-watch-discord/0.1 (open-source election results bot)'
 
 # Texas: does a county publish anything?
@@ -169,3 +186,10 @@ curl -s --compressed -A "$UA" \
 pytest -q tests/test_results_tx_counties.py \
   tests/test_results_tn_counties.py
 ```
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan

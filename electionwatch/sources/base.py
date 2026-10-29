@@ -5,7 +5,7 @@ Rules for every adapter:
   tested against a trimmed real response saved under tests/fixtures/<adapter name>/.
 - Fetch with the shared httpx.AsyncClient passed in (the poller owns timeouts/retries/UA).
 - Never raise on one bad race: log and skip it. Raise SourceUnavailable for a dead endpoint.
-- Paid / keyed APIs read their key from the env var named in `env`; if unset the adapter
+- Paid / keyed APIs read the API key from the env var named in `env`; if unset the adapter
   reports itself unavailable instead of failing.
 """
 

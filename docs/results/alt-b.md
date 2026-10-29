@@ -20,27 +20,31 @@ CBS 2024 fixtures). Elsewhere the numbers are the votes the adapter actually rep
 adapters are county feeds, so every result carries the `" (partial: N counties)"` title suffix
 the bot uses to flag partial coverage.
 
+---
+
 ## TX — `tx_counties` (county Clarity ENR feeds)
 
 `results.texas-election.com` is intermittently behind a Cloudflare challenge. The large
 counties publish the same Clarity ENR files on the vendor CDN and were all reachable with a
 plain GET:
 
-    /TX/Denton/122426/355989/json/en/summary.json      2024 general (Denton)
-    /TX/El_Paso/122595/355580/json/en/summary.json     2024 general (El Paso)
-    /TX/Denton/127398/382120/json/en/summary.json      2026 general (zero votes, pre-election)
+```text
+/TX/Denton/122426/355989/json/en/summary.json      2024 general (Denton)
+/TX/El_Paso/122595/355580/json/en/summary.json     2024 general (El Paso)
+/TX/Denton/127398/382120/json/en/summary.json      2026 general (zero votes, pre-election)
+```
 
 Seventeen counties are configured: Bastrop, Bell, Comal, Dallas, Denton, El Paso, Fort Bend,
 Galveston, Gregg, Hood, Kaufman, Lamar, Midland, Rockwall, Rusk, Tarrant and Travis. Fourteen of
-them published a 2024 Senate contest (2,018,216 counted votes = 17.87% of the statewide Senate
+those counties published a 2024 Senate contest (2,018,216 counted votes = 17.87% of the statewide Senate
 vote);
 the per-county 2024 numbers and shares are in `docs/results/counties.md`. The remaining large
 Texas counties (Harris, Bexar, Collin, Hidalgo, Williamson, Montgomery, Brazoria, Nueces,
 Cameron, Lubbock, Webb, McLennan, Hays, Smith, Jefferson) have no directory on this CDN.
 
 Discovery is per county from `elections.json` (`EID`, `ElectionName`, `Date`); verified 2024
-ids are pinned because Dallas, Tarrant and Fort Bend publish no `elections.json` at all (they
-are still listed and skipped, and `TX_COUNTY_FEEDS` pins any of them). One dead county cannot
+ids are pinned because Dallas, Tarrant and Fort Bend publish no `elections.json` at all (the three
+are still listed and skipped, and `TX_COUNTY_FEEDS` pins any of the three). One dead county cannot
 break the fetch: failures are counted and only an all-county failure raises.
 
 Name handling: the counties disagree on wording ("United States Representative, District 4"
@@ -50,13 +54,15 @@ the statewide executives, the legislature and the statewide courts map to shared
 everything else becomes `TX LOCAL <county>-<race>` — so two counties' "Sheriff" never collide
 while a statewide appeals-court race still merges.
 
+---
+
 ## NJ — `nj_counties` (county Clarity ENR feeds)
 
 New Jersey publishes result PDFs per county and no machine-readable statewide file; 14 counties
 run Clarity ENR. The state-level `NJ/elections.json` is a 404, the county listing is not.
 Election ids are discovered per county (`2026 GENERAL ELECTION` is already listed by
 Cumberland as EID 127562) with the verified 2024 ids pinned. Camden and Bergen answer 404 on
-the CDN and are not listed; `NJ_COUNTY_FEEDS` pins them if they move back.
+the CDN and are not listed; `NJ_COUNTY_FEEDS` pins either county if it moves back.
 
 Three House naming styles appear in the feeds — `House of Representatives CD 6`,
 `U.S. House of Representatives 12th Congressional District`, `HOUSE OF REPRESENTATIVES - 2ND
@@ -65,6 +71,8 @@ Representatives` (no district, as Cumberland publishes in 2026) is kept county-l
 of pretending it is a district race. Sheriff, county commissioners, mayors, school-board
 seats and referenda are `NJ LOCAL <county>-<race>`.
 
+---
+
 ## NY — `ny_nycboe` (New York City Board of Elections recap CSVs)
 
 `nyenr.elections.ny.gov/` and `results.elections.ny.gov` answer 403 to a plain request; the
@@ -72,10 +80,12 @@ state data host `ny.elstats.civera.com` serves only per-contest ids with no inde
 the state feed cannot be discovered without the blocked front end (documented in `states-4.md`).
 The city's own recap files are reachable and are the official statement of votes:
 
-    https://vote.nyc/page/election-results-summary-2024          index (one row per file)
-    .../2024/20241105General Election/00000800000Citywide United States Senator Citywide Recap.csv
-    .../2024/20241105General Election/00101900010New York Representative in Congress 10th Congressional District Recap.csv
-    .../2024/20241105General Election/00301900010Kings  Representative in Congress 10th Congressional District Recap.csv
+```text
+https://vote.nyc/page/election-results-summary-2024          index (one row per file)
+.../2024/20241105General Election/00000800000Citywide United States Senator Citywide Recap.csv
+.../2024/20241105General Election/00101900010New York Representative in Congress 10th Congressional District Recap.csv
+.../2024/20241105General Election/00301900010Kings  Representative in Congress 10th Congressional District Recap.csv
+```
 
 Each file is one contest in one county ("Citywide" for the aggregate). Votes are read from the
 `Total for <contest> - <County>` block, skipping the machine categories (`Public Counter`,
@@ -89,13 +99,17 @@ per AGENTS.md; an operator switches it on.
 
 Not covered: upstate New York (57 counties) — no machine-readable publisher was found.
 
+---
+
 ## MO — `mo_stlouis` (St. Louis County per-precinct CSV)
 
 `enr.sos.mo.gov` answers a Cloudflare challenge and `sos.mo.gov/enrweb/` redirects into it, so
 the statewide ENR is not usable. St. Louis County publishes a full per-precinct export per
 election (`el{YYMMDD}`), 9.4 MB / 104,636 rows for 2024-11-05, cp1252:
 
-    https://extcontent.stlouisco.com/BOE/eResults/el241105/CSV.csv
+```text
+https://extcontent.stlouisco.com/BOE/eResults/el241105/CSV.csv
+```
 
 Rows are (precinct, contest, choice, votes); votes are summed per choice and the precincts
 reporting a contest are counted. Statewide offices, US House/Senate, the legislature and
@@ -104,6 +118,8 @@ judicial retention contests (titled with the judge's name, YES/NO choices) becom
 The export has no precinct total, so `precincts_total` and the expected-vote percentage stay
 empty. Jackson, St. Charles, Greene, Clay and Boone run other vendors
 (`livevoterturnout.com` HTML) and are not implemented.
+
+---
 
 ## MA — not possible
 
@@ -117,6 +133,8 @@ county level (city/town clerks do), so there is no county-feed alternative eithe
 PD43+ is possible in principle but is certified-results HTML, not election-night data, so no
 statewide adapter is enabled.
 
+---
+
 ## KY — not possible
 
 `https://vrsws.sos.ky.gov/liveresults/` (the State Board of Elections' live results) answers
@@ -126,3 +144,10 @@ also answers 403. `https://elect.ky.gov/Results/Pages/default.aspx` is reachable
 is the historical archive — it only links to per-year pages (1973 … present), with no live feed
 and no CSV/JSON export. Kentucky's Clarity CDN paths answer 403 for every county tried
 (Jefferson, Fayette, Kenton), so there is no county-feed alternative. No bypass attempted.
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan

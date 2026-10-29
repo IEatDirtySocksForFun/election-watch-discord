@@ -2,7 +2,7 @@
 
 Wisconsin has no statewide election-night reporting system: the WEC site
 (elections.wi.gov) is behind Cloudflare and, by law, municipal clerks report to the 72
-county clerks, who post the unofficial count for their own county. Dane County (Madison,
+county clerks, each of whom posts the unofficial count for one county. Dane County (Madison,
 the state's second-largest county) publishes a server-rendered page per contest that a
 plain GET returns:
 

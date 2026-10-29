@@ -18,7 +18,7 @@ from electionwatch.store.mongo import MongoStore
 
 
 def validate_env(environ: Mapping[str, str]) -> list[str]:
-    """Return names of invalid/missing settings, never their values."""
+    """Return names of invalid/missing settings, never the values."""
     errors = [name for name in ("DISCORD_TOKEN", "MONGODB_URI") if not environ.get(name)]
     if environ.get("DEV_GUILD_ID"):
         try:
@@ -34,7 +34,7 @@ def build_sources(registry: Mapping[str, Mapping[str, type]], environ: Mapping[s
     """Instantiate the adapters the poller should use.
 
     Adapters disabled by default (HTML scrapes, untested feeds) are skipped unless the operator
-    names them in EW_ENABLED_SOURCES, e.g. EW_ENABLED_SOURCES=cbs,fox; EW_DISABLED_SOURCES
+    lists those adapters in EW_ENABLED_SOURCES, e.g. EW_ENABLED_SOURCES=cbs,fox; EW_DISABLED_SOURCES
     turns off default adapters.
     """
 
@@ -100,7 +100,7 @@ async def check() -> int:
 
 def configure_logging(level: str = "INFO") -> None:
     logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    # httpx logs every request URL at INFO; keyed APIs (AP) carry their key in the query string.
+    # httpx logs every request URL at INFO; keyed APIs (AP) carry the API key in the query string.
     for name in ("httpx", "httpcore"):
         logging.getLogger(name).setLevel(logging.WARNING)
 

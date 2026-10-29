@@ -1,14 +1,16 @@
 """State race lists for the /races browser and race autocomplete.
 
-Neither of them calls a data source. A background refresh (RaceLists.refresh, run every minute
+By default neither calls a data source. A background refresh (RaceLists.refresh, run every minute
 by the bot) asks each results source that can list races for a state's races and stores the
 answer in the database, one entry per (state, source). The browser and autocomplete read only
-those entries (RaceLists.stored).
+those entries (RaceLists.stored); with EW_COMMAND_DATA=live the /races browser may also ask the
+source for a state's list (electionwatch/live.py), within the same budgets, and autocomplete
+still reads only the database.
 
 Which states a source is asked about, in this order:
 
-  1. states someone opened in /races or typed in autocomplete since their list was stored
-     (or that have no list yet), newest request first: that person is looking at it now;
+  1. states someone opened in /races or typed in autocomplete since the state's list was stored
+     (or that have no list yet), newest request first: someone is looking at that state now;
   2. the other requested states (electionwatch/demand.py, kind "racelists", kept for a day)
      and the states of the races any server watches, oldest list first;
   3. every other state the source covers, never-listed states first, then the oldest list,
@@ -20,13 +22,13 @@ like every other source. Each (source, state) list is its own budget entry, name
 "<source>:racelists:<state>", so its requests count against the host's hourly allowance and
 the hourly check can hold it back. On top of that a refresh lists at most STATES_PER_TICK
 states per source: a new install fills in a national source's 56 states over about twenty
-minutes instead of sending them all at once, and a restart skips lists the database still has
+minutes instead of sending every request at once, and a restart skips lists the database still has
 fresh.
 
 A state that fails backs off on its own (1, 2, 4, 8, then 15 minutes) and the source moves on
 to the next state; only a source failing on every state it tries backs off as a whole. A
 first answer of "no races" is not stored straight away: several adapters answer that when
-their feed is down or not live yet, so it is asked again in 5 and then 15 minutes, and only
+the feed is down or not live yet, so the source is asked again in 5 and then 15 minutes, and only
 the third empty answer is stored (the state keeps showing "loading" until then).
 """
 
@@ -115,7 +117,7 @@ def _utc(value: datetime) -> datetime:
 
 
 class RaceLists:
-    """Refreshes the stored race lists (background) and reads them (commands)."""
+    """Refreshes the stored race lists (background) and reads the stored lists (commands)."""
 
     def __init__(
         self,

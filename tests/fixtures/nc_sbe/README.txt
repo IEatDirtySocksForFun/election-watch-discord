@@ -12,6 +12,6 @@ Election: 2024-11-05 general (ENR folder 20241105). elections.txt at fetch time 
 already returns the 2026 general contest list.
 
 Trimming: contest.txt keeps the ten contests used by the test, results_0.txt keeps only
-their candidate rows, county.txt keeps the statewide (cid "0") row. Rows are byte-for-byte
+the candidate rows of those contests, county.txt keeps the statewide (cid "0") row. Rows are byte-for-byte
 the source's fields; the files keep NC's format (JSON array without the outer brackets,
 CRLF, one object per line, trailing comma). Nothing else was changed.

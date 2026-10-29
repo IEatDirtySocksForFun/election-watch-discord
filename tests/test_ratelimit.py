@@ -1,5 +1,6 @@
 """Request budgets, the demand queue, user cooldowns, and how the poller, commands and early
-vote use them: sources are asked only when due, commands never call a source."""
+vote use those: sources are asked only when due, and in the default database mode commands
+never call a source (live mode is covered in test_live.py)."""
 
 from __future__ import annotations
 

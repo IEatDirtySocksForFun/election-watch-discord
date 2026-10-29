@@ -10,8 +10,8 @@ and lists its elections on the vendor CDN, including the 2026 primary runoff:
     https://results.enr.clarityelections.com/AL/Madison/<EID>/current_ver.txt
     https://results.enr.clarityelections.com/AL/Madison/<EID>/<ver>/json/en/summary.json
 
-Jefferson, Mobile, Baldwin and Shelby have CDN directories too, but their newest election is
-from 2012; they are not listed. Results merge into "(partial: N counties)" results exactly like
+Jefferson, Mobile, Baldwin and Shelby have CDN directories too, but the newest election there is
+from 2012, so those counties are not listed. Results merge into "(partial: N counties)" results exactly like
 `tx_counties` (shared `_county` helpers). The 2026 general id is discovered from
 elections.json when the county lists it; pin it (or add a county) with AL_COUNTY_FEEDS:
 

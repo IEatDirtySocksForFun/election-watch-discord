@@ -7,7 +7,7 @@ run Clarity ENR under the shared CDN:
     https://results.enr.clarityelections.com/NJ/<County>/<EID>/current_ver.txt
     https://results.enr.clarityelections.com/NJ/<County>/<EID>/<ver>/json/en/summary.json
 
-Election ids are per county and per election, so they are discovered per county from
+Election ids are per county and per election, so ids are discovered per county from
 `elections.json` (which already lists "2026 GENERAL ELECTION" in Cumberland) and the
 verified 2024 ids are pinned for replay/tests. Counties that do not publish the listing are
 skipped until an id is pinned with NJ_COUNTY_FEEDS:
@@ -38,7 +38,7 @@ from .clarity import parse_settings
 HUMAN = "https://www.nj.gov/state/elections/election-results.shtml"
 
 #: County name in the Clarity URL -> slug for local race keys. Camden and Bergen answer 404
-#: on the CDN (they run their own installations), so they are not listed.
+#: on the CDN (both counties run separate installations), so neither is listed.
 COUNTIES: dict[str, str] = {
     "Atlantic": "atlantic",
     "Burlington": "burlington",

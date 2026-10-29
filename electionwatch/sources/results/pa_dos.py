@@ -64,7 +64,7 @@ OFFICES: dict[str, int] = {
     "HD": 13,
 }
 
-#: Office titles as PA prints them -> RaceKey office code.
+#: Office titles as printed by PA -> RaceKey office code.
 _TITLES = {
     "UNITED STATES SENATOR": "SEN",
     "GOVERNOR": "GOV",

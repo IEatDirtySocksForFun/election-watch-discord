@@ -134,7 +134,7 @@ def test_settings_card_and_watch_list_fit_discord():
 
 def test_settings_card_shows_every_setting_even_with_hundreds_of_watched_races():
     # Found by replay/command_sim (2020/2024, all races watched): a long watch list once
-    # pushed post_mode/paused out of the reply. They have their own field now.
+    # pushed post_mode/paused out of the reply. Each has a field of its own now.
     from electionwatch.bot.logic import settings_card
 
     gs = GuildSettings(

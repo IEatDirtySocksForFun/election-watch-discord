@@ -63,7 +63,7 @@ def race_key(row: dict) -> RaceKey | None:
         return None  # party primaries share keys with each other and with the general
     special = "special" in lowered
     try:
-        # AZ, CA, DE and MD label their US Senate race plain "Senate".
+        # AZ, CA, DE and MD label the US Senate race plain "Senate".
         if kind == "US Senate" or (kind == "Senate" and not district and "state senate" not in lowered):
             return RaceKey(state, Level.SENATE, "SEN", None, special)
         if kind == "House of Representatives":

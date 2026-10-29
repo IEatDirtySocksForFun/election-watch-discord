@@ -30,7 +30,7 @@ Notes that matter for parsing:
   ballot, so that is the party recorded.
 * `PartyCode` is the *contest* code, not the candidate's (it reads "NON" even in a partisan
   race), so it is not used.
-* Write-in rows have an empty `PartyName` and are kept (they count toward the total).
+* Write-in rows have an empty `PartyName` and are kept (write-ins count toward the total).
 * The service answers only for the election the state is currently publishing; the payload
   carries no election date, so the tracked date comes from configuration.
 * `results.oregonvotes.gov` itself redirects to a not-found page out of election season;

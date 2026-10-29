@@ -14,7 +14,7 @@ challenge`), the per-election pages above answer 200 to a plain request — that
 2024 general (eid 450002785) and the 2026 primary (eid 450002928) can still be read.
 
 Election ids are discovered from the Secretary of State's candidate-filing site, whose
-election dropdown is the public list of the current cycle's elections with their ids:
+election dropdown is the public list of the current cycle's elections and ids:
 
     https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx
     <option value="450002987">FEDERAL GENERAL 2026 (11/03/2026) (General)</option>

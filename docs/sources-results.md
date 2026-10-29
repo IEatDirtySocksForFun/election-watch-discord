@@ -5,6 +5,25 @@ adapter exposes a pure `parse_*(payload, ..., fetched_at=...) -> list[RaceResult
 `fetch()` / `list_races()`, and registers itself in `electionwatch.sources.base.REGISTRY`
 under `results`.
 
+- [Feeds at a glance](#feeds-at-a-glance)
+- [Enhanced Voting / Scytl — `enhanced_voting`](#enhanced-voting--scytl--enhanced_voting)
+- [Florida — `fl_sos`](#florida--fl_sos)
+- [More per-state notes](#more-per-state-notes)
+- [Environment](#environment)
+- [Texas — `tx_sos`](#texas--tx_sos)
+- [Georgia — `ga_sos`](#georgia--ga_sos)
+- [North Carolina — `nc_sbe`](#north-carolina--nc_sbe)
+- [Pennsylvania — `pa_dos`](#pennsylvania--pa_dos)
+- [Clarity / Scytl — `clarity`](#clarity--scytl--clarity)
+- [Adding a state](#adding-a-state)
+
+---
+
+## Feeds at a glance
+
+The table lists the first adapters written; every other state and county adapter is described
+in the notes under [docs/results/](results/).
+
 | State           | Adapter           | Feed                                                                           | Status                                                                                                                                             |
 | --------------- | ----------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | TX              | `tx_sos`          | https://results.texas-election.com/static/data/                                | verified fixture (2024 general); 2026 ID not published yet, discovery implemented                                                                  |
@@ -27,11 +46,15 @@ under `results`.
 `tests/fixtures/<adapter>/` (each README.txt records the URL and fetch date). Nothing in
 the tests touches the network.
 
+---
+
 ## Enhanced Voting / Scytl — `enhanced_voting`
 
 Many states and counties publish through Enhanced Voting's CDN export:
 
-    https://app.enhancedvoting.com/cdn/results/<State>/export-<slug>.json
+```text
+https://app.enhancedvoting.com/cdn/results/<State>/export-<slug>.json
+```
 
 The export is the same JSON shape as the Georgia SOS export used by `ga_sos`,
 so this adapter reuses `parse_ga` and remaps keys to the requested state.
@@ -44,11 +67,15 @@ so this adapter reuses `parse_ga` and remaps keys to the requested state.
   or unhyphenated (`US House District 1`); both map to canonical RaceKeys.
 - No precinct counts or winner flags are present in the export.
 
+---
+
 ## Florida — `fl_sos`
 
 Florida publishes a tab-delimited extract via a POST to `ResultsExtract.Asp`:
 
-    ElectionDate=11/5/2024&OfficialResults=Y&PartyRaces=N&DataMode=
+```text
+ElectionDate=11/5/2024&OfficialResults=Y&PartyRaces=N&DataMode=
+```
 
 Rows are one candidate per county. The adapter aggregates county rows to
 produce statewide (or district-wide) totals.
@@ -61,11 +88,15 @@ produce statewide (or district-wide) totals.
   as "PRESIDENT / VP".
 - Precincts reporting/total are summed across counties for each race.
 
+---
+
 ## More per-state notes
 
-Statewide and county adapters have their own notes under [docs/results/](results/).
+Statewide and county adapters are described in separate notes under [docs/results/](results/).
 Start with [states-1.md](results/states-1.md) through [states-4.md](results/states-4.md), then
 see the alternate-source and county notes for states whose main site is blocked or incomplete.
+
+---
 
 ## Environment
 
@@ -84,8 +115,13 @@ see the alternate-source and county notes for states whose main site is blocked 
 - `TN_COUNTY_FEEDS` — JSON list pinning a county's Enhanced Voting export slug, e.g.
   `[{"county":"Shelby","slug":"General11032026","date":"2026-11-03"}]`.
 
-No adapter needs an API key. All of them are plain HTTP GETs; the poller owns the
-User-Agent, timeout and retry policy.
+None of the state and county adapters needs an API key. Each one makes plain HTTP GETs (POST
+for Florida's extract); the poller owns the User-Agent, timeout and retry policy. Feed
+overrides not listed here (`MI_CLARITY_FEEDS`, `AL_COUNTY_FEEDS`, `TX_HARRIS_CODE`,
+`IL_ELECTION_ID`, `MT_EID`, `SD_EID`) are documented in the docstring of the adapter that reads
+each one.
+
+---
 
 ## Texas — `tx_sos`
 
@@ -104,10 +140,12 @@ DISTRICT n` -> `TX SD-nn`, `STATE REPRESENTATIVE DISTRICT n` -> `TX HD-nn` (both
 - Precincts and last-updated time come from `Home.json` and are applied to every race.
   Texas publishes no winner flags in these files.
 
+---
+
 ## Georgia — `ga_sos`
 
 One export per general election: `cdn/results/Georgia/export-<YYYY>NovGen.json`.
-`ELECTIONS` maps 2020/2022/2024 to their slugs and `2026-11-03` to `2026NovGen`; the
+`ELECTIONS` maps 2020/2022/2024 to the matching slugs and `2026-11-03` to `2026NovGen`; the
 2026 file is not published yet (HTTP 404), and the adapter says so rather than returning
 partial data.
 
@@ -120,6 +158,8 @@ partial data.
   `State Senate Dist 5/Senador Estatal Dist 5` is reduced to its English half.
 - The export has no precinct counts and no winner flags. Ballot measures arrive with
   `YES`/`NO` choices and become LOCAL races.
+
+---
 
 ## North Carolina — `nc_sbe`
 
@@ -137,6 +177,8 @@ brackets, one object per line).
   `NC STATE SENATE DISTRICT nn` -> `NC SD-nn`, `NC HOUSE OF REPRESENTATIVES DISTRICT nnn`
   -> `NC HD-nn`, everything else (including constitutional amendments) -> LOCAL.
 
+---
+
 ## Pennsylvania — `pa_dos`
 
 Angular app over `/api/ElectionReturn/`. Responses are JSON strings containing JSON, so
@@ -153,6 +195,8 @@ District`) or `DistrictId`.
   `GetUpdatedTimeStamp` for archived elections, so those fields stay `None`. County
   breakdowns (`GetCountyBreak`, `GetCountyData`) need one request per county and are not
   polled.
+
+---
 
 ## Clarity / Scytl — `clarity`
 
@@ -174,6 +218,8 @@ usually a JSON array of contests; `{"Contests": [...]} ` is also accepted.
 - Built-in feed: IL/McLean 2026 general (`127349`); a county feed only supplies that county's
   local races, never the statewide IL SEN/GOV/House totals. Add others with `CLARITY_FEEDS`.
 
+---
+
 ## Adding a state
 
 1. Find the feed for the 2024 general and the 2026 primary; confirm the 2026 general URL
@@ -188,4 +234,16 @@ usually a JSON array of contests; `{"Contests": [...]} ` is also accepted.
 
 Run the adapter tests with:
 
-    python -m pytest -q tests/test_results_*.py
+```bash
+python -m pytest -q tests/test_results_*.py
+```
+
+---
+
+## See also
+
+- [results/](results/): per-state and per-county notes
+- [sources-signals.md](sources-signals.md): race calls, betting markets, exit polls and national
+  results fallbacks
+- [state-coverage-plan.md](state-coverage-plan.md): which source covers which state
+- [customizing.md](customizing.md#adding-a-results-adapter): a minimal adapter example

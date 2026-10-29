@@ -4,6 +4,20 @@ These sources were checked on 2026-10-27 with a plain HTTP client and a descript
 (`election-watch-discord/0.1`). The checks used no cookies, JavaScript, browser fingerprints,
 login or agreement pages.
 
+- [Summary](#summary)
+- [MT — `electionwatch/sources/results/mt_sos.py`](#mt--electionwatchsourcesresultsmt_sospy)
+- [SD — `electionwatch/sources/results/sd_sos.py`](#sd--electionwatchsourcesresultssd_sospy)
+- [OR — `electionwatch/sources/results/or_sos.py`](#or--electionwatchsourcesresultsor_sospy)
+- [MD — `electionwatch/sources/results/md_sbe.py` (extended, certified CSV path kept)](#md--electionwatchsourcesresultsmd_sbepy-extended-certified-csv-path-kept)
+- [OK — nothing reachable](#ok--nothing-reachable)
+- [TN — nothing reachable](#tn--nothing-reachable)
+- [WY — certified XLSX only](#wy--certified-xlsx-only)
+- [MS — certified artifacts only (existing adapter unchanged)](#ms--certified-artifacts-only-existing-adapter-unchanged)
+- [Operational notes](#operational-notes)
+- [See also](#see-also)
+
+---
+
 ## Summary
 
 | State | Adapter                                | Source                                                                                                 | Coverage                                                                                                                    | Verified                                                                                                       |
@@ -18,6 +32,8 @@ login or agreement pages.
 | MS    | — (existing adapter = certified files) | certified artifacts only                                                                               | unchanged                                                                                                                   | no election-night feed found                                                                                   |
 
 New dependencies: none. Shared contracts unchanged.
+
+---
 
 ## MT — `electionwatch/sources/results/mt_sos.py`
 
@@ -44,6 +60,8 @@ New dependencies: none. Shared contracts unchanged.
   the same total; names upper case with occasional double spaces (collapsed, kept verbatim);
   "Non-Partisan" is recorded as `NP`.
 
+---
+
 ## SD — `electionwatch/sources/results/sd_sos.py`
 
 - **Source:** the media/press feed the state board publishes, plain CSV, no key:
@@ -56,6 +74,8 @@ New dependencies: none. Shared contracts unchanged.
 - **Verification:** live on 2026-10-27 the site was in "Testing In Progress" mode
   (122 of 671 precincts), so the 2026 general CSV is already serving. Keys checked live:
   `SD SEN`, `SD-AL`, `SD GOV`, `SD SD-01`, `SD HD-01`.
+
+---
 
 ## OR — `electionwatch/sources/results/or_sos.py`
 
@@ -76,6 +96,8 @@ New dependencies: none. Shared contracts unchanged.
   60 state house and 15 state senate districts; `list_races` returns 83 races; all counts 0
   before election night.
 
+---
+
 ## MD — `electionwatch/sources/results/md_sbe.py` (extended, certified CSV path kept)
 
 - **What existed:** the adapter read the post-election `*_CongressionalBreakDown.csv` /
@@ -94,13 +116,15 @@ New dependencies: none. Shared contracts unchanged.
 - **Format notes:** before counting every cell is "NR" (not reported) → recorded as 0 votes
   with 0 precincts reported, not as a result; the winner is marked with
   `<img alt="Winner Selected">`; ballot-question rows put the option label in `<th>` and the
-  numbers in `<td>`; primary pages hold one table per party, so their per-party percentages
+  numbers in `<td>`; primary pages hold one table per party, so the per-party percentages
   are dropped when tables are merged (the adapter targets the general-election pages).
   `race_key` gained a `Question N` branch (`MD LOCAL question-N`) and `_PARTIES` a
   "Working Class Party" entry — both append-only, the certified path is unchanged.
 - **Verified:** live for 2026-11-03 — `MD GOV`, `MD-01`, `MD SD-27`, `MD HD-01A` fetched,
   141 contests listed. (Maryland has no US Senate race in 2026, so `MD SEN` correctly
   resolves to nothing.)
+
+---
 
 ## OK — nothing reachable
 
@@ -116,15 +140,19 @@ New dependencies: none. Shared contracts unchanged.
   would need Oklahoma, Tulsa, Cleveland, Canadian and Payne to approach half the state's
   vote, and each would need a parser for ad-hoc HTML or PDF.
 
+---
+
 ## TN — nothing reachable
 
 - Both `elections.tn.gov` and `sos.tn.gov` answer **403 CloudFront "Request blocked"** — the
   Secretary of State's whole domain, including the historical results pages and the
   per-precinct spreadsheets.
 - No alternate official host was found; county election commissions (Shelby `shelbyvote.com`,
-  Davidson, Knox) are reachable but publish results through their own one-off pages/systems.
+  Davidson, Knox) are reachable but publish results through separate one-off pages/systems.
   Covering most of Tennessee would need about 6 county feeds (Shelby, Davidson, Knox,
   Hamilton, Williamson and Rutherford), each with its own parser.
+
+---
 
 ## WY — certified XLSX only
 
@@ -132,8 +160,10 @@ New dependencies: none. Shared contracts unchanged.
   official results are a zip of Excel workbooks published after certification, e.g.
   `https://sos.wyo.gov/Elections/Docs/2024/Results/General/2024_Wyoming_General_Results.zip`
   (referenced from `/Elections/Docs/2024/2024GeneralResults.aspx`).
-- No election-night feed exists that we could reach, and reading XLSX would add a dependency
+- No reachable election-night feed exists, and reading XLSX would add a dependency
   (`openpyxl`) for a certified-only, three-electoral-vote state. Not done.
+
+---
 
 ## MS — certified artifacts only (existing adapter unchanged)
 
@@ -145,6 +175,8 @@ New dependencies: none. Shared contracts unchanged.
 - No election-night reporting feed (ENR/clarity-style) is published by the Secretary of
   State, so the existing certified-file adapter remains the only option.
 
+---
+
 ## Operational notes
 
 - Polling: MT 8 requests/poll, SD 5 + 1 media page, OR 5, MD 1 index + 1 per tracked contest.
@@ -155,3 +187,10 @@ New dependencies: none. Shared contracts unchanged.
 - `scrape` is `True` for MT and MD (HTML), `False` for SD (CSV) and OR (JSON);
   `enabled_by_default` is `True` for all four because these are the states' own official
   sources, not third-party scrapes.
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan

@@ -1,7 +1,8 @@
 """Per-user limits on the data commands (/bettingmarkets, /polls, /earlyvote) and per-server /refresh.
 
-The data commands only read the database, so these limits protect Discord and the database,
-not the sources. They use the same rule as the source budgets (ratelimit.py): stay at half
+By default the data commands only read the database, so these limits protect Discord and the
+database, not the sources (with EW_COMMAND_DATA=live the source budgets in ratelimit.py guard
+the sources too). The limits follow the same rule as those budgets: stay at half
 the useful rate. A refresh of the data is the most that can change between two looks, so by
 default a user can look at the same thing at most once every two refreshes:
 
@@ -10,7 +11,7 @@ default a user can look at the same thing at most once every two refreshes:
 
 Operators override the defaults (EW_USER_COOLDOWN seconds, EW_USER_HOURLY commands per user
 per hour across the data commands, EW_REFRESH_COOLDOWN seconds); server admins override
-them for their server with /limits.
+the defaults per server with /limits.
 """
 
 from __future__ import annotations

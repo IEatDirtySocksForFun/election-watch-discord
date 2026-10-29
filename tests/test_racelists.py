@@ -194,7 +194,7 @@ async def test_lists_are_refetched_after_the_floor_and_a_restart_does_not_refetc
     # A restart: new budgets, same database. Nothing is fetched while the lists are fresh.
     restarted = RaceLists(store, {"results": [national]}, object(), clock.now, rates=RateBook(clock=clock.seconds))
     assert await restarted.refresh() == 0 and len(national.asked) == count
-    # An hour after the first lists were stored they are due again, oldest first.
+    # An hour after the first lists were stored, the lists are due again, oldest first.
     clock.t = FLOORS[KIND]
     assert await lists.refresh() == STATES_PER_TICK
     assert national.asked[count:] == national.asked[:STATES_PER_TICK]
@@ -454,7 +454,7 @@ async def test_a_host_that_is_down_is_not_asked_about_every_state_each_minute():
 
 
 async def test_a_first_empty_answer_is_retried_soon_and_still_shows_loading():
-    # cnn_results and al_counties answer [] when their feed errors or is not live yet.
+    # cnn_results and al_counties answer [] when the feed errors or is not live yet.
     national = National()
     national.empty = {"OH"}
     clock, store, book, lists = await setup(national)

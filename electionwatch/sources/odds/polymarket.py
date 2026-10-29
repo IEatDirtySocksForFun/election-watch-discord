@@ -113,7 +113,7 @@ def parse_polymarket_event(event: dict) -> list[OddsSnapshot]:
         except Exception:
             continue
     # Two candidates of one party (top-two primaries, D-vs-D seats) must not share the party
-    # label: the swing detector would read their two prices as one series.
+    # label: the swing detector would read the two prices as one series.
     labels = [snap.outcome for snap in snapshots]
     titles = {
         str(market_row.get("id")): (market_row.get("groupItemTitle") or "").strip()

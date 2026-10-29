@@ -54,7 +54,7 @@ BASE = "https://electionresults.nebraska.gov/resultsSW.aspx"
 HUMAN = "https://electionresults.nebraska.gov/"
 UA = "election-watch-discord/0.1 (+https://github.com/election-watch-discord)"
 
-#: contest family -> map mode, in the order the site lists them.
+#: contest family -> map mode, in the site's order.
 PAGES: dict[str, str] = {
     "SW": "CTY",  # US Senate, Governor, Secretary of State, Treasurer, AG, Auditor
     "CG": "DIST",  # US House
