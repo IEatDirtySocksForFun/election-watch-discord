@@ -653,7 +653,7 @@ async def faq_command(interaction: discord.Interaction, state: str | None = None
     except ValueError as exc:
         await _error(interaction, exc)
         return
-    await interaction.response.send_message(f"```yaml\n{text}\n```", ephemeral=True)
+    await interaction.response.send_message(text, ephemeral=True)
 
 
 async def race_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
