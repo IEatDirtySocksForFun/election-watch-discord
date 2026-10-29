@@ -7,8 +7,8 @@ Reads <data>/<year>/<ST>/<level>.csv (from fetch_history.py) and writes
 <data>/timelines/<year>/<KEY>.jsonl for every race that has no real series yet. Each county
 releases its votes in three batches -- early vote, election day, mail -- in the state's count
 order (electionwatch/faq/states.yaml `count_order` if present, else early -> election day ->
-mail), spread over ~6 h after polls close with seeded jitter. Batches lean the way they usually
-do (mail D, election day R) but every county still ends on its exact certified total.
+mail), spread over ~6 h after polls close with seeded jitter. Batches lean the usual way
+(mail D, election day R) but every county still ends on its exact certified total.
 Every line carries "synthetic": true. Real (NYT) files are never overwritten.
 """
 

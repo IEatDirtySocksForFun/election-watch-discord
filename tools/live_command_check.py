@@ -4,8 +4,8 @@
         --channel 100000000000000002 --out replay/out/cmdtest
 
 a) Logs in with the bot token (HTTP only, no gateway), copies the global commands to the
-   dev guild and syncs them (exactly what ElectionBot.setup_hook does with DEV_GUILD_ID),
-   then fetches the registered commands back and diffs them with the local schema.
+   dev guild and syncs the copies (exactly what ElectionBot.setup_hook does with DEV_GUILD_ID),
+   then fetches the registered commands back and diffs the result with the local schema.
 b) Creates a thread "[TEST] command render <timestamp>" and posts, as ordinary bot
    messages, every embed / view / text payload the commands can produce (stress data
    included), so Discord itself validates the limits. Each send is recorded to JSONL with
@@ -202,7 +202,7 @@ def race_result(key: RaceKey, candidates: int, long_names: bool) -> RaceResult:
 
 
 class CheckBot(ElectionBot):
-    async def setup_hook(self) -> None:  # no sync-on-login and no polling loop: we drive it
+    async def setup_hook(self) -> None:  # no sync-on-login and no polling loop: the check drives the bot
         return None
 
 

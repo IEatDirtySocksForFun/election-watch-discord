@@ -4,7 +4,7 @@ for that state's Senate, Governor and first House race, and prints one row per (
     python tools/health_check.py                      # the configured ELECTION_DATE (2026 default)
     ELECTION_DATE=2024-11-05 python tools/health_check.py --json out.json
 
-civicAPI is checked per state with its own status TEST: it lists the races but still flags them
+civicAPI is checked per state with its own status TEST: the races are listed but still flagged
 as test data (normal before election night; it must flip to OK once real returns arrive).
 
 Status: OK (returned results), EMPTY (reachable, nothing for these races yet: normal before

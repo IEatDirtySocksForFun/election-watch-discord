@@ -1,6 +1,6 @@
 """Scripted race calls and synthetic prediction-market odds, driven by the replay timelines.
 
-Neither is real data: they exist so a replay run exercises the "call" and "odds_swing" paths.
+Neither is real data: both exist so a replay run exercises the "call" and "odds_swing" paths.
 """
 
 from __future__ import annotations

@@ -11,8 +11,8 @@ shelby_2024_export.json
   District 9, Tennessee Senate District 30, TN House of Representatives District 83,
   "Bartlett Alderman - Position 4 Bartlett", "Collierville Mayor Collierville".
   Each option keeps id/name/ballotOrder/voteCount/politicalParty; the per-precinct and
-  per-voting-method arrays (groupResults, precinctResults) were dropped because they are
-  ~99% of the file and the adapter does not read them. Contest names, candidate names,
+  per-voting-method arrays (groupResults, precinctResults) were dropped because those arrays are
+  ~99% of the file and the adapter does not read the arrays. Contest names, candidate names,
   party strings and vote counts are untouched.
 
 Not captured: the 2026 general export (export-General11032026.json answered 404 on

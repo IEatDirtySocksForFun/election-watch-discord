@@ -224,7 +224,7 @@ class RefreshedCommandData(CommandData):
 
     The commands read only the store; the poller's refresh is what calls the sources. These
     matrix tests are about what the commands render, so each read is preceded by the refresh
-    the poller would have done (source failures are skipped, as the poller skips them)."""
+    the poller would have done (source failures are skipped, as in the poller)."""
 
     async def get_odds(self, key):
         from electionwatch.poller import ODDS_CHECKED
@@ -257,7 +257,7 @@ class RefreshedRaceLists(RaceLists):
     """RaceLists whose store the background refresh has just filled for the asked state.
 
     The navigator and autocomplete read only the store; the background refresh is what asks
-    the sources. Tests about what they render get the refresh the bot would have done first
+    the sources. Tests of the rendered output get the refresh the bot would have done first
     (a failing source stores nothing, as in the refresh)."""
 
     async def stored(self, state):

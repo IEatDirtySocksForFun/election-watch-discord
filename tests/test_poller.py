@@ -569,7 +569,7 @@ async def test_results_sources_are_fetched_concurrently_in_priority_order():
 
 @pytest.mark.asyncio
 async def test_outlet_call_without_special_flag_reaches_a_watched_special_race():
-    # OH/FL Senate 2026 are specials: state results key them "OH SEN S", but outlets and
+    # OH/FL Senate 2026 are specials: state results key those races "OH SEN S", but outlets and
     # markets have no special flag and answer for "OH SEN".
     special, plain = parse("OH SEN S"), parse("OH SEN")
     asked = []

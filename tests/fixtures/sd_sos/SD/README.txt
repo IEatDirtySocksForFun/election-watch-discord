@@ -40,6 +40,6 @@ Sources:
   2026_general_mun.csv   ...&type=MUN&map=CTY
       Trimmed: the Brookings "City Council Member" rows.
 
-All CSV files keep their original header and CRLF line endings; candidate names keep the
+All CSV files keep the original header and CRLF line endings; candidate names keep the
 source's double spaces and trailing blanks, and PrecinctsReporting keeps the Excel guard
 (="122/671").

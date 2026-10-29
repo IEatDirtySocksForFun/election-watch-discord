@@ -236,7 +236,7 @@ async def test_every_tab_in_every_state(code, tab):
 
 
 async def test_territories_are_reachable_from_the_navigator():
-    """Race keys, /bettingmarkets and /polls accept PR/GU/VI/AS/MP: the navigator offers them too."""
+    """Race keys, /bettingmarkets and /polls accept PR/GU/VI/AS/MP: the navigator offers the territories too."""
     view = await navigator_for(client_with())
     offered = {option.value for select in state_selects(view) for option in select.options}
     assert offered == set(STATES) | set(TERRITORIES)

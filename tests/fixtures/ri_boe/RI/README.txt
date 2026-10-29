@@ -5,7 +5,7 @@ Source (fetched 2026-10-27):
   https://rigov.s3.amazonaws.com/election/results/2024/general_election/statewide.json
   https://rigov.s3.amazonaws.com/election/results/2024/general_election/ga_senator.json
   https://rigov.s3.amazonaws.com/election/results/2024/general_election/ga_representative.json
-  https://www.ri.gov/election/results/2024/general_election/data/   (page linking them)
+  https://www.ri.gov/election/results/2024/general_election/data/   (page linking the files)
   https://www.ri.gov/election/results/2024/general_election/        (human site)
 
 Election: 2024-11-05 General Election. Format: JSON with election_name,

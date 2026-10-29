@@ -21,7 +21,7 @@ Checklist
   [x] Kalshi only / Polymarket only / both (Kalshi listed first)
   [x] 50 outcomes, 300-char outcome names, long URLs -> field limits held
   [x] 1h / 24h moves from stored history
-  [x] stale stored odds + failing live source -> stale values with their timestamp
+  [x] stale stored odds + failing live source -> stale values with the stored timestamp
   [x] stale stored odds + working live source -> fresh values
   [x] odds source raising -> "no odds" embed, not a crash
   [x] flow: defer(ephemeral=True) THEN followup(ephemeral=True), nothing else
