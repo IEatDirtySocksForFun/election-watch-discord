@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 import yaml
 
 from electionwatch.models import ImportantRace, Level, to_doc
@@ -161,10 +163,11 @@ def _span(seconds: float) -> str:
     return f"{seconds / 3600:.1f} h".replace(".0 h", " h")
 
 
-def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
+def limits_text(gs: GuildSettings | None, rates, cooldowns, live_max_age: float | None = None) -> str:
     """/limits: this server's command limits, then refresh intervals and request budgets.
     Only sources slowed below their kind's floor (or set by the operator) are listed one by
-    one; the full list would not fit one message with ~70 adapters."""
+    one; the full list would not fit one message with ~70 adapters. `live_max_age` is set when
+    commands fetch from the sources themselves (EW_COMMAND_DATA=live)."""
     from electionwatch.ratelimit import FLOORS
 
     def every(kind: str) -> float:
@@ -173,7 +176,8 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
     lines = []
     if cooldowns is not None:
         server = gs or GuildSettings(0)
-        user = cooldowns.user_seconds(every("odds"), server.user_cooldown_seconds)
+        odds_every = every("odds") if live_max_age is None else min(every("odds"), live_max_age)
+        user = cooldowns.user_seconds(odds_every, server.user_cooldown_seconds)
         hourly = server.user_commands_per_hour if server.user_commands_per_hour is not None else cooldowns.user_hourly
         set_user = server.user_cooldown_seconds is not None or cooldowns.user_cooldown is not None
         set_refresh = server.refresh_cooldown_seconds is not None or cooldowns.refresh_cooldown is not None
@@ -185,7 +189,13 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns) -> str:
             "  per user per hour: " + (f"{hourly:g}" if hourly else "no cap"),
             "  /refresh: once every " + _span(refresh) + ("" if set_refresh else " (longer for slower data)"),
         ]
-    lines.append("Data refresh (in the background; commands read the database only):")
+    if live_max_age is None:
+        lines.append("Data refresh (in the background; commands read the database only):")
+    else:
+        lines.append(
+            f"Data refresh (in the background; commands also fetch from the source when an answer "
+            f"is over {_span(live_max_age)} old, within the same budgets):"
+        )
     rows = rates.status() if rates is not None else []
     for kind in FLOORS:
         # Race lists have a budget entry per source and state: show one line per source (its
@@ -221,7 +231,7 @@ def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
     # The watch list goes last so a long one can't push the other settings out, and the
-    # truncation marker is a YAML comment so the clipped dump still parses.
+    # truncation marker is a YAM comment so the clipped dump still parses.
     doc = to_doc(gs)
     doc["important"] = doc.pop("important")
     lines = yaml.safe_dump(doc, sort_keys=False).strip().splitlines()
@@ -278,74 +288,169 @@ def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "# … (trunc
     return "\n".join(kept)
 
 
-#: /faq is sent as ```yaml\n<text>\n``` in one 2000-character message.
-FAQ_LIMIT = 2000 - len("```yaml\n\n```") - 8
+# ── /faq formatting ─────────────────────────────────────────────────────────
+# no more yaml block, better
+FAQ_LIMIT = 2000
+
+TIMEZONE_NAMES = {
+    "America/New_York": "Eastern",
+    "America/Chicago": "Central",
+    "America/Denver": "Mountain",
+    "America/Boise": "Mountain",
+    "America/Phoenix": "Mountain (no DST)",
+    "America/Los_Angeles": "Pacific",
+    "America/Anchorage": "Alaska",
+    "America/Adak": "Hawaii-Aleutian",
+    "Pacific/Honolulu": "Hawaii",
+}
+
+STATE_FIELDS = (
+    ("Count order", "count_order"),
+    ("Mail deadline", "mail_deadline"),
+    ("Mail processing", "mail_processing"),
+    ("When to expect a call", "typical_call_time"),
+    ("Recount", "recount_threshold"),
+    ("Ranked-choice voting", "ranked_choice"),
+)
+HEADER_KEYS = {
+    "official_results_url",
+    "sos_url",
+    "results_vendor",
+    "polls_close_local",
+    "polls_close_note",
+    "timezones",
+    "notes",
+    "sources",
+    "unverified",
+}
 
 
-def _yaml_lines(payload) -> list[str]:
-    return yaml.safe_dump(payload, sort_keys=False).strip().splitlines()
+def link(label: str, url: str) -> str:
+    return f"[{label}](<{url}>)"
 
 
-def _first_fit(*candidates: list[str]) -> str:
-    """The first candidate that fits whole; otherwise the last one clipped on a line boundary."""
+def clean(text) -> str:
+    """Fold YAML's wrapped text onto one line."""
+    return " ".join(str(text).split())
+
+
+def timezone_names(zone: str) -> str:
+    return TIMEZONE_NAMES.get(zone, zone.rsplit("/", 1)[-1].replace("_", " "))
+
+
+def sources_line(urls) -> str | None:
+    """One link per site, labelled by domain, so 7 NCSL/SOS URLs don't eat the message."""
+    seen: dict[str, str] = {}
+    for url in urls or ():
+        host = urlparse(url).netloc.removeprefix("www.")
+        seen.setdefault(host, url)
+    if not seen:
+        return None
+    return "-# Sources: " + " · ".join(link(host, url) for host, url in seen.items())
+
+
+def ranked_choice(value) -> str:
+    text = clean(value)
+    return {"false": "No", "true": "Yes"}.get(text.lower(), text)
+
+
+def state_message(code: str, record: dict) -> str:
+    unverified = set(record.get("unverified") or ())
+    zones = record.get("timezones") or []
+
+    header = [f"# {STATES[code]}"]
+    links = [
+        link(label, record[key])
+        for label, key in (("Official results", "official_results_url"), ("Election office", "sos_url"))
+        if record.get(key)
+    ]
+    vendor = record.get("results_vendor")
+    if vendor and "results_vendor" not in unverified:
+        links.append(f"Results via {vendor}")
+    if links:
+        header.append("-# " + " · ".join(links))
+
+    if record.get("polls_close_local"):
+        timezone = " / ".join(dict.fromkeys(timezone_names(zone) for zone in zones))
+        header.append(f"-# Polls close {record['polls_close_local']} {timezone}".rstrip())
+    if record.get("polls_close_note"):
+        header.append(f"-# {clean(record['polls_close_note'])}")
+
+    body = [""]
+    for label, key in STATE_FIELDS:
+        if record.get(key) in (None, ""):
+            continue
+        value = ranked_choice(record[key]) if key == "ranked_choice" else clean(record[key])
+        flag = " *(unverified)*" if key in unverified else ""
+        body.append(f"**{label}:**{flag} {value}")
+    shown_keys = {key for _, key in STATE_FIELDS} | HEADER_KEYS
+    for key, value in record.items():
+        if key not in shown_keys and value not in (None, ""):
+            body.append(f"**{key.replace('_', ' ').capitalize()}:** {clean(value)}")
+
+    notes = ["", f"> {clean(record['notes'])}"] if record.get("notes") else []
+    sources = sources_line(record.get("sources"))
+    sources = [sources] if sources else []
+
+    return fit(
+        header + body + notes + sources,
+        header + body + notes,  # drop sources first
+        header + body,  # then the notes
+    )
+
+
+def fit(*candidates: list[str]) -> str:
+    """First candidate that fits in one message; otherwise the last, clipped on a line."""
     for lines in candidates:
-        if len("\n".join(lines)) <= FAQ_LIMIT:
-            return "\n".join(lines)
-    return _clip_lines(candidates[-1], FAQ_LIMIT)
+        text = "\n".join(lines)
+        if len(text) <= FAQ_LIMIT:
+            return text
+    return _clip_lines(candidates[-1], FAQ_LIMIT - 30, marker="-# … (trimmed to fit)")
 
 
-def _outlet_names(outlets) -> dict:
-    return {code: record.get("name", code) if isinstance(record, dict) else record for code, record in outlets.items()}
+def outlet_lines(outlets, with_notes: bool) -> list[str]:
+    lines = ["", "## Decision desks & outlets"]
+    for code, record in outlets.items():
+        if not isinstance(record, dict):
+            lines.append(f"**{code}** · {record}")
+            continue
+        parts = [f"**{code}**", link(record.get("name", code), record["results_url"])]
+        if record.get("exit_poll_url"):
+            parts.append(link("voter survey", record["exit_poll_url"]))
+        lines.append(" · ".join(parts))
+        if with_notes and record.get("notes"):
+            lines.append(f"-# {clean(record['notes'])}")
+    return lines
 
 
 def faq_text(states, outlets, state: str | None = None) -> str:
-    """Serialize installed FAQ data deterministically, without a model or paraphrasing.
-
-    The result is valid YAML (it is shown in a ```yaml block): outlet details are shortened
-    to fit one message rather than being cut off in the middle of a record.
-    """
-    state_data = states
+    """Render installed FAQ data as a Discord message (markdown, one message)."""
     if state is None:
-        # All 51 states never fit in one message: point at what is installed instead of
-        # dumping a truncated YAML blob.
         codes = (
             sorted(states)
             if isinstance(states, dict)
             else sorted({getattr(entry, "state", "") for entry in states} - {""})
         )
         head = [
-            ("State FAQs: " + ", ".join(codes)) if codes else "# No state FAQ data installed.",
-            "# Use /faq state:<code> for one state.",
+            "# State FAQs",
+            "-# Use `/faq state:<code>` for one state.",
+            " · ".join(f"`{state_code}`" for state_code in codes) if codes else "No state FAQ data installed.",
         ]
         if not outlets:
-            return _first_fit(head)
-        brief = {
-            code: (
-                {field_name: value for field_name, value in record.items() if field_name != "notes"}
-                if isinstance(record, dict)
-                else record
-            )
-            for code, record in outlets.items()
-        }
-        return _first_fit(head + _yaml_lines({"Outlets": outlets}), head + _yaml_lines({"Outlets": brief}))
+            return fit(head)
+        return fit(head + outlet_lines(outlets, True), head + outlet_lines(outlets, False))
+
     code = state.strip().upper()
     if code in TERRITORIES:
-        return f"# No FAQ data for {TERRITORIES[code]}: territories are not covered yet."
+        return f"# {TERRITORIES[code]}\nNo FAQ data for {TERRITORIES[code]}: territories are not covered yet."
     if code not in STATES:
         raise ValueError("unknown state")
-    if isinstance(states, dict):
-        state_data = states.get(code) or states.get(STATES[code])
-        if state_data is None:
-            return _clip_lines(
-                [f"No FAQ data for {STATES[code]}", ""] + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
-            )
-        body = _yaml_lines({code: state_data})
-    else:
-        body = _yaml_lines({"states": [entry for entry in states if getattr(entry, "state", None) == code]})
-    # Every state record plus all ten outlet records never fits: fall back to outlet names,
-    # then to a pointer at /faq without a state, which lists the outlet details.
-    return _first_fit(
-        body + _yaml_lines({"outlets": outlets}),
-        body + _yaml_lines({"outlets": _outlet_names(outlets)}),
-        body + ["# Outlet details: /faq without a state."],
+
+    record = (
+        states.get(code)
+        if isinstance(states, dict)
+        else next((to_doc(entry) for entry in states if getattr(entry, "state", None) == code), None)
     )
+    if not record:
+        return f"# {STATES[code]}\nNo FAQ data for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
+    return state_message(code, record)

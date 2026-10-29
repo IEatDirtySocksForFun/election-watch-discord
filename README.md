@@ -45,9 +45,11 @@ Source: tx_sos · Nov 04 03:41 UTC
   picker, favorites, and Odds and Polls buttons on every race. Only you see it.
 - **Voting FAQ** for all 50 states + DC: when polls close, what gets counted first, mail
   deadlines, recount rules and typical call times, each with official sources.
-- **Polite to its sources.** No command ever calls a data source. A background refresh stores
-  everything in MongoDB, and each site gets at most half of its published rate limit, so spamming
-  a command can't make the bot hammer anyone.
+- **Polite to its sources.** A background refresh stores everything in MongoDB, and each site
+  gets at most half of its published rate limit, so spamming a command can't make the bot hammer
+  anyone. By default commands only read the database. If you'd rather they fetch fresh numbers,
+  set `EW_COMMAND_DATA=live`: commands then go to the source when what's stored is over a minute
+  old, within the same limits ([details](docs/customizing.md#database-or-live-commands)).
 
 ## Get it running
 

@@ -25,6 +25,8 @@ def validate_env(environ: Mapping[str, str]) -> list[str]:
             int(environ["DEV_GUILD_ID"])
         except ValueError:
             errors.append("DEV_GUILD_ID")
+    if environ.get("EW_COMMAND_DATA", "").strip().lower() not in ("", "db", "live"):
+        errors.append("EW_COMMAND_DATA")
     return errors
 
 
