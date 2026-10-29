@@ -91,7 +91,7 @@ def test_favorites_navigation_and_faq_are_pure_data_operations():
     assert us.home_state == "NC" and us.default_level == "congressional"
     text = faq_text({"TX": {"voting": "Bring ID"}}, {"AP": "Associated Press"}, "TX")
     assert "Bring ID" in text
-    assert faq_text({}, {}, "TX").startswith("No FAQ data for Texas")
+    assert "No FAQ data for Texas" in faq_text({}, {}, "TX")
 
 
 def test_faq_without_a_state_lists_available_states_and_fits_one_message():

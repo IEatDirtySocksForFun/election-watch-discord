@@ -444,7 +444,5 @@ def faq_text(states, outlets, state: str | None = None) -> str:
         else next((to_doc(entry) for entry in states if getattr(entry, "state", None) == code), None)
     )
     if not record:
-        return (
-            f"# {STATES[code]}\nNo FAQ data installed for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
-        )
+        return f"# {STATES[code]}\nNo FAQ data for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
     return state_message(code, record)
