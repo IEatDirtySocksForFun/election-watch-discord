@@ -103,18 +103,17 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 
 ## Links
 
-164 links checked; 8 broken.
+171 links checked; 7 broken.
 
-| Link                                                                       | Found in                       |
-| -------------------------------------------------------------------------- | ------------------------------ |
-| <https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json>     | docs/sources-results.md        |
-| <https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export->      | docs/sources-results.md        |
-| <https://enr.elections.virginia.gov/results/public/api/elections/virginia> | docs/results/states-1.md       |
-| <https://enr.indianavoters.in.gov/archive/2024General/data/>               | docs/results/states-2.md       |
-| <https://er.ncsbe.gov/enr/>                                                | docs/sources-results.md        |
-| <https://results.sos.ga.gov/cdn/results/Georgia/export->                   | docs/sources-results.md        |
-| <https://www.cbsnews.com/elections/>                                       | electionwatch/faq/outlets.yaml |
-| <https://www.elections.ny.gov/electionresults.html>                        | electionwatch/faq/states.yaml  |
+| Link                                                                       | Found in                                       |
+| -------------------------------------------------------------------------- | ---------------------------------------------- |
+| <https://app.enhancedvoting.com/cdn/results/AZ/export-2026NovGen.json>     | docs/source-status.md, docs/sources-results.md |
+| <https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export->      | docs/source-status.md                          |
+| <https://enr.elections.virginia.gov/results/public/api/elections/virginia> | docs/source-status.md                          |
+| <https://enr.indianavoters.in.gov/archive/2024General/data/>               | docs/source-status.md                          |
+| <https://er.ncsbe.gov/enr/>                                                | docs/source-status.md                          |
+| <https://results.sos.ga.gov/cdn/results/Georgia/export->                   | docs/source-status.md                          |
+| <https://www.cbsnews.com/elections/>                                       | docs/source-status.md                          |
 
 ---
 
