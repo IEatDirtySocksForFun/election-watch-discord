@@ -14,6 +14,7 @@ from datetime import date, datetime, timezone
 
 import discord
 
+from electionwatch.bot import emoji
 from electionwatch.bot.poster import (
     MAX_DESCRIPTION,
     MAX_EMBED_TOTAL,
@@ -106,19 +107,19 @@ def _party_lines(parties: dict[str, int], whole: int) -> list[str]:
     ordered = sorted(
         parties.items(), key=lambda party_votes: (_PARTY_ORDER.get(party_votes[0], 2), -party_votes[1], party_votes[0])
     )
-    return [f"{party}: {_n(votes)} ({_pct(votes, whole)})" for party, votes in ordered]
+    return [f"{emoji.party(party)} {party}: {_n(votes)} ({_pct(votes, whole)})" for party, votes in ordered]
 
 
 def _party_split(parties: dict[str, int], whole: int) -> str:
-    """'Dem 42% · Rep 31% · other 27%' for one county; '' without party data."""
+    """'🔵 Dem 42% · 🔴 Rep 31% · ⚪ other 27%' for one county; '' without party data."""
     if not parties or not whole:
         return ""
     short = {"Democratic": "Dem", "Republican": "Rep"}
-    shown = [f"{short[party]} {votes / whole:.0%}" for party, votes in parties.items() if party in short]
+    shown = [f"{emoji.party(party)} {short[party]} {parties[party] / whole:.0%}" for party in short if party in parties]
     others = whole - sum(votes for party, votes in parties.items() if party in short)
     if others > 0 and shown:
-        shown.append(f"other {others / whole:.0%}")
-    return " · ".join(sorted(shown, key=lambda part: {"Dem": 0, "Rep": 1}.get(part[:3], 2)))
+        shown.append(f"{emoji.OTHER} other {others / whole:.0%}")
+    return " · ".join(shown)
 
 
 def _county_key(name: str) -> str:
@@ -163,13 +164,13 @@ def county_choices(ev: EarlyVote | None, current: str) -> list[tuple[str, str]]:
 def format_county(ev: EarlyVote, county: str) -> discord.Embed:
     """One county's early vote: ballots, mail / in person and party registration."""
     total = ev.counties.get(county, 0)
-    embed = _embed(f"Early vote · {county}, {ev.name}", ev.url, ev.updated_at)
-    lines = [f"**{_n(total)}** early ballots cast (mail returned + in person)"]
+    embed = _embed(f"{emoji.EARLY_VOTE} Early vote · {county}, {ev.name}", ev.url, ev.updated_at)
+    lines = [f"{emoji.BALLOTS} **{_n(total)}** early ballots cast (mail returned + in person)"]
     if ev.total_ballots:
         lines[0] += f", {_pct(total, ev.total_ballots)} of {ev.name}'s"
     methods = ev.county_methods.get(county, {})
     cast = [
-        f"{label}: {_n(methods[category])}"
+        f"{emoji.METHODS[category]} {label}: {_n(methods[category])}"
         for category, label in (("returned", "Mail"), ("inperson", "In person"), ("grace", "Grace period"))
         if category in methods
     ]
@@ -178,14 +179,20 @@ def format_county(ev: EarlyVote, county: str) -> discord.Embed:
     if ev.counties:
         rank = list(ev.counties).index(county) + 1 if county in ev.counties else None
         if rank:
-            lines.append(f"#{rank} of {len(ev.counties)} counties by ballots cast")
+            lines.append(f"🏅 #{rank} of {len(ev.counties)} counties by ballots cast")
     embed.description = _fit(lines, MAX_DESCRIPTION)
     parties = ev.county_parties.get(county, {})
     if parties:
-        _add_field(embed, "By party registration", _party_lines(parties, total))
+        _add_field(embed, f"{emoji.PARTY} By party registration", _party_lines(parties, total))
     else:
-        _add_field(embed, "By party registration", [f"civicAPI has no party breakdown for {ev.name}."])
+        _add_field(embed, f"{emoji.PARTY} By party registration", [f"civicAPI has no party breakdown for {ev.name}."])
     return _guard_total(embed)
+
+
+def _category(category: str) -> str:
+    """'📬 Mail ballots returned': a ballot category's heading with its icon."""
+    icon = emoji.METHODS.get(category)
+    return f"{icon} {CATEGORY_LABELS[category]}" if icon else CATEGORY_LABELS[category]
 
 
 def _footer(updated: date | None) -> str:
@@ -221,9 +228,9 @@ def _add_field(embed: discord.Embed, name: str, lines: list[str]) -> None:
 
 def _summary_lines(ev: EarlyVote) -> list[str]:
     method = ev.by_method
-    lines = [f"**{_n(ev.total_ballots)}** early ballots cast (mail returned + in person)"]
+    lines = [f"{emoji.BALLOTS} **{_n(ev.total_ballots)}** early ballots cast (mail returned + in person)"]
     cast = [
-        f"{label}: {_n(method[category])}"
+        f"{emoji.METHODS[category]} {label}: {_n(method[category])}"
         for category, label in (("returned", "Mail"), ("inperson", "In person"))
         if category in method
     ]
@@ -231,22 +238,25 @@ def _summary_lines(ev: EarlyVote) -> list[str]:
         lines.append(" · ".join(cast))
     if "requested" in method:
         rate = f" ({_pct(method.get('returned', 0), method['requested'])} returned)" if "returned" in method else ""
-        lines.append(f"Mail ballots requested: {_n(method['requested'])}{rate}")
+        lines.append(f"{emoji.METHODS['requested']} Mail ballots requested: {_n(method['requested'])}{rate}")
     if "grace" in method:
-        lines.append(f"Grace-period votes (not in the total): {_n(method['grace'])}")
+        lines.append(f"{emoji.METHODS['grace']} Grace-period votes (not in the total): {_n(method['grace'])}")
     parties = ev.by_party
     if parties:
         shares = " · ".join(
-            f"{party} {_pct(votes, ev.total_ballots)}"
+            f"{emoji.party(party)} {party} {_pct(votes, ev.total_ballots)}"
             for party, votes in sorted(
                 parties.items(), key=lambda party_votes: (_PARTY_ORDER.get(party_votes[0], 2), -party_votes[1])
             )
         )
-        lines.append(f"By party registration: {shares}")
+        lines.append(f"{emoji.PARTY} By party registration: {shares}")
     if ev.comparison:
         comparison = ev.comparison
         change = f" (now {(ev.total_ballots - comparison.total) / comparison.total:+.1%})" if comparison.total else ""
-        lines.append(f"Same point in {comparison.year} ({comparison.on.isoformat()}): {_n(comparison.total)}{change}")
+        lines.append(
+            f"{emoji.COMPARE} Same point in {comparison.year} ({comparison.on.isoformat()}): "
+            f"{_n(comparison.total)}{change}"
+        )
         if comparison.labels:
             # Past years can count differently (NC 2022 "returned" includes one-stop voting).
             lines.append(clip(f"{comparison.year} counts: " + "; ".join(comparison.labels), 300))
@@ -254,23 +264,25 @@ def _summary_lines(ev: EarlyVote) -> list[str]:
 
 
 def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
-    title = f"Early vote · {ev.name}"
+    title = f"{emoji.EARLY_VOTE} Early vote · {ev.name}"
     if breakdown:
         title += f" · by {breakdown}"
     embed = _embed(title, ev.url, ev.updated_at)
     embed.description = _fit(_summary_lines(ev), MAX_DESCRIPTION)
     if breakdown == "party":
         if not ev.by_party:
-            _add_field(embed, "By party", [f"civicAPI has no party breakdown for {ev.name}."])
+            _add_field(embed, f"{emoji.PARTY} By party", [f"civicAPI has no party breakdown for {ev.name}."])
         for category in ("returned", "inperson"):
             tally = ev.tallies.get(category)
             if tally and tally.by_party:
-                _add_field(embed, CATEGORY_LABELS[category], _party_lines(tally.by_party, tally.total))
+                _add_field(embed, _category(category), _party_lines(tally.by_party, tally.total))
         if ev.by_party and sum(category in ev.tallies for category in ("returned", "inperson")) > 1:
-            _add_field(embed, "All ballots cast", _party_lines(ev.by_party, ev.total_ballots))
+            _add_field(embed, f"{emoji.BALLOTS} All ballots cast", _party_lines(ev.by_party, ev.total_ballots))
         if ev.comparison and ev.comparison.by_party:
             _add_field(
-                embed, f"Same point in {ev.comparison.year}", _party_lines(ev.comparison.by_party, ev.comparison.total)
+                embed,
+                f"{emoji.COMPARE} Same point in {ev.comparison.year}",
+                _party_lines(ev.comparison.by_party, ev.comparison.total),
             )
     elif breakdown == "method":
         for category, total in ev.by_method.items():
@@ -279,7 +291,7 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
                 lines[0] += f" ({_pct(total, ev.total_ballots)} of ballots cast)"
             if category == "returned" and "requested" in ev.tallies:
                 lines.append(f"{_pct(total, ev.tallies['requested'].total)} of requested mail ballots")
-            _add_field(embed, CATEGORY_LABELS[category], lines)
+            _add_field(embed, _category(category), lines)
     elif breakdown == "age":
         if ev.age:
             whole = sum(ev.age.values())
@@ -288,9 +300,9 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
                 f"{label.removeprefix('Age ').strip()}: {_n(ballots)} ({_pct(ballots, whole)})"
                 for label, ballots in ev.age.items()
             ]
-            _add_field(embed, f"By age ({covered})", lines)
+            _add_field(embed, f"{emoji.AGE} By age ({covered})", lines)
         else:
-            _add_field(embed, "By age", [f"civicAPI has no age breakdown of ballots cast in {ev.name}."])
+            _add_field(embed, f"{emoji.AGE} By age", [f"civicAPI has no age breakdown of ballots cast in {ev.name}."])
     elif breakdown == "county":
         if ev.counties:
             reporting = sum(1 for count in ev.counties.values() if count)
@@ -302,13 +314,13 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
                 lines.append(f"{line} · {split}" if split else line)
             # A field holds 1024 characters: with the party split, 25 counties need two.
             half = (len(lines) + 1) // 2 if len(lines) > 12 else len(lines)
-            name = f"Top counties ({reporting} of {len(ev.counties)} reporting)"
+            name = f"{emoji.COUNTY} Top counties ({reporting} of {len(ev.counties)} reporting)"
             _add_field(embed, name, lines[:half])
             if lines[half:]:
                 _add_field(embed, "\u200b", lines[half:])  # no heading on the second half
-            _add_field(embed, "One county", ["Add `county:` to /earlyvote for a county's own numbers."])
+            _add_field(embed, f"{emoji.SEARCH} One county", ["Add `county:` to /earlyvote for a county's own numbers."])
         else:
-            _add_field(embed, "By county", ["civicAPI lists no county numbers for this state."])
+            _add_field(embed, f"{emoji.COUNTY} By county", ["civicAPI lists no county numbers for this state."])
     return _guard_total(embed)
 
 
@@ -316,12 +328,15 @@ def format_overview(national: National, states: list[str] | None = None, title: 
     """One line per state, most ballots first. ``states`` limits it (the daily post)."""
     codes = [code for code in (states if states is not None else national.states) if code in national.states]
     codes.sort(key=lambda code: (-national.total(code), code))
-    embed = _embed(title or "Early vote · United States", page_url(), national.updated_at)
+    embed = _embed(title or f"{emoji.EARLY_VOTE} Early vote · United States", page_url(), national.updated_at)
     if not codes:
         embed.description = "civicAPI has no early-vote data for these states yet."
         return embed
     grand = sum(national.total(code) for code in codes)
-    header = f"**{_n(grand)}** early ballots cast in {len(codes)} state{'s' if len(codes) != 1 else ''} with data"
+    header = (
+        f"{emoji.BALLOTS} **{_n(grand)}** early ballots cast in {len(codes)} "
+        f"state{'s' if len(codes) != 1 else ''} with data"
+    )
     lines = []
     for code in codes:
         tallies = national.states[code]
@@ -358,7 +373,9 @@ def _guard_total(embed: discord.Embed) -> discord.Embed:
 
 def unavailable_embed(state: str | None = None) -> discord.Embed:
     embed = _embed(
-        f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}", page_url(state), None
+        f"{emoji.EARLY_VOTE} Early vote · {STATES.get(state, 'United States') if state else 'United States'}",
+        page_url(state),
+        None,
     )
     embed.description = "civicAPI's early-vote data could not be reached. Try again in a few minutes."
     return embed
@@ -382,7 +399,9 @@ async def early_vote_embed(
         ev = await client.state(state, counties=breakdown == "county" or bool(county), age=breakdown == "age")
     except NotCached:
         embed = _embed(
-            f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}", page_url(state), None
+            f"{emoji.EARLY_VOTE} Early vote · {STATES.get(state, 'United States') if state else 'United States'}",
+            page_url(state),
+            None,
         )
         embed.description = (
             "Early-vote numbers are still being loaded by the background refresh "
@@ -394,7 +413,7 @@ async def early_vote_embed(
         logger.warning("civicAPI early-vote unavailable", exc_info=True)
         return unavailable_embed(state)
     if ev is None:
-        embed = _embed(f"Early vote · {STATES.get(state, state)}", page_url(), None)
+        embed = _embed(f"{emoji.EARLY_VOTE} Early vote · {STATES.get(state, state)}", page_url(), None)
         embed.description = (
             f"civicAPI has no early-vote data for {STATES.get(state, state)}. "
             "Some states do not publish early-vote counts."

@@ -9,6 +9,7 @@ import logging
 
 import discord
 
+from electionwatch.bot import emoji
 from electionwatch.bot.logic import NAV_TABS, filter_races, remember_navigation
 from electionwatch.bot.poster import render_embed
 from electionwatch.poller import format_result
@@ -22,8 +23,9 @@ _TAB_LABELS = {
     "senate": "Senate",
     "state": "State",
     "local": "Local",
-    "favorites": "★ Favorites",
+    "favorites": "Favorites",
 }
+_TOOL_EMOJI = {"odds": emoji.ODDS, "polls": emoji.POLLS}
 RACE_PAGE = 23  # race-select options per page when two are taken by previous/next
 LOADING = (
     "{state}'s race list is still loading: race lists are fetched in the background and "
@@ -114,6 +116,7 @@ class RaceNavigator(discord.ui.View):
         for level, label in _TAB_LABELS.items():
             button = discord.ui.Button(
                 label=label,
+                emoji=emoji.LEVELS[level],
                 style=discord.ButtonStyle.primary if level == self.level else discord.ButtonStyle.secondary,
                 row=0,
             )
@@ -136,10 +139,12 @@ class RaceNavigator(discord.ui.View):
         visible = self._visible()
         if self.selected_race:
             for label in ("Odds", "Polls"):
-                button = discord.ui.Button(label=label, style=discord.ButtonStyle.secondary, row=4)
+                button = discord.ui.Button(
+                    label=label, emoji=_TOOL_EMOJI[label.casefold()], style=discord.ButtonStyle.secondary, row=4
+                )
                 button.callback = self._race_tool_callback(label.casefold())
                 self.add_item(button)
-            button = discord.ui.Button(label="Choose race", style=discord.ButtonStyle.secondary, row=4)
+            button = discord.ui.Button(label="Choose race", emoji="↩️", style=discord.ButtonStyle.secondary, row=4)
             button.callback = self._choose_race_callback
             self.add_item(button)
         elif visible:
@@ -248,14 +253,14 @@ class RaceNavigator(discord.ui.View):
             if race_result:
                 return render_embed(format_result(race_result))
         if self.level == "favorites":
-            title = _TAB_LABELS["favorites"]
+            title = f"{emoji.FAVORITES} {_TAB_LABELS['favorites']}"
             description = (
                 "No current result is available. Choose a favorite race."
                 if self.settings.favorites
                 else "No favorites yet: add one with /favorite add."
             )
         else:
-            title = f"{ALL_JURISDICTIONS[self.state]} · {_TAB_LABELS[self.level]}"
+            title = f"{emoji.LEVELS[self.level]} {ALL_JURISDICTIONS[self.state]} · {_TAB_LABELS[self.level]}"
             description = "No current result is available. Choose a state, tab, and race."
             if self.loading:
                 description += "\n\n" + LOADING.format(state=ALL_JURISDICTIONS[self.state])

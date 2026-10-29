@@ -205,7 +205,7 @@ async def test_odds_overview_defaults_to_races_yaml(where):
         await store.save_guild(GuildSettings(1, important=[]))
     client = make_client(store, {"odds": [Odds()]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, guild_id=guild_id))
-    assert embed.title == "Watched race odds"
+    assert embed.title == "🎲 Watched race odds"
     assert "**TX SEN**" in embed.description and "Kalshi" in embed.description
 
 
@@ -278,8 +278,8 @@ async def test_odds_single_race_in_every_key_format(text):
     key = parse(text)
     client = make_client(Store(), {"odds": [Odds()]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race=text))
-    assert embed.title == f"Odds · {describe(key)}"
-    assert [embed_field.name for embed_field in embed.fields] == ["Kalshi", "Polymarket"]
+    assert embed.title == f"🎲 Odds · {describe(key)}"
+    assert [embed_field.name for embed_field in embed.fields] == ["📈 Kalshi", "🔮 Polymarket"]
 
 
 @pytest.mark.parametrize(
@@ -306,9 +306,9 @@ async def test_odds_invalid_key_is_one_ephemeral_error(text):
     "markets,expected",
     [
         ((), None),
-        (("kalshi",), ["Kalshi"]),
-        (("polymarket",), ["Polymarket"]),
-        (("polymarket", "kalshi"), ["Kalshi", "Polymarket"]),
+        (("kalshi",), ["📈 Kalshi"]),
+        (("polymarket",), ["🔮 Polymarket"]),
+        (("polymarket", "kalshi"), ["📈 Kalshi", "🔮 Polymarket"]),
     ],
 )
 async def test_odds_market_combinations(markets, expected):
@@ -320,7 +320,7 @@ async def test_odds_market_combinations(markets, expected):
     else:
         assert [embed_field.name for embed_field in embed.fields] == expected
         assert "50.0%" in embed.fields[0].value
-        assert embed.footer.text == "Last update: 2026-10-27 12:00 UTC"
+        assert embed.footer.text == "🕒 Last update: 2026-10-27 12:00 UTC"
 
 
 @pytest.mark.parametrize(
@@ -346,8 +346,8 @@ async def test_odds_moves_1h_and_24h():
     current = [OddsSnapshot(TX_SEN, "kalshi", "REP", 0.55, NOW, url="https://k.example")]
     client = make_client(store, {"odds": [Odds(per_key=current)]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
-    assert "1h +3.0 pts" in embed.fields[0].value
-    assert "24h +15.0 pts" in embed.fields[0].value
+    assert "1h ▲ +3.0 pts" in embed.fields[0].value
+    assert "24h ▲ +15.0 pts" in embed.fields[0].value
 
 
 async def test_stale_stored_odds_are_shown_when_the_live_source_fails():
@@ -357,7 +357,7 @@ async def test_stale_stored_odds_are_shown_when_the_live_source_fails():
     client = make_client(store, {"odds": [Odds(error=httpx.ConnectError("down"))]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
     assert "31.0%" in embed.fields[0].value
-    assert embed.footer.text == f"Last update: {old:%Y-%m-%d %H:%M} UTC"
+    assert embed.footer.text == f"🕒 Last update: {old:%Y-%m-%d %H:%M} UTC"
 
 
 async def test_stale_stored_odds_are_replaced_by_live_odds():
@@ -398,7 +398,7 @@ async def test_polls_internals_filter(internals):
     client = make_client(Store(), {"polls": [Polls(polls)]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", internals=internals))
     names = [embed_field.name for embed_field in embed.fields]
-    assert ("Campaign INTERNAL (R)" in names) is internals
+    assert ("Campaign · ⚠️ INTERNAL (R)" in names) is internals
     assert "Public" in names
     assert ("included" if internals else "excluded") in embed.description
 
@@ -467,7 +467,7 @@ async def test_polls_with_missing_optional_fields():
     client = make_client(Store(), {"polls": [Polls([bare])]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN"))
     value = embed.fields[0].value
-    assert value.startswith("Oct 26, 2026") and "No candidate results supplied" in value
+    assert value.startswith("📅 Oct 26, 2026") and "No candidate results supplied" in value
     assert "Poll link" not in value
 
 

@@ -82,7 +82,7 @@ async def test_overview_lists_every_state_with_data(client, guild_id):
     interaction = FakeInteraction(client, guild_id=guild_id)
     await early_vote_command.callback(interaction)
     embed = _embed(interaction)
-    assert embed.title == "Early vote · United States"
+    assert embed.title == "📬 Early vote · United States"
     assert embed.url == "https://civicapi.org/early-vote"
     assert embed.footer.text == "Early vote: civicAPI · updated 2026-10-27"
     assert embed.description.index("**TX**") < embed.description.index("**NC**")  # most ballots first
@@ -95,17 +95,22 @@ async def test_state_in_any_spelling_and_every_breakdown(client, state, breakdow
     interaction = FakeInteraction(client)
     await early_vote_command.callback(interaction, state, breakdown)
     embed = _embed(interaction)
-    assert embed.title.startswith("Early vote · North Carolina")
+    assert embed.title.startswith("📬 Early vote · North Carolina")
     assert embed.url == "https://civicapi.org/early-vote/nc"
     assert "civicAPI" in embed.footer.text and "2026-10-27" in embed.footer.text
     assert "**1,773,889** early ballots cast" in embed.description
     assert "Same point in 2022 (2022-11-01): 1,296,034 (now +36.9%)" in embed.description
     expected = {
         None: [],
-        "party": ["Mail ballots returned", "In-person early votes", "All ballots cast", "Same point in 2022"],
-        "method": ["Mail ballots returned", "In-person early votes", "Mail ballots requested"],
-        "age": ["By age"],
-        "county": ["Top counties (6 of 6 reporting)", "One county"],
+        "party": [
+            "📬 Mail ballots returned",
+            "🏫 In-person early votes",
+            "🗳️ All ballots cast",
+            "📆 Same point in 2022",
+        ],
+        "method": ["📬 Mail ballots returned", "🏫 In-person early votes", "📨 Mail ballots requested"],
+        "age": ["👥 By age"],
+        "county": ["🗺️ Top counties (6 of 6 reporting)", "🔎 One county"],
     }[breakdown]
     assert [field.name for field in embed.fields] == expected
 

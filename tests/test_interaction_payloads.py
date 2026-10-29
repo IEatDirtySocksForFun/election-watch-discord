@@ -999,7 +999,7 @@ async def test_favorites_button_opens_the_favorites_tab(harness):
     sent = await harness.dispatch(menu_click("favorites", posted=True))
     assert_private_answer(sent)
     assert "Alice Example" in text_of(sent)  # the stored TX SEN result
-    assert button(sent[-1].payload, "★ Favorites")["style"] == discord.ButtonStyle.primary.value
+    assert button(sent[-1].payload, "Favorites")["style"] == discord.ButtonStyle.primary.value
 
 
 async def test_menu_post_replace_and_remove(harness):
