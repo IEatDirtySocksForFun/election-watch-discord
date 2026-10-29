@@ -579,7 +579,7 @@ CASES = [
     ("favorite-remove", "favorite", [opt("action", "remove"), opt("race", "TX SEN")], None, {}, "Removed favorite"),
     ("favorite-bad", "favorite", [opt("action", "add"), opt("race", "Narnia SEN")], None, {}, ""),
     ("faq-none", "faq", [], None, {}, "State FAQs"),
-    ("faq-tx", "faq", [opt("state", "TX")], None, {}, "```yaml"),
+    ("faq-tx", "faq", [opt("state", "TX")], None, {}, "# Texas"),
     ("faq-territory", "faq", [opt("state", "PR")], None, {}, ""),
     ("faq-bad", "faq", [opt("state", "ZZ")], None, {}, "unknown state"),
     ("earlyvote-overview", "earlyvote", [], None, {"dm": True}, "Early vote · United States"),
