@@ -109,6 +109,7 @@ from electionwatch.bot.discord import (
     exitpolls_command,
     favorite_command,
     handle_app_command_error,
+    menu_private_command,
     odds_alerts_command,
     pause_command,
     posting_command,
@@ -1335,6 +1336,7 @@ async def test_every_setting_round_trips_through_the_store(store):
         (odds_alerts_command, {"race": "NY LOCAL st.-george-mayor", "enabled": "on", "window": 1440}),
         (turnout_command, {"enabled": "off"}),
         (exitpolls_command, {"enabled": "off"}),
+        (menu_private_command, {"enabled": "off"}),
         (pause_command, {}),
     ]
     for command, kwargs in steps:
@@ -1360,6 +1362,7 @@ async def test_every_setting_round_trips_through_the_store(store):
         paused=True,
         odds_alert_categories={"state-senate": {"enabled": False}, "mayor": {"threshold": 2.5, "window": 15}},
         odds_alert_races={"NC-01": {"threshold": 7.5}, "NY LOCAL st.-george-mayor": {"enabled": True, "window": 1440}},
+        private_menu=False,
     )
     assert isinstance(gs.post_mode, PostMode)
     assert await store.all_guilds() == [gs]

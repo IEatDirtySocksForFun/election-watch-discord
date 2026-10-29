@@ -39,13 +39,14 @@ from electionwatch.bot.logic import (
     odds_alerts_text,
     settings_dump,
 )
+from electionwatch.bot.menu import PRIVATE_MENU_OFF, MenuView, menu_embed
 from electionwatch.bot.navigator import RaceNavigator, race_lists
 from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.demand import Demand
 from electionwatch.live import LiveFetch, command_mode
 from electionwatch.poller import Poller
-from electionwatch.racekeys import STATES, describe, parse, parse_typed
+from electionwatch.racekeys import STATES, RaceKey, describe, parse, parse_typed
 from electionwatch.racekeys import resolve_state as resolve_jurisdiction
 from electionwatch.racelists import KIND as RACELISTS
 from electionwatch.racelists import READ_TIMEOUT, RaceLists, typed_state
@@ -153,10 +154,17 @@ class ElectionBot(commands.Bot):
             early_vote_posts_command,
             refresh_command,
             limits_command,
+            menu_command,
+            menu_post_command,
+            menu_remove_command,
+            menu_private_command,
         ):
             self.tree.add_command(command)
 
     async def setup_hook(self) -> None:
+        # Buttons on menus posted before a restart: they have fixed custom_ids, so this one
+        # view answers all of them. Added before connecting, so no click arrives unhandled.
+        self.add_view(MenuView())
         dev_guild = os.environ.get("DEV_GUILD_ID")
         if dev_guild:
             guild = discord.Object(id=int(dev_guild))
@@ -409,21 +417,25 @@ async def _watched_keys(interaction: discord.Interaction):
 @app_commands.command(name="odds", description="Show current Kalshi and Polymarket probabilities")
 @app_commands.describe(race="Race to show; omit it for all watched races")
 async def odds_command(interaction: discord.Interaction, race: str | None = None) -> None:
+    key = None
     if race:
         try:
-            keys = [parse_typed(race)]
+            key = parse_typed(race)
         except ValueError as exc:
             await _error(interaction, exc)
             return
-    else:
-        keys = await _watched_keys(interaction)
     await interaction.response.defer(ephemeral=True)
-    if not await _cooldown(interaction, "odds", str(keys[0]) if race else "watched", "odds"):
+    await show_odds(interaction, key)
+
+
+async def show_odds(interaction: discord.Interaction, key: RaceKey | None) -> None:
+    """/odds and the menu's Odds picker, after defer(): one race, or None for the watched races."""
+    if not await _cooldown(interaction, "odds", str(key) if key else "watched", "odds"):
         return
-    if race:
-        embed = await interaction.client.command_data.odds_embed(keys[0])
+    if key:
+        embed = await interaction.client.command_data.odds_embed(key)
     else:
-        embed = await interaction.client.command_data.odds_overview(keys)
+        embed = await interaction.client.command_data.odds_overview(await _watched_keys(interaction))
     await interaction.followup.send(embed=embed, ephemeral=True)
 
 
@@ -445,6 +457,11 @@ async def polls_command(
         await _error(interaction, exc)
         return
     await interaction.response.defer(ephemeral=True)
+    await show_polls(interaction, key, count, internals)
+
+
+async def show_polls(interaction: discord.Interaction, key: RaceKey, count: int = 5, internals: bool = True) -> None:
+    """/polls and the menu's Polls picker, after defer()."""
     # One cooldown per race: other counts or filters show the same stored polls.
     if not await _cooldown(interaction, "polls", str(key), "polls"):
         return
@@ -498,6 +515,13 @@ async def early_vote_command(
             await _error(interaction, exc)
             return
     await interaction.response.defer(ephemeral=True)
+    await show_early_vote(interaction, code, breakdown, county)
+
+
+async def show_early_vote(
+    interaction: discord.Interaction, code: str | None, breakdown: str | None = None, county: str | None = None
+) -> None:
+    """/earlyvote and the menu's Early vote picker, after defer(); None = every state."""
     # One cooldown per state: every breakdown comes from the same stored pages.
     if not await _cooldown(interaction, "earlyvote", code or "US", "earlyvote"):
         return
@@ -634,9 +658,15 @@ async def limits_command(
         await bot.store.save_guild(gs)
         await interaction.response.send_message(message, ephemeral=True)
         return
+    await interaction.response.send_message(limits_message(bot, gs), ephemeral=True)
+
+
+def limits_message(bot, gs: GuildSettings) -> str:
+    """/limits without options, and the menu's Limits button."""
     live = getattr(bot, "live", None)
-    text = clip(limits_text(gs, bot.rates, bot.cooldowns, live.max_age if live is not None else None), MAX_MESSAGE - 8)
-    await interaction.response.send_message(f"```\n{text}\n```", ephemeral=True)
+    max_age = live.max_age if live is not None else None
+    text = clip(limits_text(gs, getattr(bot, "rates", None), getattr(bot, "cooldowns", None), max_age), MAX_MESSAGE - 8)
+    return f"```\n{text}\n```"
 
 
 @app_commands.command(name="pause", description="Pause all election posts")
@@ -664,13 +694,24 @@ async def settings_command(interaction: discord.Interaction) -> None:
     gs = await _guild(interaction)
     if gs is None:
         return
-    await interaction.response.send_message(f"```yaml\n{settings_dump(gs)}\n```", ephemeral=True)
+    await interaction.response.send_message(settings_message(gs), ephemeral=True)
+
+
+def settings_message(gs: GuildSettings) -> str:
+    """/settings, and the menu's Settings button."""
+    return f"```yaml\n{settings_dump(gs)}\n```"
 
 
 @app_commands.command(name="races", description="Browse current race results")
 async def races_command(interaction: discord.Interaction) -> None:
     # Several database reads before the reply: defer so the 3 s deadline cannot expire.
     await interaction.response.defer(ephemeral=True)
+    await show_races(interaction)
+
+
+async def show_races(interaction: discord.Interaction, level: str | None = None) -> None:
+    """The race navigator, after defer(): /races and the menu's Races and Favorites buttons.
+    ``level`` opens on that tab instead of the user's last one."""
     settings = await _user(interaction)
     watched = None  # outside a server, or a server without its own list: the default races
     if interaction.guild_id is not None:
@@ -682,6 +723,8 @@ async def races_command(interaction: discord.Interaction) -> None:
         if gs and gs.important:
             watched = list(gs.important)
     view = RaceNavigator(interaction.client, interaction.user.id, settings, watched)
+    if level:
+        view.level = level
     await view.refresh()
     await interaction.followup.send(embed=await view.embed(), view=view, ephemeral=True)
 
@@ -701,32 +744,126 @@ async def favorite_command(interaction: discord.Interaction, action: Literal["ad
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
 @app_commands.describe(state="State code, name or abbreviation: NC, North Carolina, N.C., Penn.")
 async def faq_command(interaction: discord.Interaction, state: str | None = None) -> None:
+    await interaction.response.send_message(faq_message(state), ephemeral=True)
+
+
+def faq_message(state: str | None = None) -> str:
+    """/faq, and the menu's FAQ picker: the reply text, or what went wrong."""
     try:
         from electionwatch.faq.loader import FAQDataError, load_outlets, load_states
     except ImportError:
-        await interaction.response.send_message("FAQ data not installed", ephemeral=True)
-        return
+        return "FAQ data not installed"
     try:
         states, outlets = load_states(), load_outlets()
     except FAQDataError:
         # The loader's message names the server's file path: log it, don't show it.
         logger.exception("Could not load the FAQ data")
-        await interaction.response.send_message("FAQ data not installed", ephemeral=True)
-        return
+        return "FAQ data not installed"
     try:
         if state is not None and state.strip():
             # "Pennsylvania", "Penn.", "pa" and "pensylvania" all mean PA (territories answer too).
             state = resolve_jurisdiction(state)
         text = faq_text(states, outlets, state)
     except ValueError as exc:
-        await _error(interaction, exc)
-        return
-    await interaction.response.send_message(text, ephemeral=True)
+        # Parse errors quote the user's input, which may be up to 6000 characters long.
+        return clip(str(exc), MAX_MESSAGE)
+    return text
 
 
 @faq_command.autocomplete("state")
 async def faq_state_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [app_commands.Choice(name=name, value=code) for name, code in state_choices(list(STATES), current)]
+
+
+@app_commands.command(name="menu", description="Buttons for races, odds, polls and more, so you don't have to type")
+async def menu_command(interaction: discord.Interaction) -> None:
+    if interaction.guild_id is not None:
+        gs = await interaction.client.store.get_guild(interaction.guild_id)
+        # Admins keep it when it's off for everyone else: they may want to see what it shows.
+        if gs and not gs.private_menu and not is_admin(interaction.user, gs):
+            await interaction.response.send_message(PRIVATE_MENU_OFF, ephemeral=True)
+            return
+    await interaction.response.send_message(embed=menu_embed(), view=MenuView(), ephemeral=True)
+
+
+@app_commands.command(name="menu_post", description="Post the button menu in a channel (replaces the old one)")
+@app_commands.describe(channel="Channel for the menu (default: this one)")
+async def menu_post_command(interaction: discord.Interaction, channel: discord.TextChannel | None = None) -> None:
+    gs = await _guild(interaction, admin=True)
+    if gs is None:
+        return
+    target = channel or interaction.channel
+    if not hasattr(target, "send"):
+        await interaction.response.send_message("Pick a text channel for the menu.", ephemeral=True)
+        return
+    await interaction.response.defer(ephemeral=True)
+    try:
+        # A fresh view each time: discord.py ties the view it sends to that one message.
+        message = await target.send(embed=menu_embed(), view=MenuView())
+    except discord.HTTPException as exc:
+        logger.warning("Could not post the menu in channel %s: %s", target.id, exc.status)
+        await interaction.followup.send(
+            f"I couldn't post in <#{target.id}>. Check that I can send messages and embed links there.",
+            ephemeral=True,
+        )
+        return
+    old = (gs.menu_channel_id, gs.menu_message_id)
+    gs.menu_channel_id, gs.menu_message_id = target.id, message.id
+    await interaction.client.store.save_guild(gs)
+    text = f"Menu posted in <#{target.id}>. Anyone can click it; the answers are private."
+    # The new menu is up before the old one goes: a failed post leaves the old one working.
+    if old[1] and old[1] != message.id:
+        if await _delete_menu(interaction.client, *old) == "failed":
+            text += f" I couldn't delete the old one in <#{old[0]}>, so you may want to remove it by hand."
+        else:
+            text += " The old one is gone."
+    await interaction.followup.send(text, ephemeral=True)
+
+
+@app_commands.command(name="menu_remove", description="Delete the button menu posted with /menu_post")
+async def menu_remove_command(interaction: discord.Interaction) -> None:
+    gs = await _guild(interaction, admin=True)
+    if gs is None:
+        return
+    if not gs.menu_message_id:
+        await interaction.response.send_message("There's no posted menu in this server.", ephemeral=True)
+        return
+    await interaction.response.defer(ephemeral=True)
+    channel_id = gs.menu_channel_id
+    outcome = await _delete_menu(interaction.client, channel_id, gs.menu_message_id)
+    if outcome == "failed":
+        # Keep the ids: once the bot has its permissions back, /menu_remove can try again.
+        await interaction.followup.send(
+            f"I couldn't delete the menu in <#{channel_id}>. Check that I can manage messages there, "
+            "or delete it by hand.",
+            ephemeral=True,
+        )
+        return
+    gs.menu_channel_id = gs.menu_message_id = None
+    await interaction.client.store.save_guild(gs)
+    await interaction.followup.send(
+        f"Menu removed from <#{channel_id}>." if outcome == "deleted" else "The menu was already deleted.",
+        ephemeral=True,
+    )
+
+
+async def _delete_menu(client, channel_id: int | None, message_id: int) -> str:
+    """Delete a posted menu: 'deleted', 'gone' (someone deleted it already) or 'failed'."""
+    if channel_id is None:
+        return "gone"
+    try:
+        await client.get_partial_messageable(channel_id).get_partial_message(message_id).delete()
+    except discord.NotFound:
+        return "gone"
+    except discord.HTTPException as exc:
+        logger.warning("Could not delete the menu in channel %s: %s", channel_id, exc.status)
+        return "failed"
+    return "deleted"
+
+
+@app_commands.command(name="menu_private", description="Let members open their own button menu with /menu")
+async def menu_private_command(interaction: discord.Interaction, enabled: Literal["on", "off"]) -> None:
+    await _toggle(interaction, "private_menu", enabled == "on")
 
 
 async def race_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
