@@ -1,8 +1,11 @@
 """Pure command and navigator logic, kept separate from Discord I/O for testing."""
 
 from __future__ import annotations
+
 from urllib.parse import urlparse
+
 import yaml
+
 from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
