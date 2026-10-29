@@ -223,7 +223,7 @@ def settings_dump(gs: GuildSettings) -> str:
     # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
     # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
     # The watch list goes last so a long one can't push the other settings out, and the
-    # truncation marker is a YAML comment so the clipped dump still parses.
+    # truncation marker is a YAM comment so the clipped dump still parses.
     doc = to_doc(gs)
     doc["important"] = doc.pop("important")
     lines = yaml.safe_dump(doc, sort_keys=False).strip().splitlines()
