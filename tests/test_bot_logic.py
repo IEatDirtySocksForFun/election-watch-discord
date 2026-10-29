@@ -105,7 +105,8 @@ def test_faq_without_a_state_lists_available_states_and_fits_one_embed():
     assert "n" * 300 not in str(embed)  # not a squeezed dump of every state
 
     one = faq_embed(states, outlets, "TX")
-    assert one["title"] == "🗳️ Texas" and "https://example.test" in one["description"]
+    assert one["title"] == "🗳️ Texas"
+    assert one["description"].splitlines()[0] == "🔗 [Official results](<https://example.test>)"
     assert {"name": "💬 Good to know", "value": "n" * 300, "inline": False} in one["fields"]
 
 
