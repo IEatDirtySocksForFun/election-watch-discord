@@ -255,6 +255,10 @@ class EarlyVoteClient:
     the refresher downloads (``refresh()``, on the request budget of ratelimit.py) and the
     commands' client has ``cache_only=True``: it reads saved pages and never calls civicAPI,
     raising NotCached for a page that is not saved yet.
+
+    With EW_COMMAND_DATA=live (electionwatch/live.py) the commands' client downloads instead,
+    while ``may_download()`` says civicAPI has room in the hour; otherwise, or when civicAPI
+    fails, it answers from the saved page like the cache-only client.
     """
 
     def __init__(
@@ -268,10 +272,12 @@ class EarlyVoteClient:
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
         store=None,
         cache_only: bool = False,
+        may_download: Callable[[], bool] | None = None,
     ) -> None:
         self.client = client
         self.store = store
         self.cache_only = cache_only and store is not None
+        self.may_download = may_download if store is not None else None
         self.ttl = ttl
         self.history_ttl = history_ttl
         self.min_interval = min_interval
@@ -292,20 +298,30 @@ class EarlyVoteClient:
         url = f"{API}/{path}"
         key = url + ("?" + urlencode(sorted(params.items())) if params else "")
         if self.cache_only:
-            hit = await self.store.get_cached(CACHE_KIND, key)
-            if hit is None:
-                raise NotCached(key)
-            return json.loads(hit[1])
+            return await self._stored(key)
         if (cached := self._fresh(key)) is not _MISS:
             return cached
+        if self.may_download is not None and not self.may_download():
+            return await self._stored(key)
         async with self._lock:
             if (cached := self._fresh(key)) is not _MISS:  # filled while we waited
                 return cached
-            payload = await self._download(url, params)
+            try:
+                payload = await self._download(url, params)
+            except SourceUnavailable:
+                if self.may_download is None:
+                    raise
+                return await self._stored(key)
             self._cache[key] = (self._clock() + (self.ttl if ttl is None else ttl), payload)
         if self.store is not None:
             await self.store.put_cached(CACHE_KIND, key, json.dumps(payload), datetime.now(timezone.utc))
         return payload
+
+    async def _stored(self, key: str) -> dict | None:
+        hit = await self.store.get_cached(CACHE_KIND, key)
+        if hit is None:
+            raise NotCached(key)
+        return json.loads(hit[1])
 
     async def _download(self, url: str, params: dict | None) -> dict | None:
         """One request, spaced from the previous one; the caller holds the lock."""

@@ -41,6 +41,7 @@ from electionwatch.bot.navigator import RaceNavigator, race_lists
 from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.demand import Demand
+from electionwatch.live import LiveFetch, command_mode
 from electionwatch.poller import Poller
 from electionwatch.racekeys import STATES, describe, parse
 from electionwatch.racelists import KIND as RACELISTS
@@ -86,9 +87,24 @@ class ElectionBot(commands.Bot):
         hooks = getattr(http_client, "event_hooks", None)
         if isinstance(hooks, dict):
             http_client.event_hooks = {**hooks, "request": [*hooks.get("request", []), self.rates.on_request]}
-        self.command_data = CommandData(store, sources, http_client, clock, rates=self.rates, demand=self.demand)
+        # EW_COMMAND_DATA=live: commands may fetch from the sources too, within the same
+        # budgets (electionwatch/live.py). The default, db, reads only what refreshes stored.
+        self.live = (
+            LiveFetch.from_env(os.environ, store, sources, http_client, self.rates, clock)
+            if command_mode(os.environ) == "live"
+            else None
+        )
+        self.command_data = CommandData(
+            store, sources, http_client, clock, rates=self.rates, demand=self.demand, live=self.live
+        )
         # Commands read early-vote pages from the store; only the refresher calls civicAPI.
-        self.early_vote = EarlyVoteClient(http_client, store=store, cache_only=True)
+        # In live mode /earlyvote downloads too while civicAPI has room; autocomplete never does.
+        self.early_vote_db = EarlyVoteClient(http_client, store=store, cache_only=True)
+        self.early_vote = (
+            EarlyVoteClient(http_client, store=store, ttl=self.live.max_age, may_download=self.live.early_vote_allowed)
+            if self.live is not None
+            else self.early_vote_db
+        )
         self.early_vote_refresher = EarlyVoteClient(http_client, store=store)
         self._early_vote_running = asyncio.Lock()
         self._background: set[asyncio.Task] = set()
@@ -246,6 +262,9 @@ async def _cooldown(interaction: discord.Interaction, command: str, target: str,
         except Exception:
             logger.exception("Could not read limits for guild %s", interaction.guild_id)
     every = bot.rates.kind_interval(kind)
+    live = getattr(bot, "live", None)
+    if live is not None:  # live commands fetch again once an answer is older than this
+        every = min(every, live.max_age)
     seconds = cooldowns.user_seconds(every, gs.user_cooldown_seconds if gs else None)
     hourly = gs.user_commands_per_hour if gs and gs.user_commands_per_hour is not None else None
     wait = cooldowns.hit(interaction.user.id, command, target, seconds, hourly)
@@ -467,7 +486,8 @@ async def early_vote_command(
 async def early_vote_state_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:
-    states = await early_vote_client(interaction.client).states_with_data(AUTOCOMPLETE_TIMEOUT)
+    client = getattr(interaction.client, "early_vote_db", None) or early_vote_client(interaction.client)
+    states = await client.states_with_data(AUTOCOMPLETE_TIMEOUT)
     # Cold cache or civicAPI down: offer every state; the command says when one has no data.
     return [
         app_commands.Choice(name=name, value=value)
@@ -571,7 +591,8 @@ async def limits_command(
         await bot.store.save_guild(gs)
         await interaction.response.send_message(message, ephemeral=True)
         return
-    text = clip(limits_text(gs, bot.rates, bot.cooldowns), MAX_MESSAGE - 8)
+    live = getattr(bot, "live", None)
+    text = clip(limits_text(gs, bot.rates, bot.cooldowns, live.max_age if live is not None else None), MAX_MESSAGE - 8)
     await interaction.response.send_message(f"```\n{text}\n```", ephemeral=True)
 
 

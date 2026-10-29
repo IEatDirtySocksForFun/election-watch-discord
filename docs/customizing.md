@@ -10,7 +10,8 @@
 ## Refresh rates and limits
 
 The bot asks each data source on a schedule and stores the answers in MongoDB; `/odds`,
-`/polls` and `/earlyvote` read only the database. The schedule is computed so the bot uses at
+`/polls` and `/earlyvote` read only the database (unless you switch on
+[live commands](#database-or-live-commands)). The schedule is computed so the bot uses at
 most half of each host's published rate limit per hour (`electionwatch/ratelimit.py`):
 
 ```
@@ -52,6 +53,34 @@ data (odds: 2 min), and a server can `/refresh` once every 2 intervals of what i
 
 `/limits` with no options shows the current intervals, each source's requests per refresh and
 its hosts' usage against the allowance.
+
+### Database or live commands
+
+By default (`EW_COMMAND_DATA=db`) commands never call a source: they show what the background
+refresh stored, and a race nobody watches is queued for the next refresh ("try again in a few
+minutes").
+
+With `EW_COMMAND_DATA=live`, `/odds`, `/polls`, `/earlyvote` and the `/races` browser (state race
+lists and the chosen race's result) ask the source themselves when the stored answer is older
+than `EW_LIVE_MAX_AGE`, then save what they get to the database like a refresh would. It's still
+polite:
+
+- an answer younger than `EW_LIVE_MAX_AGE` seconds (default 60) is reused, so many people asking
+  about one race share a single fetch;
+- every request counts against the same hourly allowance as the background refresh; when a site
+  has no room left, is failing, or is slow, the command answers from the database instead;
+- requests to one source go one at a time, spaced by an even share of its allowance, and nobody
+  waits more than `EW_LIVE_TIMEOUT` seconds (default 10) for one;
+- race autocomplete always reads the database (Discord gives it under 3 seconds);
+- the per-user cooldown becomes 2 x `EW_LIVE_MAX_AGE` when that's shorter than 2 refreshes.
+
+| setting           | default | meaning                                                      |
+| ----------------- | ------- | ------------------------------------------------------------ |
+| `EW_COMMAND_DATA` | `db`    | `db`: commands read the database; `live`: they may fetch too |
+| `EW_LIVE_MAX_AGE` | `60`    | seconds a stored answer counts as fresh in live mode         |
+| `EW_LIVE_TIMEOUT` | `10`    | seconds a live fetch (or the wait for one) may take          |
+
+`/limits` says which mode the bot runs in.
 
 ## Adding a results adapter
 
@@ -120,5 +149,5 @@ or timing looks across a real election night.
 - No LLM or AI calls in the product, and no model SDKs as dependencies.
 - No secrets in the repo; everything sensitive comes from the environment.
 - Scrapers off by default, descriptive User-Agent.
-- Commands read the database only; sources are called by the background refresh, on budget.
+- Sources are called on budget: by the background refresh, and by commands only in live mode.
 - No source gets past a bot check; a blocked host is a closed door.
