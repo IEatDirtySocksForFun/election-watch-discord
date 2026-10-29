@@ -112,15 +112,22 @@ def _state(tok: str) -> str:
 
 #: Abbreviations people type for a state besides its two-letter code (dots and case ignored).
 _ABBREVIATIONS = {
-    "ala": "AL", "ariz": "AZ", "ark": "AR", "cal": "CA", "cali": "CA", "calif": "CA", "colo": "CO",
-    "conn": "CT", "del": "DE", "fla": "FL", "ill": "IL", "ind": "IN", "kan": "KS", "kans": "KS",
-    "mass": "MA", "mich": "MI", "minn": "MN", "miss": "MS", "mont": "MT", "neb": "NE", "nebr": "NE",
-    "nev": "NV", "okla": "OK", "ore": "OR", "oreg": "OR", "penn": "PA", "penna": "PA", "tenn": "TN",
-    "tex": "TX", "wash": "WA", "wis": "WI", "wisc": "WI", "wyo": "WY", "wva": "WV", "w va": "WV",
-    "n carolina": "NC", "s carolina": "SC", "n dakota": "ND", "s dakota": "SD", "w virginia": "WV",
-    "n mexico": "NM", "n hampshire": "NH", "n jersey": "NJ", "n york": "NY", "r island": "RI",
-    "washington dc": "DC", "washington d c": "DC", "d c": "DC", "virgin islands": "VI",
-    "us virgin islands": "VI", "samoa": "AS", "northern marianas": "MP", "mariana islands": "MP",
+    "ala": "AL", "alaba": "AL", "bama": "AL", "ariz": "AZ", "ark": "AR",
+    "cal": "CA", "cali": "CA", "calif": "CA", "socal": "CA", "norcal": "CA",
+    "colo": "CO", "conn": "CT", "del": "DE", "fla": "FL", "ga": "GA",
+    "ill": "IL", "ind": "IN", "kan": "KS", "kans": "KS", "ky": "KY",
+    "la": "LA", "md": "MD", "mass": "MA", "mich": "MI", "minn": "MN",
+    "miss": "MS", "mo": "MO", "mont": "MT", "neb": "NE", "nebr": "NE",
+    "nev": "NV", "okla": "OK", "ore": "OR", "oreg": "OR", "penn": "PA",
+    "penna": "PA", "tenn": "TN", "tex": "TX", "ut": "UT", "vt": "VT",
+    "va": "VA", "wash": "WA", "wis": "WI", "wisc": "WI", "wyo": "WY",
+    "wva": "WV", "w va": "WV", "n carolina": "NC", "s carolina": "SC",
+    "n dakota": "ND", "s dakota": "SD", "w virginia": "WV", "n mexico": "NM",
+    "n hampshire": "NH", "n jersey": "NJ", "n york": "NY", "r island": "RI",
+    "washington dc": "DC", "washington d c": "DC", "d c": "DC", "district of columbia": "DC",
+    "virgin islands": "VI", "us virgin islands": "VI", "usvi": "VI", "samoa": "AS",
+    "american samoa": "AS", "northern marianas": "MP", "mariana islands": "MP",
+    "cnmi": "MP", "puerto rico": "PR", "pr": "PR", "guam": "GU",
 }  # fmt: skip
 FUZZY_CUTOFF = 0.8  # how close a misspelt name must be (difflib ratio) to count as that state
 
