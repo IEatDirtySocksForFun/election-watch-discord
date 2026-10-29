@@ -295,7 +295,7 @@ class StatePicker(discord.ui.View):
         if self.tool == "earlyvote":
             await _commands().show_early_vote(interaction, code)
         else:
-            await interaction.followup.send(_commands().faq_message(code), ephemeral=True)
+            await interaction.followup.send(**_commands().faq_reply(code), ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception, item) -> None:
         await _report(interaction, error)

@@ -8,7 +8,7 @@ from electionwatch.bot.logic import (
     change_odds,
     change_posting,
     change_watch,
-    faq_text,
+    faq_embed,
     filter_races,
     is_admin,
     remember_navigation,
@@ -89,25 +89,38 @@ def test_favorites_navigation_and_faq_are_pure_data_operations():
     assert filter_races(races, "TX", "state") == [(races[1][0], "Governor")]
     remember_navigation(us, "NC", "congressional")
     assert us.home_state == "NC" and us.default_level == "congressional"
-    text = faq_text({"TX": {"voting": "Bring ID"}}, {"AP": "Associated Press"}, "TX")
-    assert "Bring ID" in text
-    assert "No FAQ data for Texas" in faq_text({}, {}, "TX")
+    embed = faq_embed({"TX": {"voting": "Bring ID"}}, {"AP": "Associated Press"}, "TX")
+    assert {"name": "ℹ️ Voting", "value": "Bring ID", "inline": False} in embed["fields"]
+    assert "No FAQ data for Texas" in faq_embed({}, {}, "TX")["description"]
 
 
-def test_faq_without_a_state_lists_available_states_and_fits_one_message():
+def test_faq_without_a_state_lists_available_states_and_fits_one_embed():
     from electionwatch.racekeys import STATES
 
     states = {code: {"official_results_url": "https://example.test", "notes": "n" * 300} for code in STATES}
     outlets = {"AP": {"name": "Associated Press", "results_url": "https://ap.test"}}
-    text = faq_text(states, outlets)
-    assert len(text) <= 2000
+    embed = faq_embed(states, outlets)
     for code in ("AL", "CA", "DC", "TX", "WY"):
-        assert code in text
-    assert "Associated Press" in text
-    assert "n" * 300 not in text  # not a squeezed dump of every state
+        assert f"`{code}`" in embed["description"]
+    assert [field["name"] for field in embed["fields"]] == ["🏁 Associated Press (AP)"]
+    assert "n" * 300 not in str(embed)  # not a squeezed dump of every state
 
-    one = faq_text(states, outlets, "TX")
-    assert len(one) <= 2000 and "https://example.test" in one
+    one = faq_embed(states, outlets, "TX")
+    assert one["title"] == "🗳️ Texas" and "https://example.test" in one["description"]
+    assert {"name": "💬 Good to know", "value": "n" * 300, "inline": False} in one["fields"]
+
+
+def test_faq_embed_stays_within_discord_limits():
+    long = "word " * 400  # 2000 characters: each field clips at 1024, the total at 6000
+    record = {key: long for key in ("count_order", "mail_deadline", "mail_processing", "typical_call_time")}
+    record |= {"recount_threshold": long, "ranked_choice": True, "notes": long, "sources": ["https://a.test/x"]}
+    embed = faq_embed({"TX": record}, {}, "TX")
+    assert all(len(field["value"]) <= 1024 for field in embed["fields"])
+    total = len(embed["title"]) + len(embed.get("description", "")) + len(embed["footer"]["text"])
+    assert total + sum(len(field["name"]) + len(field["value"]) for field in embed["fields"]) <= 6000
+    names = [field["name"] for field in embed["fields"]]
+    assert "📚 Sources" not in names and "💬 Good to know" not in names  # dropped first, in that order
+    assert {"name": "🔢 RCV", "value": "✅ Yes", "inline": False} in embed["fields"]
 
 
 def test_settings_dump_and_watch_list_fit_in_one_discord_message():

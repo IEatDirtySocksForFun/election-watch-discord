@@ -7,6 +7,15 @@ from urllib.parse import urlparse
 
 import yaml
 
+from electionwatch.bot.poster import (
+    MAX_DESCRIPTION,
+    MAX_EMBED_TOTAL,
+    MAX_FIELD_NAME,
+    MAX_FIELD_VALUE,
+    MAX_FOOTER,
+    MAX_TITLE,
+    clip,
+)
 from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse, parse_typed
 from electionwatch.settings import (
@@ -421,8 +430,9 @@ def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "# … (trunc
 
 
 # ── /faq formatting ─────────────────────────────────────────────────────────
-# no more yaml block, better
-FAQ_LIMIT = 2000
+# /faq answers with an embed: a dict in discord.Embed.from_dict() shape, so this stays pure.
+FAQ_COLOR = 0x5865F2  # Discord blurple, like the other command embeds
+MAX_FIELDS = 25  # Discord's limit per embed
 
 TIMEZONE_NAMES = {
     "America/New_York": "Eastern",
@@ -444,6 +454,14 @@ STATE_FIELDS = (
     ("Recount", "recount_threshold"),
     ("RCV", "ranked_choice"),
 )
+FIELD_EMOJI = {
+    "count_order": "📋",
+    "mail_deadline": "📬",
+    "mail_processing": "🗃️",
+    "typical_call_time": "📣",
+    "recount_threshold": "🔁",
+    "ranked_choice": "🔢",
+}
 HEADER_KEYS = {
     "official_results_url",
     "sos_url",
@@ -455,6 +473,10 @@ HEADER_KEYS = {
     "sources",
     "unverified",
 }
+# Decision desks call races themselves; VoteHub passes on others' calls; the rest are newsrooms.
+DESKS = {"AP", "DDHQ", "CIVICAPI"}
+AGGREGATORS = {"VOTEHUB"}
+PRINT = {"NYT", "REUTERS"}
 
 
 def link(label: str, url: str) -> str:
@@ -471,26 +493,60 @@ def timezone_names(zone: str) -> str:
 
 
 def sources_line(urls) -> str | None:
-    """One link per site, labelled by domain, so 7 NCSL/SOS URLs don't eat the message."""
+    """One link per site, labelled by domain, so 7 NCSL/SOS URLs don't eat the embed."""
     seen: dict[str, str] = {}
     for url in urls or ():
         host = urlparse(url).netloc.removeprefix("www.")
         seen.setdefault(host, url)
     if not seen:
         return None
-    return "-# Sources: " + " · ".join(link(host, url) for host, url in seen.items())
+    return " · ".join(link(host, url) for host, url in seen.items())
 
 
 def ranked_choice(value) -> str:
     text = clean(value)
-    return {"false": "No", "true": "Yes"}.get(text.lower(), text)
+    return {"false": "❌ No", "true": "✅ Yes"}.get(text.lower(), text)
 
 
-def state_message(code: str, record: dict) -> str:
+def _field(name: str, value: str) -> dict:
+    return {"name": clip(name, MAX_FIELD_NAME), "value": clip(value, MAX_FIELD_VALUE), "inline": False}
+
+
+def _embed_size(embed: dict) -> int:
+    return (
+        len(embed.get("title", ""))
+        + len(embed.get("description", ""))
+        + sum(len(field["name"]) + len(field["value"]) for field in embed.get("fields", ()))
+        + len(embed.get("footer", {}).get("text", ""))
+    )
+
+
+def _faq_embed(title: str, description: str = "", fields=(), footer: str | None = None) -> dict:
+    embed = {"title": clip(title, MAX_TITLE), "color": FAQ_COLOR}
+    if description:
+        embed["description"] = clip(description, MAX_DESCRIPTION)
+    embed["fields"] = list(fields)[:MAX_FIELDS]
+    if footer:
+        embed["footer"] = {"text": clip(footer, MAX_FOOTER)}
+    return embed
+
+
+def fit(*candidates: dict) -> dict:
+    """First embed within Discord's 6000-character total; otherwise the last, fields dropped from the end."""
+    for embed in candidates:
+        if _embed_size(embed) <= MAX_EMBED_TOTAL:
+            return embed
+    embed = candidates[-1]
+    while embed["fields"] and _embed_size(embed) > MAX_EMBED_TOTAL:
+        embed["fields"].pop()
+    return embed
+
+
+def state_embed(code: str, record: dict) -> dict:
     unverified = set(record.get("unverified") or ())
     zones = record.get("timezones") or []
 
-    header = [f"# {STATES[code]}"]
+    header = []
     links = [
         link(label, record[key])
         for label, key in (("Official results", "official_results_url"), ("Election office", "sos_url"))
@@ -500,81 +556,89 @@ def state_message(code: str, record: dict) -> str:
     if vendor and "results_vendor" not in unverified:
         links.append(f"Results via {vendor}")
     if links:
-        header.append("-# " + " · ".join(links))
-
+        header.append("🔗 " + " · ".join(links))
     if record.get("polls_close_local"):
         timezone = " / ".join(dict.fromkeys(timezone_names(zone) for zone in zones))
-        header.append(f"-# Polls close {record['polls_close_local']} {timezone}".rstrip())
+        header.append(f"🕖 Polls close {record['polls_close_local']} {timezone}".rstrip())
     if record.get("polls_close_note"):
-        header.append(f"-# {clean(record['polls_close_note'])}")
+        header.append(f"*{clean(record['polls_close_note'])}*")
 
-    body = [""]
+    fields = []
     for label, key in STATE_FIELDS:
         if record.get(key) in (None, ""):
             continue
         value = ranked_choice(record[key]) if key == "ranked_choice" else clean(record[key])
-        flag = " *(unverified)*" if key in unverified else ""
-        body.append(f"**{label}:**{flag} {value}")
+        flag = "*(unverified)* " if key in unverified else ""
+        fields.append(_field(f"{FIELD_EMOJI[key]} {label}", flag + value))
     shown_keys = {key for _, key in STATE_FIELDS} | HEADER_KEYS
     for key, value in record.items():
         if key not in shown_keys and value not in (None, ""):
-            body.append(f"**{key.replace('_', ' ').capitalize()}:** {clean(value)}")
+            fields.append(_field(f"ℹ️ {key.replace('_', ' ').capitalize()}", clean(value)))
 
-    notes = ["", f"> {clean(record['notes'])}"] if record.get("notes") else []
+    notes = [_field("💬 Good to know", clean(record["notes"]))] if record.get("notes") else []
     sources = sources_line(record.get("sources"))
-    sources = [sources] if sources else []
+    sources = [_field("📚 Sources", sources)] if sources else []
 
+    title = f"🗳️ {STATES[code]}"
+    description = "\n".join(header)
+    footer = "Decision desks and outlets: /faq without a state"
     return fit(
-        header + body + notes + sources,
-        header + body + notes,  # drop sources first
-        header + body,  # then the notes
+        _faq_embed(title, description, fields + notes + sources, footer),
+        _faq_embed(title, description, fields + notes, footer),  # drop sources first
+        _faq_embed(title, description, fields, footer),  # then the notes
     )
 
 
-def fit(*candidates: list[str]) -> str:
-    """First candidate that fits in one message; otherwise the last, clipped on a line."""
-    for lines in candidates:
-        text = "\n".join(lines)
-        if len(text) <= FAQ_LIMIT:
-            return text
-    return _clip_lines(candidates[-1], FAQ_LIMIT - 30, marker="-# … (trimmed to fit)")
+def _outlet_emoji(code: str) -> str:
+    if code in DESKS:
+        return "🏁"
+    if code in AGGREGATORS:
+        return "📊"
+    return "📰" if code in PRINT else "📺"
 
 
-def outlet_lines(outlets, with_notes: bool) -> list[str]:
-    lines = ["", "## Decision desks & outlets"]
+def outlet_fields(outlets, with_notes: bool) -> list[dict]:
+    fields = []
     for code, record in outlets.items():
         if not isinstance(record, dict):
-            lines.append(f"**{code}** · {record}")
+            fields.append(_field(f"{_outlet_emoji(code)} {code}", clean(record)))
             continue
-        parts = [f"**{code}**", link(record.get("name", code), record["results_url"])]
+        parts = [link("Results", record["results_url"])]
         if record.get("exit_poll_url"):
-            parts.append(link("voter survey", record["exit_poll_url"]))
-        lines.append(" · ".join(parts))
+            parts.append(link("Voter survey", record["exit_poll_url"]))
+        value = " · ".join(parts)
         if with_notes and record.get("notes"):
-            lines.append(f"-# {clean(record['notes'])}")
-    return lines
+            value += f"\n*{clean(record['notes'])}*"
+        fields.append(_field(f"{_outlet_emoji(code)} {record.get('name', code)} ({code})", value))
+    return fields
 
 
-def faq_text(states, outlets, state: str | None = None) -> str:
-    """Render installed FAQ data as a Discord message (markdown, one message)."""
+def faq_embed(states, outlets, state: str | None = None) -> dict:
+    """Installed FAQ data as one Discord embed (a discord.Embed.from_dict() dict)."""
     if state is None:
         codes = (
             sorted(states)
             if isinstance(states, dict)
             else sorted({getattr(entry, "state", "") for entry in states} - {""})
         )
-        head = [
-            "# State FAQs",
-            "-# Use `/faq state:<code>` for one state.",
-            " · ".join(f"`{state_code}`" for state_code in codes) if codes else "No state FAQ data installed.",
-        ]
+        description = "Use `/faq state:` with a code or name (`NC`, `North Carolina`, `N.C.`) for one state."
+        description += "\n\n" + (
+            " · ".join(f"`{state_code}`" for state_code in codes) if codes else "No state FAQ data installed."
+        )
+        if outlets:
+            description += "\n\n**🏁 Decision desks & outlets**"
+        title = "🗳️ State FAQs"
         if not outlets:
-            return fit(head)
-        return fit(head + outlet_lines(outlets, True), head + outlet_lines(outlets, False))
+            return _faq_embed(title, description)
+        return fit(
+            _faq_embed(title, description, outlet_fields(outlets, True)),
+            _faq_embed(title, description, outlet_fields(outlets, False)),
+        )
 
     code = state.strip().upper()
     if code in TERRITORIES:
-        return f"# {TERRITORIES[code]}\nNo FAQ data for {TERRITORIES[code]}: territories are not covered yet."
+        name = TERRITORIES[code]
+        return _faq_embed(f"🗳️ {name}", f"No FAQ data for {name}: territories are not covered yet.")
     if code not in STATES:
         raise ValueError("unknown state")
 
@@ -584,5 +648,7 @@ def faq_text(states, outlets, state: str | None = None) -> str:
         else next((to_doc(entry) for entry in states if getattr(entry, "state", None) == code), None)
     )
     if not record:
-        return f"# {STATES[code]}\nNo FAQ data for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
-    return state_message(code, record)
+        return _faq_embed(
+            f"🗳️ {STATES[code]}", f"No FAQ data for {STATES[code]} yet.", footer="Outlet links: /faq without a state"
+        )
+    return state_embed(code, record)

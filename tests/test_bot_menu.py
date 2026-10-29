@@ -385,12 +385,12 @@ async def test_early_vote_and_faq_buttons_offer_the_servers_states_then_all(clie
     if tool == "earlyvote":
         assert "North Carolina" in answer.embed.title
     else:
-        assert answer.content.startswith("# North Carolina")
+        assert answer.embed.title == "🗳️ North Carolina"
     answer = await pick(client, picker, 0, "ALL")
     if tool == "earlyvote":
         assert answer.embed.title == "Early vote · United States"
     else:
-        assert "State FAQs" in answer.content
+        assert answer.embed.title == "🗳️ State FAQs"
 
 
 async def test_settings_and_limits_buttons(client):
