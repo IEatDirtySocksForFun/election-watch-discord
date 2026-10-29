@@ -26,6 +26,7 @@ from electionwatch.bot.early_vote import (
     state_choices,
 )
 from electionwatch.bot.logic import (
+    Card,
     change_calls,
     change_favorite,
     change_limits,
@@ -35,9 +36,9 @@ from electionwatch.bot.logic import (
     change_watch,
     faq_text,
     is_admin,
-    limits_text,
+    limits_card,
     odds_alerts_text,
-    settings_dump,
+    settings_card,
 )
 from electionwatch.bot.menu import PRIVATE_MENU_OFF, MenuView, menu_embed
 from electionwatch.bot.navigator import RaceNavigator, race_lists
@@ -64,7 +65,7 @@ async def handle_app_command_error(interaction: discord.Interaction, error: Exce
     """Log a failing command and tell the user, instead of leaving the interaction hanging."""
     name = getattr(getattr(interaction, "command", None), "name", "command")
     logger.error("Command /%s failed: %s", name, type(error).__name__, exc_info=error)
-    message = "Something went wrong running that command. Try again in a moment."
+    message = "❌ Something went wrong running that command. Try again in a moment."
     try:
         if interaction.response.is_done():
             await interaction.followup.send(message, ephemeral=True)
@@ -239,13 +240,13 @@ class ElectionBot(commands.Bot):
 
 async def _guild(interaction: discord.Interaction, *, admin: bool = False) -> GuildSettings | None:
     if interaction.guild_id is None:
-        await interaction.response.send_message("Use this command in a server.", ephemeral=True)
+        await interaction.response.send_message("⚠️ Use this command in a server.", ephemeral=True)
         return None
     bot: ElectionBot = interaction.client  # type: ignore[assignment]
     gs = await bot.store.get_guild(interaction.guild_id) or GuildSettings(interaction.guild_id)
     if admin and not is_admin(interaction.user, gs):
         await interaction.response.send_message(
-            "Manage Server permission or the configured admin role is required.", ephemeral=True
+            "🔒 Manage Server permission or the configured admin role is required.", ephemeral=True
         )
         return None
     return gs
@@ -258,7 +259,17 @@ async def _user(interaction: discord.Interaction) -> UserSettings:
 
 async def _error(interaction: discord.Interaction, exc: Exception) -> None:
     # Parse errors quote the user's input, which may be up to 6000 characters long.
-    await interaction.response.send_message(clip(str(exc), MAX_MESSAGE), ephemeral=True)
+    await interaction.response.send_message(clip(f"❌ {exc}", MAX_MESSAGE), ephemeral=True)
+
+
+def _embed(card: Card) -> discord.Embed:
+    """A logic.Card (plain data) as a Discord embed."""
+    embed = discord.Embed(title=card.title, description=card.description or None, color=discord.Color.blurple())
+    for name, value, inline in card.fields:
+        embed.add_field(name=name, value=value, inline=inline)
+    if card.footer:
+        embed.set_footer(text=card.footer)
+    return embed
 
 
 async def _cooldown(interaction: discord.Interaction, command: str, target: str, kind: str) -> bool:
@@ -284,7 +295,7 @@ async def _cooldown(interaction: discord.Interaction, command: str, target: str,
     if not wait:
         return True
     await interaction.followup.send(
-        f"You can ask for this again in {_span(wait)}: {kind} data refreshes about every {_span(every)}, "
+        f"⏳ You can ask for this again in {_span(wait)}: {kind} data refreshes about every {_span(every)}, "
         "so a repeat would show the same numbers.",
         ephemeral=True,
     )
@@ -311,7 +322,7 @@ async def setup_command(
         return
     message = change_setup(gs, channel.id, admin_role.id if admin_role else None)
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message(message, ephemeral=True)
+    await interaction.response.send_message(f"✅ {message}", ephemeral=True)
 
 
 @app_commands.command(name="watch", description="Add, remove, or list important races")
@@ -330,7 +341,15 @@ async def watch_command(
         # list is read-only and open to everyone: writing back the copy it read would
         # overwrite a concurrent admin change (and create a document for the guild).
         await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message(message, ephemeral=True)
+    await interaction.response.send_message(f"{_watch_icon(action, message)} {message}", ephemeral=True)
+
+
+def _watch_icon(action: str, message: str) -> str:
+    if action == "list":
+        return "👁️"
+    if message.endswith("is not watched"):
+        return "⚠️"
+    return "✅" if action == "add" else "🗑️"
 
 
 @app_commands.command(name="posting", description="Configure result-post timing")
@@ -348,7 +367,7 @@ async def posting_command(
         await _error(interaction, exc)
         return
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message(message, ephemeral=True)
+    await interaction.response.send_message(f"✅ {message}", ephemeral=True)
 
 
 @app_commands.command(name="calls", description="Configure race-call outlets")
@@ -362,7 +381,7 @@ async def calls_command(interaction: discord.Interaction, outlets: str, enabled:
         await _error(interaction, exc)
         return
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message(message, ephemeral=True)
+    await interaction.response.send_message(f"✅ {message}", ephemeral=True)
 
 
 @app_commands.command(name="oddsalerts", description="Configure prediction-market swing alerts, or list them")
@@ -389,14 +408,15 @@ async def odds_alerts_command(
     try:
         if not changing:
             text = odds_alerts_text(gs, race, category)
-            await interaction.response.send_message(text, ephemeral=True)
+            await interaction.response.send_message(f"🎲 {text}", ephemeral=True)
             return
         message = change_odds(gs, enabled, threshold, window, race, category)
     except ValueError as exc:
         await _error(interaction, exc)
         return
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message(message, ephemeral=True)
+    icon = "⚠️" if message.endswith("has no odds alert override") else "🗑️" if message.startswith("Removed") else "✅"
+    await interaction.response.send_message(f"{icon} {message}", ephemeral=True)
 
 
 async def _watched_keys(interaction: discord.Interaction):
@@ -476,7 +496,7 @@ async def _toggle(interaction: discord.Interaction, field: str, enabled: bool) -
     setattr(gs, field, enabled)
     await interaction.client.store.save_guild(gs)
     await interaction.response.send_message(
-        f"{field.replace('post_', '').replace('_', ' ')} {'on' if enabled else 'off'}", ephemeral=True
+        f"✅ {field.replace('post_', '').replace('_', ' ')} {'on' if enabled else 'off'}", ephemeral=True
     )
 
 
@@ -590,7 +610,7 @@ async def refresh_command(
     wait = bot.cooldowns.refresh_hit(gs.guild_id, bot.cooldowns.refresh_seconds(every, gs.refresh_cooldown_seconds))
     if wait:
         await interaction.response.send_message(
-            f"This server can refresh {what} again in {_span(wait)}.", ephemeral=True
+            f"⏳ This server can refresh {what} again in {_span(wait)}.", ephemeral=True
         )
         return
     await interaction.response.defer(ephemeral=True)
@@ -629,7 +649,7 @@ async def refresh_command(
         ) + message
         if held:
             message += " Waiting for their hourly request allowance or a back-off: " + clip(", ".join(held), 1500) + "."
-    await interaction.followup.send(message.strip(), ephemeral=True)
+    await interaction.followup.send(f"🔄 {message.strip()}", ephemeral=True)
 
 
 @app_commands.command(name="limits", description="Show refresh rates and command limits; admins can change them")
@@ -656,17 +676,16 @@ async def limits_command(
             await _error(interaction, exc)
             return
         await bot.store.save_guild(gs)
-        await interaction.response.send_message(message, ephemeral=True)
+        await interaction.response.send_message(f"✅ {message}", ephemeral=True)
         return
-    await interaction.response.send_message(limits_message(bot, gs), ephemeral=True)
+    await interaction.response.send_message(embed=limits_embed(bot, gs), ephemeral=True)
 
 
-def limits_message(bot, gs: GuildSettings) -> str:
+def limits_embed(bot, gs: GuildSettings) -> discord.Embed:
     """/limits without options, and the menu's Limits button."""
     live = getattr(bot, "live", None)
     max_age = live.max_age if live is not None else None
-    text = clip(limits_text(gs, getattr(bot, "rates", None), getattr(bot, "cooldowns", None), max_age), MAX_MESSAGE - 8)
-    return f"```\n{text}\n```"
+    return _embed(limits_card(gs, getattr(bot, "rates", None), getattr(bot, "cooldowns", None), max_age))
 
 
 @app_commands.command(name="pause", description="Pause all election posts")
@@ -676,7 +695,7 @@ async def pause_command(interaction: discord.Interaction) -> None:
         return
     gs.paused = True
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message("Election posts paused.", ephemeral=True)
+    await interaction.response.send_message("⏸️ Election posts paused.", ephemeral=True)
 
 
 @app_commands.command(name="resume", description="Resume election posts")
@@ -686,7 +705,7 @@ async def resume_command(interaction: discord.Interaction) -> None:
         return
     gs.paused = False
     await interaction.client.store.save_guild(gs)
-    await interaction.response.send_message("Election posts resumed.", ephemeral=True)
+    await interaction.response.send_message("▶️ Election posts resumed.", ephemeral=True)
 
 
 @app_commands.command(name="settings", description="Show this server's election settings")
@@ -694,12 +713,12 @@ async def settings_command(interaction: discord.Interaction) -> None:
     gs = await _guild(interaction)
     if gs is None:
         return
-    await interaction.response.send_message(settings_message(gs), ephemeral=True)
+    await interaction.response.send_message(embed=settings_embed(gs), ephemeral=True)
 
 
-def settings_message(gs: GuildSettings) -> str:
+def settings_embed(gs: GuildSettings) -> discord.Embed:
     """/settings, and the menu's Settings button."""
-    return f"```yaml\n{settings_dump(gs)}\n```"
+    return _embed(settings_card(gs))
 
 
 @app_commands.command(name="races", description="Browse current race results")
@@ -738,7 +757,7 @@ async def favorite_command(interaction: discord.Interaction, action: Literal["ad
         await _error(interaction, exc)
         return
     await interaction.client.store.save_user(settings)
-    await interaction.response.send_message(message, ephemeral=True)
+    await interaction.response.send_message(f"{'⭐' if action == 'add' else '🗑️'} {message}", ephemeral=True)
 
 
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
@@ -794,7 +813,7 @@ async def menu_post_command(interaction: discord.Interaction, channel: discord.T
         return
     target = channel or interaction.channel
     if not hasattr(target, "send"):
-        await interaction.response.send_message("Pick a text channel for the menu.", ephemeral=True)
+        await interaction.response.send_message("⚠️ Pick a text channel for the menu.", ephemeral=True)
         return
     await interaction.response.defer(ephemeral=True)
     try:
@@ -803,14 +822,14 @@ async def menu_post_command(interaction: discord.Interaction, channel: discord.T
     except discord.HTTPException as exc:
         logger.warning("Could not post the menu in channel %s: %s", target.id, exc.status)
         await interaction.followup.send(
-            f"I couldn't post in <#{target.id}>. Check that I can send messages and embed links there.",
+            f"❌ I couldn't post in <#{target.id}>. Check that I can send messages and embed links there.",
             ephemeral=True,
         )
         return
     old = (gs.menu_channel_id, gs.menu_message_id)
     gs.menu_channel_id, gs.menu_message_id = target.id, message.id
     await interaction.client.store.save_guild(gs)
-    text = f"Menu posted in <#{target.id}>. Anyone can click it; the answers are private."
+    text = f"✅ Menu posted in <#{target.id}>. Anyone can click it; the answers are private."
     # The new menu is up before the old one goes: a failed post leaves the old one working.
     if old[1] and old[1] != message.id:
         if await _delete_menu(interaction.client, *old) == "failed":
@@ -826,7 +845,7 @@ async def menu_remove_command(interaction: discord.Interaction) -> None:
     if gs is None:
         return
     if not gs.menu_message_id:
-        await interaction.response.send_message("There's no posted menu in this server.", ephemeral=True)
+        await interaction.response.send_message("⚠️ There's no posted menu in this server.", ephemeral=True)
         return
     await interaction.response.defer(ephemeral=True)
     channel_id = gs.menu_channel_id
@@ -834,7 +853,7 @@ async def menu_remove_command(interaction: discord.Interaction) -> None:
     if outcome == "failed":
         # Keep the ids: once the bot has its permissions back, /menu_remove can try again.
         await interaction.followup.send(
-            f"I couldn't delete the menu in <#{channel_id}>. Check that I can manage messages there, "
+            f"❌ I couldn't delete the menu in <#{channel_id}>. Check that I can manage messages there, "
             "or delete it by hand.",
             ephemeral=True,
         )
@@ -842,7 +861,7 @@ async def menu_remove_command(interaction: discord.Interaction) -> None:
     gs.menu_channel_id = gs.menu_message_id = None
     await interaction.client.store.save_guild(gs)
     await interaction.followup.send(
-        f"Menu removed from <#{channel_id}>." if outcome == "deleted" else "The menu was already deleted.",
+        f"🗑️ Menu removed from <#{channel_id}>." if outcome == "deleted" else "🗑️ The menu was already deleted.",
         ephemeral=True,
     )
 

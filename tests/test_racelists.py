@@ -12,7 +12,7 @@ from types import SimpleNamespace
 import pytest
 
 from electionwatch.bot.cooldown import Cooldowns
-from electionwatch.bot.logic import limits_text
+from electionwatch.bot.logic import limits_card
 from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.demand import Demand
 from electionwatch.models import Level, RaceKey
@@ -405,7 +405,7 @@ async def test_the_navigator_offers_the_users_favorites_in_the_state_while_loadi
     assert view.loading and view.selected_race == "AZ-06"
 
 
-def test_limits_text_shows_race_lists_once_per_source():
+def test_limits_show_race_lists_once_per_source():
     clock = Clock()
     book = RateBook({"cnn.io": Limit(60, 3600)}, clock=clock.seconds)
     for state in ALL_JURISDICTIONS:
@@ -414,9 +414,9 @@ def test_limits_text_shows_race_lists_once_per_source():
         with book.track(name, KIND):
             book.record(HOST)
             book.record(HOST)
-    text = limits_text(GuildSettings(1), book, Cooldowns())
-    assert "racelists: every" in text
-    assert text.count("    national:") == 1  # slowed: one line, not 56
+    text = limits_card(GuildSettings(1), book, Cooldowns()).text()
+    assert "**racelists**: every" in text
+    assert text.count("racelists · national:") == 1  # slowed: one line, not 56
 
 
 def test_an_operator_interval_for_race_lists_covers_every_state():

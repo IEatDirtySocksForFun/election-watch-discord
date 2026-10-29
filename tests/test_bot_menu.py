@@ -173,14 +173,14 @@ ADMIN_SPECS = [
         lambda gs, client, here, reply: (
             (gs.menu_channel_id, gs.menu_message_id) == (None, None)
             and client.deleted == [(OLD_CHANNEL, OLD_MESSAGE)]
-            and reply == f"Menu removed from <#{OLD_CHANNEL}>."
+            and reply == f"🗑️ Menu removed from <#{OLD_CHANNEL}>."
         ),
     ),
     (
         "private off",
         menu_private_command,
         {"enabled": "off"},
-        lambda gs, client, here, reply: gs.private_menu is False and reply == "private menu off",
+        lambda gs, client, here, reply: gs.private_menu is False and reply == "✅ private menu off",
     ),
 ]
 
@@ -213,7 +213,7 @@ async def test_menu_post_first_time_and_a_failed_post():
     interaction = make_interaction(client, "manage")
     interaction.channel = PostChannel(HERE)
     reply = await invoke(menu_post_command, interaction)
-    assert reply.content == f"Menu posted in <#{HERE}>. Anyone can click it; the answers are private."
+    assert reply.content == f"✅ Menu posted in <#{HERE}>. Anyone can click it; the answers are private."
     ((embed, view),) = interaction.channel.sent
     assert embed.title == "Election menu" and isinstance(view, MenuView)
 
@@ -242,7 +242,7 @@ async def test_menu_post_in_a_channel_the_bot_cannot_post_in():
     interaction = make_interaction(MenuClient(MemoryStore()), "manage")
     interaction.channel = None  # e.g. a channel type without messages
     reply = await invoke(menu_post_command, interaction)
-    assert reply.content == "Pick a text channel for the menu."
+    assert reply.content == "⚠️ Pick a text channel for the menu."
 
 
 @pytest.mark.parametrize(
@@ -266,7 +266,7 @@ async def test_menu_remove_when_deleting_fails(error, expected, forgotten):
 async def test_menu_remove_without_a_posted_menu():
     store = MemoryStore()
     reply = await invoke(menu_remove_command, make_interaction(MenuClient(store), "manage"))
-    assert reply.content == "There's no posted menu in this server."
+    assert reply.content == "⚠️ There's no posted menu in this server."
     assert await store.get_guild(GUILD_ID) is None
 
 
@@ -293,11 +293,11 @@ async def test_menu_private_toggle_round_trip():
     await store.save_guild(GuildSettings(GUILD_ID, admin_role_id=ADMIN_ROLE_ID))
     client = SimpleNamespace(store=store)
     assert (await invoke(menu_private_command, make_interaction(client, "manage"), enabled="off")).content == (
-        "private menu off"
+        "✅ private menu off"
     )
     assert (await invoke(menu_command, make_interaction(client, "plain"))).content == PRIVATE_MENU_OFF
     assert (await invoke(menu_private_command, make_interaction(client, "role_admin"), enabled="on")).content == (
-        "private menu on"
+        "✅ private menu on"
     )
     assert isinstance((await invoke(menu_command, make_interaction(client, "plain"))).view, MenuView)
 
@@ -394,10 +394,11 @@ async def test_early_vote_and_faq_buttons_offer_the_servers_states_then_all(clie
 
 async def test_settings_and_limits_buttons(client):
     _, reply = await click(client, "settings")
-    assert reply.content.startswith("```yaml\n") and "private_menu: true" in reply.content
-    assert "menu_message_id" in reply.content
+    assert reply.embed.title == "⚙️ Server settings"
+    assert "/menu for members: ✅ on" in {field.name: field.value for field in reply.embed.fields}["🧭 Menu"]
     _, reply = await click(client, "limits")
-    assert "Data refresh" in reply.content
+    assert reply.embed.title == "⏱️ Limits and refresh rates"
+    assert "🔄 Data refresh" in [field.name for field in reply.embed.fields]
     for tool in ("settings", "limits"):
         _, reply = await click(client, tool, guild_id=None)
         assert reply.content == "Use this in a server."
@@ -423,7 +424,7 @@ async def test_menu_pickers_respect_the_command_cooldowns(client):
     _, reply = await click(client, "polls")
     assert (await pick(client, reply.view, 0, "0")).embed is not None
     again = await pick(client, reply.view, 0, "0")
-    assert again.content.startswith("You can ask for this again in 60 s")
+    assert again.content.startswith("⏳ You can ask for this again in 60 s")
     _, reply = await click(client, "earlyvote")
     assert (await pick(client, reply.view, 0, "TX")).embed is not None
     # Texas again, from the all-states select this time: still the same state.

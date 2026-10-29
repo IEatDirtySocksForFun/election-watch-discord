@@ -608,7 +608,7 @@ CASES = [
     ("pause", "pause", [], None, {}, "paused"),
     ("resume", "resume", [], None, {}, "resumed"),
     ("pause-not-admin", "pause", [], None, {"permissions": 0}, "Manage Server"),
-    ("settings", "settings", [], None, {"permissions": 0}, "guild_id"),
+    ("settings", "settings", [], None, {"permissions": 0}, "Server settings"),
     ("settings-dm", "settings", [], None, {"dm": True}, "Use this command in a server"),
     ("races", "races", [], None, {}, "Texas"),
     ("races-dm", "races", [], None, {"dm": True}, "Texas"),
@@ -951,7 +951,7 @@ MENU_EXPECTS = {
     "polls": "Pick a race for polls",
     "earlyvote": "Pick a state for early-vote numbers",
     "faq": "Pick a state for its voting FAQ",
-    "settings": "guild_id",
+    "settings": "Server settings",
     "limits": "Data refresh",
 }
 

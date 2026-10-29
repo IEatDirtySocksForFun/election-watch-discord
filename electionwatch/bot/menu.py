@@ -174,7 +174,7 @@ async def _settings(interaction: discord.Interaction) -> None:
         await interaction.followup.send("Use this in a server.", ephemeral=True)
         return
     gs = await _guild_settings(interaction) or GuildSettings(interaction.guild_id)
-    await interaction.followup.send(_commands().settings_message(gs), ephemeral=True)
+    await interaction.followup.send(embed=_commands().settings_embed(gs), ephemeral=True)
 
 
 async def _limits(interaction: discord.Interaction) -> None:
@@ -182,7 +182,7 @@ async def _limits(interaction: discord.Interaction) -> None:
         await interaction.followup.send("Use this in a server.", ephemeral=True)
         return
     gs = await _guild_settings(interaction) or GuildSettings(interaction.guild_id)
-    await interaction.followup.send(_commands().limits_message(interaction.client, gs), ephemeral=True)
+    await interaction.followup.send(embed=_commands().limits_embed(interaction.client, gs), ephemeral=True)
 
 
 HANDLERS = {

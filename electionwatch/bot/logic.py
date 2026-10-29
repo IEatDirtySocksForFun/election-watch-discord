@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import math
+from typing import NamedTuple
 from urllib.parse import urlparse
-
-import yaml
 
 from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse, parse_typed
 from electionwatch.settings import (
+    DEFAULT_INTERVAL_MIN,
     ODDS_CATEGORIES,
     GuildSettings,
     OddsAlert,
@@ -280,17 +279,24 @@ def _span(seconds: float) -> str:
     return f"{seconds / 3600:.1f} h".replace(".0 h", " h")
 
 
-def limits_text(gs: GuildSettings | None, rates, cooldowns, live_max_age: float | None = None) -> str:
+def limits_card(gs: GuildSettings | None, rates, cooldowns, live_max_age: float | None = None) -> Card:
     """/limits: this server's command limits, then refresh intervals and request budgets.
     Only sources slowed below their kind's floor (or set by the operator) are listed one by
-    one; the full list would not fit one message with ~70 adapters. `live_max_age` is set when
-    commands fetch from the sources themselves (EW_COMMAND_DATA=live)."""
+    one; the full list would not fit with ~70 adapters. `live_max_age` is set when commands
+    fetch from the sources themselves (EW_COMMAND_DATA=live)."""
     from electionwatch.ratelimit import FLOORS
 
     def every(kind: str) -> float:
         return rates.kind_interval(kind) if rates is not None else FLOORS[kind]
 
-    lines = []
+    if live_max_age is None:
+        description = "📦 Commands read the database only; it refreshes in the background."
+    else:
+        description = (
+            f"⚡ Live mode: commands also fetch from the source when an answer is over {_span(live_max_age)} "
+            "old, within the same budgets."
+        )
+    fields = []
     if cooldowns is not None:
         server = gs or GuildSettings(0)
         odds_every = every("odds") if live_max_age is None else min(every("odds"), live_max_age)
@@ -299,21 +305,23 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns, live_max_age: float 
         set_user = server.user_cooldown_seconds is not None or cooldowns.user_cooldown is not None
         set_refresh = server.refresh_cooldown_seconds is not None or cooldowns.refresh_cooldown is not None
         refresh = cooldowns.refresh_seconds(min(every(kind) for kind in FLOORS), server.refresh_cooldown_seconds)
-        lines += [
-            "Command limits in this server:",
-            "  same race/state again: "
-            + (f"after {_span(user)}" if set_user else f"after 2 refreshes of its data (odds: {_span(user)})"),
-            "  per user per hour: " + (f"{hourly:g}" if hourly else "no cap"),
-            "  /refresh: once every " + _span(refresh) + ("" if set_refresh else " (longer for slower data)"),
-        ]
-    if live_max_age is None:
-        lines.append("Data refresh (in the background; commands read the database only):")
-    else:
-        lines.append(
-            f"Data refresh (in the background; commands also fetch from the source when an answer "
-            f"is over {_span(live_max_age)} old, within the same budgets):"
+        again = f"after {_span(user)}" if set_user else f"after 2 refreshes of its data (odds: {_span(user)})"
+        fields.append(
+            (
+                "👤 Per user",
+                f"Same race or state again: {again}\nPer hour: {f'{hourly:g}' if hourly else 'no cap'}",
+                False,
+            )
+        )
+        fields.append(
+            (
+                "🏠 /refresh",
+                f"Once every {_span(refresh)}" + ("" if set_refresh else " (longer for slower data)"),
+                False,
+            )
         )
     rows = rates.status() if rates is not None else []
+    kinds, slowed = [], []
     for kind in FLOORS:
         # Race lists have a budget entry per source and state: show one line per source (its
         # slowest state), and count sources, not entries.
@@ -322,48 +330,92 @@ def limits_text(gs: GuildSettings | None, rates, cooldowns, live_max_age: float 
             name = row["source"].split(":")[0]
             if row["kind"] == kind and (name not in mine or row["interval"] > mine[name]["interval"]):
                 mine[name] = row
-        slowed = [row for row in mine.values() if row["overridden"] or row["interval"] > row["floor"] + 1]
-        lines.append(
-            f"  {kind}: every {_span(every(kind))}"
-            + (f" ({len(mine) - len(slowed)} sources at this rate)" if len(mine) > len(slowed) else "")
+        late = [row for row in mine.values() if row["overridden"] or row["interval"] > row["floor"] + 1]
+        kinds.append(
+            f"**{kind}**: every {_span(every(kind))}"
+            + (f" ({len(mine) - len(late)} sources at this rate)" if len(mine) > len(late) else "")
         )
-        for row in slowed:
+        for row in late:
             budget = ", ".join(f"{host} {used}/{allow:g} per h" for host, (used, allow) in row["hosts"].items())
             requests = row["requests_per_refresh"]
-            lines.append(
-                f"    {row['source'].split(':')[0]}: every {_span(row['interval'])}"
+            slowed.append(
+                f"{kind} · {row['source'].split(':')[0]}: every {_span(row['interval'])}"
                 + (" (set by operator)" if row["overridden"] else "")
                 + (f"; {requests} request{'s' if requests != 1 else ''} per refresh" if requests else "")
                 + (f"; {budget}" if budget else "")
             )
-    if rates is not None:
-        lines.append(
-            f"Each host gets at most 1/{rates.safety:g} of its published limit per hour, "
-            "shared evenly by the sources that use it."
-        )
-    return _clip_lines(lines, limit=1950, marker="… (more sources slowed by their budget)")
-
-
-def settings_dump(gs: GuildSettings) -> str:
-    # to_doc() turns the PostMode enum into its plain value: yaml cannot represent the enum.
-    # Clipped on a line boundary: the dump is sent inside a code block in one 2000-char message.
-    # The watch list goes last so a long one can't push the other settings out, and the
-    # truncation marker is a YAML comment so the clipped dump still parses.
-    # Odds alert overrides are written one per line ({enabled: true, threshold: 5.0}), not one
-    # line per field, so a hundred of them still leave room for the watch list. No line
-    # wrapping: clipping between the halves of a wrapped override would break the YAML.
-    doc = to_doc(gs)
-    overrides = {name: doc.pop(name) for name in ("odds_alert_categories", "odds_alert_races")}
-    important = {"important": doc.pop("important")}
-    lines = (
-        _yaml_lines(doc)
-        + yaml.safe_dump(overrides, sort_keys=False, default_flow_style=None, width=math.inf).strip().splitlines()
-        + _yaml_lines(important)
+    fields.append(("🔄 Data refresh", "\n".join(kinds), False))
+    if slowed:
+        fields.append(("🐢 Slowed by their request budget", _field_lines(slowed), False))
+    footer = (
+        f"Each host gets at most 1/{rates.safety:g} of its published limit per hour, shared evenly by the sources "
+        "that use it."
+        if rates is not None
+        else ""
     )
-    total = f"{len(gs.important)} watched races in total"
-    if gs.odds_alert_races:
-        total = f"{len(gs.odds_alert_races)} race overrides and {total}"
-    return _clip_lines(lines, marker=f"# … (truncated; {total})")
+    return Card("⏱️ Limits and refresh rates", description, fields, footer)
+
+
+def _on(flag: bool) -> str:
+    return "✅ on" if flag else "❌ off"
+
+
+def settings_card(gs: GuildSettings) -> Card:
+    """/settings: every setting of this server, grouped, in one embed."""
+    timing = {
+        PostMode.DEFAULT: f"every {DEFAULT_INTERVAL_MIN} minutes when results change (default)",
+        PostMode.INTERVAL: f"every {gs.interval_minutes} minutes when results change",
+        PostMode.IMMEDIATE: "as soon as results change",
+    }[gs.post_mode]
+    posting = [
+        f"Channel: <#{gs.channel_id}>" if gs.channel_id else "Channel: not set yet (/setup)",
+        f"Timing: {timing}",
+        "Status: ⏸️ paused (/resume)" if gs.paused else "Status: ▶️ posting",
+        "Results from: " + (", ".join(gs.results_sources) if gs.results_sources else "every available source"),
+        "Admins: Manage Server" + (f" or <@&{gs.admin_role_id}>" if gs.admin_role_id else ""),
+    ]
+    calls = f"{_on(gs.post_calls)}\nOutlets: {', '.join(gs.call_outlets) or 'none'}"
+    odds = [
+        f"Server default: {_on(gs.odds_alerts)}, {gs.odds_swing_pts:g} points within {gs.odds_window_minutes} minutes",
+        "Markets: " + (", ".join(market.capitalize() for market in gs.odds_markets) or "none"),
+    ]
+    odds += [
+        f"{ODDS_CATEGORIES.get(name, name)}: {_override_text(rule)}" for name, rule in gs.odds_alert_categories.items()
+    ]
+    odds += [f"{key}: {_override_text(rule)}" for key, rule in gs.odds_alert_races.items()]
+    limits = [
+        "Same race again: " + ("default" if gs.user_cooldown_seconds is None else _span(gs.user_cooldown_seconds)),
+        "Per user per hour: "
+        + (
+            "default"
+            if gs.user_commands_per_hour is None
+            else (f"{gs.user_commands_per_hour}" if gs.user_commands_per_hour else "no cap")
+        ),
+        "/refresh: "
+        + ("default" if gs.refresh_cooldown_seconds is None else f"every {_span(gs.refresh_cooldown_seconds)}"),
+    ]
+    if gs.important:
+        watched_title, watched = f"👁️ Watched races ({len(gs.important)})", list(gs.important)
+    else:
+        watched_title, watched = "👁️ Watched races (the defaults)", [str(race.key) for race in _default_races()]
+    menu = [
+        f"/menu for members: {_on(gs.private_menu)}",
+        f"Posted menu: <#{gs.menu_channel_id}>" if gs.menu_message_id and gs.menu_channel_id else "Posted menu: none",
+    ]
+    fields = [
+        ("📢 Posting", "\n".join(posting), False),
+        ("🏁 Race calls", calls, False),
+        ("🎲 Odds alerts", _field_lines(odds), False),
+        ("📊 Turnout", _on(gs.post_turnout), True),
+        ("🗳️ Exit polls", _on(gs.post_exit_polls), True),
+        ("📬 Early vote posts", _on(gs.post_early_vote), True),
+        ("⏱️ Limits", "\n".join(limits), False),
+        (watched_title, _field_lines(watched, sep=" · "), False),
+        ("🧭 Menu", "\n".join(menu), False),
+    ]
+    return Card(
+        "⚙️ Server settings", "", fields, "Admins change these with /setup, /posting, /calls, /oddsalerts and friends."
+    )
 
 
 def _race_key(race: str) -> str:
@@ -403,12 +455,37 @@ def race_label(key, label: str | None = None) -> str:
     return label or describe(key)
 
 
-def _yaml_lines(payload) -> list[str]:
-    return yaml.safe_dump(payload, sort_keys=False).strip().splitlines()
+#: Discord's limit for one embed field value.
+FIELD_LIMIT = 1024
+
+
+class Card(NamedTuple):
+    """A Discord embed as plain data, so the reply can be tested without discord.py."""
+
+    title: str
+    description: str
+    fields: list[tuple[str, str, bool]]  # (name, value, inline)
+    footer: str = ""
+
+    def text(self) -> str:
+        """Plain-text rendering, for tests and logs."""
+        parts = [self.title, self.description] + [f"{name}\n{value}" for name, value, _ in self.fields] + [self.footer]
+        return "\n".join(part for part in parts if part)
+
+
+def _field_lines(items: list[str], sep: str = "\n", limit: int = FIELD_LIMIT) -> str:
+    """Items joined to fit one embed field; the ones left over are counted, not cut in half."""
+    for count in range(len(items), -1, -1):
+        shown = sep.join(items[:count])
+        if count < len(items):
+            shown += (sep if count else "") + f"… +{len(items) - count} more"
+        if len(shown) <= limit:
+            return shown or "none"
+    return "none"
 
 
 def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "# … (truncated)") -> str:
-    """Join lines, stopping on a line boundary so 2000-character messages stay valid YAML."""
+    """Join lines, stopping on a line boundary so a 2000-character message never ends mid-line."""
     kept: list[str] = []
     size = 0
     for line in lines:
