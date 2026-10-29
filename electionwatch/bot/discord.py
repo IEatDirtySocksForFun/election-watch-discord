@@ -44,7 +44,8 @@ from electionwatch.config import load_races
 from electionwatch.demand import Demand
 from electionwatch.live import LiveFetch, command_mode
 from electionwatch.poller import Poller
-from electionwatch.racekeys import STATES, describe, parse
+from electionwatch.racekeys import STATES, describe, parse, parse_typed
+from electionwatch.racekeys import resolve_state as resolve_jurisdiction
 from electionwatch.racelists import KIND as RACELISTS
 from electionwatch.racelists import READ_TIMEOUT, RaceLists, typed_state
 from electionwatch.ratelimit import RateBook
@@ -393,7 +394,7 @@ async def _watched_keys(interaction: discord.Interaction):
 async def odds_command(interaction: discord.Interaction, race: str | None = None) -> None:
     if race:
         try:
-            keys = [parse(race)]
+            keys = [parse_typed(race)]
         except ValueError as exc:
             await _error(interaction, exc)
             return
@@ -422,7 +423,7 @@ async def polls_command(
     internals: bool = True,
 ) -> None:
     try:
-        key = parse(race)
+        key = parse_typed(race)
     except ValueError as exc:
         await _error(interaction, exc)
         return
@@ -681,6 +682,7 @@ async def favorite_command(interaction: discord.Interaction, action: Literal["ad
 
 
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
+@app_commands.describe(state="State code, name or abbreviation: NC, North Carolina, N.C., Penn.")
 async def faq_command(interaction: discord.Interaction, state: str | None = None) -> None:
     try:
         from electionwatch.faq.loader import FAQDataError, load_outlets, load_states
@@ -695,11 +697,19 @@ async def faq_command(interaction: discord.Interaction, state: str | None = None
         await interaction.response.send_message("FAQ data not installed", ephemeral=True)
         return
     try:
+        if state is not None and state.strip():
+            # "Pennsylvania", "Penn.", "pa" and "pensylvania" all mean PA (territories answer too).
+            state = resolve_jurisdiction(state)
         text = faq_text(states, outlets, state)
     except ValueError as exc:
         await _error(interaction, exc)
         return
     await interaction.response.send_message(text, ephemeral=True)
+
+
+@faq_command.autocomplete("state")
+async def faq_state_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [app_commands.Choice(name=name, value=code) for name, code in state_choices(list(STATES), current)]
 
 
 async def race_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:

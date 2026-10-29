@@ -122,7 +122,7 @@ async def test_missing_breakdowns_say_so(client):
     assert "By age (in-person early votes)" in _text(_embed(interaction))
 
 
-@pytest.mark.parametrize("state", ["ZZ", "Narnia", "PR", "x" * 6000, "", "N C"])
+@pytest.mark.parametrize("state", ["ZZ", "Narnia", "PR", "x" * 6000, "", "N Q"])
 async def test_invalid_state_is_one_ephemeral_error_without_defer(client, state):
     interaction = FakeInteraction(client)
     if state == "":

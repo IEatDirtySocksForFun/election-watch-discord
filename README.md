@@ -226,6 +226,10 @@ or as short keys:
 | `TX LOCAL harris-county-judge` | a local race                                                      |
 | `PR-AL`, `GU GOV`              | territories                                                       |
 
+Commands don't mind how you type the state or the district: `pa 08`, `PA08`,
+`pennsylvania-08`, `Penn. 8` and even `pensylvaniua 08` all mean `PA-08`. `/faq` and
+`/earlyvote` take a state's code, name, abbreviation (`N.C.`, `Calif.`) or a close misspelling.
+
 Parties get markers: 🔵 Democratic · 🔴 Republican · 🟡 Libertarian · 🟢 Green · 📜
 Constitution · ⚪ independent or no party, and a marker each for 97 smaller parties. See
 [docs/parties.md](docs/parties.md), and edit `electionwatch/data/parties.yaml` to change any.
