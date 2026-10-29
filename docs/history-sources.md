@@ -1,14 +1,26 @@
 # Historical results (`tools/fetch_history.py`)
 
-The bot's replay/replay-timeline features need past results, which no live feed serves.
+The replay and command-simulation tools need past results, which no live feed serves.
 `tools/fetch_history.py` builds `<data>/<year>/<state>/{senate,house,governor,state,local}.csv`
 plus a `manifest.json` from public bulk data, then `tools/build_timelines.py` synthesises
 timelines from the county rows. Everything is plain HTTP + `csv`; no model is involved.
 
-    python tools/fetch_history.py <data-dir> \
-        --years 2016 --states TX,MI [--no-timelines]
+- [Sources](#sources)
+- [Which OpenElections file is read](#which-openelections-file-is-read)
+- [Coverage for 2014 and 2016](#coverage-for-2014-and-2016)
+- [What is still missing, and why](#what-is-still-missing-and-why)
+- [Upstream data quirks worth knowing](#upstream-data-quirks-worth-knowing)
 
-Sources, in the order they are tried:
+```bash
+python tools/fetch_history.py <data-dir> \
+    --years 2016 --states TX,MI [--no-timelines]
+```
+
+---
+
+## Sources
+
+Tried in this order:
 
 | Source                                           | What it gives                                                  | Notes                                                                        |
 | ------------------------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -22,6 +34,8 @@ GitHub is only listed through a blobless shallow clone (`git clone --filter=blob
 `raw.githubusercontent.com`. The REST contents API allows 60 unauthenticated requests an hour
 per IP. The clone avoids that limit; the API remains a fallback for machines without `git`.
 
+---
+
 ## Which OpenElections file is read
 
 A repo year directory mixes partitions: one file per county, per town, per ward or a single
@@ -29,8 +43,10 @@ whole-state summary. Reading two partitions double-counts votes, reading one fil
 partition loses most of the state. So `parse_openelections_name()` ranks the trailing word
 (`…__general__<geo>.csv`) into
 
-    0-2  the whole state in one file (county summary, no geo word, precinct dump)
-    3    per district      4  per town     5  per county slice     6  per precinct/ward slice
+```text
+0-2  the whole state in one file (county summary, no geo word, precinct dump)
+3    per district      4  per town     5  per county slice     6  per precinct/ward slice
+```
 
 and `pick_openelections_files()` returns every file of each partition, coarsest first, skipping
 a precinct partition of more than `MAX_PARTITION_FILES` files when something coarser exists.
@@ -42,6 +58,8 @@ single county file beats its six county-precinct slices.
 `csv` files that use `last,first,middle,suffix` instead of `candidate` (Michigan, some Ohio
 files) are supported, and total votes are taken from `votes` or summed from `election_day`,
 `absentee`, `mail`, `early`, `provisional` and `advance` columns.
+
+---
 
 ## Coverage for 2014 and 2016
 
@@ -76,11 +94,13 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
 | WY    | house 1, state 75                                                                |
 | VA    | nothing — see below                                                              |
 
+---
+
 ## What is still missing, and why
 
 - **2014 FL, MD**: `openelections-data-fl` only has 2018/2020/2022, `openelections-data-md`
   is a stub (LICENSE + README). MEDSL has no 2014 GitHub repo, and the 2014 precinct files on
-  Dataverse are not listed publicly under a MEDSL DOI we could find.
+  Dataverse are not listed publicly under any MEDSL DOI found so far.
 - **2014 DC**: DC had no federal or state-legislative election in 2014 (council + mayor only);
   `openelections-data-dc` starts at 2016, so only the 2016 local rows exist.
 - **2016 VA**: `openelections-data-va` is a stub too; Virginia's own site publishes per-locality
@@ -90,12 +110,14 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
 - **MEDSL 2016 precinct returns** (`doi:10.7910/DVN/NH5S2I`) and **U.S. House 1976–2024**
   (`doi:10.7910/DVN/IG0UN2`) sit behind a Harvard Dataverse guestbook form
   (`"You may not download this file without the required Guestbook response for guestbookID
-458."`). They are deliberately not automated: a human has to accept the guestbook in a
+458."`). The downloads are deliberately not automated: a person has to accept the guestbook in a
   browser, download the file and drop it into `<data>/_cache/medsl/`. Adding the 2016 file
   would fill the remaining 2016 gaps for states whose OpenElections repos are empty (VA) and
   for Nebraska's legislature.
 - **No MEDSL gubernatorial county dataset exists**; gubernatorial rows come from OpenElections
   or the statewide Senate-style files only.
+
+---
 
 ## Upstream data quirks worth knowing
 
@@ -111,3 +133,10 @@ files) are supported, and total votes are taken from `votes` or summed from `ele
   `Governor` with a stray district number, and its U.S. House rows are `Congress` with `CD3`.
   All three are mapped (`CT AG`, `CT SOS`, `CT GOV`, `CT-03`); a `Congress` row with no district
   anywhere is dropped rather than invented as `CT-AL`.
+
+---
+
+## See also
+
+- [testing.md](testing.md#historical-data): the data layout and the replay tools
+- [../tests/README.md](../tests/README.md): the test suite

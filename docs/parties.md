@@ -1,24 +1,35 @@
 # Party codes and emoji markers
 
-`electionwatch/data/parties.yaml` is the single source of truth for party codes, their
-bucket and the marker the bot puts in front of a candidate. Adapters should store the
-canonical `code`; anything else (a state affiliate, an abbreviation with periods, an
-old ballot line) is resolved by `electionwatch/parties.py` through the alias list.
+`electionwatch/data/parties.yaml` is the single source of truth for party codes, the bucket
+of each party and the marker the bot puts in front of a candidate. Adapters store the
+canonical `code`; anything else (a state affiliate, an abbreviation with periods, an old
+ballot line) is resolved by `electionwatch/parties.py` through the alias list.
+
+- [Usage](#usage)
+- [Buckets](#buckets)
+- [Table](#table)
+
+---
+
+## Usage
 
 ```python
 from electionwatch.parties import party_code, party_emoji
 
 party_code("DFL")  # 'DEM'
 party_emoji("Constitution Party of Oregon")  # '📜'
-party_emoji("Nobody We Know")  # '⚪'
+party_emoji("No Such Party")  # '⚪'
 ```
 
 Matching is case- and punctuation-insensitive, and never touches the network. Unknown
 parties pass through uppercased with the ⚪ marker.
 
-The YAML is the source of truth; when you add a party there, add its row here too (a test checks that every party is listed).
+> **Note:** The YAML is the source of truth. A party added there needs a row here too; a test
+> checks that every party is listed.
 
 97 parties, 510 aliases.
+
+---
 
 ## Buckets
 
@@ -27,13 +38,15 @@ The YAML is the source of truth; when you add a party there, add its row here to
 | `dem`          | Democratic Party — 🔵 (1)                                                                             |
 | `rep`          | Republican Party — 🔴 (1)                                                                             |
 | `libertarian`  | Libertarian Party and its state affiliates — 🟡 (1)                                                   |
-| `green`        | Green Party and the state parties with their own ballot line — 🟢 (5)                                 |
+| `green`        | Green Party and the state parties with a separate ballot line — 🟢 (5)                                |
 | `socialist`    | socialist and communist parties — a distinct emoji each, in order of party size (14)                  |
 | `far_right`    | parties that reliable sources call neo-Nazi, white nationalist or fascist — a distinct emoji each (5) |
 | `constitution` | Constitution Party, its state affiliates and ballot lines — 📜 (3)                                    |
 | `independent`  | independent and no-party labels — ⚪ (10)                                                             |
 | `centrist`     | centrist and big-tent reform parties (15)                                                             |
 | `other`        | everything else: progressive, conservative, single-issue and regional parties (42)                    |
+
+---
 
 ## Table
 
@@ -136,3 +149,10 @@ The YAML is the source of truth; when you add a party there, add its row here to
 | `LPA`   | Liberal Party USA                          | other        | 🧾    | LPA, Liberal Party USA, LPUSA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `WRI`   | Write-in                                   | other        | ✍️    | WRI, Write-In, Writein, Write-Ins, Write-In Candidate, Scattering, Scattered Write-In                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `OTH`   | Other                                      | other        | ❓    | OTH, Other, Other Party, Other Parties, All Others, Miscellaneous                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+
+---
+
+## See also
+
+- [customizing.md](customizing.md): defaults, adapters and rate limits
+- [sources-results.md](sources-results.md): how results adapters store party codes

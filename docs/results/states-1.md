@@ -23,13 +23,17 @@ Checked 2026-10-27 with a descriptive User-Agent
 (`Mozilla/5.0 (compatible; election-watch-discord/0.1; +https://github.com/election-watch-discord)`).
 No bot challenge, captcha or login was bypassed, faked or replayed.
 
+---
+
 ## Ohio — `oh_sos`
 
 The live-results site is an SPA over a JSON API:
 
-    GET https://liveresults.ohiosos.gov/Api/v1/Contest/getContestList
-    GET https://liveresults.ohiosos.gov/Api/v1/Contest/GetContestDetailsObject
-            ?contestName=<parent contest>&contestObjectId=<grouping>&resultsLevel=&countyId=
+```text
+GET https://liveresults.ohiosos.gov/Api/v1/Contest/getContestList
+GET https://liveresults.ohiosos.gov/Api/v1/Contest/GetContestDetailsObject
+        ?contestName=<parent contest>&contestObjectId=<grouping>&resultsLevel=&countyId=
+```
 
 `getContestList` returns parent contests (`Governor and Lieutenant Governor`,
 `Representative to Congress`, `Statewide Issues`, ...) each with `contestGroupings`
@@ -52,10 +56,14 @@ Congress - District nn` -> `OH-nn`, `State Senator - District nn` -> `OH SD-nn`,
   the 1.2 MB SPA shell back), so it relies on the bot's client UA
   (`election-watch-discord/0.1 ...`), which is accepted.
 
+---
+
 ## Virginia — `va_elect`
 
-    https://enr.elections.virginia.gov/results/public/api/elections/virginia
-    .../api/elections/virginia/<publicElectionId>/data
+```text
+https://enr.elections.virginia.gov/results/public/api/elections/virginia
+.../api/elections/virginia/<publicElectionId>/data
+```
 
 The listing gives `publicElectionId`, `electionDate` and a localized `name`; the data
 endpoint returns `ballotItems` (`name`, `contestType`, `voteTotal`, `reportingStatus` with
@@ -69,6 +77,8 @@ House of Representatives (nnth District)` -> `VA-nn`, `U.S. Senate` -> `VA SEN`;
   offices, constitutional amendments and ballot questions -> LOCAL slugs.
 - `reportingStatus.asOf` becomes `source_updated_at`; the authoritative timestamp lives in
   a `statistics` block that is not polled.
+
+---
 
 ## Nebraska — `ne_sos`
 
@@ -89,18 +99,22 @@ Legislature, and the local families only when a LOCAL race is watched.
   reported precincts are deliberately not counted as reporting.
 - The pages carry no last-updated stamp, so `source_updated_at` stays `None`.
 
+---
+
 ## Colorado and Iowa — `co_sos`, `ia_sos`
 
 Both publish through Clarity ENR, so the transport matches `clarity.py`
 (`current_ver.txt`, then `<version>/json/en/summary.json`, plus `electionsettings.json`
-for `websiteupdatedat`), but their contest names miss the vendor adapter's patterns:
+for `websiteupdatedat`), but the contest names miss the vendor adapter's patterns:
 
-    CO: Representative to the 119th United States Congress - District 1
-    CO: State Senator - District 2          CO: State Representative - District 1
-    IA: United States Representative District 1
-    IA: State Senator District 2            IA: State Representative District 1
+```text
+CO: Representative to the 119th United States Congress - District 1
+CO: State Senator - District 2          CO: State Representative - District 1
+IA: United States Representative District 1
+IA: State Senator District 2            IA: State Representative District 1
+```
 
-Adding them to `clarity.ELECTIONS` alone would file those races as LOCAL. Each state therefore
+Adding the two states to `clarity.ELECTIONS` alone would file those races as LOCAL. Each state therefore
 has its own small module and `race_key()` mapper. Both reuse `clarity.parse_settings` for
 `source_updated_at` and discover the election id from `<ST>/elections.json` when the date is
 not pinned.
@@ -115,7 +129,11 @@ not pinned.
 
 Run the adapter tests:
 
-    pytest -q tests/test_results_*.py
+```bash
+pytest -q tests/test_results_*.py
+```
+
+---
 
 ## Live smoke check (2026-10-27)
 
@@ -129,3 +147,10 @@ suite:
 | `ne_sos`   | 2026 general | `NE SEN`, `NE GOV`, `NE-02`, 0 votes, 1322 / 334 precincts                                                                        |
 | `co_sos`   | 2024 general | `CO-01` DeGette 264,606 (76.56%), 3/3 precincts; `CO SD-02` Frizell 63,181                                                        |
 | `ia_sos`   | 2024 general | `IA-01` Miller-Meeks 206,955 (49.98%); `IA HD-01` Scholten 4,615, 1/1 precincts                                                   |
+
+---
+
+## See also
+
+- [../sources-results.md](../sources-results.md): results adapters at a glance
+- [../state-coverage-plan.md](../state-coverage-plan.md): election-night coverage plan

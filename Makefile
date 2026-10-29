@@ -9,7 +9,7 @@
 #   make lint        what CI's lint job checks: ruff (Python) and Prettier (Markdown)
 #   make format      fix what `make lint` complains about
 #
-# Recipes use .venv/bin/python when it exists, otherwise python3. No make on your machine
+# Recipes use .venv/bin/python when it exists, otherwise python3. No make available
 # (Windows)? tests/README.md lists the same commands as plain python/pytest lines.
 #
 # sim-full needs the timelines that tools/fetch_history.py writes to

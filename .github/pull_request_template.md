@@ -1,6 +1,6 @@
 ## What changed and why
 
-<!-- A sentence or two. Link the issue if there is one. -->
+<!-- A sentence or two. Link the issue, if there is one. -->
 
 ## Checklist
 
