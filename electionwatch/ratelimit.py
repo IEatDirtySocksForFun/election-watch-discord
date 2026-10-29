@@ -5,7 +5,7 @@ attributed to the source that made it (a context variable set around each fetch)
 share a host share its allowance evenly:
 
     allowance per hour = host limit per hour / EW_RATE_SAFETY      (default 2: half the limit)
-    demand             = sum over the host's sources of requests per refresh / their floor
+    demand             = sum over the host's sources of requests per refresh / source floor
     stretch            = demand / (90% of the allowance), at least 1
     interval           = floor for the source's kind x the largest stretch of its hosts
 
@@ -23,8 +23,8 @@ overridden by the operator (docs/customizing.md):
 An interval set in EW_INTERVALS replaces the computed one; the hourly allowance still applies.
 
 With EW_COMMAND_DATA=live (electionwatch/live.py) commands may also fetch between refreshes.
-Those requests are counted on the same hosts, so they come out of the same hourly allowance:
-has_room() says whether one more fits, spacing() how far apart to send them.
+Those requests are counted on the same hosts and come out of the same hourly allowance:
+has_room() says whether one more fits, spacing() how far apart to send each one.
 
 A source can be budgeted in parts, named "source:kind:part" (race lists: one part per state,
 each refreshed on its own). A part that has never run is expected to cost what its sibling
@@ -232,7 +232,7 @@ class RateBook:
         return override if override is not None else FLOORS.get(kind, DEFAULT_FLOOR)
 
     def _demands(self) -> dict[str, float]:
-        """Requests per second each host's sources want at their floors, in one pass (race
+        """Requests per second each host's sources want at the source floors, in one pass (race
         lists add an entry per source and state, so a pass per host per row would be slow)."""
         demands: dict[str, float] = defaultdict(float)
         for name, cost in self._cost.items():
@@ -245,7 +245,7 @@ class RateBook:
         return demands
 
     def stretch(self, bucket: str, demands: Mapping[str, float] | None = None) -> float:
-        """How much slower than their floors the sources on a host must run to share it."""
+        """How much slower than the floors the sources on a host must run to share the host."""
         demand = (demands if demands is not None else self._demands()).get(bucket, 0.0)
         return max(1.0, demand * WINDOW / (TARGET * self.allowance(bucket)))
 

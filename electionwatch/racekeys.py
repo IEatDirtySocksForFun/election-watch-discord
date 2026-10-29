@@ -70,8 +70,8 @@ STATES = {
     "WI": "Wisconsin",
     "WY": "Wyoming",
 }
-# US territories elect a non-voting House member (key XX-AL, e.g. PR-AL) plus their own
-# governor and legislature. Kept apart from STATES because adapters derive their
+# US territories elect a non-voting House member (key XX-AL, e.g. PR-AL) plus a territorial
+# governor and legislature. Kept apart from STATES because adapters derive adapter
 # coverage from STATES and no territory has a results adapter yet.
 TERRITORIES = {
     "PR": "Puerto Rico",

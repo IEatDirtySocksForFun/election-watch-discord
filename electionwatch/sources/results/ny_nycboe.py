@@ -221,7 +221,7 @@ async def _one(client: httpx.AsyncClient, entry: dict, fetched_at: datetime) -> 
 class NyNycBoe(ResultsSource):
     name = "ny_nycboe"
     states = frozenset({"NY"})
-    # The votes come from CSV files, but finding them means reading the vote.nyc HTML index,
+    # The votes come from CSV files, but finding the files means reading the vote.nyc HTML index,
     # so this is treated as a scrape: off unless an operator enables it.
     scrape = True
     enabled_by_default = False

@@ -23,7 +23,7 @@ Every ballot item is one contest:
 
 Election ids are irregular (`2024NovemberGeneral`, `2026-November-General`), so the
 slug is discovered from the jurisdiction listing rather than hard-coded; ELECTIONS only
-pins the ones we have checked. `reportingStatus.totalUnits` counts the precincts inside
+pins the checked ones. `reportingStatus.totalUnits` counts the precincts inside
 the contest (133 statewide, 18 for a congressional district), which is what
 expected_vote_pct is computed from.
 """

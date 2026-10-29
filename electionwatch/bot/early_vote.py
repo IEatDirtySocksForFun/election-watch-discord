@@ -1,7 +1,9 @@
 """Early-vote embeds for /earlyvote and the optional daily summary post (civicAPI data).
 
 The command and the daily post read the pages the bot's hourly refresher stored in MongoDB
-(``bot.early_vote`` is a cache-only EarlyVoteClient); they never call civicAPI themselves.
+through ``bot.early_vote``, a cache-only EarlyVoteClient by default. With EW_COMMAND_DATA=live
+that client may also download from civicAPI within the request budget; autocomplete always
+reads the stored pages (``bot.early_vote_db``).
 
 Every embed links the civicapi.org early-vote page and names civicAPI in the footer: that is
 civicAPI's attribution requirement. Rendering is deterministic and fits Discord's limits.
@@ -48,8 +50,8 @@ COLOR = discord.Color.teal()
 
 
 def early_vote_client(bot) -> EarlyVoteClient:
-    """The bot's cache-only client (reads stored pages), or a plain client when a bot stand-in
-    has none (tests)."""
+    """The bot's command client (cache-only by default, see the module docstring), or a plain
+    client when a bot stand-in has none (tests)."""
     client = getattr(bot, "early_vote", None)
     if client is None:
         client = EarlyVoteClient(bot.http_client)

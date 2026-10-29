@@ -42,7 +42,7 @@ ICONS = {
     "settings": emoji.SETTINGS,
     "limits": emoji.LIMITS,
 }
-CUSTOM_ID = "electionwatch:menu:{}"  # never change these: posted menus carry them
+CUSTOM_ID = "electionwatch:menu:{}"  # never change these ids: posted menus carry the old ones
 PICKER_TIMEOUT = 600
 OPTIONS = 25  # Discord's limit per select
 PICKER_SELECTS = 4  # the fifth row is left for a button

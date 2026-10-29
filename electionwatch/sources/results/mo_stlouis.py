@@ -108,7 +108,7 @@ def parse_csv(text: str, *, fetched_at: datetime) -> list[RaceResult]:
 
     Rows are (precinct, contest, choice, votes); votes are summed per choice and the
     precincts that reported the contest are counted. Unfiled write-ins (empty party, zero
-    votes, choice id 0) are dropped, as they are noise from the export.
+    votes, choice id 0) are dropped as noise from the export.
     """
     tally: dict[str, dict[str, list]] = {}
     precincts: dict[str, set[str]] = {}

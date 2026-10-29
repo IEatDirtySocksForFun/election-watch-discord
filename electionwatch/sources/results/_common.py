@@ -1,6 +1,6 @@
 """Helpers shared by the state results adapters.
 
-Parsing functions in the adapters are pure: they take an already-fetched payload and
+Parsing functions in the adapters are pure: each takes an already-fetched payload and
 return `RaceResult` objects. Everything that touches the network lives in `fetch()`.
 """
 

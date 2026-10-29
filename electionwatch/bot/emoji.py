@@ -1,6 +1,6 @@
 """The emoji the slash-command embeds use, kept in one place so every command speaks the same
-visual language. They always sit next to words ("🔵 Dem", "🏛️ Senate"), never instead of
-them: screen readers read the words, and the emoji are only there to help the eye."""
+visual language. Each emoji sits next to words ("🔵 Dem", "🏛️ Senate"), never instead of
+the words: screen readers read the words, and the emoji are only there to help the eye."""
 
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def party(raw: str | None) -> str:
 
 
 def is_party(raw: str | None) -> bool:
-    """True when ``raw`` names a party we know (an odds outcome like "REP"), not a person."""
+    """True when ``raw`` names a known party (an odds outcome like "REP"), not a person."""
     if not raw:
         return False
     try:

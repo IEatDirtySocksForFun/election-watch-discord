@@ -18,8 +18,8 @@ summary.json is a JSON array of contest objects (older builds wrap it in
      "V":  [0, 0, ...], "PCT": [0, 0, ...], "T": [0],
      "W":  [0, 0, ...]}                 # 1 = the vendor marks the choice the winner
 
-Feeds are per-election, so they are configured rather than discovered. Built-in entries
-live in ELECTIONS; CLARITY_FEEDS (JSON) overrides them for any election:
+Feeds are per-election, so feeds are configured rather than discovered. Built-in entries
+live in ELECTIONS; CLARITY_FEEDS (JSON) overrides the built-in entries for any election:
 
     CLARITY_FEEDS='[{"state":"IL","jurisdiction":"McLean","election_id":"127349"}]'
 

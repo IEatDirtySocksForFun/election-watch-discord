@@ -29,7 +29,7 @@ id across every row. `wc` write-ins are lumped into a single "Write-In" candidat
 Statewide races have no `dc`; legislative districts are named ("ADD 1",
 "ADD RUT", "CHI SE 1"), so the RaceKey district is the slugified district code
 (VT HD-add-1, VT SD-add-1). Vermont has a single at-large U.S. House seat, keyed
-VT-AL. Precinct counts are not published (reporting units are towns), so they are
+VT-AL. Precinct counts are not published (reporting units are towns), so the counts are
 left None; winners are only those the feed flags with isWinner.
 """
 

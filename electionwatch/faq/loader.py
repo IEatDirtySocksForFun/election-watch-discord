@@ -3,10 +3,10 @@
 The data lives next to this module:
 
     states.yaml   per-state FAQ used by the /faq command
-    outlets.yaml  national outlets and decision desks used by /calls
+    outlets.yaml  national outlets and decision desks listed by /faq without a state
 
 Both files are parsed with ``yaml.safe_load`` once and cached.  The returned
-dictionaries are shared: treat them as read-only.
+dictionaries are shared: treat every one as read-only.
 """
 
 from __future__ import annotations

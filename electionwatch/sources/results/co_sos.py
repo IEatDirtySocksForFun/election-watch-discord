@@ -16,7 +16,7 @@ This module exists (instead of a `clarity` ELECTIONS entry) for two reasons:
   local race. `race_key()` here knows the Colorado phrasing.
 * The 2026 general's election id is not published yet, so the id is discovered from
   CO/elections.json (matched on the election date) rather than hard-coded; ELECTIONS only
-  pins the ids we have verified.
+  pins the verified ids.
 
 Everything not federal / statewide executive / state legislature — regents, State Board of
 Education, district attorneys, judicial retention, amendments and propositions — becomes a

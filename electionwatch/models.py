@@ -1,4 +1,4 @@
-"""Shared data model. Every source adapter returns these; the bot and store consume them.
+"""Shared data model: the types every source adapter returns and the bot and store consume.
 
 Keep this file stable: adapters, storage and Discord code all rely on it. Times are UTC-aware.
 """
@@ -85,8 +85,8 @@ class RaceResult:
 
     def finalize(self) -> "RaceResult":
         # Feeds mix ballot statistics into the candidate list ("Blank Ballots", "Times Over
-        # Voted", "Registered Voters"...). Drop them so they neither show up as candidates nor
-        # dilute the percentages; keep a registered-voter count for turnout.
+        # Voted", "Registered Voters"...). Drop those rows, so no fake candidates show up and
+        # the percentages stay undiluted; keep a registered-voter count for turnout.
         kept = []
         for candidate in self.candidates:
             label = candidate.name.strip().strip(":*").strip().lower()  # "Overvotes:", "Write-In**"
@@ -142,7 +142,7 @@ class OddsSnapshot:
     ts: datetime
     market_id: str | None = None
     url: str | None = None
-    candidate: str | None = None  # who the outcome stands for, when the market names them
+    candidate: str | None = None  # who the outcome stands for, when the market names a candidate
 
 
 @dataclass
@@ -236,7 +236,7 @@ def normalize_party(party: str | None) -> str | None:
     return _PARTY_ALIASES.get(code, code)
 
 
-# Ballot statistics some feeds list as if they were candidates. Real ballot options (Nevada's
+# Ballot statistics some feeds list as if each were a candidate. Real ballot options (Nevada's
 # "None of These Candidates") and counted write-ins are kept.
 _NOT_A_CANDIDATE = re.compile(
     r"(times? )?(blank|over|under)( ?voted| ?votes?| ballots?)?|blank/void|void|spoiled( ballots)?"
@@ -308,7 +308,7 @@ def pretty_name(name: str) -> str:
             and " " in cleaned
         ):
             # Vowel-less two-letter first names are initials: "JB PRITZKER" -> "JB Pritzker",
-            # and feeds that title-cased them already ("Jd Vance") -> "JD Vance".
+            # and initials a feed already title-cased ("Jd Vance") -> "JD Vance".
             word = word.upper()
         else:
             word = re.sub(r"\bMc([a-z])", lambda match: "Mc" + match.group(1).upper(), word)

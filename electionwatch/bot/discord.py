@@ -163,8 +163,8 @@ class ElectionBot(commands.Bot):
             self.tree.add_command(command)
 
     async def setup_hook(self) -> None:
-        # Buttons on menus posted before a restart: they have fixed custom_ids, so this one
-        # view answers all of them. Added before connecting, so no click arrives unhandled.
+        # Buttons on menus posted before a restart carry fixed custom_ids, so this one view
+        # answers every posted menu. Added before connecting, so no click arrives unhandled.
         self.add_view(MenuView())
         dev_guild = os.environ.get("DEV_GUILD_ID")
         if dev_guild:
@@ -273,7 +273,7 @@ def _embed(card: Card) -> discord.Embed:
 
 
 async def _cooldown(interaction: discord.Interaction, command: str, target: str, kind: str) -> bool:
-    """True if the user may run a data command now; otherwise tells them when they can.
+    """True if the user may run a data command now; otherwise replies with when the next try is allowed.
     Called after defer(): the guild read must not count against Discord's 3 s deadline."""
     bot = interaction.client
     cooldowns = getattr(bot, "cooldowns", None)
@@ -633,7 +633,7 @@ async def refresh_command(
             message = " Early-vote pages are downloading in the background (one a second)."
     if RACELISTS in kinds:
         # Race lists are a few states per source a minute (racelists.STATES_PER_TICK): forcing
-        # them marks every stored list stale and the background refresh works through them.
+        # the lists marks every stored list stale and the background refresh works through the backlog.
         bot.race_lists.force()
         if not bot.race_lists.running:
             task = asyncio.create_task(bot.race_lists.refresh())
@@ -800,7 +800,7 @@ async def faq_state_autocomplete(interaction: discord.Interaction, current: str)
 async def menu_command(interaction: discord.Interaction) -> None:
     if interaction.guild_id is not None:
         gs = await interaction.client.store.get_guild(interaction.guild_id)
-        # Admins keep it when it's off for everyone else: they may want to see what it shows.
+        # Admins keep /menu when it's off for everyone else, to see what the menu shows.
         if gs and not gs.private_menu and not is_admin(interaction.user, gs):
             await interaction.response.send_message(PRIVATE_MENU_OFF, ephemeral=True)
             return

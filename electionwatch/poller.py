@@ -238,7 +238,7 @@ class Poller:
 
     async def _fetch(self, source, method: str, keys: list):
         """Fetch with a per-source back-off: after a failure the source is skipped for 1, 2, 4,
-        8, then 15 minutes, so a site that starts refusing us (CNN answers 406 to bursts) is not
+        8, then 15 minutes, so a site that starts refusing the bot (CNN answers 406 to bursts) is not
         hammered every minute. A success resets it."""
         name = getattr(source, "name", repr(source))
         failures, until = self._backoff.get(name, (0, None))
@@ -319,7 +319,7 @@ class Poller:
 
         await self._results(now, guilds, keys)
         # Outlets and markets don't flag special elections (OH/FL Senate 2026 are specials):
-        # ask them for the plain key too and file their answers under the watched special.
+        # ask for the plain key too and file those answers under the watched special.
         self._aliases = {
             replace(key, special=False): key for key in keys if key.special and replace(key, special=False) not in keys
         }
@@ -351,7 +351,7 @@ class Poller:
         selected: dict[str, RaceResult] = {}
         enabled = [source for source in self.sources.get("results", []) if self._enabled(source)]
         # Fallbacks (civicAPI, the outlet feeds) are asked only about races no official feed
-        # answered completely: that keeps a big watch list from pulling every race from them
+        # answered completely: that keeps a big watch list from pulling every race from a fallback
         # every minute. A guild that picked a fallback by name with /settings gets it for all.
         pinned = {name for guild in guilds for name in guild.results_sources}
         primary = [source for source in enabled if not getattr(source, "fallback", False) or source.name in pinned]
@@ -455,7 +455,7 @@ class Poller:
                         await self._post(guild, "exitpoll", ref, format_exit_poll(poll), now)
 
     async def _polls(self, now: datetime, keys: list) -> None:
-        """Store each poll source's polls per race; /polls reads them from the store."""
+        """Store each poll source's polls per race; /polls reads the polls from the store."""
         for source in self.sources.get("polls", []):
             if not self._enabled(source):
                 continue
