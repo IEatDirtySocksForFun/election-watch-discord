@@ -13,7 +13,7 @@ contests with parallel arrays P/CH/V/PCT/W (party, choice name, votes, percent,
 winner) plus C (contest name), T (contest total votes), TP (precincts total) and
 PR (precincts reporting).
 
-Trimming: the full summary holds 212 contests; this fixture keeps 11 of them
+Trimming: the full summary holds 212 contests; this fixture keeps 11
 (president, one U.S. House district, state Senate 1 and 19, state House 1 and 35,
 Solicitor Circuit 1, Amendment 1, one school board race, one mayor race, and
 "Straight Party 1") with every parallel-array entry intact. The saved JSON is a

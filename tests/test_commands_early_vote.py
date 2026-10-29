@@ -21,7 +21,7 @@ autocomplete
   [x] cold cache + slow civicAPI -> answers inside Discord's 3 s with every state
 daily post
   [x] off by default: no requests; on: one post per snapshot day; paused / no channel skipped
-  [x] only the server's watched states; nothing when none of them has data
+  [x] only the server's watched states; nothing when none of those states has data
 """
 
 from __future__ import annotations

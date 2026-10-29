@@ -23,7 +23,7 @@ def test_senate_rows_are_mapped_to_races():
     polls = two70win.parse_270towin_polls(
         _fixture("senate-polls.html"), Level.SENATE, [parse("ME SEN"), parse("TX SEN"), parse("MI SEN")]
     )
-    assert len(polls) == 4  # the fixture also holds a North Carolina row we did not ask for
+    assert len(polls) == 4  # the fixture also holds a North Carolina row the test did not ask for
     assert all(poll.key.level is Level.SENATE and poll.source == "270towin" for poll in polls)
     # newest first
     assert [poll.end_date for poll in polls] == sorted((poll.end_date for poll in polls), reverse=True)

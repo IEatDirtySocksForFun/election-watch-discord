@@ -58,7 +58,7 @@ def test_other_party_label():
 
 
 def test_both_files_together_do_not_double_count():
-    """The two CSVs share the same state rows; the legislative pass must not add them again."""
+    """The two CSVs share the same state rows; the legislative pass must not add those rows again."""
     text = (FIX / "2024_general_congressional_breakdown.csv").read_text(encoding="utf-8-sig")
     single = {
         format_key(race_result.key): race_result.total_votes for race_result in parse_md(text, None, fetched_at=AT)

@@ -9,7 +9,7 @@ A replay night runs at max speed (FakeClock, MemoryStore or MongoStore, ReplaySo
 scripted calls / odds / exit polls / polls) through the real Poller of a real (never started)
 ElectionBot. At scripted simulated times the REAL slash-command callbacks of
 electionwatch/bot/discord.py are invoked with fake interactions (admin and non-admin users);
-their replies are recorded and checked against Discord's limits, their wall time is measured.
+each reply is recorded and checked against Discord's limits, and each command's wall time is measured.
 Every scenario then asserts the observable effect on the recorded posts.
 
 Scenario DSL (YAML or Python), times are US Eastern on election night (hours < 12 = next day):
@@ -647,7 +647,7 @@ class CmdRec:
                 parts.append(reply.content)
             for embed in reply.embeds:
                 parts.append(" ".join(str(embed.get(field_name) or "") for field_name in ("title", "description")))
-                # /settings and /limits keep their content in fields.
+                # The /settings and /limits embeds hold the content in fields.
                 parts += [f"{field['name']}: {field['value']}" for field in embed.get("fields") or []]
         return " | ".join(parts)
 

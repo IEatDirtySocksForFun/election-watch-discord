@@ -5,7 +5,7 @@
 
 Every race in --races is tracked (as one hidden guild, recorded for the report); only the
 --post subset is posted to the channel (the word "senate" adds every US Senate race).
-Posts are titled "[SIM <year>]" so nobody mistakes them for live results. The first message
+Posts are titled "[SIM <year>]" so no reader mistakes a post for live results. The first message
 links/attaches the full-run report. Posting is sequential: when Discord rate-limits, the
 simulated clock waits instead of dropping posts, so busy stretches run slower than --speed.
 

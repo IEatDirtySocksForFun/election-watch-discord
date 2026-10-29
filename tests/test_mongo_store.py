@@ -166,7 +166,7 @@ async def test_menu_settings_round_trip_and_older_guild_documents_still_load(sto
     await store.save_guild(guild)
     assert await store.get_guild(7) == guild
     if isinstance(store, MongoStore):
-        # A server set up before the button menus existed has none of their fields.
+        # A server set up before the button menus existed has none of the menu fields.
         await store.guilds.insert_one({"_id": 11, "channel_id": 12, "post_mode": "interval", "paused": True})
         older = await store.get_guild(11)
         assert (older.channel_id, older.paused) == (12, True)

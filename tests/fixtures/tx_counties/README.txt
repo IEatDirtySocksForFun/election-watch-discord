@@ -79,7 +79,7 @@ travis_2024_summary.json       122432 / 355984   President / Vice President, Uni
     the presidential rows name only the nominee)
 
 Hood's "Rejected write-ins" (227 votes) and "Unassigned write-ins" (0 votes) rows are left
-in the fixture on purpose: the parser must drop them, and keep the counted write-in
+in the fixture on purpose: the parser must drop both rows and keep the counted write-in
 "Chad Hagg" (93 votes).
 
 --- Added 2026-10-27 (design/state-fixes; plain bot User-Agent

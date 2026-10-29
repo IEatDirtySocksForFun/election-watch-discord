@@ -74,7 +74,7 @@ DV_SENATE_STATE = "doi:10.7910/DVN/PEJ5QU"  # U.S. Senate statewide 1976-2024
 DV_2016_PRECINCTS = "doi:10.7910/DVN/NH5S2I"  # 2016 Precinct-Level Election Results (guestbook)
 
 # OpenElections trailing filename word -> how the repo splits a state up. Ranks 0-2 are a whole
-# state in one file (county summary, no geo word, precinct dump): complete on their own, so only
+# state in one file (county summary, no geo word, precinct dump): each complete alone, so only
 # one is used. Ranks 3+ are one slice of the state (district, town, county, precinct) and every
 # file of the chosen slice is aggregated, because each covers only part of the state.
 OE_LEVELS = {
@@ -327,7 +327,7 @@ def _leg_district(office: str, district: str) -> str | None:
 def classify(
     state: str, office: str, district: str | None, county: str = "", dataverse: str | None = None
 ) -> tuple[str, str] | None:
-    """Map a source row to (level, race_key string). None = not a race we keep.
+    """Map a source row to (level, race_key string). None = not a race the history keeps.
 
     The source's own `dataverse` tag is only a hint: MEDSL tags state legislature rows
     "LOCAL" in some states (Michigan 2018), so an explicit office name always wins.
@@ -541,7 +541,7 @@ def pick_openelections_files(names: list[str], year: str) -> list[list[str]]:
 
     Each returned list holds every file of one partition of one election date: a per-county or
     per-town file covers only part of the state, so the files of a partition must be aggregated
-    together and partitions must not be mixed (they would count the same votes twice). Several
+    together and partitions must not be mixed (mixing partitions would count the same votes twice). Several
     partitions are offered because no filename tells whether one is complete - the caller keeps
     the one that reports the most races."""
     primary = year.endswith("primary")
@@ -642,7 +642,7 @@ class Net:
 
 def _decode(raw: bytes) -> str:
     """UTF-8, else Windows-1252: several OpenElections files (IN, MA 2014) are cp1252, and
-    decoding them as UTF-8 turned "André Carson" into "Andr\ufffd Carson"."""
+    decoding those files as UTF-8 turned "André Carson" into "Andr\ufffd Carson"."""
     try:
         return raw.decode("utf-8-sig")
     except UnicodeDecodeError:
