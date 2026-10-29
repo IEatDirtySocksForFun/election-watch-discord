@@ -79,7 +79,7 @@ class RaceNavigator(discord.ui.View):
 
     def _known_races(self) -> list[tuple]:
         """The server's watched races and the user's favorites: navigable even when no source
-        lists them, or while the state's list is still loading."""
+        lists those races, or while the state's list is still loading."""
         known = []
         if self.watched is not None:
             texts = list(self.watched)

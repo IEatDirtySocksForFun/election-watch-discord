@@ -1,7 +1,7 @@
-"""Seam between the poller and Discord. The poller builds Posts; a Poster delivers them.
+"""Seam between the poller and Discord. The poller builds Posts; a Poster delivers each one.
 
 DiscordPoster (electionwatch/bot/) renders a Post as an embed. The replay sandbox uses a
-RecordingPoster that just collects them, so the whole pipeline runs without Discord.
+RecordingPoster that just collects the posts, so the whole pipeline runs without Discord.
 
 The poller is constructed as:
 

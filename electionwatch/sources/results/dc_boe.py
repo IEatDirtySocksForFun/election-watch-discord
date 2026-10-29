@@ -174,7 +174,7 @@ def parse_dc(root: ET.Element, *, fetched_at: datetime) -> list[RaceResult]:
             )
         )
 
-    # Apply turnout to every race now that we have the totals.
+    # Apply turnout to every race now that the totals are known.
     if registered and ballots:
         for race_result in results:
             race_result.registered_voters = registered

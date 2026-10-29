@@ -4,7 +4,7 @@ Tennessee's Secretary of State publishes statewide results through a GoVoteTN ap
 page answers 403 to the bot User-Agent, so a county feed is the only route a plain HTTP client
 has. The two other big counties are not usable either: Davidson draws from a PDF precinct
 report and Knox (elections.knoxcounty.org) is a single-page app whose result feed is fetched
-with a per-session token we could not reproduce (see docs/results/counties.md).
+with a per-session token that could not be reproduced (see docs/results/counties.md).
 
 Shelby County (Memphis, the state's largest county) publishes a machine-readable export:
 
@@ -140,7 +140,7 @@ def parse_tn_county(payload, *, county: str, fetched_at) -> list[RaceResult]:
 
 
 def feeds(date: str) -> list[dict]:
-    """Configured counties for a date, with their export slug (TN_COUNTY_FEEDS overrides)."""
+    """Configured counties for a date, with each county's export slug (TN_COUNTY_FEEDS overrides)."""
     raw = os.environ.get("TN_COUNTY_FEEDS")
     if raw:
         try:

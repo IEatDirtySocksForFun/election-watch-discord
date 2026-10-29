@@ -25,7 +25,7 @@ November 2026 (the same code names the county's PDF reports, ``Data/1126/cumulat
                    "pct": ["43.00%", ...]}, ...]}
 
 Contest titles use the same wording as the Clarity counties ("United States
-Representative, District 7"), so `tx_counties.race_key` maps them and the county merges into
+Representative, District 7"), so `tx_counties.race_key` maps those titles and the county merges into
 the same partial statewide results. This module is pure; `tx_counties` does the fetching.
 """
 

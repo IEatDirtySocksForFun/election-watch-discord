@@ -7,7 +7,7 @@ page for that election:
       PG24_CongressionalBreakDown.csv     votes split by congressional district
       PG24_LegislativeBreakDown.csv       votes split by legislative district
 
-Both files carry the same rows; they differ only in which geographic partition the vote
+Both files carry the same rows; the files differ only in which geographic partition the vote
 columns use:
 
     "Vote Type (FOR=1,AGAINST=2)","County","County Name","Office Name","Office District",
@@ -149,7 +149,7 @@ def parse_md(
             if statewide_only and not is_state_row:
                 continue
             if not statewide_only and is_state_row:
-                continue  # the same state rows are in both files; count them once
+                continue  # the same state rows are in both files; count each once
             office = str(row.get("Office Name") or "").strip()
             district = str(row.get("Office District") or "").strip()
             key = race_key(office, district)
@@ -220,7 +220,7 @@ def index_entries(html: str) -> list[dict]:
     An office that is broken out by district ("State Senator" -> "State Senator, 1") has a
     parent anchor followed by one anchor per district; the parent is dropped, because the
     per-district pages are the contests. Offices without sub-pages (Governor, Comptroller,
-    the questions) keep their single anchor.
+    the questions) keep the single anchor.
     """
     raw: list[dict] = []
     office = ""
@@ -266,8 +266,8 @@ def parse_md_enr(
         title = f"{title}, District {district}"
     cands: list[CandidateResult] = []
     seen: set[tuple[str, str | None]] = set()
-    # Primary-result pages hold one table per party; their percentages are per party, so
-    # they are only kept when the page has a single (general-election) table.
+    # Primary-result pages hold one table per party with per-party percentages, so
+    # percentages are only kept when the page has a single (general-election) table.
     single_table = len(page.css("table")) <= 1
     for row in page.css("tr"):
         cells = [_enr_text(td.text()) for td in row.css("td")]

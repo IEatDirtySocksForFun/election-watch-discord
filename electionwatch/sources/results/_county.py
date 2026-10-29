@@ -1,6 +1,6 @@
 """Helpers shared by the county-feed adapters (tx_counties, nj_counties, ...).
 
-Some states block their statewide election-night site but the counties publish the same
+Some states block the statewide election-night site but the counties publish the same
 Clarity ENR files on the vendor CDN. One adapter per state merges those counties:
 
     https://results.enr.clarityelections.com/<ST>/<County>/elections.json     election list
@@ -33,7 +33,7 @@ from . import _common as c
 
 BASE = "https://results.enr.clarityelections.com"
 
-#: Contest names a county publishes for candidates that did not file; they carry no votes.
+#: Contest names a county publishes for candidates that did not file; these carry no votes.
 #: "Rejected write-ins" (Hood County) is a tally of write-ins that were not counted, and
 #: "Unassigned write-ins" is the vendor's zero-vote placeholder row.
 _PLACEHOLDER = re.compile(r"^NO (?:CANDIDATE|NOMINATION)(?: FILED| MADE)?$|^(?:REJECTED|UNASSIGNED) WRITE-?INS?$", re.I)

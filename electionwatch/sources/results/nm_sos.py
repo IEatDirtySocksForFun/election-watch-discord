@@ -32,7 +32,7 @@ Notes:
 
 - The page marks no winner (no winner icon exists in this markup), so `winner` is always
   False and the bot's own call logic decides; percentages are not published either.
-- Candidate names arrive in upper case ("BEN R LUJAN"); they are kept verbatim.
+- Candidate names arrive in upper case ("BEN R LUJAN") and are kept verbatim.
 - There is no "last updated" stamp; `source_updated_at` stays None.
 """
 

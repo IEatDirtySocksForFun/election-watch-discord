@@ -7,7 +7,7 @@ server-rendered page:
     https://results.sos.nd.gov/resultsSW.aspx?text=All&type=LG&map=CTY   legislative districts
     (type=JD judicial, type=CIALL county initiatives, ... - not tracked)
 
-The same URLs serve whatever election the state is currently counting; on 2026-10-27 they
+The same URLs serve whatever election the state is currently counting; on 2026-10-27 the URLs
 served the 2024 general election, which is what the fixture records.
 
 One block per contest inside `<div class="wrapper-inside wrapper-border">`:

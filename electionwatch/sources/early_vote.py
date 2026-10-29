@@ -2,7 +2,7 @@
 
 civicAPI is keyless and free with attribution: every embed built from this data links the
 civicapi.org early-vote page and names civicAPI in its footer. The endpoints are the ones the
-civicapi.org web app calls (they are not in the API docs), verified 2026-10-27:
+civicapi.org web app calls (not in the API docs), verified 2026-10-27:
 
     GET /api/v2/early-vote/US/{category}
         national map: ``regions`` = {USPS code: {party: {votes, color}}}, ``statewide_total``,
@@ -311,7 +311,7 @@ class EarlyVoteClient:
         if self.may_download is not None and not self.may_download():
             return await self._stored(key)
         async with self._lock:
-            if (cached := self._fresh(key)) is not _MISS:  # filled while we waited
+            if (cached := self._fresh(key)) is not _MISS:  # filled while waiting for the lock
                 return cached
             try:
                 payload = await self._download(url, params)

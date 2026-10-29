@@ -290,7 +290,7 @@ def _span(seconds: float) -> str:
 
 def limits_card(gs: GuildSettings | None, rates, cooldowns, live_max_age: float | None = None) -> Card:
     """/limits: this server's command limits, then refresh intervals and request budgets.
-    Only sources slowed below their kind's floor (or set by the operator) are listed one by
+    Only sources slowed below the floor of the source's kind (or set by the operator) are listed one by
     one; the full list would not fit with ~70 adapters. `live_max_age` is set when commands
     fetch from the sources themselves (EW_COMMAND_DATA=live)."""
     from electionwatch.ratelimit import FLOORS

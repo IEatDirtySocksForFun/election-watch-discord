@@ -163,7 +163,7 @@ def merge_polls(polls: list[Poll]) -> list[Poll]:
         if ident not in selected or poll_completeness(poll) > poll_completeness(selected[ident]):
             selected[ident] = poll
     # Sources disagree on who "the pollster" is (sponsor vs. fieldwork firm, e.g. "N+ Univision"
-    # vs. "YouGov" sponsored by N+ Univision) and on the date they list. Same race, a shared
+    # vs. "YouGov" sponsored by N+ Univision) and on the date listed. Same race, a shared
     # pollster/sponsor name, identical numbers and end dates within a week = one poll.
     kept: list[Poll] = []
     for poll in sorted(selected.values(), key=poll_completeness, reverse=True):
@@ -281,7 +281,7 @@ def _every(seconds: float) -> str:
 
 
 class CommandData:
-    """What /bettingmarkets and /polls show. By default they read only the database: the poller's
+    """What /bettingmarkets and /polls show. By default both read only the database: the poller's
     background refresh (electionwatch/ratelimit.py budgets) is the only thing that calls the
     odds and poll sources, so users repeating a command never reach those APIs. A race nobody
     watches is queued (electionwatch/demand.py) and fetched by the next refresh.
