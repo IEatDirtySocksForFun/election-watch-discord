@@ -1,9 +1,10 @@
 """Pure command and navigator logic, kept separate from Discord I/O for testing."""
 
 from __future__ import annotations
-
 import yaml
-
+from datetime import datetime
+from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 from electionwatch.models import ImportantRace, Level, to_doc
 from electionwatch.racekeys import ALL_JURISDICTIONS, STATES, TERRITORIES, describe, parse
 from electionwatch.settings import GuildSettings, PostMode, UserSettings
@@ -278,74 +279,136 @@ def _clip_lines(lines: list[str], limit: int = 1900, marker: str = "# … (trunc
     return "\n".join(kept)
 
 
-#: /faq is sent as ```yaml\n<text>\n``` in one 2000-character message.
-FAQ_LIMIT = 2000 - len("```yaml\n\n```") - 8
+# ── /faq formatting ─────────────────────────────────────────────────────────
+# no more yaml block, better
+FAQ_LIMIT = 2000
+
+TIMEZONE_NAMES = {
+    "America/New_York": "Eastern",
+    "America/Chicago": "Central",
+    "America/Denver": "Mountain",
+    "America/Boise": "Mountain",
+    "America/Phoenix": "Mountain (no DST)",
+    "America/Los_Angeles": "Pacific",
+    "America/Anchorage": "Alaska",
+    "America/Adak": "Hawaii-Aleutian",
+    "Pacific/Honolulu": "Hawaii",
+}
 
 
-def _yaml_lines(payload) -> list[str]:
-    return yaml.safe_dump(payload, sort_keys=False).strip().splitlines()
+def link(label: str, url: str) -> str:
+    return f"[{label}](<{url}>)"
+
+def clean(text) -> str:
+    """Fold YAML's wrapped text onto one line."""
+    return " ".join(str(text).split())
+
+def timezone_names(zone: str) -> str:
+    return TIMEZONE_NAMES.get(zone, zone.rsplit("/", 1)[-1].replace("_", " "))
+
+def sources_line(urls) -> str | None:
+    """One link per site, labelled by domain, so 7 NCSL/SOS URLs don't eat the message."""
+    seen: dict[str, str] = {}
+    for url in urls or ():
+        host = urlparse(url).netloc.removeprefix("www.")
+        seen.setdefault(host, url)
+    if not seen:
+        return None
+    return "-# Sources: " + " · ".join(link(host, url) for host, url in seen.items())
+
+def ranked_choice(value) -> str:
+    text = clean(value)
+    return {"false": "No", "true": "Yes"}.get(text.lower(), text)
+
+def state_message(code: str, rec: dict) -> str:
+    unverified = set(rec.get("unverified") or ())
+    zones = rec.get("timezones") or []
+
+    # Header + small-text links
+    header = [f"# {STATES[code]}"]
+    links = [link("Official results", rec["official_results_url"]), link("Election office", rec["sos_url"])]
+    vendor = rec.get("results_vendor")
+    if vendor and "results_vendor" not in unverified:
+        links.append(f"Results via {vendor}")
+    header.append("-# " + " · ".join(links))
+
+    timezone = " / ".join(dict.fromkeys(timezone_names(zone) for zone in zones))
+    header.append(f"-# Polls close {rec['polls_close_local']} {timezone}")
+    if rec.get("polls_close_note"):
+        header.append(f"-# {clean(rec['polls_close_note'])}")
+
+    def field(label: str, key: str, transform=clean) -> str:
+        flag = " *(unverified)*" if key in unverified else ""
+        return f"**{label}:**{flag} {transform(rec[key])}"
+
+    body = [
+        "",
+        field("Count order", "count_order"),
+        field("Mail deadline", "mail_deadline"),
+        field("Mail processing", "mail_processing"),
+        field("When to expect a call", "typical_call_time"),
+        field("Recount", "recount_threshold"),
+        field("Ranked-choice voting", "ranked_choice", ranked_choice),
+    ]
+    notes = ["", f"> {clean(rec['notes'])}"] if rec.get("notes") else []
+    sources = sources_line(rec.get("sources"))
+    sources = [sources] if sources else []
+
+    return fit(
+        header + body + notes + sources,
+        header + body + notes,       # drop sources first
+        header + body,               # then the notes
+    )
 
 
-def _first_fit(*candidates: list[str]) -> str:
-    """The first candidate that fits whole; otherwise the last one clipped on a line boundary."""
+def fit(*candidates: list[str]) -> str:
+    """First candidate that fits in one message; otherwise the last, clipped on a line."""
     for lines in candidates:
-        if len("\n".join(lines)) <= FAQ_LIMIT:
-            return "\n".join(lines)
-    return _clip_lines(candidates[-1], FAQ_LIMIT)
+        text = "\n".join(lines)
+        if len(text) <= FAQ_LIMIT:
+            return text
+    return _clip_lines(candidates[-1], FAQ_LIMIT - 30, marker="-# … (trimmed to fit)")
 
 
-def _outlet_names(outlets) -> dict:
-    return {code: record.get("name", code) if isinstance(record, dict) else record for code, record in outlets.items()}
+def outlet_lines(outlets, with_notes: bool) -> list[str]:
+    lines = ["", "## Decision desks & outlets"]
+    for code, rec in outlets.items():
+        if not isinstance(rec, dict):
+            lines.append(f"**{code}** · {rec}")
+            continue
+        parts = [f"**{code}**", link(rec.get("name", code), rec["results_url"])]
+        if rec.get("exit_poll_url"):
+            parts.append(link("voter survey", rec["exit_poll_url"]))
+        lines.append(" · ".join(parts))
+        if with_notes and rec.get("notes"):
+            lines.append(f"-# {clean(rec['notes'])}")
+    return lines
 
 
 def faq_text(states, outlets, state: str | None = None) -> str:
-    """Serialize installed FAQ data deterministically, without a model or paraphrasing.
-
-    The result is valid YAML (it is shown in a ```yaml block): outlet details are shortened
-    to fit one message rather than being cut off in the middle of a record.
-    """
-    state_data = states
+    """Render installed FAQ data as a Discord message (markdown, one message)."""
     if state is None:
-        # All 51 states never fit in one message: point at what is installed instead of
-        # dumping a truncated YAML blob.
-        codes = (
-            sorted(states)
-            if isinstance(states, dict)
-            else sorted({getattr(entry, "state", "") for entry in states} - {""})
+        codes = sorted(states) if isinstance(states, dict) else sorted(
+            {getattr(e, "state", "") for e in states} - {""}
         )
         head = [
-            ("State FAQs: " + ", ".join(codes)) if codes else "# No state FAQ data installed.",
-            "# Use /faq state:<code> for one state.",
+            "# State election FAQs",
+            "-# Use `/faq state:<code>` for one state.",
+            " · ".join(f"`{c}`" for c in codes) if codes else "No state FAQ data installed.",
         ]
         if not outlets:
-            return _first_fit(head)
-        brief = {
-            code: (
-                {field_name: value for field_name, value in record.items() if field_name != "notes"}
-                if isinstance(record, dict)
-                else record
-            )
-            for code, record in outlets.items()
-        }
-        return _first_fit(head + _yaml_lines({"Outlets": outlets}), head + _yaml_lines({"Outlets": brief}))
+            return fit(head)
+        return fit(head + outlet_lines(outlets, True), head + outlet_lines(outlets, False))
+
     code = state.strip().upper()
     if code in TERRITORIES:
-        return f"# No FAQ data for {TERRITORIES[code]}: territories are not covered yet."
+        return f"# {TERRITORIES[code]}\nNo FAQ data yet: territories are not covered."
     if code not in STATES:
         raise ValueError("unknown state")
-    if isinstance(states, dict):
-        state_data = states.get(code) or states.get(STATES[code])
-        if state_data is None:
-            return _clip_lines(
-                [f"No FAQ data for {STATES[code]}", ""] + yaml.safe_dump(outlets, sort_keys=False).strip().splitlines()
-            )
-        body = _yaml_lines({code: state_data})
-    else:
-        body = _yaml_lines({"states": [entry for entry in states if getattr(entry, "state", None) == code]})
-    # Every state record plus all ten outlet records never fits: fall back to outlet names,
-    # then to a pointer at /faq without a state, which lists the outlet details.
-    return _first_fit(
-        body + _yaml_lines({"outlets": outlets}),
-        body + _yaml_lines({"outlets": _outlet_names(outlets)}),
-        body + ["# Outlet details: /faq without a state."],
+
+    rec = states.get(code) if isinstance(states, dict) else next(
+        (to_doc(e) for e in states if getattr(e, "state", None) == code), None
     )
+    if not rec:
+        return f"# {STATES[code]}\nNo FAQ data installed for {STATES[code]} yet.\n-# Outlet links: `/faq` without a state."
+    return state_message(code, rec)
