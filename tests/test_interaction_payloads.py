@@ -27,6 +27,7 @@ from discord.webhook.async_ import AsyncWebhookAdapter, async_context
 from fake_civicapi_early_vote import fixture_client, mock_http_client
 
 from electionwatch.bot.discord import ElectionBot
+from electionwatch.bot.menu import TOOLS, MenuView, custom_id
 from electionwatch.models import (
     CandidateResult,
     Level,
@@ -353,6 +354,10 @@ async def harness():
         bot._connection.user = discord.ClientUser(state=bot._connection, data=_user(APP) | {"bot": True})
         bot._connection._add_guild_from_data(json.loads(json.dumps(GUILD_CREATE)))
         test_harness = Harness(bot, recorder, odds)
+        # Channel posts (/menu_post) go through the bot's HTTP client, not the webhook adapter.
+        bot.http.send_message = test_harness.send_message
+        bot.http.delete_message = test_harness.delete_message
+        bot.add_view(MenuView())  # what setup_hook does before connecting
         # What the background refresh stores; /odds and /polls read only the store.
         await bot.poller._odds(NOW, [], [TX_SEN, RaceKey("CA", Level.SENATE, "SEN")])
         await bot.poller._polls(NOW, [TX_SEN])
@@ -372,6 +377,20 @@ async def harness():
 class Harness:
     def __init__(self, bot: ElectionBot, recorder: RecordingAdapter, odds: FakeOdds) -> None:
         self.bot, self.recorder, self.odds = bot, recorder, odds
+        self.channel_posts: list[tuple[int, dict]] = []  # (channel id, message JSON) the bot posted
+        self.deleted: list[tuple[int, int]] = []  # (channel id, message id) the bot deleted
+        self.post_error: Exception | None = None
+
+    async def send_message(self, channel_id, *, params):
+        """Stands in for bot.http.send_message (a channel post, not an interaction reply)."""
+        if self.post_error is not None:
+            raise self.post_error
+        payload = json.loads(json.dumps(params.payload))
+        self.channel_posts.append((int(channel_id), payload))
+        return _message_payload(0) | {"id": str(MSG_ID + len(self.channel_posts)), "channel_id": str(channel_id)}
+
+    async def delete_message(self, channel_id, message_id, *, reason=None):
+        self.deleted.append((int(channel_id), int(message_id)))
 
     def views(self) -> list:
         return [
@@ -607,6 +626,23 @@ CASES = [
     ("earlyvote-bad", "earlyvote", [opt("state", "ZZ")], None, {}, "Unknown state"),
     ("earlyvote-posts-on", "earlyvote_posts", [opt("enabled", "on")], None, {}, "early vote on"),
     ("earlyvote-posts-not-admin", "earlyvote_posts", [opt("enabled", "on")], None, {"permissions": 0}, "Manage Server"),
+    ("menu", "menu", [], None, {"permissions": 0}, "Election menu"),
+    ("menu-dm", "menu", [], None, {"dm": True}, "Election menu"),
+    ("menu-post", "menu_post", [], None, {}, f"Menu posted in <#{CHANNEL}>"),
+    (
+        "menu-post-channel",
+        "menu_post",
+        [opt("channel", str(TARGET_CHANNEL), 7)],
+        TEXT_CHANNEL_RESOLVED,
+        {},
+        f"Menu posted in <#{TARGET_CHANNEL}>",
+    ),
+    ("menu-post-not-admin", "menu_post", [], None, {"permissions": 0}, "Manage Server"),
+    ("menu-post-dm", "menu_post", [], None, {"dm": True}, "Use this command in a server"),
+    ("menu-remove-none", "menu_remove", [], None, {}, "no posted menu"),
+    ("menu-remove-not-admin", "menu_remove", [], None, {"permissions": 0}, "Manage Server"),
+    ("menu-private-off", "menu_private", [opt("enabled", "off")], None, {}, "private menu off"),
+    ("menu-private-not-admin", "menu_private", [opt("enabled", "off")], None, {"permissions": 0}, "Manage Server"),
 ]
 
 
@@ -808,7 +844,7 @@ async def test_navigator_selects_a_race_whose_key_exceeds_100_characters(harness
     option = next(option for option in race_select["options"] if option["label"] == "Advisory Vote No. 10")
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
     assert sent[0].payload["type"] == UPDATE_MESSAGE
-    view = next(long_race_key for long_race_key in harness.views() if long_race_key.selected_race)
+    view = next(view for view in harness.views() if getattr(view, "selected_race", None))
     assert view.selected_race == f"TX LOCAL {LONG_SLUG}"
 
 
@@ -904,3 +940,204 @@ async def test_repeating_a_data_command_for_the_same_race_hits_the_cooldown(harn
     assert "You can ask for this again in 2 min" in text_of(again)
     other = await harness.dispatch(command_payload("odds", [opt("race", "CA SEN")]))
     assert "Kalshi" in text_of(other)
+
+
+# --------------------------------------------------------------------------- button menus
+
+MENU_EXPECTS = {
+    "races": "Texas",
+    "favorites": "Favorites",
+    "odds": "Pick a race for odds",
+    "polls": "Pick a race for polls",
+    "earlyvote": "Pick a state for early-vote numbers",
+    "faq": "Pick a state for its voting FAQ",
+    "settings": "guild_id",
+    "limits": "Data refresh",
+}
+
+
+def menu_click(tool: str, *, posted: bool, message_id: int = MSG_ID, **kw) -> dict:
+    """A click on a menu button: the posted channel menu is a normal message, /menu's is ephemeral."""
+    payload = component_payload(custom_id(tool), 2, **kw)
+    payload["message"] = _message_payload(0 if posted else EPHEMERAL) | {"id": str(message_id)}
+    return payload
+
+
+def assert_private_answer(sent: list[Sent]) -> None:
+    """A menu click: a private "thinking" acknowledgement, then a private followup."""
+    assert_ephemeral_reply(sent)
+    assert sent[0].payload == {"type": DEFERRED_CHANNEL_MESSAGE, "data": {"flags": EPHEMERAL}}
+    assert [sent_request.path for sent_request in sent[1:]] == [FOLLOWUP]
+
+
+async def test_menu_command_shows_every_button_with_its_fixed_custom_id(harness):
+    sent = await harness.dispatch(command_payload("menu", permissions=0))
+    assert_ephemeral_reply(sent)
+    buttons = {component["custom_id"]: component["label"] for component in components(sent[0].payload)}
+    assert buttons == {custom_id(tool): label for tool, label in TOOLS.items()}
+
+
+@pytest.mark.parametrize("posted", [True, False], ids=["channel-menu", "private-menu"])
+@pytest.mark.parametrize("tool", list(TOOLS))
+async def test_every_menu_button_answers_privately(harness, tool, posted):
+    sent = await harness.dispatch(menu_click(tool, posted=posted, permissions=0))
+    assert_private_answer(sent)
+    assert MENU_EXPECTS[tool] in text_of(sent)
+
+
+async def test_menu_buttons_answer_on_a_message_the_bot_never_saw(harness):
+    # After a restart only the view registered in setup_hook knows the buttons: a menu
+    # posted before still has to work.
+    assert any(isinstance(view, MenuView) for view in harness.bot.persistent_views)
+    sent = await harness.dispatch(menu_click("races", posted=True, message_id=MSG_ID + 999))
+    assert_private_answer(sent)
+    assert "Texas" in text_of(sent)
+
+
+async def test_favorites_button_opens_the_favorites_tab(harness):
+    await harness.dispatch(command_payload("favorite", [opt("action", "add"), opt("race", "TX SEN")]))
+    sent = await harness.dispatch(menu_click("favorites", posted=True))
+    assert_private_answer(sent)
+    assert "Alice Example" in text_of(sent)  # the stored TX SEN result
+    assert button(sent[-1].payload, "★ Favorites")["style"] == discord.ButtonStyle.primary.value
+
+
+async def test_menu_post_replace_and_remove(harness):
+    sent = await harness.dispatch(command_payload("menu_post"))
+    assert_ephemeral_reply(sent)
+    assert sent[0].payload["type"] == DEFERRED_CHANNEL_MESSAGE
+    ((channel_id, post),) = harness.channel_posts
+    assert channel_id == CHANNEL
+    check_message_limits(post)
+    assert "flags" not in post or not post["flags"] & EPHEMERAL
+    assert {component["custom_id"] for component in components(post)} == {custom_id(tool) for tool in TOOLS}
+    first = MSG_ID + 1
+    gs = await harness.bot.store.get_guild(GUILD)
+    assert (gs.menu_channel_id, gs.menu_message_id) == (CHANNEL, first)
+
+    # Posting again (elsewhere) replaces it: the new one goes up, then the old one is deleted.
+    sent = await harness.dispatch(
+        command_payload("menu_post", [opt("channel", str(TARGET_CHANNEL), 7)], TEXT_CHANNEL_RESOLVED)
+    )
+    assert_ephemeral_reply(sent)
+    assert "The old one is gone" in text_of(sent)
+    assert [channel for channel, _ in harness.channel_posts] == [CHANNEL, TARGET_CHANNEL]
+    assert harness.deleted == [(CHANNEL, first)]
+    gs = await harness.bot.store.get_guild(GUILD)
+    assert (gs.menu_channel_id, gs.menu_message_id) == (TARGET_CHANNEL, first + 1)
+
+    sent = await harness.dispatch(command_payload("menu_remove"))
+    assert_ephemeral_reply(sent)
+    assert f"Menu removed from <#{TARGET_CHANNEL}>" in text_of(sent)
+    assert harness.deleted[-1] == (TARGET_CHANNEL, first + 1)
+    gs = await harness.bot.store.get_guild(GUILD)
+    assert (gs.menu_channel_id, gs.menu_message_id) == (None, None)
+
+
+async def test_menu_post_without_permission_to_post_saves_nothing(harness):
+    harness.post_error = discord.Forbidden(
+        type("Response", (), {"status": 403, "reason": "Forbidden"})(), "Missing Permissions"
+    )
+    sent = await harness.dispatch(command_payload("menu_post"))
+    assert_ephemeral_reply(sent)
+    assert f"I couldn't post in <#{CHANNEL}>" in text_of(sent)
+    gs = await harness.bot.store.get_guild(GUILD)
+    assert gs is None or gs.menu_message_id is None
+
+
+async def test_odds_picker_round_trip_shares_the_odds_cooldown(harness):
+    sent = await harness.dispatch(menu_click("odds", posted=True))
+    picker = sent[-1].payload
+    check_message_limits(picker)
+    race_select = selects(picker)[0]
+    assert race_select["placeholder"] == "Watched races"
+    option = next(option for option in race_select["options"] if option["label"] == "Texas Senate")
+
+    sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
+    assert_private_answer(sent)
+    assert "Kalshi" in text_of(sent)
+
+    sent = await harness.dispatch(component_payload(button(picker, "All watched races")["custom_id"], 2))
+    assert_private_answer(sent)
+    assert "Watched race odds" in text_of(sent)
+
+    # Same race again, from the menu or with /odds: the same per-user cooldown as the command.
+    sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
+    assert_private_answer(sent)
+    assert "You can ask for this again" in text_of(sent)
+    sent = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    assert "You can ask for this again" in text_of(sent)
+
+
+async def test_polls_picker_lists_favorites_after_watched_races(harness):
+    await harness.dispatch(command_payload("favorite", [opt("action", "add"), opt("race", "CA SEN")]))
+    sent = await harness.dispatch(menu_click("polls", posted=False))
+    picker = sent[-1].payload
+    assert [select["placeholder"] for select in selects(picker)] == ["Watched races", "Your favorites"]
+    assert not [component for component in components(picker) if component["type"] == 2]
+    favorite = selects(picker)[1]
+    sent = await harness.dispatch(component_payload(favorite["custom_id"], 3, [favorite["options"][0]["value"]]))
+    assert_private_answer(sent)
+    assert "Polls · California Senate" in text_of(sent)
+
+
+async def test_early_vote_and_faq_pickers(harness):
+    sent = await harness.dispatch(menu_click("earlyvote", posted=True))
+    picker = sent[-1].payload
+    check_message_limits(picker)
+    states = [option["value"] for select in selects(picker)[1:] for option in select["options"]]
+    assert len(states) == 51 and len(set(states)) == 51
+    north_carolina = next(select for select in selects(picker) if "NC" in [o["value"] for o in select["options"]])
+    sent = await harness.dispatch(component_payload(north_carolina["custom_id"], 3, ["NC"]))
+    assert_private_answer(sent)
+    assert "North Carolina" in text_of(sent)
+    sent = await harness.dispatch(component_payload(selects(picker)[0]["custom_id"], 3, ["ALL"]))
+    assert_private_answer(sent)
+    assert "Early vote · United States" in text_of(sent)
+
+    sent = await harness.dispatch(menu_click("faq", posted=True))
+    picker = sent[-1].payload
+    texas = next(select for select in selects(picker)[1:] if "TX" in [o["value"] for o in select["options"]])
+    sent = await harness.dispatch(component_payload(texas["custom_id"], 3, ["TX"]))
+    assert_private_answer(sent)
+    assert "# Texas" in text_of(sent)
+    sent = await harness.dispatch(component_payload(selects(picker)[0]["custom_id"], 3, ["ALL"]))
+    assert "State FAQs" in text_of(sent)
+
+
+async def test_private_menu_off_keeps_the_channel_menu_and_admins(harness):
+    sent = await harness.dispatch(command_payload("menu_private", [opt("enabled", "off")]))
+    assert "private menu off" in text_of(sent)
+    assert (await harness.bot.store.get_guild(GUILD)).private_menu is False
+
+    sent = await harness.dispatch(command_payload("menu", permissions=0))
+    assert_ephemeral_reply(sent)
+    assert "private menu is turned off" in text_of(sent) and not components(sent[0].payload)
+    sent = await harness.dispatch(command_payload("menu"))  # an admin still gets it
+    assert "Election menu" in text_of(sent)
+
+    # A /menu opened before it was turned off stops answering; the posted menu doesn't.
+    sent = await harness.dispatch(menu_click("races", posted=False, permissions=0))
+    assert_private_answer(sent)
+    assert "private menu is turned off" in text_of(sent)
+    sent = await harness.dispatch(menu_click("races", posted=True, permissions=0))
+    assert "Texas" in text_of(sent)
+
+    await harness.dispatch(command_payload("menu_private", [opt("enabled", "on")]))
+    sent = await harness.dispatch(command_payload("menu", permissions=0))
+    assert "Election menu" in text_of(sent)
+
+
+async def test_a_failing_menu_button_is_reported_privately(harness):
+    async def boom(interaction, level=None):
+        raise RuntimeError("navigator exploded token=hunter2")
+
+    import electionwatch.bot.discord as commands
+
+    original, commands.show_races = commands.show_races, boom
+    try:
+        sent = await harness.dispatch(menu_click("races", posted=True))
+    finally:
+        commands.show_races = original
+    assert_private_answer(sent)
+    assert "Something went wrong" in text_of(sent) and "hunter2" not in text_of(sent)

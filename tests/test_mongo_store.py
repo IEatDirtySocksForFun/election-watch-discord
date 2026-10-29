@@ -160,6 +160,19 @@ async def store(request):
     await mongo.close()
 
 
+@pytest.mark.asyncio
+async def test_menu_settings_round_trip_and_older_guild_documents_still_load(store):
+    guild = GuildSettings(7, private_menu=False, menu_channel_id=8, menu_message_id=9)
+    await store.save_guild(guild)
+    assert await store.get_guild(7) == guild
+    if isinstance(store, MongoStore):
+        # A server set up before the button menus existed has none of their fields.
+        await store.guilds.insert_one({"_id": 11, "channel_id": 12, "post_mode": "interval", "paused": True})
+        older = await store.get_guild(11)
+        assert (older.channel_id, older.paused) == (12, True)
+        assert (older.private_menu, older.menu_channel_id, older.menu_message_id) == (True, None, None)
+
+
 def result(votes: int, at: datetime = NOW) -> RaceResult:
     return RaceResult(
         KEY,

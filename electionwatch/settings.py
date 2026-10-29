@@ -59,6 +59,11 @@ class GuildSettings:
     # race > category > the server-wide odds_alerts / odds_swing_pts / odds_window_minutes.
     odds_alert_categories: dict[str, dict] = field(default_factory=dict)
     odds_alert_races: dict[str, dict] = field(default_factory=dict)
+    # Button menus (electionwatch/bot/menu.py): /menu works for everyone unless an admin ran
+    # /menu_private off; the ids are the channel menu from /menu_post, to replace or remove it.
+    private_menu: bool = True
+    menu_channel_id: int | None = None
+    menu_message_id: int | None = None
 
 
 class OddsAlert(NamedTuple):
