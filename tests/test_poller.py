@@ -289,6 +289,89 @@ async def test_odds_swing_matches_the_real_detector_signature(monkeypatch):
     assert post.lines[1] == "Swing within 45 minutes"
 
 
+def _real_detector(monkeypatch):
+    import sys
+    import types
+
+    from electionwatch.swings import detect_swing
+
+    seen = []
+
+    def recording(history, pts, window):
+        seen.append((pts, window))
+        return detect_swing(history, pts, window)
+
+    swings = types.ModuleType("electionwatch.swings")
+    swings.detect_swing = recording
+    monkeypatch.setitem(sys.modules, "electionwatch.swings", swings)
+    return seen
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "settings, expected",
+    [
+        # Server off, race override on with its own threshold and window: alerts.
+        ({"odds_alert_races": {"TX SEN": {"enabled": True, "threshold": 25.0, "window": 20}}}, (25.0, 20)),
+        # Server off, Senate category on: alerts with the server threshold and window.
+        ({"odds_swing_pts": 20.0, "odds_alert_categories": {"senate": {"enabled": True}}}, (20.0, 60)),
+        # Server on at 50 points (no alert on a 30-point move), category lowers the threshold.
+        ({"odds_alerts": True, "odds_alert_categories": {"senate": {"threshold": 10.0}}}, (10.0, 60)),
+        # Race beats category, field by field.
+        (
+            {
+                "odds_alert_categories": {"senate": {"enabled": True, "threshold": 90.0, "window": 30}},
+                "odds_alert_races": {"TX SEN": {"threshold": 5.0}},
+            },
+            (5.0, 30),
+        ),
+    ],
+    ids=["race on", "category on", "category threshold", "race over category"],
+)
+async def test_odds_swing_follows_race_and_category_overrides(monkeypatch, settings, expected):
+    seen = _real_detector(monkeypatch)
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)], **settings))
+    await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", 0.40, NOW - timedelta(minutes=5)))
+    poster = RecordingPoster()
+    await poller(store, {"odds": [FakeOdds()]}, poster).tick()
+
+    threshold, window = expected
+    assert seen == [(threshold, timedelta(minutes=window))]
+    assert len(poster.sent) == 1
+    assert poster.sent[0][2].lines == ["kalshi · REP: 70.0% (+30.0 pts)", f"Swing within {window} minutes"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "settings",
+    [
+        # Server on, but Senate races are turned off by category.
+        {"odds_alerts": True, "odds_swing_pts": 5.0, "odds_alert_categories": {"senate": {"enabled": False}}},
+        # Server on, the race itself is off even though its category is on.
+        {
+            "odds_alerts": True,
+            "odds_swing_pts": 5.0,
+            "odds_alert_categories": {"senate": {"enabled": True}},
+            "odds_alert_races": {"TX SEN": {"enabled": False}},
+        },
+        # Overrides for other categories and races change nothing for TX SEN.
+        {"odds_alert_categories": {"house": {"enabled": True}}, "odds_alert_races": {"NC-01": {"enabled": True}}},
+        # A race override does not make an unwatched race alert.
+        {"important": [str(NC_KEY)], "odds_alert_races": {"TX SEN": {"enabled": True, "threshold": 1.0}}},
+    ],
+    ids=["category off", "race off", "other overrides", "not watched"],
+)
+async def test_odds_swing_overrides_that_must_not_alert(monkeypatch, settings):
+    seen = _real_detector(monkeypatch)
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, **{"important": [str(KEY)], **settings}))
+    await store.add_odds(OddsSnapshot(KEY, "kalshi", "REP", 0.40, NOW - timedelta(minutes=5)))
+    poster = RecordingPoster()
+    await poller(store, {"odds": [FakeOdds()]}, poster).tick()
+    assert seen == [] and poster.sent == []
+
+
 @pytest.mark.asyncio
 async def test_slow_source_times_out_and_the_rest_of_the_tick_survives():
     import asyncio

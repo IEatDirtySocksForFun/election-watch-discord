@@ -11,7 +11,7 @@ Permissions (every command x {Manage Server, configured admin role, plain member
       exitpolls, pause, resume) succeed for Manage Server and for the admin role
   [x] ... refuse a plain member with an ephemeral "Manage Server" message, store unchanged
   [x] ... refuse a DM with an ephemeral "use it in a server" message, store unchanged
-  [x] /watch list and /settings work for plain members; refuse DMs
+  [x] /watch list, /oddsalerts (listing) and /settings work for plain members; refuse DMs
   [x] /favorite works for everyone, including DMs
   [x] a refused or read-only command creates no guild document
   [x] /watch list does not write the guild (no lost update over a concurrent admin change)
@@ -29,6 +29,10 @@ Permissions (every command x {Manage Server, configured admin role, plain member
 /oddsalerts
   [x] on/off x threshold {None, 0.1, 50, 100} x window {None, 1, 1440}
   [x] logic rejects threshold 0 / -1 / 100.01 / nan / inf and window 0 / 1441, atomically
+  [x] race and category overrides: category of every kind of race (mayor = slug says so),
+      race > category > server default field by field, default removes an override, the
+      race-override cap, bad combinations rejected with nothing saved
+  [x] without enabled/threshold/window it lists the settings to everyone and saves nothing
 /calls
   [x] every outlet singly, all outlets, comma / space / mixed-case separators, duplicates
   [x] unknown outlet, empty / blank / separators-only strings rejected, nothing saved
@@ -115,6 +119,7 @@ from electionwatch.bot.discord import (
     watch_command,
 )
 from electionwatch.bot.logic import (
+    MAX_ODDS_RACE_OVERRIDES,
     OUTLETS,
     change_calls,
     change_favorite,
@@ -123,6 +128,7 @@ from electionwatch.bot.logic import (
     change_setup,
     change_watch,
     is_admin,
+    odds_alerts_text,
     settings_dump,
 )
 from electionwatch.config import load_races
@@ -130,7 +136,17 @@ from electionwatch.models import CandidateResult, ExitPoll, RaceCall, RaceResult
 from electionwatch.poller import Poller
 from electionwatch.poster import RecordingPoster
 from electionwatch.racekeys import STATES, STATEWIDE, TERRITORIES, parse
-from electionwatch.settings import DEFAULT_INTERVAL_MIN, GuildSettings, PostMode, UserSettings, post_due
+from electionwatch.settings import (
+    DEFAULT_INTERVAL_MIN,
+    ODDS_CATEGORIES,
+    GuildSettings,
+    OddsAlert,
+    PostMode,
+    UserSettings,
+    odds_alert_for,
+    odds_category,
+    post_due,
+)
 from electionwatch.sources.base import CallSource, ExitPollSource, ResultsSource
 from electionwatch.store.memory import MemoryStore
 from electionwatch.store.mongo import MongoStore
@@ -317,6 +333,30 @@ SPECS = [
         lambda gs, us, r: gs.odds_alerts and gs.odds_swing_pts == 5.0 and gs.odds_window_minutes == 30,
     ),
     ("oddsalerts off", odds_alerts_command, {"enabled": "off"}, True, True, lambda gs, us, r: not gs.odds_alerts),
+    (
+        "oddsalerts race",
+        odds_alerts_command,
+        {"race": "tx sen", "threshold": 5.0, "window": 30},
+        True,
+        True,
+        lambda gs, us, r: gs.odds_alert_races == {"TX SEN": {"threshold": 5.0, "window": 30}} and not gs.odds_alerts,
+    ),
+    (
+        "oddsalerts category",
+        odds_alerts_command,
+        {"category": "mayor", "enabled": "on"},
+        True,
+        True,
+        lambda gs, us, r: gs.odds_alert_categories == {"mayor": {"enabled": True}},
+    ),
+    (
+        "oddsalerts list",
+        odds_alerts_command,
+        {},
+        False,
+        True,
+        lambda gs, us, r: r.startswith("Server default: off, 50 points within 60 minutes"),
+    ),
     (
         "turnout off",
         turnout_command,
@@ -650,6 +690,191 @@ async def test_oddsalerts_command_reports_out_of_range_and_saves_nothing(memory_
         window=window,
     )
     assert await guild_doc(memory_store) == before
+
+
+# --------------------------------------------------------------------------- /oddsalerts overrides
+
+
+@pytest.mark.parametrize(
+    "text, category",
+    [
+        ("TX SEN", "senate"),
+        ("OH SEN S", "senate"),
+        ("PA-08", "house"),
+        ("AK-AL", "house"),
+        ("GA GOV", "statewide"),
+        ("NC AG", "statewide"),
+        ("TX SD-05", "state-senate"),
+        ("TX HD-120", "state-house"),
+        ("NY LOCAL nyc-mayor", "mayor"),
+        ("OK LOCAL Mayor of Tulsa", "mayor"),
+        ("TX LOCAL harris-county-judge", "local"),
+        ("CA LOCAL school-board-1", "local"),
+    ],
+)
+def test_odds_category_of_each_kind_of_race(text, category):
+    assert odds_category(parse(text)) == category
+    assert category in ODDS_CATEGORIES
+
+
+def test_odds_alert_precedence_is_race_then_category_then_server_field_by_field():
+    gs = GuildSettings(1, odds_alerts=False, odds_swing_pts=50.0, odds_window_minutes=60)
+    gs.odds_alert_categories = {"house": {"enabled": True, "threshold": 10.0}, "senate": {"window": 15}}
+    gs.odds_alert_races = {"PA-08": {"threshold": 5.0}, "TX SEN": {"enabled": True}}
+    # Race threshold, category enabled, server window.
+    assert odds_alert_for(gs, parse("PA-08")) == OddsAlert(True, 5.0, 60)
+    # Category threshold and enabled for another House race.
+    assert odds_alert_for(gs, parse("NC-01")) == OddsAlert(True, 10.0, 60)
+    # Race enabled, category window, server threshold.
+    assert odds_alert_for(gs, parse("TX SEN")) == OddsAlert(True, 50.0, 15)
+    # No override at all: the server default.
+    assert odds_alert_for(gs, parse("GA GOV")) == OddsAlert(False, 50.0, 60)
+    # A race can turn itself off inside an enabled category.
+    gs.odds_alert_races["PA-08"]["enabled"] = False
+    assert odds_alert_for(gs, parse("PA-08")).enabled is False
+
+
+async def test_oddsalerts_race_override_is_stored_by_canonical_key(memory_store):
+    await memory_store.save_guild(baseline())
+    client = stand_in_client(memory_store)
+    reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), race="pa-8", threshold=5.0, window=30)
+    gs = await memory_store.get_guild(GUILD_ID)
+    assert gs.odds_alert_races == {"PA-08": {"threshold": 5.0, "window": 30}}
+    assert reply.content.startswith("Odds alerts for PA-08: threshold 5 points, window 30 minutes.")
+    # Server alerts are off in the baseline, so the override alone does not turn it on.
+    assert "In effect: off, 5 points within 30 minutes." in reply.content
+    assert "isn't watched" in reply.content
+    # A second change adds to the same override instead of replacing it.
+    reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), race="PA-08", enabled="on")
+    gs = await memory_store.get_guild(GUILD_ID)
+    assert gs.odds_alert_races == {"PA-08": {"threshold": 5.0, "window": 30, "enabled": True}}
+    assert "In effect: on, 5 points within 30 minutes." in reply.content
+    # The server-wide values are untouched by overrides.
+    assert (gs.odds_alerts, gs.odds_swing_pts, gs.odds_window_minutes) == (False, 50.0, 60)
+
+
+async def test_oddsalerts_race_override_on_a_watched_race_has_no_watch_hint(memory_store):
+    await memory_store.save_guild(baseline())
+    reply = await invoke(
+        odds_alerts_command, make_interaction(stand_in_client(memory_store), "manage"), race="TX SEN", enabled="on"
+    )
+    assert "isn't watched" not in reply.content
+
+
+async def test_oddsalerts_category_override_and_default_removes_it(store):
+    await store.save_guild(baseline())
+    client = stand_in_client(store)
+    reply = await invoke(
+        odds_alerts_command, make_interaction(client, "role_admin"), category="house", enabled="on", threshold=8.0
+    )
+    assert reply.content.startswith("Odds alerts for US House district (house): on, threshold 8 points.")
+    assert "Races in it get: on, 8 points within 60 minutes" in reply.content
+    assert (await store.get_guild(GUILD_ID)).odds_alert_categories == {"house": {"enabled": True, "threshold": 8.0}}
+    reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), category="house", enabled="default")
+    assert reply.content == "Removed the odds alert override for US House district (house)"
+    assert (await store.get_guild(GUILD_ID)).odds_alert_categories == {}
+    reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), category="house", enabled="default")
+    assert reply.content == "US House district (house) has no odds alert override"
+
+
+async def test_oddsalerts_default_removes_a_race_override(memory_store):
+    gs = baseline()
+    gs.odds_alert_races = {"PA-08": {"threshold": 5.0}, "TX SEN": {"enabled": True}}
+    await memory_store.save_guild(gs)
+    reply = await invoke(
+        odds_alerts_command,
+        make_interaction(stand_in_client(memory_store), "manage"),
+        race="Pennsylvania congressional district 8",
+        enabled="default",
+    )
+    assert reply.content == "Removed the odds alert override for PA-08"
+    assert (await memory_store.get_guild(GUILD_ID)).odds_alert_races == {"TX SEN": {"enabled": True}}
+
+
+@pytest.mark.parametrize(
+    "kwargs, error",
+    [
+        ({"enabled": "default"}, "pick a race or a category"),
+        ({"enabled": "default", "race": "PA-08", "threshold": 5.0}, "leave out threshold and window"),
+        ({"enabled": "on", "race": "PA-08", "category": "house"}, "not both"),
+        ({"enabled": "on", "category": "county"}, "category must be one of"),
+        ({"enabled": "on", "race": "Narnia SEN"}, "unknown state"),
+        ({"enabled": "on", "race": "TX LOCAL " + "x" * 200}, "too long"),
+        ({"race": "PA-08", "threshold": 0}, "threshold must be"),
+        ({"category": "house", "window": 1441}, "window must be"),
+        ({"enabled": "maybe"}, "enabled must be"),
+    ],
+)
+async def test_oddsalerts_override_validation_saves_nothing(memory_store, kwargs, error):
+    await memory_store.save_guild(baseline())
+    before = await guild_doc(memory_store)
+    reply = await invoke(odds_alerts_command, make_interaction(stand_in_client(memory_store), "manage"), **kwargs)
+    assert error in reply.content
+    assert await guild_doc(memory_store) == before
+
+
+def test_change_odds_needs_something_to_change():
+    with pytest.raises(ValueError, match="give enabled, threshold or window"):
+        change_odds(GuildSettings(1), None, race="PA-08")
+
+
+def test_change_odds_caps_race_overrides_but_still_edits_existing_ones():
+    gs = GuildSettings(1)
+    gs.odds_alert_races = {f"TX HD-{index:02d}": {"enabled": True} for index in range(1, MAX_ODDS_RACE_OVERRIDES + 1)}
+    with pytest.raises(ValueError, match=f"already has {MAX_ODDS_RACE_OVERRIDES} race overrides"):
+        change_odds(gs, "on", race="PA-08")
+    assert "PA-08" not in gs.odds_alert_races
+    change_odds(gs, None, 3.0, race="TX HD-01")
+    assert gs.odds_alert_races["TX HD-01"] == {"enabled": True, "threshold": 3.0}
+    # Categories are a fixed set and never hit the cap.
+    change_odds(gs, "off", category="local")
+    assert gs.odds_alert_categories == {"local": {"enabled": False}}
+
+
+def test_change_odds_server_default_without_enabled_keeps_it_and_mentions_overrides():
+    gs = GuildSettings(1, odds_alerts=True)
+    gs.odds_alert_categories = {"mayor": {"enabled": False}}
+    message = change_odds(gs, None, 12.0)
+    assert gs.odds_alerts is True and gs.odds_swing_pts == 12.0
+    assert message == "Odds alerts on; threshold 12 points within 60 minutes (1 race/category override still applies)"
+
+
+@pytest.mark.parametrize("role", ["plain", "manage"])
+async def test_oddsalerts_without_changes_lists_and_saves_nothing(memory_store, role):
+    gs = baseline()
+    gs.odds_alerts, gs.odds_swing_pts = True, 10.0
+    gs.odds_alert_categories = {"mayor": {"enabled": False}}
+    gs.odds_alert_races = {"PA-08": {"threshold": 5.0, "window": 30}}
+    await memory_store.save_guild(gs)
+    before = await guild_doc(memory_store)
+    client = stand_in_client(memory_store)
+    reply = await invoke(odds_alerts_command, make_interaction(client, role))
+    assert reply.content.splitlines() == [
+        "Server default: on, 10 points within 60 minutes",
+        "Categories:",
+        "  Mayor (mayor): off",
+        f"Races (1 of {MAX_ODDS_RACE_OVERRIDES}):",
+        "  PA-08: threshold 5 points, window 30 minutes",
+        "A race setting beats its category's, which beats the server default. Only watched races alert.",
+    ]
+    reply = await invoke(odds_alerts_command, make_interaction(client, role), race="pa-8")
+    assert reply.content.startswith("PA-08 (house) gets: on, 5 points within 30 minutes\n")
+    reply = await invoke(odds_alerts_command, make_interaction(client, role), category="mayor")
+    assert reply.content.startswith("Mayor (mayor) gets: off, 10 points within 60 minutes\n")
+    assert await guild_doc(memory_store) == before
+
+
+def test_odds_alerts_text_with_the_most_overrides_fits_one_message():
+    gs = GuildSettings(1)
+    gs.odds_alert_categories = {name: {"enabled": True, "threshold": 99.9, "window": 1440} for name in ODDS_CATEGORIES}
+    gs.odds_alert_races = {
+        f"TX LOCAL {'z' * 80}-{index}": {"enabled": False, "threshold": 0.1, "window": 1440}
+        for index in range(MAX_ODDS_RACE_OVERRIDES)
+    }
+    text = odds_alerts_text(gs)
+    assert len(text) <= 1900
+    assert text.startswith("Server default:") and text.endswith("/settings has them too)")
+    assert odds_alerts_text(GuildSettings(1)).splitlines()[1] == "No race or category overrides."
 
 
 # --------------------------------------------------------------------------- /calls
@@ -991,8 +1216,20 @@ async def test_pause_resume_idempotent_as_manager(store, sequence):
         ),
         GuildSettings(GUILD_ID, important=[f"TX LOCAL {'z' * 90}-{index}" for index in range(500)], paused=True),
         GuildSettings(GUILD_ID, call_outlets=sorted(OUTLETS), odds_swing_pts=0.1, odds_window_minutes=1440),
+        GuildSettings(
+            GUILD_ID,
+            important=[f"TX HD-{index:03d}" for index in range(1, 151)],
+            paused=True,
+            odds_alert_categories={
+                name: {"enabled": True, "threshold": 99.9, "window": 1440} for name in ODDS_CATEGORIES
+            },
+            odds_alert_races={
+                f"TX LOCAL {'z' * 80}-{index}": {"enabled": False, "threshold": 0.1, "window": 1440}
+                for index in range(MAX_ODDS_RACE_OVERRIDES)
+            },
+        ),
     ],
-    ids=["default", "baseline", "150 races", "600 races", "500 long local races", "all outlets"],
+    ids=["default", "baseline", "150 races", "600 races", "500 long local races", "all outlets", "most overrides"],
 )
 async def test_settings_is_valid_yaml_and_fits_one_message(store, gs):
     await store.save_guild(gs)
@@ -1021,6 +1258,13 @@ async def test_settings_for_a_guild_never_configured(memory_store):
 def test_settings_dump_round_trips_every_field():
     gs = baseline()
     assert yaml.safe_load(settings_dump(gs)) == to_doc(gs)
+    gs.odds_alert_categories = {"state-house": {"enabled": False}, "mayor": {"threshold": 2.5, "window": 10}}
+    gs.odds_alert_races = {"PA-08": {"enabled": True, "threshold": 5.0}, "NY LOCAL st.-george-mayor": {"window": 5}}
+    dump = settings_dump(gs)
+    assert yaml.safe_load(dump) == to_doc(gs)
+    # One line per override, before the watch list.
+    assert "  PA-08: {enabled: true, threshold: 5.0}" in dump.splitlines()
+    assert dump.index("odds_alert_races:") < dump.index("important:")
 
 
 # --------------------------------------------------------------------------- /favorite
@@ -1085,6 +1329,10 @@ async def test_every_setting_round_trips_through_the_store(store):
         (posting_command, {"mode": "interval", "minutes": 1440}),
         (calls_command, {"outlets": "nyt, ddhq", "enabled": "on"}),
         (odds_alerts_command, {"enabled": "on", "threshold": 0.1, "window": 1}),
+        (odds_alerts_command, {"category": "state-senate", "enabled": "off"}),
+        (odds_alerts_command, {"category": "mayor", "threshold": 2.5, "window": 15}),
+        (odds_alerts_command, {"race": "NC-1", "threshold": 7.5}),
+        (odds_alerts_command, {"race": "NY LOCAL st.-george-mayor", "enabled": "on", "window": 1440}),
         (turnout_command, {"enabled": "off"}),
         (exitpolls_command, {"enabled": "off"}),
         (pause_command, {}),
@@ -1110,6 +1358,8 @@ async def test_every_setting_round_trips_through_the_store(store):
         odds_swing_pts=0.1,
         odds_window_minutes=1,
         paused=True,
+        odds_alert_categories={"state-senate": {"enabled": False}, "mayor": {"threshold": 2.5, "window": 15}},
+        odds_alert_races={"NC-01": {"threshold": 7.5}, "NY LOCAL st.-george-mayor": {"enabled": True, "window": 1440}},
     )
     assert isinstance(gs.post_mode, PostMode)
     assert await store.all_guilds() == [gs]
@@ -1478,9 +1728,13 @@ def test_command_parameter_ranges_match_logic_limits():
         if parameter.choices
     }
     assert choices == {"mode": ["default", "interval", "immediate"]}
+    params = {parameter.name: parameter for parameter in bot_discord.odds_alerts_command.parameters}
+    assert [choice.value for choice in params["enabled"].choices] == ["on", "off", "default"]
+    assert [choice.value for choice in params["category"].choices] == list(ODDS_CATEGORIES)
+    assert params["race"].autocomplete
+    assert not any(parameter.required for parameter in params.values())
     for command in (
         bot_discord.calls_command,
-        bot_discord.odds_alerts_command,
         bot_discord.turnout_command,
         bot_discord.exitpolls_command,
     ):

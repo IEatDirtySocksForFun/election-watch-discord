@@ -60,6 +60,8 @@ async def test_bot_registers_every_command_and_the_error_handler():
                 "enabled",
                 "threshold",
                 "window",
+                "race",
+                "category",
             }
             assert {parameter.name for parameter in commands["odds"].parameters} == {"race"}
             assert {parameter.name for parameter in commands["polls"].parameters} == {
