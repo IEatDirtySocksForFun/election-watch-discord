@@ -1,4 +1,4 @@
-"""Deterministic embeds for the public /odds and /polls commands, read from the database.
+"""Deterministic embeds for the public /bettingmarkets and /polls commands, read from the database.
 
 The poller's background refresh stores odds snapshots and each poll source's polls; nothing
 here calls a source unless the bot runs with EW_COMMAND_DATA=live (see CommandData)."""
@@ -268,7 +268,7 @@ def _every(seconds: float) -> str:
 
 
 class CommandData:
-    """What /odds and /polls show. By default they read only the database: the poller's
+    """What /bettingmarkets and /polls show. By default they read only the database: the poller's
     background refresh (electionwatch/ratelimit.py budgets) is the only thing that calls the
     odds and poll sources, so users repeating a command never reach those APIs. A race nobody
     watches is queued (electionwatch/demand.py) and fetched by the next refresh.

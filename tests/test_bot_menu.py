@@ -351,7 +351,8 @@ async def test_favorites_button_opens_the_favorites_tab(client):
 async def test_odds_and_polls_buttons_offer_watched_races_then_favorites(client, tool):
     _, reply = await click(client, tool)
     picker = reply.view
-    assert isinstance(picker, RacePicker) and reply.content == f"Pick a race for {tool}."
+    label = "betting markets" if tool == "odds" else tool
+    assert isinstance(picker, RacePicker) and reply.content == f"Pick a race for {label}."
     assert [str(key) for key in picker.keys] == ["TX SEN", "GA GOV", "NC GOV", "PA SEN"]  # no duplicate TX SEN
     assert [item.placeholder for item in picker.children if isinstance(item, discord.ui.Select)] == [
         "Watched races",
@@ -445,7 +446,7 @@ def test_race_picker_splits_long_lists_and_says_what_did_not_fit():
     assert len(selects) == 4 and all(len(select.options) <= 25 for select in selects)
     assert [select.placeholder for select in selects] == [f"Watched races ({number}/4)" for number in range(1, 5)]
     assert len(picker.keys) == 92 and picker.left_out == 1  # TX SEN; CA-01 is already watched
-    assert "use /odds race:<race> for those" in picker.content()
+    assert "use /bettingmarkets race:<race> for those" in picker.content()
     assert all(len(option.value) <= 3 for select in selects for option in select.options)
 
 

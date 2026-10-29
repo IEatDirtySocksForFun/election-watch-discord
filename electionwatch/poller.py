@@ -3,7 +3,7 @@
 Each tick asks every enabled source that is due under its request budget
 (electionwatch/ratelimit.py): results, calls, exit polls and odds for the watched races, polls
 every 30 minutes, plus the races users asked about (electionwatch/demand.py). Everything is
-stored in MongoDB, which is what the data commands (/odds, /polls, /earlyvote) read."""
+stored in MongoDB, which is what the data commands (/bettingmarkets, /polls, /earlyvote) read."""
 
 from __future__ import annotations
 
@@ -500,7 +500,7 @@ class Poller:
                 except Exception:
                     logger.exception("Could not store odds for %s", snapshot.key)
         if asked:
-            # /odds tells "no market for this race" apart from "not fetched yet" with this.
+            # /bettingmarkets tells "no market for this race" apart from "not fetched yet" with this.
             priced = {str(snapshot.key) for snapshot in snapshots}
             for key in keys:
                 race = str(key)
@@ -529,7 +529,7 @@ class Poller:
                     continue
                 ref = f"{snapshot.key}:{snapshot.market}:{snapshot.outcome}"
                 try:
-                    # Per race: a race or category override can change all three (/oddsalerts).
+                    # Per race: a race or category override can change all three (/bettingalerts).
                     alert = odds_alert_for(guild, snapshot.key)
                     if not alert.enabled:
                         continue

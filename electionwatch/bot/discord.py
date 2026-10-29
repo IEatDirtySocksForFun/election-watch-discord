@@ -57,7 +57,7 @@ from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
 logger = logging.getLogger(__name__)
 MAX_MESSAGE = 2000  # Discord's message content limit
-ODDS_CATEGORY_IDS = tuple(ODDS_CATEGORIES)  # /oddsalerts category choices
+ODDS_CATEGORY_IDS = tuple(ODDS_CATEGORIES)  # /bettingalerts category choices
 
 
 async def handle_app_command_error(interaction: discord.Interaction, error: Exception) -> None:
@@ -365,7 +365,7 @@ async def calls_command(interaction: discord.Interaction, outlets: str, enabled:
     await interaction.response.send_message(message, ephemeral=True)
 
 
-@app_commands.command(name="oddsalerts", description="Configure prediction-market swing alerts, or list them")
+@app_commands.command(name="bettingalerts", description="Configure betting-market swing alerts, or list them")
 @app_commands.describe(
     enabled="on or off; default removes the race or category override. Leave everything out to list",
     threshold="Alert when the implied probability moves at least this many points",
@@ -414,7 +414,9 @@ async def _watched_keys(interaction: discord.Interaction):
     return keys
 
 
-@app_commands.command(name="odds", description="Show current Kalshi and Polymarket probabilities")
+@app_commands.command(
+    name="bettingmarkets", description="Kalshi and Polymarket betting-market odds for a race, or all watched races"
+)
 @app_commands.describe(race="Race to show; omit it for all watched races")
 async def odds_command(interaction: discord.Interaction, race: str | None = None) -> None:
     key = None
@@ -429,7 +431,7 @@ async def odds_command(interaction: discord.Interaction, race: str | None = None
 
 
 async def show_odds(interaction: discord.Interaction, key: RaceKey | None) -> None:
-    """/odds and the menu's Odds picker, after defer(): one race, or None for the watched races."""
+    """/bettingmarkets and the menu's Betting markets picker, after defer(): one race, or None for the watched races."""
     if not await _cooldown(interaction, "odds", str(key) if key else "watched", "odds"):
         return
     if key:
@@ -870,7 +872,7 @@ async def race_autocomplete(interaction: discord.Interaction, current: str) -> l
     bot: ElectionBot = interaction.client  # type: ignore[assignment]
     choices: dict[str, str] = {}
     states: set[str] = set()
-    # /odds and /polls work in DMs too: offer the default races there.
+    # /bettingmarkets and /polls work in DMs too: offer the default races there.
     gs = None
     if interaction.guild_id is not None:
         # Discord drops an autocomplete answer after 3 s: a slow database falls back to the

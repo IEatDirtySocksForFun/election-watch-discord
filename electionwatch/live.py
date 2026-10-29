@@ -2,7 +2,7 @@
 
 By default (EW_COMMAND_DATA=db) commands only read what the background refresh stored in the
 database. A bot owner who'd rather have commands fetch fresh numbers can set
-EW_COMMAND_DATA=live: /odds, /polls, /earlyvote and the /races browser then ask the source
+EW_COMMAND_DATA=live: /bettingmarkets, /polls, /earlyvote and the /races browser then ask the source
 when someone runs them, and save what they get to the database just like a refresh would.
 It stays polite:
 

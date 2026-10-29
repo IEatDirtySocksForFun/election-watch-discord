@@ -23,7 +23,7 @@ from electionwatch.settings import GuildSettings
 TOOLS = {
     "races": "Races",
     "favorites": "Favorites",
-    "odds": "Odds",
+    "odds": "Betting markets",
     "polls": "Polls",
     "earlyvote": "Early vote",
     "faq": "FAQ",
@@ -51,7 +51,7 @@ def menu_embed() -> discord.Embed:
             "Click a button: only you see the answer.\n\n"
             "**Races**: browse results by state and office\n"
             "**Favorites**: the races you pinned with /favorite\n"
-            "**Odds**, **Polls**: pick a race\n"
+            "**Betting markets**, **Polls**: pick a race\n"
             "**Early vote**, **FAQ**: pick a state\n"
             "**Settings**, **Limits**: how this server is set up"
         ),
@@ -201,7 +201,7 @@ HANDLERS = {
 
 
 class RacePicker(discord.ui.View):
-    """Odds or Polls: the server's watched races, then the user's favorites, 25 a select."""
+    """Betting markets or Polls: the server's watched races, then the user's favorites, 25 a select."""
 
     def __init__(self, tool: str, watched: list, favorites: list) -> None:
         super().__init__(timeout=PICKER_TIMEOUT)
@@ -235,9 +235,10 @@ class RacePicker(discord.ui.View):
             self.add_item(button)
 
     def content(self) -> str:
-        text = f"Pick a race for {'odds' if self.tool == 'odds' else 'polls'}."
+        text = f"Pick a race for {'betting markets' if self.tool == 'odds' else 'polls'}."
         if self.left_out:
-            text += f" {self.left_out} more didn't fit here: use /{self.tool} race:<race> for those."
+            command = "bettingmarkets" if self.tool == "odds" else self.tool
+            text += f" {self.left_out} more didn't fit here: use /{command} race:<race> for those."
         return text
 
     async def _pick(self, interaction: discord.Interaction) -> None:

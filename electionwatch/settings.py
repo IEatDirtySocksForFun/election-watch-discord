@@ -17,7 +17,7 @@ class PostMode(str, Enum):
 
 
 DEFAULT_INTERVAL_MIN = 5
-#: /oddsalerts categories: stable id -> what it covers. Ids are stored in guild documents.
+#: /bettingalerts categories: stable id -> what it covers. Ids are stored in guild documents.
 ODDS_CATEGORIES = {
     "senate": "US Senate",
     "house": "US House district",
@@ -52,9 +52,9 @@ class GuildSettings:
     # /limits overrides for this server; None = the operator's value, else computed
     # (electionwatch/bot/cooldown.py). Hourly cap 0 = no cap.
     user_cooldown_seconds: int | None = None  # per user, per command and race/state
-    user_commands_per_hour: int | None = None  # per user, across /odds /polls /earlyvote
+    user_commands_per_hour: int | None = None  # per user, across /bettingmarkets /polls /earlyvote
     refresh_cooldown_seconds: int | None = None  # between two /refresh in this server
-    # /oddsalerts overrides: category id (ODDS_CATEGORIES) or race key -> any of
+    # /bettingalerts overrides: category id (ODDS_CATEGORIES) or race key -> any of
     # {"enabled": bool, "threshold": float, "window": int}. A missing field falls through,
     # race > category > the server-wide odds_alerts / odds_swing_pts / odds_window_minutes.
     odds_alert_categories: dict[str, dict] = field(default_factory=dict)
@@ -73,7 +73,7 @@ class OddsAlert(NamedTuple):
 
 
 def odds_category(key: RaceKey) -> str:
-    """The /oddsalerts category id of a race."""
+    """The /bettingalerts category id of a race."""
     if key.level is Level.SENATE:
         return "senate"
     if key.level is Level.HOUSE:

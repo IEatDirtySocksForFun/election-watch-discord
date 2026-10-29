@@ -1,4 +1,4 @@
-"""Matrix tests for the user-facing data commands: /odds, /polls, /faq and race autocomplete.
+"""Matrix tests for the user-facing data commands: /bettingmarkets, /polls, /faq and race autocomplete.
 
 Every command is invoked through ``<command>.callback(interaction, ...)`` with a recording fake
 interaction (tests/fake_interaction_data.py). Every message, embed, view and autocomplete
@@ -7,7 +7,7 @@ acknowledge exactly once and reply ephemerally.
 
 Checklist
 ---------
-/odds
+/bettingmarkets
   [x] no race, DM                          -> default races.yaml overview
   [x] no race, guild without settings      -> default races.yaml overview
   [x] no race, guild with 0 watched        -> default races.yaml overview
@@ -196,7 +196,7 @@ def immediate_text(interaction: FakeInteraction) -> str:
     return reply.content
 
 
-# --------------------------------------------------------------------------- /odds overview
+# --------------------------------------------------------------------------- /bettingmarkets overview
 @pytest.mark.parametrize("where", ["dm", "guild_no_settings", "guild_zero_watched"])
 async def test_odds_overview_defaults_to_races_yaml(where):
     store = Store()
@@ -239,7 +239,7 @@ async def test_odds_overview_without_any_odds():
     assert "No current odds" in embed.description
 
 
-# --------------------------------------------------------------------------- /odds one race
+# --------------------------------------------------------------------------- /bettingmarkets one race
 KEY_FORMATS = [
     "TX SEN",
     "TX-SEN",

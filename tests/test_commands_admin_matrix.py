@@ -7,11 +7,11 @@ the command answered exactly once and that every reply is ephemeral.
 Use-case checklist
 ==================
 Permissions (every command x {Manage Server, configured admin role, plain member, DM})
-  [x] admin-only commands (setup, watch add/remove, posting, calls, oddsalerts, turnout,
+  [x] admin-only commands (setup, watch add/remove, posting, calls, bettingalerts, turnout,
       exitpolls, pause, resume) succeed for Manage Server and for the admin role
   [x] ... refuse a plain member with an ephemeral "Manage Server" message, store unchanged
   [x] ... refuse a DM with an ephemeral "use it in a server" message, store unchanged
-  [x] /watch list, /oddsalerts (listing) and /settings work for plain members; refuse DMs
+  [x] /watch list, /bettingalerts (listing) and /settings work for plain members; refuse DMs
   [x] /favorite works for everyone, including DMs
   [x] a refused or read-only command creates no guild document
   [x] /watch list does not write the guild (no lost update over a concurrent admin change)
@@ -26,7 +26,7 @@ Permissions (every command x {Manage Server, configured admin role, plain member
   [x] the command reports out-of-range minutes ephemerally and saves nothing
   [x] interval without minutes keeps the previous interval (or 5); switching modes back and
       forth keeps interval_minutes sane
-/oddsalerts
+/bettingalerts
   [x] on/off x threshold {None, 0.1, 50, 100} x window {None, 1, 1440}
   [x] logic rejects threshold 0 / -1 / 100.01 / nan / inf and window 0 / 1441, atomically
   [x] race and category overrides: category of every kind of race (mayor = slug says so),
@@ -326,16 +326,16 @@ SPECS = [
         lambda gs, us, r: "FOX" not in gs.call_outlets,
     ),
     (
-        "oddsalerts on",
+        "bettingalerts on",
         odds_alerts_command,
         {"enabled": "on", "threshold": 5.0, "window": 30},
         True,
         True,
         lambda gs, us, r: gs.odds_alerts and gs.odds_swing_pts == 5.0 and gs.odds_window_minutes == 30,
     ),
-    ("oddsalerts off", odds_alerts_command, {"enabled": "off"}, True, True, lambda gs, us, r: not gs.odds_alerts),
+    ("bettingalerts off", odds_alerts_command, {"enabled": "off"}, True, True, lambda gs, us, r: not gs.odds_alerts),
     (
-        "oddsalerts race",
+        "bettingalerts race",
         odds_alerts_command,
         {"race": "tx sen", "threshold": 5.0, "window": 30},
         True,
@@ -343,7 +343,7 @@ SPECS = [
         lambda gs, us, r: gs.odds_alert_races == {"TX SEN": {"threshold": 5.0, "window": 30}} and not gs.odds_alerts,
     ),
     (
-        "oddsalerts category",
+        "bettingalerts category",
         odds_alerts_command,
         {"category": "mayor", "enabled": "on"},
         True,
@@ -351,7 +351,7 @@ SPECS = [
         lambda gs, us, r: gs.odds_alert_categories == {"mayor": {"enabled": True}},
     ),
     (
-        "oddsalerts list",
+        "bettingalerts list",
         odds_alerts_command,
         {},
         False,
@@ -633,13 +633,13 @@ def test_post_due_follows_each_mode():
     assert not post_due(GuildSettings(1, paused=True, post_mode=PostMode.IMMEDIATE), None, NOW, True)
 
 
-# --------------------------------------------------------------------------- /oddsalerts
+# --------------------------------------------------------------------------- /bettingalerts
 
 
 @pytest.mark.parametrize("window", [None, 1, 1440])
 @pytest.mark.parametrize("threshold", [None, 0.1, 50.0, 100.0])
 @pytest.mark.parametrize("enabled", ["on", "off"])
-async def test_oddsalerts_every_choice_and_boundary(memory_store, enabled, threshold, window):
+async def test_bettingalerts_every_choice_and_boundary(memory_store, enabled, threshold, window):
     await memory_store.save_guild(GuildSettings(GUILD_ID, odds_swing_pts=7.0, odds_window_minutes=45))
     reply = await invoke(
         odds_alerts_command,
@@ -680,7 +680,7 @@ def test_change_odds_rejects_out_of_range_atomically(threshold, window):
 
 
 @pytest.mark.parametrize("threshold, window", [(0, None), (None, 1441), (101.0, 10)])
-async def test_oddsalerts_command_reports_out_of_range_and_saves_nothing(memory_store, threshold, window):
+async def test_bettingalerts_command_reports_out_of_range_and_saves_nothing(memory_store, threshold, window):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
     await invoke(
@@ -693,7 +693,7 @@ async def test_oddsalerts_command_reports_out_of_range_and_saves_nothing(memory_
     assert await guild_doc(memory_store) == before
 
 
-# --------------------------------------------------------------------------- /oddsalerts overrides
+# --------------------------------------------------------------------------- /bettingalerts overrides
 
 
 @pytest.mark.parametrize(
@@ -735,7 +735,7 @@ def test_odds_alert_precedence_is_race_then_category_then_server_field_by_field(
     assert odds_alert_for(gs, parse("PA-08")).enabled is False
 
 
-async def test_oddsalerts_race_override_is_stored_by_canonical_key(memory_store):
+async def test_bettingalerts_race_override_is_stored_by_canonical_key(memory_store):
     await memory_store.save_guild(baseline())
     client = stand_in_client(memory_store)
     reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), race="pa-8", threshold=5.0, window=30)
@@ -754,7 +754,7 @@ async def test_oddsalerts_race_override_is_stored_by_canonical_key(memory_store)
     assert (gs.odds_alerts, gs.odds_swing_pts, gs.odds_window_minutes) == (False, 50.0, 60)
 
 
-async def test_oddsalerts_race_override_on_a_watched_race_has_no_watch_hint(memory_store):
+async def test_bettingalerts_race_override_on_a_watched_race_has_no_watch_hint(memory_store):
     await memory_store.save_guild(baseline())
     reply = await invoke(
         odds_alerts_command, make_interaction(stand_in_client(memory_store), "manage"), race="TX SEN", enabled="on"
@@ -762,7 +762,7 @@ async def test_oddsalerts_race_override_on_a_watched_race_has_no_watch_hint(memo
     assert "isn't watched" not in reply.content
 
 
-async def test_oddsalerts_category_override_and_default_removes_it(store):
+async def test_bettingalerts_category_override_and_default_removes_it(store):
     await store.save_guild(baseline())
     client = stand_in_client(store)
     reply = await invoke(
@@ -778,7 +778,7 @@ async def test_oddsalerts_category_override_and_default_removes_it(store):
     assert reply.content == "US House district (house) has no odds alert override"
 
 
-async def test_oddsalerts_default_removes_a_race_override(memory_store):
+async def test_bettingalerts_default_removes_a_race_override(memory_store):
     gs = baseline()
     gs.odds_alert_races = {"PA-08": {"threshold": 5.0}, "TX SEN": {"enabled": True}}
     await memory_store.save_guild(gs)
@@ -806,7 +806,7 @@ async def test_oddsalerts_default_removes_a_race_override(memory_store):
         ({"enabled": "maybe"}, "enabled must be"),
     ],
 )
-async def test_oddsalerts_override_validation_saves_nothing(memory_store, kwargs, error):
+async def test_bettingalerts_override_validation_saves_nothing(memory_store, kwargs, error):
     await memory_store.save_guild(baseline())
     before = await guild_doc(memory_store)
     reply = await invoke(odds_alerts_command, make_interaction(stand_in_client(memory_store), "manage"), **kwargs)
@@ -841,7 +841,7 @@ def test_change_odds_server_default_without_enabled_keeps_it_and_mentions_overri
 
 
 @pytest.mark.parametrize("role", ["plain", "manage"])
-async def test_oddsalerts_without_changes_lists_and_saves_nothing(memory_store, role):
+async def test_bettingalerts_without_changes_lists_and_saves_nothing(memory_store, role):
     gs = baseline()
     gs.odds_alerts, gs.odds_swing_pts = True, 10.0
     gs.odds_alert_categories = {"mayor": {"enabled": False}}
