@@ -37,11 +37,11 @@ Checklist
       and available() raising -> the other sources' polls still shown
   [x] a failed source does not pin an empty result in the 15-minute cache
 /faq
-  [x] no state -> state list + outlets, valid YAML, < 2000 with fences
-  [x] every code in racekeys.STATES (51, incl. DC), upper and lower case -> < 2000 with
-      fences, valid YAML, contains that state's official results URL
+  [x] no state -> one embed: state list + an outlet field each, within embed limits
+  [x] every code in racekeys.STATES (51, incl. DC), upper and lower case -> one embed
+      titled with the state, its official results URL, sources and notes, nothing clipped
   [x] territories PR GU VI AS MP -> ephemeral "no FAQ" answer, not a crash
-  [x] invalid codes -> ephemeral error
+  [x] invalid codes -> ephemeral error; a full name or no state -> the embed
   [x] FAQ data unreadable -> ephemeral notice that leaks no server path
   [x] FAQ module not importable -> "FAQ data not installed"
 race_autocomplete
@@ -61,9 +61,9 @@ import sys
 import time
 from datetime import date, datetime, timedelta, timezone
 
+import discord
 import httpx
 import pytest
-import yaml
 from fake_interaction_data import FakeInteraction, check_choices, embed_total, make_client
 
 from electionwatch.bot.discord import faq_command, odds_command, polls_command, race_autocomplete
@@ -519,18 +519,30 @@ def faq_reply(interaction: FakeInteraction) -> str:
     return content
 
 
-def yaml_body(content: str):
-    assert content.startswith("```yaml\n") and content.endswith("\n```")
-    return yaml.safe_load(content[len("```yaml\n") : -len("\n```")])
+def faq_card(interaction: FakeInteraction) -> discord.Embed:
+    """The /faq embed, checked against Discord's embed limits."""
+    assert interaction.kinds == ["send_message"], interaction.kinds
+    reply = interaction.assert_ephemeral_flow()
+    assert reply.content is None and reply.embed is not None
+    embed = reply.embed
+    assert len(embed) <= 6000 and len(embed.fields) <= 25
+    assert len(embed.title) <= 256 and len(embed.description or "") <= 4096
+    for field in embed.fields:
+        assert len(field.name) <= 256 and len(field.value) <= 1024
+    return embed
+
+
+def card_text(embed: discord.Embed) -> str:
+    parts = [embed.title, embed.description or "", embed.footer.text or ""]
+    return "\n".join(parts + [f"{field.name}\n{field.value}" for field in embed.fields])
 
 
 async def test_faq_without_a_state():
-    content = faq_reply(await run(faq_command, make_client(Store())))
+    embed = faq_card(await run(faq_command, make_client(Store())))
+    assert embed.title == "🗳️ State FAQs"
     for code in STATES:
-        assert code in content
-    assert "Associated Press" in content
-    assert not content.startswith("```")
-    assert len(content) <= 2000
+        assert f"`{code}`" in embed.description
+    assert "Associated Press (AP)" in [field.name.split(" ", 1)[1] for field in embed.fields]
 
 
 @pytest.mark.parametrize("code", sorted(STATES))
@@ -538,25 +550,31 @@ async def test_faq_without_a_state():
 async def test_faq_every_state(code, case):
     from electionwatch.faq.loader import load_states
 
-    content = faq_reply(await run(faq_command, make_client(Store()), state=case(code)))
+    embed = faq_card(await run(faq_command, make_client(Store()), state=case(code)))
     record = load_states()[code]
-    assert not content.startswith("```")
-    assert content.startswith(f"# {STATES[code]}")
-    assert record["official_results_url"] in content
-    assert "**When to expect a call:**" in content
-    assert len(content) <= 2000
+    assert embed.title == f"🗳️ {STATES[code]}"
+    assert record["official_results_url"] in embed.description
+    names = [field.name for field in embed.fields]
+    assert {"📣 When to expect a call", "🔢 RCV", "💬 Good to know", "📚 Sources"} <= set(names)
+    assert not any(field.value.endswith("…") for field in embed.fields)  # every shipped state fits whole
 
 
 @pytest.mark.parametrize("code", sorted(TERRITORIES))
 async def test_faq_territories_answer_without_crashing(code):
-    content = faq_reply(await run(faq_command, make_client(Store()), state=code.lower()))
-    assert f"No FAQ data for {TERRITORIES[code]}" in content
+    embed = faq_card(await run(faq_command, make_client(Store()), state=code.lower()))
+    assert f"No FAQ data for {TERRITORIES[code]}" in card_text(embed)
 
 
-@pytest.mark.parametrize("code", ["ZZ", "Texas", "T", "", "TXX", "U.S."])
+@pytest.mark.parametrize("code", ["ZZ", "T", "TXX", "U.S."])
 async def test_faq_invalid_state(code):
-    interaction = await run(faq_command, make_client(Store()), state=code or None)
+    interaction = await run(faq_command, make_client(Store()), state=code)
     assert faq_reply(interaction)
+
+
+@pytest.mark.parametrize(("typed", "title"), [("Texas", "🗳️ Texas"), ("", "🗳️ State FAQs")])
+async def test_faq_state_name_or_nothing(typed, title):
+    embed = faq_card(await run(faq_command, make_client(Store()), state=typed or None))
+    assert embed.title == title
 
 
 async def test_faq_unreadable_data_does_not_leak_server_paths(monkeypatch):

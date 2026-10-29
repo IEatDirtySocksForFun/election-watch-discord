@@ -33,7 +33,7 @@ from electionwatch.bot.logic import (
     change_posting,
     change_setup,
     change_watch,
-    faq_text,
+    faq_embed,
     is_admin,
     limits_text,
     odds_alerts_text,
@@ -744,30 +744,30 @@ async def favorite_command(interaction: discord.Interaction, action: Literal["ad
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
 @app_commands.describe(state="State code, name or abbreviation: NC, North Carolina, N.C., Penn.")
 async def faq_command(interaction: discord.Interaction, state: str | None = None) -> None:
-    await interaction.response.send_message(faq_message(state), ephemeral=True)
+    await interaction.response.send_message(**faq_reply(state), ephemeral=True)
 
 
-def faq_message(state: str | None = None) -> str:
-    """/faq, and the menu's FAQ picker: the reply text, or what went wrong."""
+def faq_reply(state: str | None = None) -> dict:
+    """/faq, and the menu's FAQ picker: send_message() arguments, an embed or what went wrong."""
     try:
         from electionwatch.faq.loader import FAQDataError, load_outlets, load_states
     except ImportError:
-        return "FAQ data not installed"
+        return {"content": "FAQ data not installed"}
     try:
         states, outlets = load_states(), load_outlets()
     except FAQDataError:
         # The loader's message names the server's file path: log it, don't show it.
         logger.exception("Could not load the FAQ data")
-        return "FAQ data not installed"
+        return {"content": "FAQ data not installed"}
     try:
         if state is not None and state.strip():
             # "Pennsylvania", "Penn.", "pa" and "pensylvania" all mean PA (territories answer too).
             state = resolve_jurisdiction(state)
-        text = faq_text(states, outlets, state)
+        embed = faq_embed(states, outlets, state)
     except ValueError as exc:
         # Parse errors quote the user's input, which may be up to 6000 characters long.
-        return clip(str(exc), MAX_MESSAGE)
-    return text
+        return {"content": clip(str(exc), MAX_MESSAGE)}
+    return {"embed": discord.Embed.from_dict(embed)}
 
 
 @faq_command.autocomplete("state")

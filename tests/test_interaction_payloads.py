@@ -616,7 +616,7 @@ CASES = [
     ("favorite-remove", "favorite", [opt("action", "remove"), opt("race", "TX SEN")], None, {}, "Removed favorite"),
     ("favorite-bad", "favorite", [opt("action", "add"), opt("race", "Narnia SEN")], None, {}, ""),
     ("faq-none", "faq", [], None, {}, "State FAQs"),
-    ("faq-tx", "faq", [opt("state", "TX")], None, {}, "# Texas"),
+    ("faq-tx", "faq", [opt("state", "TX")], None, {}, "🗳️ Texas"),
     ("faq-territory", "faq", [opt("state", "PR")], None, {}, ""),
     ("faq-bad", "faq", [opt("state", "ZZ")], None, {}, "unknown state"),
     ("earlyvote-overview", "earlyvote", [], None, {"dm": True}, "Early vote · United States"),
@@ -1100,7 +1100,7 @@ async def test_early_vote_and_faq_pickers(harness):
     texas = next(select for select in selects(picker)[1:] if "TX" in [o["value"] for o in select["options"]])
     sent = await harness.dispatch(component_payload(texas["custom_id"], 3, ["TX"]))
     assert_private_answer(sent)
-    assert "# Texas" in text_of(sent)
+    assert "🗳️ Texas" in text_of(sent)
     sent = await harness.dispatch(component_payload(selects(picker)[0]["custom_id"], 3, ["ALL"]))
     assert "State FAQs" in text_of(sent)
 
