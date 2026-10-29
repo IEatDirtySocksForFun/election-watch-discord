@@ -1078,7 +1078,7 @@ NM:
     - https://www.270towin.com/poll-closing-times/
   unverified: [results_vendor]
 NY:
-  official_results_url: https://www.elections.ny.gov/electionresults.html
+  official_results_url: https://elections.ny.gov/election-results
   sos_url: https://elections.ny.gov/
   results_vendor: null
   polls_close_local: "9:00 PM"
@@ -1102,7 +1102,7 @@ NY:
     New York's 9 p.m. close is the latest in the Northeast, and its mail count
     is slow even by big-state standards.
   sources:
-    - https://www.elections.ny.gov/electionresults.html
+    - https://elections.ny.gov/election-results
     - https://elections.ny.gov/
     - https://www.ncsl.org/elections-and-campaigns/table-11-receipt-and-postmark-deadlines-for-absentee-mail-ballots
     - https://www.ncsl.org/elections-and-campaigns/table-16-when-absentee-mail-ballot-processing-and-counting-can-begin

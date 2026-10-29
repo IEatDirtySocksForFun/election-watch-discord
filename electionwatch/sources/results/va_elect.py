@@ -2,11 +2,7 @@
 
 The ENR site is Enhanced Voting's public results app and serves plain JSON:
 
-    https://enr.elections.virginia.gov/results/public/api/elections/virginia
-        -> {"elections": [{"publicElectionId": "2026-November-General",
-                           "electionDate": "2026-11-03", ...}, ...]}
-
-    .../api/elections/virginia/<publicElectionId>/data
+    https://enr.elections.virginia.gov/results/public/api/elections/virginia/2026-November-General/data
         -> {"ballotItems": [...], "statistics": [...], "voterRegistration": [...]}
 
 Every ballot item is one contest:
@@ -21,9 +17,10 @@ Every ballot item is one contest:
           "party": {"abbreviation": "D"}, "voteCount": 1234,
           "isWriteIn": false, "isWinner": true}]}}
 
-Election ids are irregular (`2024NovemberGeneral`, `2026-November-General`), so the
-slug is discovered from the jurisdiction listing rather than hard-coded; ELECTIONS only
-pins the checked ones. `reportingStatus.totalUnits` counts the precincts inside
+The jurisdiction listing that mapped election dates to `publicElectionId` values
+(`/api/elections/virginia`) has answered 404 since late October 2026, so a date has to be
+pinned in ELECTIONS to work. Election ids are irregular (`2024NovemberGeneral`,
+`2026-November-General`). `reportingStatus.totalUnits` counts the precincts inside
 the contest (133 statewide, 18 for a congressional district), which is what
 expected_vote_pct is computed from.
 """

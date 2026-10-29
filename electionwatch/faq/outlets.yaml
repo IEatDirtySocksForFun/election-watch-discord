@@ -18,8 +18,8 @@ NBC:
     publishes National Election Pool exit-poll analysis during the night.
 CBS:
   name: CBS News
-  results_url: https://www.cbsnews.com/elections/
-  exit_poll_url: https://www.cbsnews.com/elections/
+  results_url: https://www.cbsnews.com/midterms/
+  exit_poll_url: https://www.cbsnews.com/midterms/
   notes: >-
     CBS News Decision Desk; uses the National Election Pool exit poll and
     calls races once a state's polls have closed.

@@ -5,19 +5,19 @@ Each adapter registers in `electionwatch.sources.base.REGISTRY` under `results`,
 `tests/fixtures/<adapter>/<st>/` (each README.txt records the URLs and the fetch date).
 Tests never touch the network.
 
-| State | Adapter    | Feed                                                                     | Status                                                                                                                                                                       |
-| ----- | ---------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| OH    | `oh_sos`   | https://liveresults.ohiosos.gov/Api/v1/Contest/                          | **verified fixture** — 2026 general (pre-election, 0 votes); contest ids published                                                                                           |
-| VA    | `va_elect` | https://enr.elections.virginia.gov/results/public/api/elections/virginia | **verified fixture** — 2025 general and 2026 general; election discovered from the listing                                                                                   |
-| NE    | `ne_sos`   | https://electionresults.nebraska.gov/resultsSW.aspx?type=SW\|CG\|LD\|... | **verified fixture** — 2026 general (pre-election, 0 votes); HTML scraper, opt-in                                                                                            |
-| CO    | `co_sos`   | https://results.enr.clarityelections.com/CO/                             | **verified fixture** — 2024 general; 2026 id not published yet, discovery implemented                                                                                        |
-| IA    | `ia_sos`   | https://results.enr.clarityelections.com/IA/                             | **verified fixture** — 2024 general; 2026 id not published yet, discovery implemented                                                                                        |
-| MI    | —          | https://mielections.us/election/results/                                 | **not possible** — unreachable: every request times out after 45 s (curl exit 28) on both schemes; the SOS's mvic.sos.state.mi.us answers 403 with a Cloudflare interstitial |
-| WI    | —          | https://elections.wi.gov/                                                | **not possible** — Cloudflare interstitial (403 "Just a moment...") for automated clients, and the WEC publishes county-reported results, not a statewide JSON export        |
-| NV    | —          | https://silverstateelection.nv.gov/                                      | **not possible** — Imperva Incapsula bot challenge: HTTP 200 with a 212-byte body, `x-iinfo` + `incap_ses_*` cookies, no result markup                                       |
-| NH    | —          | https://www.sos.nh.gov/                                                  | **not possible** — 403 "Access Denied" (CloudFront WAF) for a descriptive UA and for a browser UA alike                                                                      |
-| ME    | —          | https://www.maine.gov/sos/elections-voting/election-results-data         | **not possible** — the page only links per-contest Excel workbooks and RCV PDFs published after the count; no live feed                                                      |
-| MN    | —          | https://electionresults.sos.mn.gov/                                      | **not possible** — Radware Bot Manager challenge (`__uzdbm_*` / `SSJSConnectorObj`), no markup served                                                                        |
+| State | Adapter    | Feed                                                                                                | Status                                                                                                                                                                       |
+| ----- | ---------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OH    | `oh_sos`   | https://liveresults.ohiosos.gov/Api/v1/Contest/                                                     | **verified fixture** — 2026 general (pre-election, 0 votes); contest ids published                                                                                           |
+| VA    | `va_elect` | https://enr.elections.virginia.gov/results/public/api/elections/virginia/2026-November-General/data | **verified fixture** — 2025 general and 2026 general; 2026 id pinned in `ELECTIONS` (jurisdiction listing 404s since 2026-10-27)                                             |
+| NE    | `ne_sos`   | https://electionresults.nebraska.gov/resultsSW.aspx?type=SW\|CG\|LD\|...                            | **verified fixture** — 2026 general (pre-election, 0 votes); HTML scraper, opt-in                                                                                            |
+| CO    | `co_sos`   | https://results.enr.clarityelections.com/CO/                                                        | **verified fixture** — 2024 general; 2026 id not published yet, discovery implemented                                                                                        |
+| IA    | `ia_sos`   | https://results.enr.clarityelections.com/IA/                                                        | **verified fixture** — 2024 general; 2026 id not published yet, discovery implemented                                                                                        |
+| MI    | —          | https://mielections.us/election/results/                                                            | **not possible** — unreachable: every request times out after 45 s (curl exit 28) on both schemes; the SOS's mvic.sos.state.mi.us answers 403 with a Cloudflare interstitial |
+| WI    | —          | https://elections.wi.gov/                                                                           | **not possible** — Cloudflare interstitial (403 "Just a moment...") for automated clients, and the WEC publishes county-reported results, not a statewide JSON export        |
+| NV    | —          | https://silverstateelection.nv.gov/                                                                 | **not possible** — Imperva Incapsula bot challenge: HTTP 200 with a 212-byte body, `x-iinfo` + `incap_ses_*` cookies, no result markup                                       |
+| NH    | —          | https://www.sos.nh.gov/                                                                             | **not possible** — 403 "Access Denied" (CloudFront WAF) for a descriptive UA and for a browser UA alike                                                                      |
+| ME    | —          | https://www.maine.gov/sos/elections-voting/election-results-data                                    | **not possible** — the page only links per-contest Excel workbooks and RCV PDFs published after the count; no live feed                                                      |
+| MN    | —          | https://electionresults.sos.mn.gov/                                                                 | **not possible** — Radware Bot Manager challenge (`__uzdbm_*` / `SSJSConnectorObj`), no markup served                                                                        |
 
 Checked 2026-10-27 with a descriptive User-Agent
 (`Mozilla/5.0 (compatible; election-watch-discord/0.1; +https://github.com/election-watch-discord)`).
@@ -61,15 +61,15 @@ Congress - District nn` -> `OH-nn`, `State Senator - District nn` -> `OH SD-nn`,
 ## Virginia — `va_elect`
 
 ```text
-https://enr.elections.virginia.gov/results/public/api/elections/virginia
-.../api/elections/virginia/<publicElectionId>/data
+https://enr.elections.virginia.gov/results/public/api/elections/virginia/2026-November-General/data
 ```
 
-The listing gives `publicElectionId`, `electionDate` and a localized `name`; the data
-endpoint returns `ballotItems` (`name`, `contestType`, `voteTotal`, `reportingStatus` with
-`reportingUnits`/`totalUnits`/`asOf`, `summaryResults.ballotOptions`). Election ids are
-irregular (`2024NovemberGeneral`, `2026-November-General`), so the id is discovered by
-date from the listing rather than constructed; `ELECTIONS` only pins verified ids.
+The data endpoint returns `ballotItems` (`name`, `contestType`, `voteTotal`,
+`reportingStatus` with `reportingUnits`/`totalUnits`/`asOf`,
+`summaryResults.ballotOptions`). Election ids are irregular (`2024NovemberGeneral`,
+`2026-November-General`), and the jurisdiction listing that mapped dates to ids
+(`/api/elections/virginia`) has answered 404 since late October 2026, so a date works only
+when its id is pinned in `ELECTIONS`.
 
 - Keys: `Governor` -> `VA GOV`, `Lieutenant Governor` -> `VA LTGOV`, `Attorney General`
   -> `VA AG`, `Member, House of Delegates (nnth District)` -> `VA HD-nn`, `Member, U.S.
