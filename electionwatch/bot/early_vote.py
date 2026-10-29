@@ -42,8 +42,6 @@ MAX_COUNTIES = 25
 MAX_CHOICES = 25
 AUTOCOMPLETE_TIMEOUT = 2.0  # Discord drops autocomplete answers after 3 s
 POST_KIND = "early_vote"  # store.mark_posted kind for the daily summary
-_NAMES = {name.casefold(): code for code, name in STATES.items()}
-_NAMES["washington dc"] = _NAMES["washington d.c."] = _NAMES["d.c."] = "DC"
 _PARTY_ORDER = {"Democratic": 0, "Republican": 1}
 COLOR = discord.Color.teal()
 
@@ -59,15 +57,19 @@ def early_vote_client(bot) -> EarlyVoteClient:
 
 
 def resolve_state(text: str) -> str:
-    """'nc', 'NC', 'North Carolina' -> 'NC'. ValueError for anything else (50 states + DC)."""
+    """'nc', 'NC', 'North Carolina', 'N.C.', 'n carolina', 'north carolna' -> 'NC'. ValueError
+    for anything else (50 states + DC)."""
+    from electionwatch.racekeys import RaceKeyError
+    from electionwatch.racekeys import resolve_state as resolve
+
     cleaned = " ".join(text.split())
-    if cleaned.upper() in STATES:
-        return cleaned.upper()
-    code = _NAMES.get(cleaned.casefold())
-    if code:
-        return code
-    shown = clip(cleaned, 60) or "(empty)"
-    raise ValueError(f"Unknown state {shown!r}: use a two-letter code like NC or a name like North Carolina.")
+    try:
+        return resolve(cleaned, STATES)
+    except RaceKeyError:
+        shown = clip(cleaned, 60) or "(empty)"
+        raise ValueError(
+            f"Unknown state {shown!r}: use a two-letter code like NC or a name like North Carolina."
+        ) from None
 
 
 def state_choices(states: list[str], current: str) -> list[tuple[str, str]]:
@@ -81,6 +83,14 @@ def state_choices(states: list[str], current: str) -> list[tuple[str, str]]:
             starts.append((label[:100], code))
         elif needle in name.casefold():
             contains.append((label[:100], code))
+    if not starts and not contains and needle:
+        # An abbreviation or a misspelling: "N.C.", "Calif.", "pensylvania".
+        try:
+            code = resolve_state(current)
+        except ValueError:
+            code = None
+        if code in states:
+            starts.append((f"{STATES.get(code, code)} ({code})"[:100], code))
     return (starts + contains)[:MAX_CHOICES]
 
 
@@ -97,6 +107,85 @@ def _party_lines(parties: dict[str, int], whole: int) -> list[str]:
         parties.items(), key=lambda party_votes: (_PARTY_ORDER.get(party_votes[0], 2), -party_votes[1], party_votes[0])
     )
     return [f"{party}: {_n(votes)} ({_pct(votes, whole)})" for party, votes in ordered]
+
+
+def _party_split(parties: dict[str, int], whole: int) -> str:
+    """'Dem 42% · Rep 31% · other 27%' for one county; '' without party data."""
+    if not parties or not whole:
+        return ""
+    short = {"Democratic": "Dem", "Republican": "Rep"}
+    shown = [f"{short[party]} {votes / whole:.0%}" for party, votes in parties.items() if party in short]
+    others = whole - sum(votes for party, votes in parties.items() if party in short)
+    if others > 0 and shown:
+        shown.append(f"other {others / whole:.0%}")
+    return " · ".join(sorted(shown, key=lambda part: {"Dem": 0, "Rep": 1}.get(part[:3], 2)))
+
+
+def _county_key(name: str) -> str:
+    cleaned = name.casefold().replace(".", "").replace("'", "").replace("-", " ")
+    for suffix in (" county", " parish", " borough", " census area", " city and borough", " municipality"):
+        cleaned = cleaned.removesuffix(suffix)
+    words = ["st" if word == "saint" else word for word in cleaned.split()]
+    return " ".join(words)
+
+
+def resolve_county(ev: EarlyVote, text: str) -> str:
+    """'wake', 'Wake County', 'St. Louis', 'wkae' -> the county's name in civicAPI's data.
+    ValueError when the state lists no such county (or a misspelling fits several)."""
+    import difflib
+
+    names = {_county_key(county): county for county in ev.counties}
+    wanted = _county_key(text)
+    if wanted in names:
+        return names[wanted]
+    scored = sorted(((difflib.SequenceMatcher(None, wanted, key).ratio(), key) for key in names), reverse=True)
+    if scored and scored[0][0] >= 0.8 and (len(scored) == 1 or scored[0][0] - scored[1][0] >= 0.05):
+        return names[scored[0][1]]
+    raise ValueError(f"civicAPI lists no county called {clip(text.strip(), 60)!r} in {ev.name}'s early vote.")
+
+
+def county_choices(ev: EarlyVote | None, current: str) -> list[tuple[str, str]]:
+    """Autocomplete (name, value) pairs for a state's counties, most ballots first."""
+    if ev is None:
+        return []
+    needle = _county_key(current)
+    counties = list(ev.counties)
+    starts = [county for county in counties if _county_key(county).startswith(needle)]
+    contains = [county for county in counties if needle and needle in _county_key(county) and county not in starts]
+    if not starts and not contains and needle:
+        try:
+            starts = [resolve_county(ev, current)]
+        except ValueError:
+            pass
+    return [(clip(county, 100), clip(county, 100)) for county in (starts + contains)[:MAX_CHOICES]]
+
+
+def format_county(ev: EarlyVote, county: str) -> discord.Embed:
+    """One county's early vote: ballots, mail / in person and party registration."""
+    total = ev.counties.get(county, 0)
+    embed = _embed(f"Early vote · {county}, {ev.name}", ev.url, ev.updated_at)
+    lines = [f"**{_n(total)}** early ballots cast (mail returned + in person)"]
+    if ev.total_ballots:
+        lines[0] += f", {_pct(total, ev.total_ballots)} of {ev.name}'s"
+    methods = ev.county_methods.get(county, {})
+    cast = [
+        f"{label}: {_n(methods[category])}"
+        for category, label in (("returned", "Mail"), ("inperson", "In person"), ("grace", "Grace period"))
+        if category in methods
+    ]
+    if cast:
+        lines.append(" · ".join(cast))
+    if ev.counties:
+        rank = list(ev.counties).index(county) + 1 if county in ev.counties else None
+        if rank:
+            lines.append(f"#{rank} of {len(ev.counties)} counties by ballots cast")
+    embed.description = _fit(lines, MAX_DESCRIPTION)
+    parties = ev.county_parties.get(county, {})
+    if parties:
+        _add_field(embed, "By party registration", _party_lines(parties, total))
+    else:
+        _add_field(embed, "By party registration", [f"civicAPI has no party breakdown for {ev.name}."])
+    return _guard_total(embed)
 
 
 def _footer(updated: date | None) -> str:
@@ -206,11 +295,18 @@ def format_state(ev: EarlyVote, breakdown: str | None = None) -> discord.Embed:
         if ev.counties:
             reporting = sum(1 for count in ev.counties.values() if count)
             top = list(ev.counties.items())[:MAX_COUNTIES]
-            lines = [
-                f"{index}. {clip(county, 60)}: {_n(ballots)} ({_pct(ballots, ev.total_ballots)})"
-                for index, (county, ballots) in enumerate(top, 1)
-            ]
-            _add_field(embed, f"Top counties ({reporting} of {len(ev.counties)} reporting)", lines)
+            lines = []
+            for index, (county, ballots) in enumerate(top, 1):
+                line = f"{index}. {clip(county, 60)}: {_n(ballots)} ({_pct(ballots, ev.total_ballots)})"
+                split = _party_split(ev.county_parties.get(county, {}), ballots)
+                lines.append(f"{line} · {split}" if split else line)
+            # A field holds 1024 characters: with the party split, 25 counties need two.
+            half = (len(lines) + 1) // 2 if len(lines) > 12 else len(lines)
+            name = f"Top counties ({reporting} of {len(ev.counties)} reporting)"
+            _add_field(embed, name, lines[:half])
+            if lines[half:]:
+                _add_field(embed, "\u200b", lines[half:])  # no heading on the second half
+            _add_field(embed, "One county", ["Add `county:` to /earlyvote for a county's own numbers."])
         else:
             _add_field(embed, "By county", ["civicAPI lists no county numbers for this state."])
     return _guard_total(embed)
@@ -268,8 +364,13 @@ def unavailable_embed(state: str | None = None) -> discord.Embed:
     return embed
 
 
-async def early_vote_embed(client: EarlyVoteClient, state: str | None, breakdown: str | None) -> discord.Embed:
-    """The /earlyvote answer. Never raises for a civicAPI failure: says so instead."""
+async def early_vote_embed(
+    client: EarlyVoteClient, state: str | None, breakdown: str | None, county: str | None = None
+) -> discord.Embed:
+    """The /earlyvote answer. Never raises for a civicAPI failure: says so instead. A county
+    the state doesn't list raises ValueError (the command shows it as an error)."""
+    if county and state is None:
+        raise ValueError("Pick a state too: county numbers are per state.")
     try:
         if state is None:
             embed = format_overview(await client.national())
@@ -278,7 +379,7 @@ async def early_vote_embed(client: EarlyVoteClient, state: str | None, breakdown
                     f"{embed.description}\n\nPick a state to see the {breakdown} breakdown.", MAX_DESCRIPTION
                 )
             return embed
-        ev = await client.state(state, counties=breakdown == "county", age=breakdown == "age")
+        ev = await client.state(state, counties=breakdown == "county" or bool(county), age=breakdown == "age")
     except NotCached:
         embed = _embed(
             f"Early vote · {STATES.get(state, 'United States') if state else 'United States'}", page_url(state), None
@@ -300,6 +401,8 @@ async def early_vote_embed(client: EarlyVoteClient, state: str | None, breakdown
         )
         embed.set_footer(text="Early vote: civicAPI")
         return embed
+    if county:
+        return format_county(ev, resolve_county(ev, county))
     return format_state(ev, breakdown)
 
 

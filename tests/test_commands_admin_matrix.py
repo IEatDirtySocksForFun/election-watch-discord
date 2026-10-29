@@ -790,6 +790,17 @@ VALID_KEYS = (
     + [("Puerto Rico Governor", "PR GOV"), ("Guam Governor", "GU GOV")]
 )
 VALID_KEYS = [(text, expected.replace("ca ", "CA ")) for text, expected in VALID_KEYS]
+# People type districts and states every which way; they all land on the same key.
+VALID_KEYS += [
+    ("nc 01", "NC-01"),
+    ("NC 1", "NC-01"),
+    ("pa08", "PA-08"),
+    ("pennsylvania-08", "PA-08"),
+    ("pensylvaniua 08", "PA-08"),
+    ("Penn. 8", "PA-08"),
+    ("N.C. sen", "NC SEN"),
+    ("new yrok gov", "NY GOV"),
+]
 
 INVALID_KEYS = [
     "garbage",
@@ -803,8 +814,6 @@ INVALID_KEYS = [
     "NC-001",
     "TX LOCAL",
     "TX SD",
-    "nc 01",
-    "NC 1",
     "Texas",
     "Narnia Senate",
     "ＴＸ SEN",

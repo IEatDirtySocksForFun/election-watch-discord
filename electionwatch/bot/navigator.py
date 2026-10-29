@@ -1,5 +1,7 @@
-"""Ephemeral race navigator view (/races). It reads only the database: race lists come from
-the background refresh in electionwatch/racelists.py, results from the poller."""
+"""Ephemeral race navigator view (/races). It reads the database: race lists come from the
+background refresh in electionwatch/racelists.py, results from the poller. With
+EW_COMMAND_DATA=live it first fetches the state's lists and the chosen race's result from the
+sources (electionwatch/live.py), within the same request budgets."""
 
 from __future__ import annotations
 
@@ -40,7 +42,8 @@ def race_lists(client) -> RaceLists:
 
 
 async def list_races(client, state: str) -> dict[str, tuple]:
-    """The stored races of a state, as {key: (key, label)}. Never calls a source."""
+    """The stored races of a state, as {key: (key, label)}. Never calls a source (autocomplete
+    uses it, and Discord gives autocomplete less than 3 seconds)."""
     found, _ = await race_lists(client).stored(state)
     return found
 
@@ -93,6 +96,9 @@ class RaceNavigator(discord.ui.View):
     async def refresh(self) -> None:
         lists = race_lists(self.client)
         lists.want(self.state)
+        live = getattr(self.client, "live", None)
+        if live is not None:
+            await live.race_list(lists, self.state)
         found, self.loading = await lists.stored(self.state)
         for key, label in self._known_races():
             if key.state == self.state:
@@ -190,7 +196,12 @@ class RaceNavigator(discord.ui.View):
         else:
             self.selected_race = self._race_choices[int(value)]
         self._build_controls()
-        await interaction.response.edit_message(embed=await self.embed(), view=self)
+        if getattr(self.client, "live", None) is not None:
+            # A live fetch of the result can take longer than Discord's 3 s deadline.
+            await interaction.response.defer()
+            await interaction.edit_original_response(embed=await self.embed(), view=self)
+        else:
+            await interaction.response.edit_message(embed=await self.embed(), view=self)
 
     def _race_tool_callback(self, tool: str):
         async def callback(interaction: discord.Interaction):
@@ -230,6 +241,9 @@ class RaceNavigator(discord.ui.View):
 
     async def embed(self) -> discord.Embed:
         if self.selected_race:
+            live = getattr(self.client, "live", None)
+            if live is not None:
+                await live.results(parse(self.selected_race))
             race_result = await self.client.store.latest_result(parse(self.selected_race))
             if race_result:
                 return render_embed(format_result(race_result))

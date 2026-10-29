@@ -103,7 +103,11 @@ def typed_state(text: str) -> str | None:
         name = name.casefold()
         if cleaned == name or cleaned.startswith(name + " "):
             return code
-    return None
+    # Abbreviations and misspellings: "Penn. 8", "N.C. sen", "pensylvania 08".
+    from electionwatch.racekeys import _leading_state
+
+    leading = _leading_state(text.strip())
+    return leading[0] if leading is not None else None
 
 
 def _utc(value: datetime) -> datetime:

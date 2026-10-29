@@ -18,6 +18,7 @@ from electionwatch.bot.cooldown import Cooldowns
 from electionwatch.bot.early_vote import (
     AUTOCOMPLETE_TIMEOUT,
     BREAKDOWNS,
+    county_choices,
     early_vote_client,
     early_vote_embed,
     post_daily_summaries,
@@ -42,12 +43,15 @@ from electionwatch.bot.navigator import RaceNavigator, race_lists
 from electionwatch.bot.poster import DiscordPoster, clip
 from electionwatch.config import load_races
 from electionwatch.demand import Demand
+from electionwatch.live import LiveFetch, command_mode
 from electionwatch.poller import Poller
-from electionwatch.racekeys import STATES, RaceKey, describe, parse
+from electionwatch.racekeys import STATES, RaceKey, describe, parse, parse_typed
+from electionwatch.racekeys import resolve_state as resolve_jurisdiction
 from electionwatch.racelists import KIND as RACELISTS
 from electionwatch.racelists import READ_TIMEOUT, RaceLists, typed_state
 from electionwatch.ratelimit import RateBook
 from electionwatch.settings import GuildSettings, UserSettings
+from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
 
 logger = logging.getLogger(__name__)
@@ -87,9 +91,24 @@ class ElectionBot(commands.Bot):
         hooks = getattr(http_client, "event_hooks", None)
         if isinstance(hooks, dict):
             http_client.event_hooks = {**hooks, "request": [*hooks.get("request", []), self.rates.on_request]}
-        self.command_data = CommandData(store, sources, http_client, clock, rates=self.rates, demand=self.demand)
+        # EW_COMMAND_DATA=live: commands may fetch from the sources too, within the same
+        # budgets (electionwatch/live.py). The default, db, reads only what refreshes stored.
+        self.live = (
+            LiveFetch.from_env(os.environ, store, sources, http_client, self.rates, clock)
+            if command_mode(os.environ) == "live"
+            else None
+        )
+        self.command_data = CommandData(
+            store, sources, http_client, clock, rates=self.rates, demand=self.demand, live=self.live
+        )
         # Commands read early-vote pages from the store; only the refresher calls civicAPI.
-        self.early_vote = EarlyVoteClient(http_client, store=store, cache_only=True)
+        # In live mode /earlyvote downloads too while civicAPI has room; autocomplete never does.
+        self.early_vote_db = EarlyVoteClient(http_client, store=store, cache_only=True)
+        self.early_vote = (
+            EarlyVoteClient(http_client, store=store, ttl=self.live.max_age, may_download=self.live.early_vote_allowed)
+            if self.live is not None
+            else self.early_vote_db
+        )
         self.early_vote_refresher = EarlyVoteClient(http_client, store=store)
         self._early_vote_running = asyncio.Lock()
         self._background: set[asyncio.Task] = set()
@@ -254,6 +273,9 @@ async def _cooldown(interaction: discord.Interaction, command: str, target: str,
         except Exception:
             logger.exception("Could not read limits for guild %s", interaction.guild_id)
     every = bot.rates.kind_interval(kind)
+    live = getattr(bot, "live", None)
+    if live is not None:  # live commands fetch again once an answer is older than this
+        every = min(every, live.max_age)
     seconds = cooldowns.user_seconds(every, gs.user_cooldown_seconds if gs else None)
     hourly = gs.user_commands_per_hour if gs and gs.user_commands_per_hour is not None else None
     wait = cooldowns.hit(interaction.user.id, command, target, seconds, hourly)
@@ -381,7 +403,7 @@ async def odds_command(interaction: discord.Interaction, race: str | None = None
     key = None
     if race:
         try:
-            key = parse(race)
+            key = parse_typed(race)
         except ValueError as exc:
             await _error(interaction, exc)
             return
@@ -413,7 +435,7 @@ async def polls_command(
     internals: bool = True,
 ) -> None:
     try:
-        key = parse(race)
+        key = parse_typed(race)
     except ValueError as exc:
         await _error(interaction, exc)
         return
@@ -460,11 +482,13 @@ async def early_vote_posts_command(interaction: discord.Interaction, enabled: Li
 @app_commands.describe(
     state="State code or name; omit it for every state with data",
     breakdown="Detail to show for the state",
+    county="One county of the state: its ballots, mail / in person and party registration",
 )
 async def early_vote_command(
     interaction: discord.Interaction,
     state: str | None = None,
     breakdown: Literal[BREAKDOWNS] | None = None,
+    county: str | None = None,
 ) -> None:
     code = None
     if state:
@@ -474,22 +498,29 @@ async def early_vote_command(
             await _error(interaction, exc)
             return
     await interaction.response.defer(ephemeral=True)
-    await show_early_vote(interaction, code, breakdown)
+    await show_early_vote(interaction, code, breakdown, county)
 
 
-async def show_early_vote(interaction: discord.Interaction, code: str | None, breakdown: str | None = None) -> None:
+async def show_early_vote(
+    interaction: discord.Interaction, code: str | None, breakdown: str | None = None, county: str | None = None
+) -> None:
     """/earlyvote and the menu's Early vote picker, after defer(); None = every state."""
     # One cooldown per state: every breakdown comes from the same stored pages.
     if not await _cooldown(interaction, "earlyvote", code or "US", "earlyvote"):
         return
-    embed = await early_vote_embed(early_vote_client(interaction.client), code, breakdown)
+    try:
+        embed = await early_vote_embed(early_vote_client(interaction.client), code, breakdown, county)
+    except ValueError as exc:  # a county the state doesn't list, or a county without a state
+        await interaction.followup.send(clip(str(exc), MAX_MESSAGE), ephemeral=True)
+        return
     await interaction.followup.send(embed=embed, ephemeral=True)
 
 
 async def early_vote_state_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:
-    states = await early_vote_client(interaction.client).states_with_data(AUTOCOMPLETE_TIMEOUT)
+    client = getattr(interaction.client, "early_vote_db", None) or early_vote_client(interaction.client)
+    states = await client.states_with_data(AUTOCOMPLETE_TIMEOUT)
     # Cold cache or civicAPI down: offer every state; the command says when one has no data.
     return [
         app_commands.Choice(name=name, value=value)
@@ -498,6 +529,23 @@ async def early_vote_state_autocomplete(
 
 
 early_vote_command.autocomplete("state")(early_vote_state_autocomplete)
+
+
+@early_vote_command.autocomplete("county")
+async def early_vote_county_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    """The counties of the state already picked, from the stored pages (never a download)."""
+    try:
+        code = resolve_state(getattr(interaction.namespace, "state", None) or "")
+    except ValueError:
+        return []
+    client = getattr(interaction.client, "early_vote_db", None) or early_vote_client(interaction.client)
+    try:
+        ev = await asyncio.wait_for(client.state(code, counties=True, compare=False), AUTOCOMPLETE_TIMEOUT)
+    except (asyncio.TimeoutError, SourceUnavailable):
+        return []
+    return [app_commands.Choice(name=name, value=value) for name, value in county_choices(ev, current)]
 
 
 REFRESH_KINDS = {
@@ -598,7 +646,9 @@ async def limits_command(
 
 def limits_message(bot, gs: GuildSettings) -> str:
     """/limits without options, and the menu's Limits button."""
-    text = clip(limits_text(gs, getattr(bot, "rates", None), getattr(bot, "cooldowns", None)), MAX_MESSAGE - 8)
+    live = getattr(bot, "live", None)
+    max_age = live.max_age if live is not None else None
+    text = clip(limits_text(gs, getattr(bot, "rates", None), getattr(bot, "cooldowns", None), max_age), MAX_MESSAGE - 8)
     return f"```\n{text}\n```"
 
 
@@ -675,6 +725,7 @@ async def favorite_command(interaction: discord.Interaction, action: Literal["ad
 
 
 @app_commands.command(name="faq", description="Read state and outlet election FAQs")
+@app_commands.describe(state="State code, name or abbreviation: NC, North Carolina, N.C., Penn.")
 async def faq_command(interaction: discord.Interaction, state: str | None = None) -> None:
     await interaction.response.send_message(faq_message(state), ephemeral=True)
 
@@ -692,11 +743,19 @@ def faq_message(state: str | None = None) -> str:
         logger.exception("Could not load the FAQ data")
         return "FAQ data not installed"
     try:
+        if state is not None and state.strip():
+            # "Pennsylvania", "Penn.", "pa" and "pensylvania" all mean PA (territories answer too).
+            state = resolve_jurisdiction(state)
         text = faq_text(states, outlets, state)
     except ValueError as exc:
         # Parse errors quote the user's input, which may be up to 6000 characters long.
         return clip(str(exc), MAX_MESSAGE)
-    return f"```yaml\n{text}\n```"
+    return text
+
+
+@faq_command.autocomplete("state")
+async def faq_state_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [app_commands.Choice(name=name, value=code) for name, code in state_choices(list(STATES), current)]
 
 
 @app_commands.command(name="menu", description="Buttons for races, odds, polls and more, so you don't have to type")

@@ -118,6 +118,8 @@ class EarlyVote:
     url: str
     comparison: Comparison | None = None
     counties: dict[str, int] = field(default_factory=dict)  # ballots cast per county
+    county_parties: dict[str, dict[str, int]] = field(default_factory=dict)  # county -> party -> ballots
+    county_methods: dict[str, dict[str, int]] = field(default_factory=dict)  # county -> category -> ballots
     age: dict[str, int] = field(default_factory=dict)  # ballots cast per age bracket
     age_categories: tuple[str, ...] = ()  # which categories the age numbers cover
 
@@ -215,10 +217,15 @@ def parse_national(payloads: dict[str, dict | None]) -> National:
 
 def parse_counties(payload: dict | None) -> dict[str, int]:
     """A state category response -> {county: ballots}."""
+    return {county: total for county, (total, _) in parse_county_breakdowns(payload).items()}
+
+
+def parse_county_breakdowns(payload: dict | None) -> dict[str, tuple[int, dict[str, int]]]:
+    """A state category response -> {county: (ballots, parties without Unspecified)}."""
     regions = (payload or {}).get("regions") if isinstance(payload, dict) else None
     if not isinstance(regions, dict):
         return {}
-    return {str(name): parse_breakdown(raw)[0] for name, raw in regions.items()}
+    return {str(name): parse_breakdown(raw) for name, raw in regions.items()}
 
 
 def parse_demographics(payload: dict | None) -> dict[str, int]:
@@ -255,6 +262,10 @@ class EarlyVoteClient:
     the refresher downloads (``refresh()``, on the request budget of ratelimit.py) and the
     commands' client has ``cache_only=True``: it reads saved pages and never calls civicAPI,
     raising NotCached for a page that is not saved yet.
+
+    With EW_COMMAND_DATA=live (electionwatch/live.py) the commands' client downloads instead,
+    while ``may_download()`` says civicAPI has room in the hour; otherwise, or when civicAPI
+    fails, it answers from the saved page like the cache-only client.
     """
 
     def __init__(
@@ -268,10 +279,12 @@ class EarlyVoteClient:
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
         store=None,
         cache_only: bool = False,
+        may_download: Callable[[], bool] | None = None,
     ) -> None:
         self.client = client
         self.store = store
         self.cache_only = cache_only and store is not None
+        self.may_download = may_download if store is not None else None
         self.ttl = ttl
         self.history_ttl = history_ttl
         self.min_interval = min_interval
@@ -292,20 +305,30 @@ class EarlyVoteClient:
         url = f"{API}/{path}"
         key = url + ("?" + urlencode(sorted(params.items())) if params else "")
         if self.cache_only:
-            hit = await self.store.get_cached(CACHE_KIND, key)
-            if hit is None:
-                raise NotCached(key)
-            return json.loads(hit[1])
+            return await self._stored(key)
         if (cached := self._fresh(key)) is not _MISS:
             return cached
+        if self.may_download is not None and not self.may_download():
+            return await self._stored(key)
         async with self._lock:
             if (cached := self._fresh(key)) is not _MISS:  # filled while we waited
                 return cached
-            payload = await self._download(url, params)
+            try:
+                payload = await self._download(url, params)
+            except SourceUnavailable:
+                if self.may_download is None:
+                    raise
+                return await self._stored(key)
             self._cache[key] = (self._clock() + (self.ttl if ttl is None else ttl), payload)
         if self.store is not None:
             await self.store.put_cached(CACHE_KIND, key, json.dumps(payload), datetime.now(timezone.utc))
         return payload
+
+    async def _stored(self, key: str) -> dict | None:
+        hit = await self.store.get_cached(CACHE_KIND, key)
+        if hit is None:
+            raise NotCached(key)
+        return json.loads(hit[1])
 
     async def _download(self, url: str, params: dict | None) -> dict | None:
         """One request, spaced from the previous one; the caller holds the lock."""
@@ -399,10 +422,17 @@ class EarlyVoteClient:
         if compare and national.updated_at is not None:
             early_vote.comparison = await self._comparison(code, voted, national.updated_at)
         if counties:
+            # The same pages give each county's total, its party split and its mail / in-person
+            # split: one request per category, whatever is shown.
             merged: dict[str, int] = {}
             for category in voted:
-                for county, votes in parse_counties(await self._get(f"{code}/{category}")).items():
+                breakdowns = parse_county_breakdowns(await self._get(f"{code}/{category}"))
+                for county, (votes, parties) in breakdowns.items():
                     merged[county] = merged.get(county, 0) + votes
+                    early_vote.county_methods.setdefault(county, {})[category] = votes
+                    early_vote.county_parties[county] = merge_parties(
+                        early_vote.county_parties.get(county, {}), parties
+                    )
             early_vote.counties = dict(
                 sorted(merged.items(), key=lambda county_votes: (-county_votes[1], county_votes[0]))
             )
