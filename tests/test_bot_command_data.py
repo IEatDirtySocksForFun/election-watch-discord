@@ -88,10 +88,10 @@ def test_odds_format_has_market_links_moves_and_update_time():
         {("kalshi", "REP"): {1: 2.0, 24: -1.5}},
     )
 
-    assert [field.name for field in embed.fields] == ["Kalshi", "Polymarket"]
+    assert [field.name for field in embed.fields] == ["📈 Kalshi", "🔮 Polymarket"]
     assert "55.0%" in embed.fields[0].value
-    assert "1h +2.0 pts" in embed.fields[0].value
-    assert "24h -1.5 pts" in embed.fields[0].value
+    assert "1h ▲ +2.0 pts" in embed.fields[0].value
+    assert "24h ▼ -1.5 pts" in embed.fields[0].value
     assert "https://market.example/race" in embed.fields[0].value
     assert "2026-10-27 12:00 UTC" in embed.footer.text
 
@@ -167,8 +167,8 @@ async def test_odds_history_supplies_one_and_24_hour_moves():
 
     embed = await command_data.odds_embed(KEY)
 
-    assert "1h +3.0 pts" in embed.fields[0].value
-    assert "24h +5.0 pts" in embed.fields[0].value
+    assert "1h ▲ +3.0 pts" in embed.fields[0].value
+    assert "24h ▲ +5.0 pts" in embed.fields[0].value
 
 
 @pytest.mark.asyncio

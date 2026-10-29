@@ -35,7 +35,7 @@ async def test_the_county_breakdown_shows_each_countys_party_split(client):
     await early_vote_command.callback(interaction, "NC", "county")
     text = _text(interaction.assert_ephemeral_flow().embed)
     # Durham's returned mail ballots: 1,362 Dem, 163 Rep, 1,083 other of 2,608 (plus in person).
-    assert "Durham:" in text and "· Dem " in text and "· Rep " in text and "· other " in text
+    assert "Durham:" in text and "· 🔵 Dem " in text and "· 🔴 Rep " in text and "· ⚪ other " in text
     assert "Add `county:` to /earlyvote" in text
 
 
@@ -45,10 +45,10 @@ async def test_one_county_in_any_spelling(client, typed):
     await early_vote_command.callback(interaction, "north carolina", None, typed)
     embed = interaction.assert_ephemeral_flow().embed
     check_embed(embed)
-    assert embed.title == "Early vote · Durham, North Carolina"
+    assert embed.title == "📬 Early vote · Durham, North Carolina"
     assert "early ballots cast" in embed.description and "of North Carolina's" in embed.description
-    assert [field.name for field in embed.fields] == ["By party registration"]
-    assert "Democratic:" in embed.fields[0].value and "Republican:" in embed.fields[0].value
+    assert [field.name for field in embed.fields] == ["🏷️ By party registration"]
+    assert "🔵 Democratic:" in embed.fields[0].value and "🔴 Republican:" in embed.fields[0].value
 
 
 @pytest.mark.parametrize(

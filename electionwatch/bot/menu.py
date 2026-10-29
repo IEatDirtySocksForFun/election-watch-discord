@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import discord
 
+from electionwatch.bot import emoji
 from electionwatch.bot.early_vote import watched_states
 from electionwatch.bot.logic import is_admin
 from electionwatch.racekeys import STATES, describe, parse
@@ -29,6 +30,17 @@ TOOLS = {
     "faq": "FAQ",
     "settings": "Settings",
     "limits": "Limits",
+}
+#: Button -> its icon (separate from the label so a renamed label keeps its icon).
+ICONS = {
+    "races": emoji.RACES,
+    "favorites": emoji.FAVORITES,
+    "odds": emoji.ODDS,
+    "polls": emoji.POLLS,
+    "earlyvote": emoji.EARLY_VOTE,
+    "faq": emoji.FAQ,
+    "settings": emoji.SETTINGS,
+    "limits": emoji.LIMITS,
 }
 CUSTOM_ID = "electionwatch:menu:{}"  # never change these: posted menus carry them
 PICKER_TIMEOUT = 600
@@ -46,14 +58,14 @@ def custom_id(tool: str) -> str:
 
 def menu_embed() -> discord.Embed:
     return discord.Embed(
-        title="Election menu",
+        title=f"{emoji.RACES} Election menu",
         description=(
             "Click a button: only you see the answer.\n\n"
-            "**Races**: browse results by state and office\n"
-            "**Favorites**: the races you pinned with /favorite\n"
-            "**Betting markets**, **Polls**: pick a race\n"
-            "**Early vote**, **FAQ**: pick a state\n"
-            "**Settings**, **Limits**: how this server is set up"
+            f"{ICONS['races']} **Races**: browse results by state and office\n"
+            f"{ICONS['favorites']} **Favorites**: the races you pinned with /favorite\n"
+            f"{ICONS['odds']} **Betting markets**, {ICONS['polls']} **Polls**: pick a race\n"
+            f"{ICONS['earlyvote']} **Early vote**, {ICONS['faq']} **FAQ**: pick a state\n"
+            f"{ICONS['settings']} **Settings**, {ICONS['limits']} **Limits**: how this server is set up"
         ),
         color=discord.Color.blurple(),
     )
@@ -85,6 +97,7 @@ class MenuView(discord.ui.View):
         for index, (tool, label) in enumerate(TOOLS.items()):
             button = discord.ui.Button(
                 label=label,
+                emoji=ICONS[tool],
                 custom_id=custom_id(tool),
                 style=discord.ButtonStyle.secondary if tool in ("settings", "limits") else discord.ButtonStyle.primary,
                 row=index // 4,

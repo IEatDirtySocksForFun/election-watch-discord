@@ -590,9 +590,9 @@ CASES = [
         {"permissions": 0},
         "Manage Server",
     ),
-    ("odds-overview", "bettingmarkets", [], None, {}, "Watched race odds"),
-    ("odds-race", "bettingmarkets", [opt("race", "TX SEN")], None, {}, "Odds"),
-    ("odds-dm", "bettingmarkets", [], None, {"dm": True}, "Watched race odds"),
+    ("odds-overview", "bettingmarkets", [], None, {}, "Betting markets · watched races"),
+    ("odds-race", "bettingmarkets", [opt("race", "TX SEN")], None, {}, "Betting markets"),
+    ("odds-dm", "bettingmarkets", [], None, {"dm": True}, "Betting markets · watched races"),
     ("odds-bad-race", "bettingmarkets", [opt("race", "Narnia SEN")], None, {}, ""),
     ("polls-default", "polls", [opt("race", "TX SEN")], None, {}, "Showing 5 most recent polls"),
     (
@@ -812,7 +812,7 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert (await harness.bot.store.get_user(OWNER)).home_state == "CA"
 
     # Betting markets / Polls buttons: deferred update, the data arrives as a NEW ephemeral followup.
-    for label, tool in (("Betting markets", "Odds"), ("Polls", "Polls")):
+    for label, tool in (("Betting markets", "Betting markets"), ("Polls", "Polls")):
         sent = await harness.dispatch(component_payload(button(message, label)["custom_id"], 2))
         assert [(select.method, select.path) for select in sent] == [("POST", CALLBACK), ("POST", FOLLOWUP)]
         assert sent[0].payload["type"] == DEFERRED_UPDATE_MESSAGE
@@ -1006,7 +1006,7 @@ async def test_favorites_button_opens_the_favorites_tab(harness):
     sent = await harness.dispatch(menu_click("favorites", posted=True))
     assert_private_answer(sent)
     assert "Alice Example" in text_of(sent)  # the stored TX SEN result
-    assert button(sent[-1].payload, "★ Favorites")["style"] == discord.ButtonStyle.primary.value
+    assert button(sent[-1].payload, "Favorites")["style"] == discord.ButtonStyle.primary.value
 
 
 async def test_menu_post_replace_and_remove(harness):
@@ -1066,7 +1066,7 @@ async def test_odds_picker_round_trip_shares_the_odds_cooldown(harness):
 
     sent = await harness.dispatch(component_payload(button(picker, "All watched races")["custom_id"], 2))
     assert_private_answer(sent)
-    assert "Watched race odds" in text_of(sent)
+    assert "Betting markets · watched races" in text_of(sent)
 
     # Same race again, from the menu or with /bettingmarkets: the same per-user cooldown as the command.
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))

@@ -215,7 +215,7 @@ async def test_menu_post_first_time_and_a_failed_post():
     reply = await invoke(menu_post_command, interaction)
     assert reply.content == f"✅ Menu posted in <#{HERE}>. Anyone can click it; the answers are private."
     ((embed, view),) = interaction.channel.sent
-    assert embed.title == "Election menu" and isinstance(view, MenuView)
+    assert embed.title == "🗳️ Election menu" and isinstance(view, MenuView)
 
     interaction = make_interaction(client, "manage")
     interaction.channel = PostChannel(HERE + 1, fail=response_error(discord.Forbidden, 403))
@@ -283,7 +283,7 @@ async def test_private_menu_on_and_off(role, private_menu):
     if private_menu is False and role == "plain":
         assert reply.content == PRIVATE_MENU_OFF and reply.view is None
     else:
-        assert isinstance(reply.view, MenuView) and reply.embed.title == "Election menu"
+        assert isinstance(reply.view, MenuView) and reply.embed.title == "🗳️ Election menu"
     if private_menu is None:
         assert await store.get_guild(GUILD_ID) is None  # opening the menu writes nothing
 
@@ -361,8 +361,8 @@ async def test_odds_and_polls_buttons_offer_watched_races_then_favorites(client,
     buttons = [item.label for item in picker.children if isinstance(item, discord.ui.Button)]
     assert buttons == (["All watched races"] if tool == "odds" else [])
     answer = await pick(client, picker, 1, "3")
-    title = "Odds" if tool == "odds" else "Polls"
-    assert answer.embed.title.startswith(f"{title} · ") and "Pennsylvania" in answer.embed.title
+    title = "Betting markets" if tool == "odds" else "Polls"
+    assert answer.embed.title.endswith(f"{title} · Pennsylvania Senate") and "Pennsylvania" in answer.embed.title
 
 
 async def test_odds_overview_button_shows_the_watched_races(client):
@@ -370,7 +370,7 @@ async def test_odds_overview_button_shows_the_watched_races(client):
     overview = next(item for item in reply.view.children if isinstance(item, discord.ui.Button))
     interaction = FakeInteraction(client, kind="component")
     await overview.callback(interaction)
-    assert interaction.assert_ephemeral_flow().embed.title == "Watched race odds"
+    assert interaction.assert_ephemeral_flow().embed.title == "🎲 Betting markets · watched races"
 
 
 @pytest.mark.parametrize("tool", ["earlyvote", "faq"])
@@ -388,7 +388,7 @@ async def test_early_vote_and_faq_buttons_offer_the_servers_states_then_all(clie
         assert answer.embed.title == "🗳️ North Carolina"
     answer = await pick(client, picker, 0, "ALL")
     if tool == "earlyvote":
-        assert answer.embed.title == "Early vote · United States"
+        assert answer.embed.title == "📬 Early vote · United States"
     else:
         assert answer.embed.title == "🗳️ State FAQs"
 

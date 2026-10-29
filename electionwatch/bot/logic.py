@@ -5,8 +5,6 @@ from __future__ import annotations
 from typing import NamedTuple
 from urllib.parse import urlparse
 
-import yaml
-
 from electionwatch.bot.poster import (
     MAX_DESCRIPTION,
     MAX_EMBED_TOTAL,
@@ -425,7 +423,10 @@ def settings_card(gs: GuildSettings) -> Card:
         ("🧭 Menu", "\n".join(menu), False),
     ]
     return Card(
-        "⚙️ Server settings", "", fields, "Admins change these with /setup, /posting, /calls, /oddsalerts and friends."
+        "⚙️ Server settings",
+        "",
+        fields,
+        "Admins change these with /setup, /posting, /calls, /bettingalerts and friends.",
     )
 
 
