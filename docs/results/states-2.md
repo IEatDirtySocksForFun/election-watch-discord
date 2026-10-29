@@ -140,10 +140,10 @@ state.
 
 ## IN — `electionwatch/sources/results/in_sos.py`
 
-- Feed: static Angular data files under
-  <https://enr.indianavoters.in.gov/archive/2024General/data/> — `settings.json`
-  (`VersionType`, e.g. `A`), `statewideElectionsC_A.json` (office categories) and one
-  `OffCatC_<category>_A.json` per category (`Root.StatewideSummary.Race` with
+- Feed: static Angular data files under `archive/2024General/data/` (no directory
+  listing). https://enr.indianavoters.in.gov/archive/2024General/data/settings.json gives
+  `VersionType` (e.g. `A`); `statewideElectionsC_A.json` holds the office categories and
+  there is one `OffCatC_<category>_A.json` per category (`Root.StatewideSummary.Race` with
   `OFFICE_TITLE`, `Candidates.Candidate`, `VOTES`, `PARTY_NAME`).
 - Categories read: 1006 US Senator, 1005 US Representative, 1007 Governor,
   1018 State Senator, 1039 State Representative.
