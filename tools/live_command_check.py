@@ -281,7 +281,7 @@ async def build_payloads(bot: CheckBot):
     yield "setup reply", {"content": change_setup(gs, 100000000000000002, 100000000000000001)}
     yield "posting reply", {"content": change_posting(gs, "interval", 30)}
     yield "calls reply", {"content": change_calls(gs, "AP,CBS,FOX,NBC,CNN,ABC,DDHQ,VOTEHUB,NYT", True)}
-    yield "oddsalerts reply", {"content": change_odds(gs, True, 0.1, 1440)}
+    yield "bettingalerts reply", {"content": change_odds(gs, True, 0.1, 1440)}
     yield "favorite reply", {"content": change_favorite(UserSettings(1), "add", "TX SEN")}
     yield "watch add reply", {"content": change_watch(gs, "add", "TX SEN")}
     yield "error reply", {"content": "Something went wrong running that command. Try again in a moment."}
@@ -316,7 +316,7 @@ async def build_payloads(bot: CheckBot):
             text = str(exc)
         yield f"faq {code}", {"content": text}
 
-    # /odds overview + per race.
+    # /bettingmarkets overview + per race.
     keys = [RaceKey(state_code, Level.SENATE, "SEN") for state_code in STATES] + [
         RaceKey(state_code, Level.HOUSE, "HOUSE", f"{index:02d}") for state_code in STATES for index in range(1, 6)
     ]

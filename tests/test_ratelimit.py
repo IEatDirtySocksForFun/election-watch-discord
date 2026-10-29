@@ -10,7 +10,7 @@ import pytest
 import respx
 
 from electionwatch.bot.cooldown import Cooldowns
-from electionwatch.bot.logic import change_limits, limits_text
+from electionwatch.bot.logic import change_limits, limits_card
 from electionwatch.demand import Demand
 from electionwatch.models import OddsSnapshot, Poll, PollResult
 from electionwatch.poller import POLLS_CACHE, Poller, load_polls, polls_ident
@@ -204,7 +204,7 @@ def test_hourly_cap_and_refresh_cooldown():
     )
 
 
-def test_change_limits_and_the_limits_text():
+def test_change_limits_and_the_limits_card():
     gs = GuildSettings(1)
     assert (
         change_limits(gs, user_cooldown=30, user_hourly=0)
@@ -217,9 +217,9 @@ def test_change_limits_and_the_limits_text():
         change_limits(gs)
     with pytest.raises(ValueError):
         change_limits(gs, refresh_cooldown=-5)
-    text = limits_text(gs, RateBook(), Cooldowns())
-    assert "odds: every 60 s" in text and "polls: every 30 min" in text
-    assert "1/2 of its published limit" in text and "per user per hour: no cap" in text
+    text = limits_card(gs, RateBook(), Cooldowns()).text()
+    assert "**odds**: every 60 s" in text and "**polls**: every 30 min" in text
+    assert "1/2 of its published limit" in text and "Per hour: no cap" in text
 
 
 # --------------------------------------------------------------------------- the poller
@@ -366,23 +366,26 @@ async def test_a_short_outage_keeps_the_official_numbers_instead_of_flipping_to_
     assert (await store.latest_result(TX)).source == "official"
 
 
-def test_limits_text_fits_one_message_with_every_adapter_and_leads_with_command_limits():
+def test_limits_fit_one_embed_with_every_adapter_and_lead_with_command_limits():
     book = RateBook()
     for index in range(70):
         book.due(f"source{index}:results", "results")
         with book.track(f"source{index}:results", "results"):
             for _ in range(40):
                 book.record(f"host{index % 5}.example")
-    text = limits_text(GuildSettings(1), book, Cooldowns())
-    assert len(text) <= 1950
-    assert text.startswith("Command limits in this server:")
-    assert "results: every" in text
+    card = limits_card(GuildSettings(1), book, Cooldowns())
+    assert all(len(value) <= 1024 for _, value, _ in card.fields) and len(card.text()) <= 6000
+    assert card.fields[0][0] == "👤 Per user"
+    assert "**results**: every" in card.text()
+    slowed = dict((name, value) for name, value, _ in card.fields)["🐢 Slowed by their request budget"]
+    assert slowed.endswith("more")  # 70 slowed sources don't fit one field: the rest are counted
 
 
 def test_the_cooldown_key_ignores_presentation_options():
     import inspect
 
-    from electionwatch.bot.discord import polls_command
+    from electionwatch.bot.discord import polls_command, show_polls
 
-    source = inspect.getsource(polls_command.callback)
-    assert '_cooldown(interaction, "polls", str(key), "polls")' in source
+    # /polls and the menu's Polls picker both go through show_polls.
+    assert "show_polls(interaction, key, count, internals)" in inspect.getsource(polls_command.callback)
+    assert '_cooldown(interaction, "polls", str(key), "polls")' in inspect.getsource(show_polls)

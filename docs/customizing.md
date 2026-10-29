@@ -5,11 +5,13 @@
 - `config/races.yaml`: the default important races for new servers (key format in the README).
   Servers change their own list with `/watch`.
 - `electionwatch/settings.py`: defaults for new servers (posting interval, call outlets, odds
-  threshold and window). These are shared contracts: change values, not field names.
+  threshold and window). These are shared contracts: change values, not field names. The odds
+  alert categories (`ODDS_CATEGORIES`, mapped from a race key by `odds_category`) are stored in
+  servers' settings by id, so add new ones rather than renaming old ones.
 
 ## Refresh rates and limits
 
-The bot asks each data source on a schedule and stores the answers in MongoDB; `/odds`,
+The bot asks each data source on a schedule and stores the answers in MongoDB; `/bettingmarkets`,
 `/polls` and `/earlyvote` read only the database (unless you switch on
 [live commands](#database-or-live-commands)). The schedule is computed so the bot uses at
 most half of each host's published rate limit per hour (`electionwatch/ratelimit.py`):
@@ -60,7 +62,7 @@ By default (`EW_COMMAND_DATA=db`) commands never call a source: they show what t
 refresh stored, and a race nobody watches is queued for the next refresh ("try again in a few
 minutes").
 
-With `EW_COMMAND_DATA=live`, `/odds`, `/polls`, `/earlyvote` and the `/races` browser (state race
+With `EW_COMMAND_DATA=live`, `/bettingmarkets`, `/polls`, `/earlyvote` and the `/races` browser (state race
 lists and the chosen race's result) ask the source themselves when the stored answer is older
 than `EW_LIVE_MAX_AGE`, then save what they get to the database like a refresh would. It's still
 polite:

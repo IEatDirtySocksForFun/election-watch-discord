@@ -1,4 +1,4 @@
-"""Matrix tests for the user-facing data commands: /odds, /polls, /faq and race autocomplete.
+"""Matrix tests for the user-facing data commands: /bettingmarkets, /polls, /faq and race autocomplete.
 
 Every command is invoked through ``<command>.callback(interaction, ...)`` with a recording fake
 interaction (tests/fake_interaction_data.py). Every message, embed, view and autocomplete
@@ -7,7 +7,7 @@ acknowledge exactly once and reply ephemerally.
 
 Checklist
 ---------
-/odds
+/bettingmarkets
   [x] no race, DM                          -> default races.yaml overview
   [x] no race, guild without settings      -> default races.yaml overview
   [x] no race, guild with 0 watched        -> default races.yaml overview
@@ -37,11 +37,11 @@ Checklist
       and available() raising -> the other sources' polls still shown
   [x] a failed source does not pin an empty result in the 15-minute cache
 /faq
-  [x] no state -> state list + outlets, valid YAML, < 2000 with fences
-  [x] every code in racekeys.STATES (51, incl. DC), upper and lower case -> < 2000 with
-      fences, valid YAML, contains that state's official results URL
+  [x] no state -> one embed: state list + an outlet field each, within embed limits
+  [x] every code in racekeys.STATES (51, incl. DC), upper and lower case -> one embed
+      titled with the state, its official results URL, sources and notes, nothing clipped
   [x] territories PR GU VI AS MP -> ephemeral "no FAQ" answer, not a crash
-  [x] invalid codes -> ephemeral error
+  [x] invalid codes -> ephemeral error; a full name or no state -> the embed
   [x] FAQ data unreadable -> ephemeral notice that leaks no server path
   [x] FAQ module not importable -> "FAQ data not installed"
 race_autocomplete
@@ -61,9 +61,9 @@ import sys
 import time
 from datetime import date, datetime, timedelta, timezone
 
+import discord
 import httpx
 import pytest
-import yaml
 from fake_interaction_data import FakeInteraction, check_choices, embed_total, make_client
 
 from electionwatch.bot.discord import faq_command, odds_command, polls_command, race_autocomplete
@@ -196,7 +196,7 @@ def immediate_text(interaction: FakeInteraction) -> str:
     return reply.content
 
 
-# --------------------------------------------------------------------------- /odds overview
+# --------------------------------------------------------------------------- /bettingmarkets overview
 @pytest.mark.parametrize("where", ["dm", "guild_no_settings", "guild_zero_watched"])
 async def test_odds_overview_defaults_to_races_yaml(where):
     store = Store()
@@ -205,7 +205,7 @@ async def test_odds_overview_defaults_to_races_yaml(where):
         await store.save_guild(GuildSettings(1, important=[]))
     client = make_client(store, {"odds": [Odds()]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, guild_id=guild_id))
-    assert embed.title == "Watched race odds"
+    assert embed.title == "🎲 Betting markets · watched races"
     assert "**TX SEN**" in embed.description and "Kalshi" in embed.description
 
 
@@ -239,7 +239,7 @@ async def test_odds_overview_without_any_odds():
     assert "No current odds" in embed.description
 
 
-# --------------------------------------------------------------------------- /odds one race
+# --------------------------------------------------------------------------- /bettingmarkets one race
 KEY_FORMATS = [
     "TX SEN",
     "TX-SEN",
@@ -278,8 +278,8 @@ async def test_odds_single_race_in_every_key_format(text):
     key = parse(text)
     client = make_client(Store(), {"odds": [Odds()]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race=text))
-    assert embed.title == f"Odds · {describe(key)}"
-    assert [embed_field.name for embed_field in embed.fields] == ["Kalshi", "Polymarket"]
+    assert embed.title == f"🎲 Betting markets · {describe(key)}"
+    assert [embed_field.name for embed_field in embed.fields] == ["📈 Kalshi", "🔮 Polymarket"]
 
 
 @pytest.mark.parametrize(
@@ -306,9 +306,9 @@ async def test_odds_invalid_key_is_one_ephemeral_error(text):
     "markets,expected",
     [
         ((), None),
-        (("kalshi",), ["Kalshi"]),
-        (("polymarket",), ["Polymarket"]),
-        (("polymarket", "kalshi"), ["Kalshi", "Polymarket"]),
+        (("kalshi",), ["📈 Kalshi"]),
+        (("polymarket",), ["🔮 Polymarket"]),
+        (("polymarket", "kalshi"), ["📈 Kalshi", "🔮 Polymarket"]),
     ],
 )
 async def test_odds_market_combinations(markets, expected):
@@ -320,7 +320,7 @@ async def test_odds_market_combinations(markets, expected):
     else:
         assert [embed_field.name for embed_field in embed.fields] == expected
         assert "50.0%" in embed.fields[0].value
-        assert embed.footer.text == "Last update: 2026-10-27 12:00 UTC"
+        assert embed.footer.text == "🕒 Last update: 2026-10-27 12:00 UTC"
 
 
 @pytest.mark.parametrize(
@@ -346,8 +346,8 @@ async def test_odds_moves_1h_and_24h():
     current = [OddsSnapshot(TX_SEN, "kalshi", "REP", 0.55, NOW, url="https://k.example")]
     client = make_client(store, {"odds": [Odds(per_key=current)]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
-    assert "1h +3.0 pts" in embed.fields[0].value
-    assert "24h +15.0 pts" in embed.fields[0].value
+    assert "1h ▲ +3.0 pts" in embed.fields[0].value
+    assert "24h ▲ +15.0 pts" in embed.fields[0].value
 
 
 async def test_stale_stored_odds_are_shown_when_the_live_source_fails():
@@ -357,7 +357,7 @@ async def test_stale_stored_odds_are_shown_when_the_live_source_fails():
     client = make_client(store, {"odds": [Odds(error=httpx.ConnectError("down"))]}, clock=lambda: NOW)
     embed = deferred_embed(await run(odds_command, client, race="TX SEN"))
     assert "31.0%" in embed.fields[0].value
-    assert embed.footer.text == f"Last update: {old:%Y-%m-%d %H:%M} UTC"
+    assert embed.footer.text == f"🕒 Last update: {old:%Y-%m-%d %H:%M} UTC"
 
 
 async def test_stale_stored_odds_are_replaced_by_live_odds():
@@ -398,7 +398,7 @@ async def test_polls_internals_filter(internals):
     client = make_client(Store(), {"polls": [Polls(polls)]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN", internals=internals))
     names = [embed_field.name for embed_field in embed.fields]
-    assert ("Campaign INTERNAL (R)" in names) is internals
+    assert ("Campaign · ⚠️ INTERNAL (R)" in names) is internals
     assert "Public" in names
     assert ("included" if internals else "excluded") in embed.description
 
@@ -467,7 +467,7 @@ async def test_polls_with_missing_optional_fields():
     client = make_client(Store(), {"polls": [Polls([bare])]})
     embed = deferred_embed(await run(polls_command, client, "TX SEN"))
     value = embed.fields[0].value
-    assert value.startswith("Oct 26, 2026") and "No candidate results supplied" in value
+    assert value.startswith("📅 Oct 26, 2026") and "No candidate results supplied" in value
     assert "Poll link" not in value
 
 
@@ -519,18 +519,30 @@ def faq_reply(interaction: FakeInteraction) -> str:
     return content
 
 
-def yaml_body(content: str):
-    assert content.startswith("```yaml\n") and content.endswith("\n```")
-    return yaml.safe_load(content[len("```yaml\n") : -len("\n```")])
+def faq_card(interaction: FakeInteraction) -> discord.Embed:
+    """The /faq embed, checked against Discord's embed limits."""
+    assert interaction.kinds == ["send_message"], interaction.kinds
+    reply = interaction.assert_ephemeral_flow()
+    assert reply.content is None and reply.embed is not None
+    embed = reply.embed
+    assert len(embed) <= 6000 and len(embed.fields) <= 25
+    assert len(embed.title) <= 256 and len(embed.description or "") <= 4096
+    for field in embed.fields:
+        assert len(field.name) <= 256 and len(field.value) <= 1024
+    return embed
+
+
+def card_text(embed: discord.Embed) -> str:
+    parts = [embed.title, embed.description or "", embed.footer.text or ""]
+    return "\n".join(parts + [f"{field.name}\n{field.value}" for field in embed.fields])
 
 
 async def test_faq_without_a_state():
-    content = faq_reply(await run(faq_command, make_client(Store())))
+    embed = faq_card(await run(faq_command, make_client(Store())))
+    assert embed.title == "🗳️ State FAQs"
     for code in STATES:
-        assert code in content
-    assert "Associated Press" in content
-    assert not content.startswith("```")
-    assert len(content) <= 2000
+        assert f"`{code}`" in embed.description
+    assert "Associated Press (AP)" in [field.name.split(" ", 1)[1] for field in embed.fields]
 
 
 @pytest.mark.parametrize("code", sorted(STATES))
@@ -538,25 +550,31 @@ async def test_faq_without_a_state():
 async def test_faq_every_state(code, case):
     from electionwatch.faq.loader import load_states
 
-    content = faq_reply(await run(faq_command, make_client(Store()), state=case(code)))
+    embed = faq_card(await run(faq_command, make_client(Store()), state=case(code)))
     record = load_states()[code]
-    assert not content.startswith("```")
-    assert content.startswith(f"# {STATES[code]}")
-    assert record["official_results_url"] in content
-    assert "**When to expect a call:**" in content
-    assert len(content) <= 2000
+    assert embed.title == f"🗳️ {STATES[code]}"
+    assert record["official_results_url"] in embed.description
+    names = [field.name for field in embed.fields]
+    assert {"📣 When to expect a call", "🔢 RCV", "💬 Good to know", "📚 Sources"} <= set(names)
+    assert not any(field.value.endswith("…") for field in embed.fields)  # every shipped state fits whole
 
 
 @pytest.mark.parametrize("code", sorted(TERRITORIES))
 async def test_faq_territories_answer_without_crashing(code):
-    content = faq_reply(await run(faq_command, make_client(Store()), state=code.lower()))
-    assert f"No FAQ data for {TERRITORIES[code]}" in content
+    embed = faq_card(await run(faq_command, make_client(Store()), state=code.lower()))
+    assert f"No FAQ data for {TERRITORIES[code]}" in card_text(embed)
 
 
-@pytest.mark.parametrize("code", ["ZZ", "Texas", "T", "", "TXX", "U.S."])
+@pytest.mark.parametrize("code", ["ZZ", "T", "TXX", "U.S."])
 async def test_faq_invalid_state(code):
-    interaction = await run(faq_command, make_client(Store()), state=code or None)
+    interaction = await run(faq_command, make_client(Store()), state=code)
     assert faq_reply(interaction)
+
+
+@pytest.mark.parametrize(("typed", "title"), [("Texas", "🗳️ Texas"), ("", "🗳️ State FAQs")])
+async def test_faq_state_name_or_nothing(typed, title):
+    embed = faq_card(await run(faq_command, make_client(Store()), state=typed or None))
+    assert embed.title == title
 
 
 async def test_faq_unreadable_data_does_not_leak_server_paths(monkeypatch):

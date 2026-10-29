@@ -1,4 +1,4 @@
-"""Deterministic embeds for the public /odds and /polls commands, read from the database.
+"""Deterministic embeds for the public /bettingmarkets and /polls commands, read from the database.
 
 The poller's background refresh stores odds snapshots and each poll source's polls; nothing
 here calls a source unless the bot runs with EW_COMMAND_DATA=live (see CommandData)."""
@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 import discord
 
+from electionwatch.bot import emoji
 from electionwatch.bot.poster import (
     MAX_DESCRIPTION,
     MAX_EMBED_TOTAL,
@@ -25,7 +26,6 @@ from electionwatch.racekeys import describe
 
 logger = logging.getLogger(__name__)
 _MARKET_ORDER = {"kalshi": 0, "polymarket": 1}
-_PARTY_MARKERS = {"DEM": "🔵", "REP": "🔴"}
 
 
 def _utc(value: datetime) -> datetime:
@@ -55,12 +55,24 @@ def _market_name(market: str) -> str:
     return {"kalshi": "Kalshi", "polymarket": "Polymarket"}.get(market.casefold(), market.title())
 
 
+def _market_title(market: str) -> str:
+    """'📈 Kalshi': the market's name with its icon, for headings."""
+    icon = emoji.MARKETS.get(market.casefold())
+    return f"{icon} {_market_name(market)}" if icon else _market_name(market)
+
+
 def _outcome_text(snapshot: OddsSnapshot, moves: dict[int, float] | None = None) -> str:
-    outcome = f"[{snapshot.outcome}]({snapshot.url})" if snapshot.url else snapshot.outcome
+    label = snapshot.outcome
+    candidate = getattr(snapshot, "candidate", None)
+    if candidate and candidate not in snapshot.outcome:
+        label = f"{candidate} ({snapshot.outcome})"  # "Ken Paxton (REP)"
+    outcome = f"[{label}]({snapshot.url})" if snapshot.url else label
+    if emoji.is_party(snapshot.outcome):  # "REP" gets 🔴; a market priced by candidate name gets none
+        outcome = f"{emoji.party(snapshot.outcome)} {outcome}"
     text = f"{outcome} · {snapshot.prob:.1%}"
     for hours, label in ((1, "1h"), (24, "24h")):
         if moves and hours in moves:
-            text += f" · {label} {moves[hours]:+.1f} pts"
+            text += f" · {label} {emoji.move(moves[hours])} pts"
     return text
 
 
@@ -71,7 +83,9 @@ def format_odds(
 ) -> discord.Embed:
     """Render one race, grouping outcome probabilities under each market."""
     snapshots = latest_odds(snapshots)
-    embed = discord.Embed(title=clip(f"Odds · {describe(key)}", MAX_TITLE), color=discord.Color.blurple())
+    embed = discord.Embed(
+        title=clip(f"{emoji.ODDS} Betting markets · {describe(key)}", MAX_TITLE), color=discord.Color.blurple()
+    )
     if not snapshots:
         embed.description = "No current prediction-market odds are available for this race."
         return embed
@@ -86,12 +100,12 @@ def format_odds(
             if snapshot.market == market
         ]
         embed.add_field(
-            name=clip(_market_name(market), MAX_FIELD_NAME),
+            name=clip(_market_title(market), MAX_FIELD_NAME),
             value=clip("\n".join(lines), MAX_FIELD_VALUE),
             inline=False,
         )
     updated = max(_utc(snapshot.ts) for snapshot in snapshots)
-    embed.set_footer(text=clip(f"Last update: {updated:%Y-%m-%d %H:%M} UTC", MAX_FOOTER))
+    embed.set_footer(text=clip(f"🕒 Last update: {updated:%Y-%m-%d %H:%M} UTC", MAX_FOOTER))
     return embed
 
 
@@ -111,16 +125,16 @@ def format_odds_overview(items: list[tuple[RaceKey, list[OddsSnapshot]]]) -> dis
         parts = []
         for market in markets:
             outcomes = " / ".join(_outcome_text(snapshot) for snapshot in snapshots if snapshot.market == market)
-            parts.append(f"{_market_name(market)}: {outcomes}")
+            parts.append(f"{_market_title(market)}: {outcomes}")
         lines.append(f"**{key}** · " + " · ".join(parts))
         updates.extend(_utc(snapshot.ts) for snapshot in snapshots)
     embed = discord.Embed(
-        title="Watched race odds",
+        title=f"{emoji.ODDS} Betting markets · watched races",
         description=clip("\n".join(lines) if lines else "No races are being watched.", MAX_DESCRIPTION),
         color=discord.Color.blurple(),
     )
     if updates:
-        embed.set_footer(text=clip(f"Last update: {max(updates):%Y-%m-%d %H:%M} UTC", MAX_FOOTER))
+        embed.set_footer(text=clip(f"🕒 Last update: {max(updates):%Y-%m-%d %H:%M} UTC", MAX_FOOTER))
     return embed
 
 
@@ -188,7 +202,7 @@ def _internal_tag(poll: Poll) -> str:
     if not poll.partisan:
         return ""
     party = normalize_party(poll.partisan)
-    return f" INTERNAL ({ {'DEM': 'D', 'REP': 'R'}.get(party, party) })"
+    return f" · {emoji.INTERNAL} INTERNAL ({ {'DEM': 'D', 'REP': 'R'}.get(party, party) })"
 
 
 def format_polls(
@@ -201,7 +215,9 @@ def format_polls(
 ) -> discord.Embed:
     if not 1 <= count <= 10:
         raise ValueError("count must be between 1 and 10")
-    embed = discord.Embed(title=clip(f"Polls · {describe(key)}", MAX_TITLE), color=discord.Color.blurple())
+    embed = discord.Embed(
+        title=clip(f"{emoji.POLLS} Polls · {describe(key)}", MAX_TITLE), color=discord.Color.blurple()
+    )
     if not sources_available:
         embed.description = "No poll source is installed or available."
         return embed
@@ -213,24 +229,25 @@ def format_polls(
         return embed
     fields: list[tuple[str, str]] = []
     for poll in visible:
-        details = [_poll_dates(poll)]
+        details = [f"{emoji.DATES} {_poll_dates(poll)}"]
         if poll.sample_size is not None:
-            details.append(f"n={poll.sample_size:,}" + (f" {poll.population}" if poll.population else ""))
+            details.append(
+                f"{emoji.SAMPLE} n={poll.sample_size:,}" + (f" {poll.population}" if poll.population else "")
+            )
         elif poll.population:
-            details.append(poll.population)
+            details.append(f"{emoji.SAMPLE} {poll.population}")
         if poll.sponsor:
             details.append(f"Sponsor: {poll.sponsor}")
         results = (
             " · ".join(
-                f"{_PARTY_MARKERS.get(normalize_party(poll_result.party) or '', '⚪')} "
-                f"{poll_result.name} {poll_result.pct:.1f}%"
+                f"{emoji.party(poll_result.party)} {poll_result.name} {poll_result.pct:.1f}%"
                 for poll_result in poll.results
             )
             or "No candidate results supplied"
         )
         lines = [" · ".join(details), results]
         if poll.url:
-            lines.append(f"[Poll link]({poll.url})")
+            lines.append(f"{emoji.LINK} [Poll link]({poll.url})")
         fields.append(
             (clip(poll.pollster + _internal_tag(poll), MAX_FIELD_NAME), clip("\n".join(lines), MAX_FIELD_VALUE))
         )
@@ -264,7 +281,7 @@ def _every(seconds: float) -> str:
 
 
 class CommandData:
-    """What /odds and /polls show. By default they read only the database: the poller's
+    """What /bettingmarkets and /polls show. By default they read only the database: the poller's
     background refresh (electionwatch/ratelimit.py budgets) is the only thing that calls the
     odds and poll sources, so users repeating a command never reach those APIs. A race nobody
     watches is queued (electionwatch/demand.py) and fetched by the next refresh.

@@ -107,6 +107,7 @@ def parse_polymarket_event(event: dict) -> list[OddsSnapshot]:
                     ts=ts,
                     market_id=str(market.get("id")),
                     url=url,
+                    candidate=_market_candidate(market),
                 )
             )
         except Exception:
@@ -141,6 +142,14 @@ def _event_title_to_key(title: str) -> RaceKey | None:
         if match:
             return RaceKey(code, Level.HOUSE, "HOUSE", f"{int(match.group(1)):02d}")
     return None
+
+
+def _market_candidate(market: dict) -> str | None:
+    """'James Talarico (D)' -> 'James Talarico'; None for a party market ('Democratic')."""
+    name = re.sub(r"\s*\([A-Za-z]\)\s*$", "", market.get("groupItemTitle", "") or "").strip()
+    if not name or name.casefold() in ("democratic", "republican", "democrats", "republicans", "yes", "no"):
+        return None
+    return name[:100]
 
 
 def _market_outcome(market: dict) -> str | None:

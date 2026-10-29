@@ -1,4 +1,4 @@
-"""Per-user limits on the data commands (/odds, /polls, /earlyvote) and per-server /refresh.
+"""Per-user limits on the data commands (/bettingmarkets, /polls, /earlyvote) and per-server /refresh.
 
 The data commands only read the database, so these limits protect Discord and the database,
 not the sources. They use the same rule as the source budgets (ratelimit.py): stay at half

@@ -19,8 +19,8 @@ EXPECTED_COMMANDS = {
     "watch",
     "posting",
     "calls",
-    "oddsalerts",
-    "odds",
+    "bettingalerts",
+    "bettingmarkets",
     "polls",
     "turnout",
     "exitpolls",
@@ -34,6 +34,10 @@ EXPECTED_COMMANDS = {
     "earlyvote_posts",
     "refresh",
     "limits",
+    "menu",
+    "menu_post",
+    "menu_remove",
+    "menu_private",
 }
 
 
@@ -56,12 +60,14 @@ async def test_bot_registers_every_command_and_the_error_handler():
                 "mode",
                 "minutes",
             }
-            assert {parameter.name for parameter in commands["oddsalerts"].parameters} == {
+            assert {parameter.name for parameter in commands["bettingalerts"].parameters} == {
                 "enabled",
                 "threshold",
                 "window",
+                "race",
+                "category",
             }
-            assert {parameter.name for parameter in commands["odds"].parameters} == {"race"}
+            assert {parameter.name for parameter in commands["bettingmarkets"].parameters} == {"race"}
             assert {parameter.name for parameter in commands["polls"].parameters} == {
                 "race",
                 "count",
@@ -70,6 +76,8 @@ async def test_bot_registers_every_command_and_the_error_handler():
             poll_parameters = {parameter.name: parameter for parameter in commands["polls"].parameters}
             assert poll_parameters["count"].default == 5
             assert poll_parameters["internals"].default is True
+            assert {parameter.name for parameter in commands["menu_post"].parameters} == {"channel"}
+            assert {parameter.name for parameter in commands["menu_private"].parameters} == {"enabled"}
             assert bot.tree.on_error is handle_app_command_error
         finally:
             await bot.close()

@@ -13,7 +13,7 @@ Checklist
 [x] territories (PR GU VI AS MP) are NOT offered by the state selects -> reported UX gap
 [x] race select with 0 / 1 / 25 / 60 races; only 25 offered -> races 26+ unreachable (UX gap)
 [x] choosing a race shows its result embed; a race without a result shows the placeholder
-[x] Odds / Polls buttons -> defer then ephemeral followup with the odds / polls embed
+[x] Betting markets / Polls buttons -> defer then ephemeral followup with the odds / polls embed
 [x] Choose race button -> race select replaces the race tools (edit_message)
 [x] another user clicking ANY control -> ephemeral refusal, view state and stored settings unchanged
 [x] navigation round-trips: a new navigator opens where the last one was left
@@ -36,7 +36,7 @@ import discord
 import pytest
 from fake_interaction_data import FakeInteraction, check_embed, check_view, make_client
 
-from electionwatch.bot import navigator
+from electionwatch.bot import emoji, navigator
 from electionwatch.bot.discord import races_command
 from electionwatch.bot.navigator import RaceNavigator
 from electionwatch.config import load_races
@@ -188,8 +188,8 @@ async def test_races_command_for_a_default_user():
     reply = interaction.assert_ephemeral_flow()
     view = reply.view
     assert (view.state, view.level, view.selected_race) == ("TX", "senate", "TX SEN")
-    assert reply.embed.title == "Texas · Senate"
-    assert {"Odds", "Polls", "Choose race"} <= set(buttons(view))
+    assert reply.embed.title == "🏛️ Texas · Senate"
+    assert {"Betting markets", "Polls", "Choose race"} <= set(buttons(view))
     assert buttons(view)["Senate"].style is discord.ButtonStyle.primary
     assert view.timeout == 600
 
@@ -229,14 +229,14 @@ async def test_every_tab_in_every_state(code, tab):
     reply = assert_edited(interaction, ["defer", "edit_original"])
     assert (view.state, view.level) == (code, tab)
     assert view.selected_race == FIRST[tab](code)
-    assert reply.embed.title == f"{STATES[code]} · {TABS[tab]}"
+    assert reply.embed.title == f"{emoji.LEVELS[tab]} {STATES[code]} · {TABS[tab]}"
     assert buttons(view)[TABS[tab]].style is discord.ButtonStyle.primary
     saved = await client.store.get_user(OWNER)
     assert (saved.home_state, saved.default_level) == (code, tab)
 
 
 async def test_territories_are_reachable_from_the_navigator():
-    """Race keys, /odds and /polls accept PR/GU/VI/AS/MP: the navigator offers them too."""
+    """Race keys, /bettingmarkets and /polls accept PR/GU/VI/AS/MP: the navigator offers them too."""
     view = await navigator_for(client_with())
     offered = {option.value for select in state_selects(view) for option in select.options}
     assert offered == set(STATES) | set(TERRITORIES)
@@ -244,7 +244,7 @@ async def test_territories_are_reachable_from_the_navigator():
     assert [len(select.options) for select in state_selects(view)] == [25, 25, 6]
     interaction = await click(view, state_select_for(view, "PR"), values=["PR"])
     reply = assert_edited(interaction, ["defer", "edit_original"])
-    assert view.state == "PR" and reply.embed.title == "Puerto Rico · Senate"
+    assert view.state == "PR" and reply.embed.title == "🏛️ Puerto Rico · Senate"
 
 
 # ----------------------------------------------------------------- race select sizes
@@ -264,7 +264,7 @@ async def test_race_select_sizes(count):
     interaction = await click(view, buttons(view)["Choose race"])
     assert_edited(interaction, ["edit_message"])
     select = race_select(view)
-    assert select is not None and "Odds" not in buttons(view)
+    assert select is not None and "Betting markets" not in buttons(view)
     # Option values are list positions (keys can exceed Discord's 100-character limit).
     if count <= 25:
         offered = [view._race_choices[int(option.value)] for option in select.options]
@@ -300,14 +300,16 @@ async def test_choosing_a_race_shows_its_result_and_brings_back_the_tools():
     reply = assert_edited(interaction, ["edit_message"])
     assert view.selected_race == "TX HD-05"
     assert "Doe" in reply.embed.description
-    assert {"Odds", "Polls", "Choose race"} <= set(buttons(view)) and race_select(view) is None
+    assert {"Betting markets", "Polls", "Choose race"} <= set(buttons(view)) and race_select(view) is None
 
     interaction = await click(view, buttons(view)["Choose race"])
     await click(view, race_select(view), values=[str(view._race_choices.index("TX HD-06"))])
     assert (await view.embed()).description.startswith("No current result")
 
 
-@pytest.mark.parametrize("tool,title", [("Odds", "Odds · Texas Senate"), ("Polls", "Polls · Texas Senate")])
+@pytest.mark.parametrize(
+    "tool,title", [("Betting markets", "🎲 Betting markets · Texas Senate"), ("Polls", "📊 Polls · Texas Senate")]
+)
 async def test_race_tool_buttons_send_an_ephemeral_followup(tool, title):
     view = await navigator_for(client_with())
     before = snapshot(view)
@@ -428,7 +430,7 @@ async def test_favorites_tab_lists_favorites_from_every_state():
     store = MemoryStore()
     settings = UserSettings(OWNER, home_state="TX", favorites=["PA SEN", "PA-07", "GA GOV", "not a key"])
     view = await navigator_for(client_with(store=store), settings)
-    interaction = await click(view, buttons(view)["★ Favorites"])
+    interaction = await click(view, buttons(view)["Favorites"])
     assert_edited(interaction, ["defer", "edit_original"])
     assert view.level == "favorites" and view.selected_race == "PA SEN"  # in the order added
     await click(view, buttons(view)["Choose race"])

@@ -160,6 +160,19 @@ async def store(request):
     await mongo.close()
 
 
+@pytest.mark.asyncio
+async def test_menu_settings_round_trip_and_older_guild_documents_still_load(store):
+    guild = GuildSettings(7, private_menu=False, menu_channel_id=8, menu_message_id=9)
+    await store.save_guild(guild)
+    assert await store.get_guild(7) == guild
+    if isinstance(store, MongoStore):
+        # A server set up before the button menus existed has none of their fields.
+        await store.guilds.insert_one({"_id": 11, "channel_id": 12, "post_mode": "interval", "paused": True})
+        older = await store.get_guild(11)
+        assert (older.channel_id, older.paused) == (12, True)
+        assert (older.private_menu, older.menu_channel_id, older.menu_message_id) == (True, None, None)
+
+
 def result(votes: int, at: datetime = NOW) -> RaceResult:
     return RaceResult(
         KEY,
@@ -193,6 +206,32 @@ async def test_settings_results_history_and_posts(store):
     assert await store.last_posted(7, "results", str(KEY)) is None
     await store.mark_posted(7, "results", str(KEY), NOW)
     assert await store.last_posted(7, "results", str(KEY)) == NOW
+
+
+@pytest.mark.asyncio
+async def test_odds_alert_overrides_round_trip(store):
+    guild = GuildSettings(
+        100000000000000001,
+        odds_alerts=True,
+        odds_alert_categories={"house": {"enabled": False}, "mayor": {"threshold": 2.5, "window": 15}},
+        # A local slug can hold a dot; MongoDB 5.0+ stores it as a plain field name.
+        odds_alert_races={"PA-08": {"threshold": 5.0, "window": 30}, "NY LOCAL st.-george-mayor": {"enabled": True}},
+    )
+    await store.save_guild(guild)
+    loaded = await store.get_guild(guild.guild_id)
+    assert loaded == guild
+    assert isinstance(loaded.odds_alert_races["PA-08"]["window"], int)
+    assert await store.all_guilds() == [guild]
+
+
+@pytest.mark.asyncio
+async def test_guild_document_from_before_odds_alert_overrides_loads():
+    store = MongoStore("mongodb://unused", database="ew_test", client=FakeMongoClient())
+    old = {"_id": 7, "channel_id": 8, "post_mode": "interval", "interval_minutes": 15, "odds_alerts": True}
+    await store.guilds.replace_one({"_id": 7}, old, upsert=True)
+    guild = await store.get_guild(7)
+    assert guild == GuildSettings(7, channel_id=8, post_mode=PostMode.INTERVAL, interval_minutes=15, odds_alerts=True)
+    assert guild.odds_alert_categories == {} and guild.odds_alert_races == {}
 
 
 @pytest.mark.asyncio

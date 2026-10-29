@@ -4,7 +4,7 @@ import pytest
 
 from electionwatch.bot.early_vote import resolve_state as early_vote_state
 from electionwatch.bot.early_vote import state_choices
-from electionwatch.bot.logic import faq_text
+from electionwatch.bot.logic import faq_embed
 from electionwatch.racekeys import STATES, RaceKeyError, parse, parse_typed, resolve_state
 from electionwatch.racelists import typed_state
 
@@ -91,6 +91,6 @@ def test_autocomplete_finds_abbreviations_and_misspellings():
 def test_faq_answers_a_misspelt_state_through_the_command():
     from electionwatch.faq.loader import load_outlets, load_states
 
-    assert faq_text(load_states(), load_outlets(), resolve_state("north carolna")) == faq_text(
+    assert faq_embed(load_states(), load_outlets(), resolve_state("north carolna")) == faq_embed(
         load_states(), load_outlets(), "NC"
     )

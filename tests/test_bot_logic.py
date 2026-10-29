@@ -8,7 +8,7 @@ from electionwatch.bot.logic import (
     change_odds,
     change_posting,
     change_watch,
-    faq_text,
+    faq_embed,
     filter_races,
     is_admin,
     remember_navigation,
@@ -66,15 +66,14 @@ def test_setup_sets_channel_and_optional_admin_role():
         change_setup(gs, 0)
 
 
-def test_settings_dump_is_plain_yaml():
-    import yaml
-
-    from electionwatch.bot.logic import settings_dump
+def test_settings_card_groups_the_settings():
+    from electionwatch.bot.logic import settings_card
 
     gs = GuildSettings(1, channel_id=2, post_mode=PostMode.INTERVAL, interval_minutes=15)
-    dumped = yaml.safe_load(settings_dump(gs))
-    assert dumped["guild_id"] == 1 and dumped["post_mode"] == "interval"
-    assert dumped["interval_minutes"] == 15
+    card = settings_card(gs)
+    fields = {name: value for name, value, _ in card.fields}
+    assert card.title == "⚙️ Server settings"
+    assert "Channel: <#2>" in fields["📢 Posting"] and "every 15 minutes" in fields["📢 Posting"]
 
 
 def test_favorites_navigation_and_faq_are_pure_data_operations():
@@ -89,41 +88,54 @@ def test_favorites_navigation_and_faq_are_pure_data_operations():
     assert filter_races(races, "TX", "state") == [(races[1][0], "Governor")]
     remember_navigation(us, "NC", "congressional")
     assert us.home_state == "NC" and us.default_level == "congressional"
-    text = faq_text({"TX": {"voting": "Bring ID"}}, {"AP": "Associated Press"}, "TX")
-    assert "Bring ID" in text
-    assert "No FAQ data for Texas" in faq_text({}, {}, "TX")
+    embed = faq_embed({"TX": {"voting": "Bring ID"}}, {"AP": "Associated Press"}, "TX")
+    assert {"name": "ℹ️ Voting", "value": "Bring ID", "inline": False} in embed["fields"]
+    assert "No FAQ data for Texas" in faq_embed({}, {}, "TX")["description"]
 
 
-def test_faq_without_a_state_lists_available_states_and_fits_one_message():
+def test_faq_without_a_state_lists_available_states_and_fits_one_embed():
     from electionwatch.racekeys import STATES
 
     states = {code: {"official_results_url": "https://example.test", "notes": "n" * 300} for code in STATES}
     outlets = {"AP": {"name": "Associated Press", "results_url": "https://ap.test"}}
-    text = faq_text(states, outlets)
-    assert len(text) <= 2000
+    embed = faq_embed(states, outlets)
     for code in ("AL", "CA", "DC", "TX", "WY"):
-        assert code in text
-    assert "Associated Press" in text
-    assert "n" * 300 not in text  # not a squeezed dump of every state
+        assert f"`{code}`" in embed["description"]
+    assert [field["name"] for field in embed["fields"]] == ["🏁 Associated Press (AP)"]
+    assert "n" * 300 not in str(embed)  # not a squeezed dump of every state
 
-    one = faq_text(states, outlets, "TX")
-    assert len(one) <= 2000 and "https://example.test" in one
+    one = faq_embed(states, outlets, "TX")
+    assert one["title"] == "🗳️ Texas"
+    assert one["description"].splitlines()[0] == "🔗 [Official results](<https://example.test>)"
+    assert {"name": "💬 Good to know", "value": "n" * 300, "inline": False} in one["fields"]
 
 
-def test_settings_dump_and_watch_list_fit_in_one_discord_message():
-    from electionwatch.bot.logic import change_watch, settings_dump
+def test_faq_embed_stays_within_discord_limits():
+    long = "word " * 400  # 2000 characters: each field clips at 1024, the total at 6000
+    record = {key: long for key in ("count_order", "mail_deadline", "mail_processing", "typical_call_time")}
+    record |= {"recount_threshold": long, "ranked_choice": True, "notes": long, "sources": ["https://a.test/x"]}
+    embed = faq_embed({"TX": record}, {}, "TX")
+    assert all(len(field["value"]) <= 1024 for field in embed["fields"])
+    total = len(embed["title"]) + len(embed.get("description", "")) + len(embed["footer"]["text"])
+    assert total + sum(len(field["name"]) + len(field["value"]) for field in embed["fields"]) <= 6000
+    names = [field["name"] for field in embed["fields"]]
+    assert "📚 Sources" not in names and "💬 Good to know" not in names  # dropped first, in that order
+    assert {"name": "🔢 RCV", "value": "✅ Yes", "inline": False} in embed["fields"]
+
+
+def test_settings_card_and_watch_list_fit_discord():
+    from electionwatch.bot.logic import change_watch, settings_card
 
     gs = GuildSettings(1, important=[f"TX HD-{district_number:02d}" for district_number in range(1, 151)])
-    assert len(f"```yaml\n{settings_dump(gs)}\n```") <= 2000
+    card = settings_card(gs)
+    assert all(len(value) <= 1024 for _, value, _ in card.fields) and len(card.text()) <= 6000
     assert len(change_watch(gs, "list")) <= 2000
 
 
-def test_settings_dump_shows_every_setting_even_with_hundreds_of_watched_races():
-    # Found by replay/command_sim (2020/2024, all races watched): the important list came
-    # before post_mode/paused and the 1900-character clip cut them off.
-    import yaml
-
-    from electionwatch.bot.logic import settings_dump
+def test_settings_card_shows_every_setting_even_with_hundreds_of_watched_races():
+    # Found by replay/command_sim (2020/2024, all races watched): a long watch list once
+    # pushed post_mode/paused out of the reply. They have their own field now.
+    from electionwatch.bot.logic import settings_card
 
     gs = GuildSettings(
         1,
@@ -133,8 +145,7 @@ def test_settings_dump_shows_every_setting_even_with_hundreds_of_watched_races()
         interval_minutes=10,
         paused=True,
     )
-    text = settings_dump(gs)
-    assert len(f"```yaml\n{text}\n```") <= 2000
-    head = yaml.safe_load(text.split("\nimportant:")[0])
-    assert head["post_mode"] == "interval" and head["interval_minutes"] == 10 and head["paused"] is True
-    assert "important:\n- TX HD-001" in text
+    fields = {name: value for name, value, _ in settings_card(gs).fields}
+    assert "every 10 minutes" in fields["📢 Posting"] and "⏸️ paused" in fields["📢 Posting"]
+    watched = fields["👁️ Watched races (150)"]
+    assert watched.startswith("TX HD-001 · TX HD-002") and watched.endswith("more") and len(watched) <= 1024

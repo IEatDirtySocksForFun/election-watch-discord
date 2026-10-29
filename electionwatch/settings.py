@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import NamedTuple
+
+from electionwatch.models import Level, RaceKey
 
 
 class PostMode(str, Enum):
@@ -14,6 +17,16 @@ class PostMode(str, Enum):
 
 
 DEFAULT_INTERVAL_MIN = 5
+#: /bettingalerts categories: stable id -> what it covers. Ids are stored in guild documents.
+ODDS_CATEGORIES = {
+    "senate": "US Senate",
+    "house": "US House district",
+    "statewide": "Governor and other statewide offices",
+    "state-senate": "State Senate district",
+    "state-house": "State House district",
+    "mayor": "Mayor",
+    "local": "Other local races",
+}
 
 
 @dataclass
@@ -39,8 +52,57 @@ class GuildSettings:
     # /limits overrides for this server; None = the operator's value, else computed
     # (electionwatch/bot/cooldown.py). Hourly cap 0 = no cap.
     user_cooldown_seconds: int | None = None  # per user, per command and race/state
-    user_commands_per_hour: int | None = None  # per user, across /odds /polls /earlyvote
+    user_commands_per_hour: int | None = None  # per user, across /bettingmarkets /polls /earlyvote
     refresh_cooldown_seconds: int | None = None  # between two /refresh in this server
+    # /bettingalerts overrides: category id (ODDS_CATEGORIES) or race key -> any of
+    # {"enabled": bool, "threshold": float, "window": int}. A missing field falls through,
+    # race > category > the server-wide odds_alerts / odds_swing_pts / odds_window_minutes.
+    odds_alert_categories: dict[str, dict] = field(default_factory=dict)
+    odds_alert_races: dict[str, dict] = field(default_factory=dict)
+    # Button menus (electionwatch/bot/menu.py): /menu works for everyone unless an admin ran
+    # /menu_private off; the ids are the channel menu from /menu_post, to replace or remove it.
+    private_menu: bool = True
+    menu_channel_id: int | None = None
+    menu_message_id: int | None = None
+
+
+class OddsAlert(NamedTuple):
+    enabled: bool
+    threshold: float  # points of implied probability
+    window: int  # minutes
+
+
+def odds_category(key: RaceKey) -> str:
+    """The /bettingalerts category id of a race."""
+    if key.level is Level.SENATE:
+        return "senate"
+    if key.level is Level.HOUSE:
+        return "house"
+    if key.level is Level.GOVERNOR:
+        return "statewide"
+    if key.level is Level.STATE:
+        return "state-senate" if key.office == "SD" else "state-house"
+    # Local races are free-form slugs; "nyc-mayor", "mayor-of-tulsa" and friends are mayors.
+    return "mayor" if "mayor" in (key.district or "").lower() else "local"
+
+
+def odds_alert_from(gs: GuildSettings, *overrides: dict | None) -> OddsAlert:
+    """The server default with each override laid over it in turn (later wins), field by field."""
+    rule = {"enabled": gs.odds_alerts, "threshold": gs.odds_swing_pts, "window": gs.odds_window_minutes}
+    for override in overrides:
+        rule.update({name: value for name, value in (override or {}).items() if name in rule and value is not None})
+    return OddsAlert(bool(rule["enabled"]), float(rule["threshold"]), int(rule["window"]))
+
+
+def odds_alert_for(gs: GuildSettings, key: RaceKey) -> OddsAlert:
+    """Swing-alert setting for one race: race override > category override > server default."""
+    return odds_alert_from(gs, gs.odds_alert_categories.get(odds_category(key)), gs.odds_alert_races.get(str(key)))
+
+
+def odds_alerts_anywhere(gs: GuildSettings) -> bool:
+    """True if any race could alert: the server default or some override is on."""
+    overrides = [*gs.odds_alert_categories.values(), *gs.odds_alert_races.values()]
+    return gs.odds_alerts or any(override.get("enabled") for override in overrides)
 
 
 @dataclass

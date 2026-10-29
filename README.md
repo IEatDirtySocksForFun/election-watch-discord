@@ -124,28 +124,38 @@ Replies are private (only you see them) unless they're posts in the election cha
 | Command                                   | What it does                                                                     |
 | ----------------------------------------- | -------------------------------------------------------------------------------- |
 | `/races`                                  | your private race browser                                                        |
-| `/odds [race]`                            | Kalshi and Polymarket odds, with 1 h and 24 h moves                              |
+| `/bettingmarkets [race]`                  | Kalshi and Polymarket odds, with 1 h and 24 h moves                              |
 | `/polls race:<race> [count] [internals]`  | the latest polls for a race                                                      |
 | `/earlyvote [state] [breakdown] [county]` | early-vote numbers (party, method, age, county; one county with its party split) |
 | `/faq [state]`                            | a state's voting FAQ                                                             |
 | `/favorite add·remove <race>`             | pin races in your browser                                                        |
+| `/bettingalerts`                          | this server's odds-alert settings                                                |
 | `/settings`                               | this server's settings                                                           |
 | `/limits`                                 | how often data refreshes, and this server's limits                               |
+| `/menu`                                   | all of the above as buttons, if you'd rather click                               |
 
 **For admins** (Manage Server, or the admin role from `/setup`)
 
-| Command                                                    | What it does                                                     |
-| ---------------------------------------------------------- | ---------------------------------------------------------------- |
-| `/setup channel:<#channel> [admin_role]`                   | where the bot posts, and who else may configure it               |
-| `/watch add·remove·list <race>`                            | the races your server follows                                    |
-| `/posting mode:<default·interval·immediate> [minutes]`     | how often results are posted                                     |
-| `/calls outlets:<…> on·off`                                | which outlets' race calls are posted                             |
-| `/oddsalerts on·off [threshold] [window]`                  | alerts when the odds swing hard                                  |
-| `/turnout on·off`, `/exitpolls on·off`                     | turnout lines and exit-poll links                                |
-| `/earlyvote_posts on·off`                                  | a daily early-vote summary for the races you watch               |
-| `/pause`, `/resume`                                        | stop and restart all posting                                     |
-| `/refresh [what]`                                          | fetch fresh data now instead of waiting for the next refresh     |
-| `/limits [user_cooldown] [user_hourly] [refresh_cooldown]` | change this server's command limits (`-1` puts back the default) |
+| Command                                                      | What it does                                                     |
+| ------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `/setup channel:<#channel> [admin_role]`                     | where the bot posts, and who else may configure it               |
+| `/watch add·remove·list <race>`                              | the races your server follows                                    |
+| `/posting mode:<default·interval·immediate> [minutes]`       | how often results are posted                                     |
+| `/calls outlets:<…> on·off`                                  | which outlets' race calls are posted                             |
+| `/bettingalerts on·off [threshold] [window] [race·category]` | alerts when the odds swing hard, server-wide or per race         |
+| `/turnout on·off`, `/exitpolls on·off`                       | turnout lines and exit-poll links                                |
+| `/earlyvote_posts on·off`                                    | a daily early-vote summary for the races you watch               |
+| `/pause`, `/resume`                                          | stop and restart all posting                                     |
+| `/refresh [what]`                                            | fetch fresh data now instead of waiting for the next refresh     |
+| `/limits [user_cooldown] [user_hourly] [refresh_cooldown]`   | change this server's command limits (`-1` puts back the default) |
+| `/menu_post [channel]`, `/menu_remove`                       | post a button menu anyone can click (posting again replaces it)  |
+| `/menu_private on·off`                                       | whether members can open their own `/menu` (on by default)       |
+
+Odds alerts can be tuned for one race (`race:PA-08`) or a kind of race (`category:` senate,
+house, statewide, state-senate, state-house, mayor or local). A race setting beats its
+category's, which beats the server-wide one, and anything left out comes from the next level
+down. `enabled:default` removes an override. Only watched races alert, and a server can keep up
+to 100 race overrides.
 
 ## Where the numbers come from
 
