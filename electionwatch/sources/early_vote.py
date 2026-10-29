@@ -118,6 +118,8 @@ class EarlyVote:
     url: str
     comparison: Comparison | None = None
     counties: dict[str, int] = field(default_factory=dict)  # ballots cast per county
+    county_parties: dict[str, dict[str, int]] = field(default_factory=dict)  # county -> party -> ballots
+    county_methods: dict[str, dict[str, int]] = field(default_factory=dict)  # county -> category -> ballots
     age: dict[str, int] = field(default_factory=dict)  # ballots cast per age bracket
     age_categories: tuple[str, ...] = ()  # which categories the age numbers cover
 
@@ -215,10 +217,15 @@ def parse_national(payloads: dict[str, dict | None]) -> National:
 
 def parse_counties(payload: dict | None) -> dict[str, int]:
     """A state category response -> {county: ballots}."""
+    return {county: total for county, (total, _) in parse_county_breakdowns(payload).items()}
+
+
+def parse_county_breakdowns(payload: dict | None) -> dict[str, tuple[int, dict[str, int]]]:
+    """A state category response -> {county: (ballots, parties without Unspecified)}."""
     regions = (payload or {}).get("regions") if isinstance(payload, dict) else None
     if not isinstance(regions, dict):
         return {}
-    return {str(name): parse_breakdown(raw)[0] for name, raw in regions.items()}
+    return {str(name): parse_breakdown(raw) for name, raw in regions.items()}
 
 
 def parse_demographics(payload: dict | None) -> dict[str, int]:
@@ -415,10 +422,17 @@ class EarlyVoteClient:
         if compare and national.updated_at is not None:
             early_vote.comparison = await self._comparison(code, voted, national.updated_at)
         if counties:
+            # The same pages give each county's total, its party split and its mail / in-person
+            # split: one request per category, whatever is shown.
             merged: dict[str, int] = {}
             for category in voted:
-                for county, votes in parse_counties(await self._get(f"{code}/{category}")).items():
+                breakdowns = parse_county_breakdowns(await self._get(f"{code}/{category}"))
+                for county, (votes, parties) in breakdowns.items():
                     merged[county] = merged.get(county, 0) + votes
+                    early_vote.county_methods.setdefault(county, {})[category] = votes
+                    early_vote.county_parties[county] = merge_parties(
+                        early_vote.county_parties.get(county, {}), parties
+                    )
             early_vote.counties = dict(
                 sorted(merged.items(), key=lambda county_votes: (-county_votes[1], county_votes[0]))
             )
