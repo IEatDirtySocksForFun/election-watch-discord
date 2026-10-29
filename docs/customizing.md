@@ -5,7 +5,9 @@
 - `config/races.yaml`: the default important races for new servers (key format in the README).
   Servers change their own list with `/watch`.
 - `electionwatch/settings.py`: defaults for new servers (posting interval, call outlets, odds
-  threshold and window). These are shared contracts: change values, not field names.
+  threshold and window). These are shared contracts: change values, not field names. The odds
+  alert categories (`ODDS_CATEGORIES`, mapped from a race key by `odds_category`) are stored in
+  servers' settings by id, so add new ones rather than renaming old ones.
 
 ## Refresh rates and limits
 
