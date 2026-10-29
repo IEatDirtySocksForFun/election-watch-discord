@@ -321,5 +321,5 @@ async def test_toggle_command_saves_the_setting():
     interaction = FakeInteraction(bot)
     interaction.user.guild_permissions = discord.Permissions(manage_guild=True)
     await early_vote_posts_command.callback(interaction, "on")
-    assert interaction.assert_ephemeral_flow().content == "early vote on"
+    assert interaction.assert_ephemeral_flow().content == "✅ early vote on"
     assert (await store.get_guild(1)).post_early_vote is True

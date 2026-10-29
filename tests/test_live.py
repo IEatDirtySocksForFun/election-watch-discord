@@ -12,7 +12,7 @@ import respx
 
 from electionwatch.__main__ import validate_env
 from electionwatch.bot.command_data import CommandData
-from electionwatch.bot.logic import limits_text
+from electionwatch.bot.logic import limits_card
 from electionwatch.live import LiveFetch, command_mode
 from electionwatch.models import CandidateResult, OddsSnapshot, Poll, PollResult, RaceResult
 from electionwatch.poller import ODDS_CHECKED, POLLS_CACHE, polls_ident
@@ -294,7 +294,7 @@ async def test_early_vote_downloads_while_civicapi_has_room_and_falls_back_to_th
 def test_limits_say_which_mode_commands_run_in():
     from electionwatch.bot.cooldown import Cooldowns
 
-    assert "commands read the database only" in limits_text(None, None, Cooldowns())
-    text = limits_text(None, None, Cooldowns(), live_max_age=60)
+    assert "Commands read the database only" in limits_card(None, None, Cooldowns()).text()
+    text = limits_card(None, None, Cooldowns(), live_max_age=60).text()
     assert "commands also fetch from the source when an answer is over 60 s old" in text
     assert "odds: 2 min" in text  # twice the live max age, not twice the refresh interval

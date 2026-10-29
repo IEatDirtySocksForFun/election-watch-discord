@@ -647,6 +647,8 @@ class CmdRec:
                 parts.append(reply.content)
             for embed in reply.embeds:
                 parts.append(" ".join(str(embed.get(field_name) or "") for field_name in ("title", "description")))
+                # /settings and /limits keep their content in fields.
+                parts += [f"{field['name']}: {field['value']}" for field in embed.get("fields") or []]
         return " | ".join(parts)
 
     def row(self) -> dict:
@@ -1800,7 +1802,7 @@ async def sc_store_errors(ctx: Ctx, checks: Checks):
         checks.ok("went wrong" in command.text, f"/{command.label} during outage: {command.text[:80]!r}")
     final = [command for command in run_result.cmds if command.label == "settings"][-1]
     checks.ok(
-        "paused: false" in final.text and "interval_minutes: 10" in final.text,
+        "▶️ posting" in final.text and "every 10 minutes" in final.text,
         "settings after the outage lost the pre-outage change or kept the failed /pause",
     )
     dup = Counter((posted.post.race, tuple(posted.post.lines)) for posted in run_result.posts_for(kind="call"))
@@ -1898,7 +1900,7 @@ async def sc_mongo_restart(ctx: Ctx, checks: Checks):
             )
     checks.ok(bool(run_result.posts_for(t0=run_result.t("22:02"))), "no posts after mongod restarted")
     final = [command for command in run_result.cmds if command.label == "settings"][-1]
-    checks.ok("interval_minutes: 10" in final.text, "settings lost across the mongod restart")
+    checks.ok("every 10 minutes" in final.text, "settings lost across the mongod restart")
     checks.note(
         f"tick errors while down: {len(run_result.tick_errors)}; command wall times while down: "
         + ", ".join(f"/{command.label} {command.total_s:.1f}s" for command in during)
@@ -2260,7 +2262,7 @@ async def live(args) -> None:
                 if rec is None:
                     return
                 who = {"admin": "admin", "member": "a member without Manage Server"}.get(step.user, step.user)
-                reply = rec.text.replace("```yaml", "").replace("```", "").strip()
+                reply = rec.text.replace("```", "").strip()
                 await thread.send(f"⚙️ `/{step.cmd}` by {who} (sim {et(rec.at)} ET)\n↳ ephemeral reply: {reply[:600]}")
 
             poster = LivePoster(None, thread, out_dir_path / "posts.jsonl")

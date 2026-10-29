@@ -50,8 +50,8 @@ Permissions (every command x {Manage Server, configured admin role, plain member
 /pause /resume /turnout /exitpolls
   [x] idempotent, persisted, on/off messages
 /settings
-  [x] valid YAML inside a ```yaml block, <= 2000 chars, default and huge watch lists
-  [x] post_mode / paused stay visible with a huge watch list
+  [x] one embed within Discord's limits, default and huge watch lists and override lists
+  [x] post_mode / paused stay visible with a huge watch list; every setting is shown
 /favorite
   [x] add / remove / duplicate / invalid / remove-not-favorited; per-user isolation; DMs
 Persistence
@@ -74,6 +74,7 @@ Real ElectionBot as interaction.client
 from __future__ import annotations
 
 import copy
+import dataclasses
 import logging
 import math
 import os
@@ -82,7 +83,6 @@ from datetime import datetime, timedelta, timezone
 
 import httpx
 import pytest
-import yaml
 from fake_interaction_admin import (  # noqa: E402  (tests/ is on sys.path under pytest)
     ADMIN_ROLE_ID,
     DISCORD_LIMIT,
@@ -130,7 +130,7 @@ from electionwatch.bot.logic import (
     change_watch,
     is_admin,
     odds_alerts_text,
-    settings_dump,
+    settings_card,
 )
 from electionwatch.config import load_races
 from electionwatch.models import CandidateResult, ExitPoll, RaceCall, RaceResult, to_doc
@@ -220,6 +220,10 @@ async def invoke(command, interaction: FakeInteraction, **kwargs):
     assert all(sent_message.ephemeral for sent_message in interaction.sent), interaction.sent
     for sent_message in interaction.replies:
         assert sent_message.content is None or len(sent_message.content) <= DISCORD_LIMIT
+        embed = sent_message.embed
+        if embed is not None:  # Discord's embed limits
+            assert len(embed) <= 6000 and len(embed.fields) <= 25
+            assert all(len(field.value) <= 1024 and len(field.name) <= 256 for field in embed.fields)
     return interaction.replies[0]
 
 
@@ -233,9 +237,17 @@ async def user_doc(store, user_id):
     return None if us is None else to_doc(us)
 
 
-def yaml_block(content: str) -> dict:
-    assert content.startswith("```yaml\n") and content.endswith("\n```"), content[:40]
-    return yaml.safe_load(content[len("```yaml\n") : -len("\n```")])
+def reply_text(reply) -> str:
+    """A reply's text: its content, or its embed's title, fields and footer."""
+    if reply.content is not None:
+        return reply.content
+    embed = reply.embed
+    parts = [embed.title, embed.description, *(f"{field.name}\n{field.value}" for field in embed.fields)]
+    return "\n".join(part for part in [*parts, embed.footer.text] if part)
+
+
+def embed_fields(reply) -> dict[str, str]:
+    return {field.name: field.value for field in reply.embed.fields}
 
 
 # --------------------------------------------------------------------------- permission matrix
@@ -267,7 +279,7 @@ SPECS = [
         {"action": "add", "race": "nc-1"},
         True,
         True,
-        lambda gs, us, r: gs.important == ["TX SEN", "GA GOV", "NC-01"] and r == "Watching NC-01",
+        lambda gs, us, r: gs.important == ["TX SEN", "GA GOV", "NC-01"] and r == "✅ Watching NC-01",
     ),
     (
         "watch remove",
@@ -275,7 +287,7 @@ SPECS = [
         {"action": "remove", "race": "Texas Senate"},
         True,
         True,
-        lambda gs, us, r: gs.important == ["GA GOV"] and "Removed TX SEN" in r,
+        lambda gs, us, r: gs.important == ["GA GOV"] and "🗑️ Removed TX SEN" in r,
     ),
     (
         "watch list",
@@ -283,7 +295,7 @@ SPECS = [
         {"action": "list"},
         False,
         True,
-        lambda gs, us, r: r == "Watched races: TX SEN, GA GOV",
+        lambda gs, us, r: r == "👁️ Watched races: TX SEN, GA GOV",
     ),
     (
         "posting interval",
@@ -356,7 +368,7 @@ SPECS = [
         {},
         False,
         True,
-        lambda gs, us, r: r.startswith("Server default: off, 50 points within 60 minutes"),
+        lambda gs, us, r: r.startswith("🎲 Server default: off, 50 points within 60 minutes"),
     ),
     (
         "turnout off",
@@ -364,7 +376,7 @@ SPECS = [
         {"enabled": "off"},
         True,
         True,
-        lambda gs, us, r: gs.post_turnout is False and r == "turnout off",
+        lambda gs, us, r: gs.post_turnout is False and r == "✅ turnout off",
     ),
     (
         "exitpolls on",
@@ -372,18 +384,18 @@ SPECS = [
         {"enabled": "on"},
         True,
         True,
-        lambda gs, us, r: gs.post_exit_polls is True and r == "exit polls on",
+        lambda gs, us, r: gs.post_exit_polls is True and r == "✅ exit polls on",
     ),
     ("pause", pause_command, {}, True, True, lambda gs, us, r: gs.paused is True),
     ("resume", resume_command, {}, True, True, lambda gs, us, r: gs.paused is False),
-    ("settings", settings_command, {}, False, True, lambda gs, us, r: yaml_block(r)["guild_id"] == GUILD_ID),
+    ("settings", settings_command, {}, False, True, lambda gs, us, r: r.startswith("⚙️ Server settings")),
     (
         "favorite add",
         favorite_command,
         {"action": "add", "race": "tx sen"},
         False,
         False,
-        lambda gs, us, r: us.favorites == ["GA GOV", "TX SEN"] and r == "Favorited TX SEN",
+        lambda gs, us, r: us.favorites == ["GA GOV", "TX SEN"] and r == "⭐ Favorited TX SEN",
     ),
     (
         "favorite remove",
@@ -411,10 +423,11 @@ async def test_permission_matrix(store, spec, role):
     if admin_only:
         allowed = role in ("manage", "role_admin")
     if allowed:
-        assert REFUSE_PLAIN not in reply.content and REFUSE_DM not in reply.content
+        text = reply_text(reply)
+        assert REFUSE_PLAIN not in text and REFUSE_DM not in text
         gs = await store.get_guild(GUILD_ID)
         us = await store.get_user(501)
-        assert check(gs, us, reply.content), reply.content
+        assert check(gs, us, text), text
         if not admin_only and guild_only:  # read-only commands
             assert (await guild_doc(store), await user_doc(store, 501)) == before
     else:
@@ -482,7 +495,7 @@ async def test_setup_without_role_then_role_grants_access_to_ordinary_member(sto
     reply = await invoke(setup_command, manager, channel=FakeChannel(42))
     gs = await store.get_guild(GUILD_ID)
     assert gs.channel_id == 42 and gs.admin_role_id is None
-    assert reply.content == "Election posts will go to <#42>."
+    assert reply.content == "✅ Election posts will go to <#42>."
 
     # Before the role is configured, the role holder is an ordinary member.
     reply = await invoke(pause_command, make_interaction(client, "role_admin"))
@@ -526,7 +539,7 @@ async def test_setup_switching_admin_role(memory_store):
     )
     # Everybody in make_user("plain") has OTHER_ROLE_ID, so plain now administers.
     reply = await invoke(pause_command, make_interaction(client, "plain"))
-    assert reply.content == "Election posts paused."
+    assert reply.content == "⏸️ Election posts paused."
     await invoke(
         setup_command, make_interaction(client, "manage"), channel=FakeChannel(1), admin_role=FakeRole(ADMIN_ROLE_ID)
     )
@@ -557,10 +570,10 @@ async def test_posting_every_mode_and_minutes(memory_store, mode, minutes):
     if mode == "interval":
         expected = minutes or 12
         assert gs.interval_minutes == expected
-        assert reply.content == f"Posting mode: interval every {expected} minutes"
+        assert reply.content == f"✅ Posting mode: interval every {expected} minutes"
     else:
         assert gs.interval_minutes == 12
-        assert reply.content.startswith(f"Posting mode: {mode}")
+        assert reply.content.startswith(f"✅ Posting mode: {mode}")
 
 
 @pytest.mark.parametrize("minutes", [0, -1, 1441, 10**9])
@@ -652,7 +665,7 @@ async def test_bettingalerts_every_choice_and_boundary(memory_store, enabled, th
     assert gs.odds_alerts is (enabled == "on")
     assert gs.odds_swing_pts == (7.0 if threshold is None else threshold)
     assert gs.odds_window_minutes == (45 if window is None else window)
-    assert reply.content.startswith(f"Odds alerts {enabled};")
+    assert reply.content.startswith(f"✅ Odds alerts {enabled};")
     assert f"within {gs.odds_window_minutes} minutes" in reply.content
 
 
@@ -741,7 +754,7 @@ async def test_bettingalerts_race_override_is_stored_by_canonical_key(memory_sto
     reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), race="pa-8", threshold=5.0, window=30)
     gs = await memory_store.get_guild(GUILD_ID)
     assert gs.odds_alert_races == {"PA-08": {"threshold": 5.0, "window": 30}}
-    assert reply.content.startswith("Odds alerts for PA-08: threshold 5 points, window 30 minutes.")
+    assert reply.content.startswith("✅ Odds alerts for PA-08: threshold 5 points, window 30 minutes.")
     # Server alerts are off in the baseline, so the override alone does not turn it on.
     assert "In effect: off, 5 points within 30 minutes." in reply.content
     assert "isn't watched" in reply.content
@@ -768,14 +781,14 @@ async def test_bettingalerts_category_override_and_default_removes_it(store):
     reply = await invoke(
         odds_alerts_command, make_interaction(client, "role_admin"), category="house", enabled="on", threshold=8.0
     )
-    assert reply.content.startswith("Odds alerts for US House district (house): on, threshold 8 points.")
+    assert reply.content.startswith("✅ Odds alerts for US House district (house): on, threshold 8 points.")
     assert "Races in it get: on, 8 points within 60 minutes" in reply.content
     assert (await store.get_guild(GUILD_ID)).odds_alert_categories == {"house": {"enabled": True, "threshold": 8.0}}
     reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), category="house", enabled="default")
-    assert reply.content == "Removed the odds alert override for US House district (house)"
+    assert reply.content == "🗑️ Removed the odds alert override for US House district (house)"
     assert (await store.get_guild(GUILD_ID)).odds_alert_categories == {}
     reply = await invoke(odds_alerts_command, make_interaction(client, "manage"), category="house", enabled="default")
-    assert reply.content == "US House district (house) has no odds alert override"
+    assert reply.content == "⚠️ US House district (house) has no odds alert override"
 
 
 async def test_bettingalerts_default_removes_a_race_override(memory_store):
@@ -788,7 +801,7 @@ async def test_bettingalerts_default_removes_a_race_override(memory_store):
         race="Pennsylvania congressional district 8",
         enabled="default",
     )
-    assert reply.content == "Removed the odds alert override for PA-08"
+    assert reply.content == "🗑️ Removed the odds alert override for PA-08"
     assert (await memory_store.get_guild(GUILD_ID)).odds_alert_races == {"TX SEN": {"enabled": True}}
 
 
@@ -851,7 +864,7 @@ async def test_bettingalerts_without_changes_lists_and_saves_nothing(memory_stor
     client = stand_in_client(memory_store)
     reply = await invoke(odds_alerts_command, make_interaction(client, role))
     assert reply.content.splitlines() == [
-        "Server default: on, 10 points within 60 minutes",
+        "🎲 Server default: on, 10 points within 60 minutes",
         "Categories:",
         "  Mayor (mayor): off",
         f"Races (1 of {MAX_ODDS_RACE_OVERRIDES}):",
@@ -859,9 +872,9 @@ async def test_bettingalerts_without_changes_lists_and_saves_nothing(memory_stor
         "A race setting beats its category's, which beats the server default. Only watched races alert.",
     ]
     reply = await invoke(odds_alerts_command, make_interaction(client, role), race="pa-8")
-    assert reply.content.startswith("PA-08 (house) gets: on, 5 points within 30 minutes\n")
+    assert reply.content.startswith("🎲 PA-08 (house) gets: on, 5 points within 30 minutes\n")
     reply = await invoke(odds_alerts_command, make_interaction(client, role), category="mayor")
-    assert reply.content.startswith("Mayor (mayor) gets: off, 10 points within 60 minutes\n")
+    assert reply.content.startswith("🎲 Mayor (mayor) gets: off, 10 points within 60 minutes\n")
     assert await guild_doc(memory_store) == before
 
 
@@ -928,7 +941,7 @@ async def test_calls_rejects_unknown_or_empty_and_saves_nothing(memory_store, te
     reply = await invoke(
         calls_command, make_interaction(stand_in_client(memory_store), "manage"), outlets=text, enabled="on"
     )
-    assert reply.content.startswith("unknown outlets")
+    assert reply.content.startswith("❌ unknown outlets")
     assert await guild_doc(memory_store) == before
 
 
@@ -1061,7 +1074,7 @@ async def test_watch_add_accepts_every_key_format(memory_store, text, expected):
     reply = await invoke(
         watch_command, make_interaction(stand_in_client(memory_store), "manage"), action="add", race=text
     )
-    assert reply.content == f"Watching {expected}"
+    assert reply.content == f"✅ Watching {expected}"
     assert (await memory_store.get_guild(GUILD_ID)).important[-1] == expected
 
 
@@ -1073,7 +1086,7 @@ async def test_watch_rejects_invalid_keys_and_saves_nothing(memory_store, text, 
     reply = await invoke(
         watch_command, make_interaction(stand_in_client(memory_store), "manage"), action=action, race=text
     )
-    assert not reply.content.startswith(("Watching", "Removed"))
+    assert not reply.content.startswith(("✅ Watching", "🗑️ Removed"))
     assert await guild_doc(memory_store) == before
 
 
@@ -1085,7 +1098,7 @@ async def test_watch_add_remove_require_a_race(memory_store, action, race):
     reply = await invoke(
         watch_command, make_interaction(stand_in_client(memory_store), "manage"), action=action, race=race
     )
-    assert reply.content == "race is required"
+    assert reply.content == "❌ race is required"
     assert await guild_doc(memory_store) == before
 
 
@@ -1100,7 +1113,7 @@ async def test_watch_duplicates_and_equivalent_spellings_are_stored_once(store):
     client = stand_in_client(store)
     for spelling in ("NC-1", "nc-01", "NC-01", "North Carolina Congressional District 1"):
         reply = await invoke(watch_command, make_interaction(client, "manage"), action="add", race=spelling)
-        assert reply.content == "Watching NC-01"
+        assert reply.content == "✅ Watching NC-01"
     assert (await store.get_guild(GUILD_ID)).important == DEFAULT_KEYS + ["NC-01"]
 
 
@@ -1108,10 +1121,10 @@ async def test_watch_remove_last_race_falls_back_to_defaults(store):
     client = stand_in_client(store)
     await store.save_guild(GuildSettings(GUILD_ID, important=["NC-01"]))
     reply = await invoke(watch_command, make_interaction(client, "manage"), action="remove", race="NC-1")
-    assert reply.content == "Removed NC-01; using default races"
+    assert reply.content == "🗑️ Removed NC-01; using default races"
     assert (await store.get_guild(GUILD_ID)).important == []
     reply = await invoke(watch_command, make_interaction(client, "plain"), action="list")
-    assert reply.content == "Watched races: " + ", ".join(DEFAULT_KEYS)
+    assert reply.content == "👁️ Watched races: " + ", ".join(DEFAULT_KEYS)
 
 
 async def test_watch_remove_a_race_that_is_not_watched_changes_nothing(store):
@@ -1139,7 +1152,7 @@ async def test_watch_list_with_500_races_fits_one_message(memory_store):
     reply = await invoke(watch_command, make_interaction(stand_in_client(memory_store), "plain"), action="list")
     assert len(reply.content) <= DISCORD_LIMIT
     assert reply.content.endswith("(500 total)")
-    assert reply.content.startswith("Watched races: TX HD-001, TX HD-002")
+    assert reply.content.startswith("👁️ Watched races: TX HD-001, TX HD-002")
 
 
 async def test_watch_list_of_long_local_slugs_fits_one_message(memory_store):
@@ -1168,7 +1181,7 @@ async def test_turnout_and_exitpolls_on_off(store, command, field, label, sequen
     client = stand_in_client(store)
     for value in sequence:
         reply = await invoke(command, make_interaction(client, "manage"), enabled=value)
-        assert reply.content == f"{label} {value}"
+        assert reply.content == f"✅ {label} {value}"
         assert getattr(await store.get_guild(GUILD_ID), field) is (value == "on")
 
 
@@ -1186,7 +1199,7 @@ async def test_turnout_and_exitpolls_on_off(store, command, field, label, sequen
 )
 async def test_pause_resume_idempotent_as_manager(store, sequence):
     client = stand_in_client(store)
-    messages = {"pause": "Election posts paused.", "resume": "Election posts resumed."}
+    messages = {"pause": "⏸️ Election posts paused.", "resume": "▶️ Election posts resumed."}
     commands = {"pause": pause_command, "resume": resume_command}
     for name in sequence:
         reply = await invoke(commands[name], make_interaction(client, "manage"))
@@ -1232,40 +1245,83 @@ async def test_pause_resume_idempotent_as_manager(store, sequence):
     ],
     ids=["default", "baseline", "150 races", "600 races", "500 long local races", "all outlets", "most overrides"],
 )
-async def test_settings_is_valid_yaml_and_fits_one_message(store, gs):
+async def test_settings_fits_one_embed_and_keeps_every_group(store, gs):
     await store.save_guild(gs)
     reply = await invoke(settings_command, make_interaction(stand_in_client(store), "plain"))
-    assert len(reply.content) <= DISCORD_LIMIT
-    dumped = yaml_block(reply.content)
-    assert isinstance(dumped, dict)
-    # The scalar settings must survive any truncation of the watch list.
-    assert dumped["guild_id"] == GUILD_ID
-    assert dumped["post_mode"] == gs.post_mode.value
-    assert dumped["paused"] is gs.paused
-    assert dumped["interval_minutes"] == gs.interval_minutes
-    assert dumped["post_calls"] is gs.post_calls and dumped["odds_alerts"] is gs.odds_alerts
-    assert dumped["call_outlets"] == gs.call_outlets
-    shown = dumped.get("important") or []
-    assert shown == gs.important[: len(shown)]
+    assert reply.content is None and reply.embed.title == "⚙️ Server settings"
+    fields = embed_fields(reply)
+    # Every group survives any length of watch list or override list.
+    assert list(fields)[:3] == ["📢 Posting", "🏁 Race calls", "🎲 Odds alerts"]
+    assert list(fields)[-1] == "🧭 Menu"
+    posting = fields["📢 Posting"]
+    assert ("⏸️ paused" in posting) is gs.paused
+    timing = {
+        PostMode.DEFAULT: "(default)",
+        PostMode.INTERVAL: f"every {gs.interval_minutes} minutes",
+        PostMode.IMMEDIATE: "as soon as results change",
+    }[gs.post_mode]
+    assert timing in posting
+    calls = fields["🏁 Race calls"]
+    assert calls.startswith("✅ on" if gs.post_calls else "❌ off") and ", ".join(gs.call_outlets) in calls
+    assert fields["🎲 Odds alerts"].startswith(
+        f"Server default: {'✅ on' if gs.odds_alerts else '❌ off'}, {gs.odds_swing_pts:g} points "
+        f"within {gs.odds_window_minutes} minutes"
+    )
+    watched = next(value for name, value in fields.items() if name.startswith("👁️ Watched races"))
+    expected = gs.important or DEFAULT_KEYS
+    shown = [key for key in watched.split(" · ") if not key.startswith("…")]
+    assert shown == expected[: len(shown)]
+    assert len(shown) == len(expected) or watched.endswith(f"… +{len(expected) - len(shown)} more")
 
 
 async def test_settings_for_a_guild_never_configured(memory_store):
     reply = await invoke(settings_command, make_interaction(stand_in_client(memory_store), "plain"))
-    dumped = yaml_block(reply.content)
-    assert dumped["guild_id"] == GUILD_ID and dumped["channel_id"] is None and dumped["post_mode"] == "default"
+    posting = embed_fields(reply)["📢 Posting"]
+    assert "Channel: not set yet (/setup)" in posting and "(default)" in posting
+    assert "👁️ Watched races (the defaults)" in embed_fields(reply)
     assert await memory_store.get_guild(GUILD_ID) is None
 
 
-def test_settings_dump_round_trips_every_field():
+def test_settings_card_shows_every_setting():
+    """Changing any one setting changes what /settings shows: none of them is hidden."""
+    base = dict(post_mode=PostMode.INTERVAL, menu_channel_id=5, menu_message_id=9)
+    changed = {
+        "channel_id": 10,
+        "admin_role_id": ADMIN_ROLE_ID,
+        "important": ["NC-01"],
+        "post_mode": PostMode.IMMEDIATE,
+        "interval_minutes": 20,
+        "results_sources": ["tx_sos"],
+        "post_calls": False,
+        "call_outlets": ["AP"],
+        "post_turnout": False,
+        "post_exit_polls": False,
+        "odds_alerts": True,
+        "odds_markets": ["kalshi"],
+        "odds_swing_pts": 7.5,
+        "odds_window_minutes": 15,
+        "paused": True,
+        "post_early_vote": True,
+        "user_cooldown_seconds": 30,
+        "user_commands_per_hour": 0,
+        "refresh_cooldown_seconds": 600,
+        "odds_alert_categories": {"mayor": {"enabled": False}},
+        "odds_alert_races": {"PA-08": {"threshold": 5.0}},
+        "private_menu": False,
+        "menu_channel_id": 6,
+        "menu_message_id": None,
+    }
+    assert set(changed) == {field.name for field in dataclasses.fields(GuildSettings)} - {"guild_id"}
+    before = settings_card(GuildSettings(GUILD_ID, **base)).text()
+    for name, value in changed.items():
+        after = settings_card(GuildSettings(GUILD_ID, **{**base, name: value})).text()
+        assert after != before, f"/settings doesn't show {name}"
     gs = baseline()
-    assert yaml.safe_load(settings_dump(gs)) == to_doc(gs)
     gs.odds_alert_categories = {"state-house": {"enabled": False}, "mayor": {"threshold": 2.5, "window": 10}}
     gs.odds_alert_races = {"PA-08": {"enabled": True, "threshold": 5.0}, "NY LOCAL st.-george-mayor": {"window": 5}}
-    dump = settings_dump(gs)
-    assert yaml.safe_load(dump) == to_doc(gs)
-    # One line per override, before the watch list.
-    assert "  PA-08: {enabled: true, threshold: 5.0}" in dump.splitlines()
-    assert dump.index("odds_alert_races:") < dump.index("important:")
+    odds = dict((name, value) for name, value, _ in settings_card(gs).fields)["🎲 Odds alerts"]
+    assert "Mayor: threshold 2.5 points, window 10 minutes" in odds.splitlines()
+    assert "PA-08: on, threshold 5 points" in odds.splitlines()
 
 
 # --------------------------------------------------------------------------- /favorite
@@ -1276,11 +1332,11 @@ async def test_favorite_add_remove_duplicate(store, role):
     client = stand_in_client(store)
     for text in ("TX SEN", "tx sen", "Texas Senate"):
         reply = await invoke(favorite_command, make_interaction(client, role), action="add", race=text)
-        assert reply.content == "Favorited TX SEN"
+        assert reply.content == "⭐ Favorited TX SEN"
     await invoke(favorite_command, make_interaction(client, role), action="add", race="nc-1")
     assert (await store.get_user(501)).favorites == ["TX SEN", "NC-01"]
     reply = await invoke(favorite_command, make_interaction(client, role), action="remove", race="TX-SEN")
-    assert reply.content == "Removed favorite TX SEN"
+    assert reply.content == "🗑️ Removed favorite TX SEN"
     assert (await store.get_user(501)).favorites == ["NC-01"]
     reply = await invoke(favorite_command, make_interaction(client, role), action="remove", race="GA GOV")
     assert (await store.get_user(501)).favorites == ["NC-01"]
@@ -1295,7 +1351,7 @@ async def test_favorite_invalid_keys_save_nothing(memory_store, text):
     reply = await invoke(
         favorite_command, make_interaction(stand_in_client(memory_store), "dm"), action="add", race=text
     )
-    assert not reply.content.startswith("Favorited")
+    assert not reply.content.startswith("⭐ Favorited")
     assert (await memory_store.get_user(501)).favorites == ["GA GOV"]
 
 
@@ -1368,7 +1424,7 @@ async def test_every_setting_round_trips_through_the_store(store):
     assert await store.all_guilds() == [gs]
     assert (await store.get_user(501)).favorites == ["AK-AL"]
     reply = await invoke(settings_command, make_interaction(client, "plain"))
-    assert yaml_block(reply.content) == to_doc(gs)
+    assert reply.embed.to_dict() == bot_discord.settings_embed(gs).to_dict()
 
 
 async def test_store_returns_copies_not_live_objects(store):
@@ -1709,7 +1765,7 @@ async def test_commands_with_a_real_election_bot():
             await invoke(setup_command, FakeInteraction(bot, FakeMember(1, manage_guild=True)), channel=FakeChannel(5))
             await invoke(pause_command, FakeInteraction(bot, FakeMember(1, manage_guild=True)))
             reply = await invoke(settings_command, FakeInteraction(bot, FakeMember(2)))
-            assert yaml_block(reply.content)["paused"] is True
+            assert "⏸️ paused" in embed_fields(reply)["📢 Posting"]
             await invoke(favorite_command, FakeInteraction(bot, FakeUser(3), None), action="add", race="TX SEN")
             assert (await bot.store.get_user(3)).favorites == ["TX SEN"]
             assert bot.poller.store is bot.store
