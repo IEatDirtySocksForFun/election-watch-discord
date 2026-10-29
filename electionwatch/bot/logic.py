@@ -396,7 +396,7 @@ def faq_text(states, outlets, state: str | None = None) -> str:
     if state is None:
         codes = sorted(states) if isinstance(states, dict) else sorted({getattr(e, "state", "") for e in states} - {""})
         head = [
-            "# State election FAQs",
+            "  # State FAQs",
             "-# Use `/faq state:<code>` for one state.",
             " · ".join(f"`{c}`" for c in codes) if codes else "No state FAQ data installed.",
         ]
