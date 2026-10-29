@@ -1,4 +1,4 @@
-"""/odds names the candidates: Kalshi's yes_sub_title and Polymarket's "Name (D)" titles."""
+"""/bettingmarkets names the candidates: Kalshi's yes_sub_title and Polymarket's "Name (D)" titles."""
 
 from datetime import datetime, timezone
 

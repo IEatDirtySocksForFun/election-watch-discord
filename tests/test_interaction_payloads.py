@@ -358,7 +358,7 @@ async def harness():
         bot.http.send_message = test_harness.send_message
         bot.http.delete_message = test_harness.delete_message
         bot.add_view(MenuView())  # what setup_hook does before connecting
-        # What the background refresh stores; /odds and /polls read only the store.
+        # What the background refresh stores; /bettingmarkets and /polls read only the store.
         await bot.poller._odds(NOW, [], [TX_SEN, RaceKey("CA", Level.SENATE, "SEN")])
         await bot.poller._polls(NOW, [TX_SEN])
         await bot.race_lists.refresh()  # the /races browser reads the stored lists
@@ -558,16 +558,16 @@ CASES = [
     ("calls-unknown", "calls", [opt("outlets", "XYZ"), opt("enabled", "off")], None, {}, "unknown outlets"),
     (
         "oddsalerts-on",
-        "oddsalerts",
+        "bettingalerts",
         [opt("enabled", "on"), opt("threshold", 5.5, 10), opt("window", 30, 4)],
         None,
         {},
         "threshold 5.5 points",
     ),
-    ("oddsalerts-off", "oddsalerts", [opt("enabled", "off")], None, {}, "Odds alerts off"),
+    ("oddsalerts-off", "bettingalerts", [opt("enabled", "off")], None, {}, "Odds alerts off"),
     (
         "oddsalerts-race",
-        "oddsalerts",
+        "bettingalerts",
         [opt("race", "PA-08"), opt("threshold", 5, 10), opt("window", 30, 4)],
         None,
         {},
@@ -575,18 +575,25 @@ CASES = [
     ),
     (
         "oddsalerts-category",
-        "oddsalerts",
+        "bettingalerts",
         [opt("enabled", "off"), opt("category", "mayor")],
         None,
         {},
         "Odds alerts for Mayor (mayor): off",
     ),
-    ("oddsalerts-list", "oddsalerts", [], None, {"permissions": 0}, "Server default"),
-    ("oddsalerts-change-not-admin", "oddsalerts", [opt("threshold", 5, 10)], None, {"permissions": 0}, "Manage Server"),
-    ("odds-overview", "odds", [], None, {}, "Watched race odds"),
-    ("odds-race", "odds", [opt("race", "TX SEN")], None, {}, "Odds"),
-    ("odds-dm", "odds", [], None, {"dm": True}, "Watched race odds"),
-    ("odds-bad-race", "odds", [opt("race", "Narnia SEN")], None, {}, ""),
+    ("oddsalerts-list", "bettingalerts", [], None, {"permissions": 0}, "Server default"),
+    (
+        "oddsalerts-change-not-admin",
+        "bettingalerts",
+        [opt("threshold", 5, 10)],
+        None,
+        {"permissions": 0},
+        "Manage Server",
+    ),
+    ("odds-overview", "bettingmarkets", [], None, {}, "Watched race odds"),
+    ("odds-race", "bettingmarkets", [opt("race", "TX SEN")], None, {}, "Odds"),
+    ("odds-dm", "bettingmarkets", [], None, {"dm": True}, "Watched race odds"),
+    ("odds-bad-race", "bettingmarkets", [opt("race", "Narnia SEN")], None, {}, ""),
     ("polls-default", "polls", [opt("race", "TX SEN")], None, {}, "Showing 5 most recent polls"),
     (
         "polls-10-no-internals",
@@ -678,7 +685,7 @@ async def test_resolved_role_and_channel_reach_the_settings(harness):
 
 
 async def test_deferred_commands_answer_with_an_ephemeral_followup(harness):
-    for name, options in (("odds", []), ("polls", [opt("race", "TX SEN")]), ("races", [])):
+    for name, options in (("bettingmarkets", []), ("polls", [opt("race", "TX SEN")]), ("races", [])):
         sent = await harness.dispatch(command_payload(name, options))
         assert sent[0].payload == {"type": DEFERRED_CHANNEL_MESSAGE, "data": {"flags": EPHEMERAL}}
         assert [(sent_request.method, sent_request.path) for sent_request in sent[1:]] == [("POST", FOLLOWUP)]
@@ -702,7 +709,7 @@ async def test_exception_after_defer_is_reported_as_ephemeral_followup(harness):
         raise RuntimeError("odds exploded token=hunter2")
 
     harness.bot.command_data.odds_embed = boom
-    sent = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    sent = await harness.dispatch(command_payload("bettingmarkets", [opt("race", "TX SEN")]))
     assert_ephemeral_reply(sent)
     assert sent[0].payload["type"] == DEFERRED_CHANNEL_MESSAGE
     assert sent[-1].path == FOLLOWUP and "Something went wrong" in sent[-1].payload["content"]
@@ -729,7 +736,7 @@ async def test_failing_odds_source_still_renders_an_ephemeral_embed(harness):
     harness.odds.fail = True
     harness.bot.rates.force({"odds"})
     await harness.bot.poller._odds(NOW, [], [RaceKey("NV", Level.SENATE, "SEN")])  # refresh fails
-    sent = await harness.dispatch(command_payload("odds", [opt("race", "NV SEN")]))
+    sent = await harness.dispatch(command_payload("bettingmarkets", [opt("race", "NV SEN")]))
     assert_ephemeral_reply(sent)
     assert "queued for the next odds refresh" in text_of(sent)
 
@@ -737,7 +744,7 @@ async def test_failing_odds_source_still_renders_an_ephemeral_embed(harness):
 # --------------------------------------------------------------------------- autocomplete
 
 
-@pytest.mark.parametrize("command", ["watch", "favorite", "odds", "polls"])
+@pytest.mark.parametrize("command", ["watch", "favorite", "bettingmarkets", "polls"])
 @pytest.mark.parametrize("typed", ["", "tx", "x" * 50, "advisory"])
 async def test_race_autocomplete_payload(harness, command, typed):
     options = [opt("race", typed) | {"focused": True}]
@@ -804,9 +811,9 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     assert "California" in text_of(sent)
     assert (await harness.bot.store.get_user(OWNER)).home_state == "CA"
 
-    # Odds / Polls buttons: deferred update, the data arrives as a NEW ephemeral followup.
-    for tool in ("Odds", "Polls"):
-        sent = await harness.dispatch(component_payload(button(message, tool)["custom_id"], 2))
+    # Betting markets / Polls buttons: deferred update, the data arrives as a NEW ephemeral followup.
+    for label, tool in (("Betting markets", "Odds"), ("Polls", "Polls")):
+        sent = await harness.dispatch(component_payload(button(message, label)["custom_id"], 2))
         assert [(select.method, select.path) for select in sent] == [("POST", CALLBACK), ("POST", FOLLOWUP)]
         assert sent[0].payload["type"] == DEFERRED_UPDATE_MESSAGE
         assert sent[1].payload["flags"] & EPHEMERAL
@@ -826,7 +833,7 @@ async def test_race_navigator_round_trip_uses_correct_component_responses(harnes
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [race_select["options"][3]["value"]]))
     assert len(sent) == 1 and sent[0].payload["type"] == UPDATE_MESSAGE
     check_message_limits(sent[0].payload["data"])
-    assert button(sent[0].payload, "Odds")
+    assert button(sent[0].payload, "Betting markets")
 
 
 async def test_navigator_selects_a_race_whose_key_exceeds_100_characters(harness):
@@ -863,7 +870,7 @@ async def test_navigator_refuses_other_users_ephemerally(harness, which):
     elif which == "state":
         payload = component_payload(selects(message)[0]["custom_id"], 3, ["AL"], user_id=STRANGER)
     elif which == "odds":
-        payload = component_payload(button(message, "Odds")["custom_id"], 2, user_id=STRANGER)
+        payload = component_payload(button(message, "Betting markets")["custom_id"], 2, user_id=STRANGER)
     else:
         payload = component_payload(button(message, "Choose race")["custom_id"], 2, user_id=STRANGER)
     sent = await harness.dispatch(payload)
@@ -933,12 +940,12 @@ async def test_command_schema_follows_discord_rules(harness):
 
 
 async def test_repeating_a_data_command_for_the_same_race_hits_the_cooldown(harness):
-    first = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    first = await harness.dispatch(command_payload("bettingmarkets", [opt("race", "TX SEN")]))
     assert "Kalshi" in text_of(first)
-    again = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    again = await harness.dispatch(command_payload("bettingmarkets", [opt("race", "TX SEN")]))
     assert_ephemeral_reply(again)
     assert "You can ask for this again in 2 min" in text_of(again)
-    other = await harness.dispatch(command_payload("odds", [opt("race", "CA SEN")]))
+    other = await harness.dispatch(command_payload("bettingmarkets", [opt("race", "CA SEN")]))
     assert "Kalshi" in text_of(other)
 
 
@@ -947,7 +954,7 @@ async def test_repeating_a_data_command_for_the_same_race_hits_the_cooldown(harn
 MENU_EXPECTS = {
     "races": "Texas",
     "favorites": "Favorites",
-    "odds": "Pick a race for odds",
+    "odds": "Pick a race for betting markets",
     "polls": "Pick a race for polls",
     "earlyvote": "Pick a state for early-vote numbers",
     "faq": "Pick a state for its voting FAQ",
@@ -1061,11 +1068,11 @@ async def test_odds_picker_round_trip_shares_the_odds_cooldown(harness):
     assert_private_answer(sent)
     assert "Watched race odds" in text_of(sent)
 
-    # Same race again, from the menu or with /odds: the same per-user cooldown as the command.
+    # Same race again, from the menu or with /bettingmarkets: the same per-user cooldown as the command.
     sent = await harness.dispatch(component_payload(race_select["custom_id"], 3, [option["value"]]))
     assert_private_answer(sent)
     assert "You can ask for this again" in text_of(sent)
-    sent = await harness.dispatch(command_payload("odds", [opt("race", "TX SEN")]))
+    sent = await harness.dispatch(command_payload("bettingmarkets", [opt("race", "TX SEN")]))
     assert "You can ask for this again" in text_of(sent)
 
 

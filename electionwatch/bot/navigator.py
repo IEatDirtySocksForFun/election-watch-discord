@@ -135,9 +135,9 @@ class RaceNavigator(discord.ui.View):
             self.add_item(select)
         visible = self._visible()
         if self.selected_race:
-            for label in ("Odds", "Polls"):
+            for label, tool in (("Betting markets", "odds"), ("Polls", "polls")):
                 button = discord.ui.Button(label=label, style=discord.ButtonStyle.secondary, row=4)
-                button.callback = self._race_tool_callback(label.casefold())
+                button.callback = self._race_tool_callback(tool)
                 self.add_item(button)
             button = discord.ui.Button(label="Choose race", style=discord.ButtonStyle.secondary, row=4)
             button.callback = self._choose_race_callback

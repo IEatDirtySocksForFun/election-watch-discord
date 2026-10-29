@@ -11,7 +11,7 @@
 
 ## Refresh rates and limits
 
-The bot asks each data source on a schedule and stores the answers in MongoDB; `/odds`,
+The bot asks each data source on a schedule and stores the answers in MongoDB; `/bettingmarkets`,
 `/polls` and `/earlyvote` read only the database (unless you switch on
 [live commands](#database-or-live-commands)). The schedule is computed so the bot uses at
 most half of each host's published rate limit per hour (`electionwatch/ratelimit.py`):
@@ -62,7 +62,7 @@ By default (`EW_COMMAND_DATA=db`) commands never call a source: they show what t
 refresh stored, and a race nobody watches is queued for the next refresh ("try again in a few
 minutes").
 
-With `EW_COMMAND_DATA=live`, `/odds`, `/polls`, `/earlyvote` and the `/races` browser (state race
+With `EW_COMMAND_DATA=live`, `/bettingmarkets`, `/polls`, `/earlyvote` and the `/races` browser (state race
 lists and the chosen race's result) ask the source themselves when the stored answer is older
 than `EW_LIVE_MAX_AGE`, then save what they get to the database like a refresh would. It's still
 polite:

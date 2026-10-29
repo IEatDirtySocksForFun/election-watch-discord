@@ -121,7 +121,7 @@ def change_calls(gs: GuildSettings, outlets: str, enabled: bool) -> str:
     return f"Race calls off (stopped {', '.join(selected)}; no outlets left)"
 
 
-#: Most race overrides one server can keep (/oddsalerts race:); categories cover the rest.
+#: Most race overrides one server can keep (/bettingalerts race:); categories cover the rest.
 MAX_ODDS_RACE_OVERRIDES = 100
 
 
@@ -133,7 +133,7 @@ def change_odds(
     race: str | None = None,
     category: str | None = None,
 ) -> str:
-    """/oddsalerts: the server default, or an override for one race or one category.
+    """/bettingalerts: the server default, or an override for one race or one category.
     enabled None leaves it as it is; "default" removes the race or category override."""
     if isinstance(enabled, bool):
         enabled = "on" if enabled else "off"
@@ -216,7 +216,7 @@ def _override_text(override: dict) -> str:
 
 
 def odds_alerts_text(gs: GuildSettings, race: str | None = None, category: str | None = None) -> str:
-    """/oddsalerts without changes: the server default and every override, one per line."""
+    """/bettingalerts without changes: the server default and every override, one per line."""
     if race and category:
         raise ValueError("pick a race or a category, not both")
     if category is not None and category not in ODDS_CATEGORIES:

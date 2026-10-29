@@ -19,8 +19,8 @@ EXPECTED_COMMANDS = {
     "watch",
     "posting",
     "calls",
-    "oddsalerts",
-    "odds",
+    "bettingalerts",
+    "bettingmarkets",
     "polls",
     "turnout",
     "exitpolls",
@@ -60,14 +60,14 @@ async def test_bot_registers_every_command_and_the_error_handler():
                 "mode",
                 "minutes",
             }
-            assert {parameter.name for parameter in commands["oddsalerts"].parameters} == {
+            assert {parameter.name for parameter in commands["bettingalerts"].parameters} == {
                 "enabled",
                 "threshold",
                 "window",
                 "race",
                 "category",
             }
-            assert {parameter.name for parameter in commands["odds"].parameters} == {"race"}
+            assert {parameter.name for parameter in commands["bettingmarkets"].parameters} == {"race"}
             assert {parameter.name for parameter in commands["polls"].parameters} == {
                 "race",
                 "count",

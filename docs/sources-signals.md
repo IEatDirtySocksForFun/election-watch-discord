@@ -15,10 +15,10 @@ probability (0-1). Kalshi uses series-ticker discovery with a small override
 table (e.g. Alaska governor maps to `KXGOVAK`). Polymarket paginates active
 events and filters titles.
 
-The poller fetches odds for watched races (and races users asked about with `/odds`) each
+The poller fetches odds for watched races (and races users asked about with `/bettingmarkets`) each
 minute, within the hosts' request budgets (Polymarket publishes 300 requests / 10 s for
 `/markets`; Kalshi publishes only keyed tiers, so the bot assumes 10/s and uses half). Every
-snapshot is stored; `/odds` reads the newest per outcome from MongoDB, and a race the refresh
+snapshot is stored; `/bettingmarkets` reads the newest per outcome from MongoDB, and a race the refresh
 found no market for says so instead of "queued".
 
 ## Odds swings

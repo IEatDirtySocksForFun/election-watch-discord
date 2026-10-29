@@ -738,7 +738,7 @@ QUICK_SCENARIOS = (
     "posting",
     "calls",
     "toggles",
-    "oddsalerts",
+    "bettingalerts",
     "setup",
     "nonadmin",
     "sourcedown",
@@ -986,14 +986,14 @@ class Night:
                     )
                 )
                 if tab == "Senate" and view.selected_race and code in ("PA", "GA", "AZ", "TX"):
-                    for tool in ("Odds", "Polls"):
+                    for label, tool in (("Betting markets", "odds"), ("Polls", "polls")):
                         overlap = conc()
-                        button = find(discord.ui.Button, lambda button: button.label == tool)
+                        button = find(discord.ui.Button, lambda button: button.label == label)
                         recs.append(
                             await self._maybe_concurrent(
                                 bot,
                                 lambda t0: self.click(
-                                    bot, view, button, user, guild, f"races:{tool.lower()}", None, overlap, t0
+                                    bot, view, button, user, guild, f"races:{tool}", None, overlap, t0
                                 ),
                                 overlap,
                             )
@@ -1030,8 +1030,8 @@ class Night:
     async def readonly_battery(self, bot, guild: int, under_tick: bool = True):
         race = self.readonly_race or (sorted(self.watched_for(guild)) or ["PA SEN"])[0]
         battery = [
-            "odds",
-            f'odds race="{race}"',
+            "bettingmarkets",
+            f'bettingmarkets race="{race}"',
             f'polls race="{race}"',
             "watch list",
             "settings",
@@ -1549,7 +1549,7 @@ async def sc_toggles(ctx: Ctx, checks: Checks):
     return run_result
 
 
-async def sc_oddsalerts(ctx: Ctx, checks: Checks):
+async def sc_bettingalerts(ctx: Ctx, checks: Checks):
     races = sorted(ctx.watched)
     if len(races) < 5:
         checks.ok(False, "needs 5 watched races")
@@ -1564,7 +1564,7 @@ async def sc_oddsalerts(ctx: Ctx, checks: Checks):
         HeldSwing(d, "DEM", T("23:30"), 5, 20),
     ]  # after alerts are off
     night = Night(ctx.year, ctx.timelines, [base_guild(ctx)], swings=swings)
-    run_result = await night.run(["21:30 oddsalerts on threshold=10 window=30", "23:00 oddsalerts off"])
+    run_result = await night.run(["21:30 bettingalerts on threshold=10 window=30", "23:00 bettingalerts off"])
     alerts = run_result.posts_for(kind="odds_swing")
     by = Counter(p.post.race for p in alerts)
     checks.ok(by.get(a, 0) >= 1 and by.get(cc, 0) >= 1, f"missing alerts above threshold: {dict(by)}")
@@ -1600,7 +1600,7 @@ ADMIN_CMDS = [
     'watch add "{x}"',
     'watch remove "{y}"',
     "calls AP off",
-    "oddsalerts on threshold=1 window=5",
+    "bettingalerts on threshold=1 window=5",
     "turnout off",
     "exitpolls off",
     "setup channel=999 admin_role=555",
@@ -1668,7 +1668,7 @@ async def sc_invalid(ctx: Ctx, checks: Checks):
         "21:32 posting interval",
         "21:33 watch add",
         "21:34 polls race=nonsense",
-        "21:35 odds race=???",
+        "21:35 bettingmarkets race=???",
         "21:36 faq state=XX",
         '21:37 favorite add "QQ-99"',
         '21:38 watch remove "ZZ-01"',
@@ -1724,7 +1724,7 @@ async def sc_two_guilds(ctx: Ctx, checks: Checks):
         f'21:50 watch add "{extra_race}"',
         "22:00 calls AP off",
         "22:20 setup channel=300",
-        "22:30 oddsalerts on threshold=5 window=10",
+        "22:30 bettingalerts on threshold=5 window=10",
         "22:40 turnout off",
         f'23:00 watch remove "{second_races[0]}"',
         {"at": "23:10", "cmd": "posting immediate", "as": "admin", "guild": 2},  # same as before: no-op
@@ -1766,7 +1766,7 @@ async def sc_store_errors(ctx: Ctx, checks: Checks):
                 "22:00 !store_down minutes=20",
                 "22:05 pause",
                 "22:06 settings",
-                "22:07 odds",
+                "22:07 bettingmarkets",
                 '22:08 watch add "PA SEN"',
                 "22:30 settings",
             ]
@@ -2055,7 +2055,7 @@ SCENARIOS: dict[str, tuple[str, Callable]] = {
     "watch": ("3 /watch add/remove mid-night, remove all -> races.yaml", sc_watch),
     "calls": ("4 /calls off -> FOX only -> AP+NBC", sc_calls),
     "toggles": ("5 /turnout off, /exitpolls off, both back on", sc_toggles),
-    "oddsalerts": ("6 /oddsalerts on 10 pts/30 min, then off", sc_oddsalerts),
+    "bettingalerts": ("6 /bettingalerts on 10 pts/30 min, then off", sc_bettingalerts),
     "setup": ("7 /setup channel change mid-night", sc_setup),
     "nonadmin": ("8 non-admin tries every admin command; foreign navigator click", sc_nonadmin),
     "latency": ("9 read-only commands + navigator every 30 min under load", sc_latency),
@@ -2170,8 +2170,8 @@ LIVE_STEPS = [
     "WATCH_REMOVE",
     "22:35 calls AP,NBC,CNN,FOX,DDHQ,VOTEHUB,CIVICAPI,CBS,ABC,NYT off",  # every outlet: calls off
     "22:50 calls outlets=FOX enabled=on",
-    "23:15 oddsalerts on threshold=10 window=30",
-    "23:50 oddsalerts off",
+    "23:15 bettingalerts on threshold=10 window=30",
+    "23:50 bettingalerts off",
     "23:55 turnout off",
     "00:05 exitpolls off",
     "00:10 settings",
