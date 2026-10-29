@@ -42,8 +42,6 @@ MAX_COUNTIES = 25
 MAX_CHOICES = 25
 AUTOCOMPLETE_TIMEOUT = 2.0  # Discord drops autocomplete answers after 3 s
 POST_KIND = "early_vote"  # store.mark_posted kind for the daily summary
-_NAMES = {name.casefold(): code for code, name in STATES.items()}
-_NAMES["washington dc"] = _NAMES["washington d.c."] = _NAMES["d.c."] = "DC"
 _PARTY_ORDER = {"Democratic": 0, "Republican": 1}
 COLOR = discord.Color.teal()
 
@@ -59,15 +57,19 @@ def early_vote_client(bot) -> EarlyVoteClient:
 
 
 def resolve_state(text: str) -> str:
-    """'nc', 'NC', 'North Carolina' -> 'NC'. ValueError for anything else (50 states + DC)."""
+    """'nc', 'NC', 'North Carolina', 'N.C.', 'n carolina', 'north carolna' -> 'NC'. ValueError
+    for anything else (50 states + DC)."""
+    from electionwatch.racekeys import RaceKeyError
+    from electionwatch.racekeys import resolve_state as resolve
+
     cleaned = " ".join(text.split())
-    if cleaned.upper() in STATES:
-        return cleaned.upper()
-    code = _NAMES.get(cleaned.casefold())
-    if code:
-        return code
-    shown = clip(cleaned, 60) or "(empty)"
-    raise ValueError(f"Unknown state {shown!r}: use a two-letter code like NC or a name like North Carolina.")
+    try:
+        return resolve(cleaned, STATES)
+    except RaceKeyError:
+        shown = clip(cleaned, 60) or "(empty)"
+        raise ValueError(
+            f"Unknown state {shown!r}: use a two-letter code like NC or a name like North Carolina."
+        ) from None
 
 
 def state_choices(states: list[str], current: str) -> list[tuple[str, str]]:
@@ -81,6 +83,14 @@ def state_choices(states: list[str], current: str) -> list[tuple[str, str]]:
             starts.append((label[:100], code))
         elif needle in name.casefold():
             contains.append((label[:100], code))
+    if not starts and not contains and needle:
+        # An abbreviation or a misspelling: "N.C.", "Calif.", "pensylvania".
+        try:
+            code = resolve_state(current)
+        except ValueError:
+            code = None
+        if code in states:
+            starts.append((f"{STATES.get(code, code)} ({code})"[:100], code))
     return (starts + contains)[:MAX_CHOICES]
 
 
