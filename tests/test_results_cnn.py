@@ -48,6 +48,38 @@ def test_parse_bad_payloads():
     assert parse_cnn_results("not a dict") is None
 
 
+GA_SEN = RaceKey("GA", Level.SENATE, "SEN")
+
+
+def test_parse_2026_pre_election_feed_tx():
+    # Captured 2026-11-01, before polls opened: the 2026 file has the 2024 field names but no
+    # votes and no voteTimestamp, so the embargo's callsRelease is the only stamp.
+    race_result = parse_cnn_results(_load("2026-SG-TX.json"), fetched_at=NOW)
+    assert race_result is not None
+    assert race_result.key == TX_SEN
+    assert race_result.title == "U.S. Senate"
+    assert (race_result.total_votes, race_result.expected_vote_pct, race_result.precincts_reporting) == (0, 0, 0)
+    assert [(candidate.name, candidate.party, candidate.votes) for candidate in race_result.candidates] == [
+        ("James Talarico", "DEM", 0),
+        ("Ken Paxton", "REP", 0),
+        ("Ted Brown", "LIB", 0),
+    ]
+    assert all(candidate.winner is False for candidate in race_result.candidates)
+    assert race_result.source_updated_at == datetime(2026, 11, 4, 2, 0, tzinfo=timezone.utc)
+
+
+def test_parse_2026_pre_election_feed_ga():
+    race_result = parse_cnn_results(_load("2026-SG-GA.json"), fetched_at=NOW)
+    assert race_result is not None
+    assert race_result.key == GA_SEN
+    assert race_result.total_votes == 0
+    assert [(candidate.name, candidate.party, candidate.incumbent) for candidate in race_result.candidates] == [
+        ("Jon Ossoff", "DEM", True),
+        ("Mike Collins", "REP", False),
+    ]
+    assert race_result.source_updated_at == datetime(2026, 11, 4, 0, 0, tzinfo=timezone.utc)
+
+
 def test_registered_off_by_default():
     load_all()
     assert REGISTRY["results"]["cnn_results"] is CNNResultsSource
@@ -138,3 +170,18 @@ async def test_rate_limited_answer_is_one_source_unavailable_no_retry():
         with _pytest.raises(SourceUnavailable):
             await CNNResultsSource().fetch([AT_LARGE_AK], client)
     assert route.call_count == 1
+
+
+@respx.mock
+async def test_fetch_2026_senate_files(monkeypatch):
+    # The 2026 files answer before election night with candidates at zero votes; the adapter
+    # builds the code from the election year, so both states come back in the live format.
+    monkeypatch.setattr(CNNResultsSource, "YEAR", 2026)
+    for code in ("2026-SG-TX", "2026-SG-GA"):
+        respx.get(f"{CNNResultsSource.BASE}/{code}.json").mock(
+            return_value=httpx.Response(200, json=_load(f"{code}.json"))
+        )
+    async with httpx.AsyncClient() as client:
+        results = await CNNResultsSource().fetch([TX_SEN, GA_SEN], client)
+    assert [race_result.key for race_result in results] == [TX_SEN, GA_SEN]
+    assert all(race_result.total_votes == 0 for race_result in results)

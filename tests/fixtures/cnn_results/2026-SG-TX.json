@@ -1,0 +1,70 @@
+{
+ "candidates": [
+  {
+   "candidatePartyCode": "D",
+   "firstName": "James",
+   "fullName": "James Talarico",
+   "isIncumbent": false,
+   "lastName": "Talarico",
+   "majorParty": "DEM",
+   "partyName": "Democratic",
+   "voteNum": 0,
+   "votePercentNum": 0,
+   "votePercentStr": "0.0",
+   "winner": false
+  },
+  {
+   "candidatePartyCode": "R",
+   "firstName": "Ken",
+   "fullName": "Ken Paxton",
+   "isIncumbent": false,
+   "lastName": "Paxton",
+   "majorParty": "REP",
+   "partyName": "Republican",
+   "voteNum": 0,
+   "votePercentNum": 0,
+   "votePercentStr": "0.0",
+   "winner": false
+  },
+  {
+   "candidatePartyCode": "L",
+   "firstName": "Ted",
+   "fullName": "Ted Brown",
+   "isIncumbent": false,
+   "lastName": "Brown",
+   "majorParty": "LIB",
+   "partyName": "Libertarian",
+   "voteNum": 0,
+   "votePercentNum": 0,
+   "votePercentStr": "0.0",
+   "winner": false
+  }
+ ],
+ "contestType": "SG",
+ "ecKey": "2026-SG-TX",
+ "editorialStatus": "scheduled",
+ "electionTitle": "General Election",
+ "electionType": "G",
+ "extractedAt": "2026-10-30T20:45:04.553390",
+ "percentReporting": 0,
+ "raceEmbargo": {
+  "assignedPollsClose": 1793757600000,
+  "callsRelease": 1793757600000,
+  "callsReleased": false,
+  "exitPollsRelease": 1793757600000,
+  "exitPollsReleased": false,
+  "pollsClosed": false,
+  "pollsOpen": 1793707200000,
+  "pollsOpened": false,
+  "votesRelease": 1793754000000,
+  "votesReleased": false
+ },
+ "raceTitle": "Senate",
+ "raceType": "S",
+ "stateAbbreviation": "TX",
+ "stateFipsCode": "48",
+ "stateName": "Texas",
+ "status": "U",
+ "totalVote": 0,
+ "version": 1
+}
