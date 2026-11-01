@@ -11,7 +11,7 @@ Tests never touch the network.
 | VA    | `va_elect` | https://enr.elections.virginia.gov/results/public/api/elections/virginia/2026-November-General/data | **verified fixture** — 2025 general and 2026 general; 2026 id pinned in `ELECTIONS` (jurisdiction listing 404s since 2026-10-27)                                             |
 | NE    | `ne_sos`   | https://electionresults.nebraska.gov/resultsSW.aspx?type=SW\|CG\|LD\|...                            | **verified fixture** — 2026 general (pre-election, 0 votes); HTML scraper, opt-in                                                                                            |
 | CO    | `co_sos`   | https://results.enr.clarityelections.com/CO/                                                        | **verified fixture** — 2024 general; 2026 id not published yet, discovery implemented                                                                                        |
-| IA    | `ia_sos`   | https://results.enr.clarityelections.com/IA/                                                        | **verified fixture** — 2024 general; 2026 id not published yet, discovery implemented                                                                                        |
+| IA    | `ia_sos`   | https://results.enr.clarityelections.com/IA/                                                        | **verified fixture** — 2024 general and 2026 general (id 127077, 274 contests, pre-election 0 votes); the id is discovered by date from `IA/elections.json`                  |
 | MI    | —          | https://mielections.us/election/results/                                                            | **not possible** — unreachable: every request times out after 45 s (curl exit 28) on both schemes; the SOS's mvic.sos.state.mi.us answers 403 with a Cloudflare interstitial |
 | WI    | —          | https://elections.wi.gov/                                                                           | **not possible** — Cloudflare interstitial (403 "Just a moment...") for automated clients, and the WEC publishes county-reported results, not a statewide JSON export        |
 | NV    | —          | https://silverstateelection.nv.gov/                                                                 | **not possible** — Imperva Incapsula bot challenge: HTTP 200 with a 212-byte body, `x-iinfo` + `incap_ses_*` cookies, no result markup                                       |
@@ -122,10 +122,12 @@ not pinned.
 - `co_sos`: `ELECTIONS["2024-11-05"] = "122598"`; regents, State Board of Education,
   district attorneys, judicial retention and amendments/propositions -> LOCAL slugs.
 - `ia_sos`: `ELECTIONS["2024-11-05"] = "122322"`; `Secretary of Agriculture` ->
-  `IA AGCOM`; judges, constitutional amendments and school/city measures -> LOCAL slugs.
-- The 2026 general is not published for either state yet; the date-matched discovery in
-  `<ST>/elections.json` is the path it will take, and is covered by tests using the 2025
-  elections that are published today.
+  `IA AGCOM`; `Governor and Lt. Governor` (the 2026 ballot wording) -> `IA GOV`; judges,
+  constitutional amendments and school/city measures -> LOCAL slugs.
+- The 2026 general is published for Iowa (id `127077`, 11/3/2026, 274 contests, every
+  vote 0 until counting starts); the date-matched discovery in `IA/elections.json` finds
+  it, and the pre-election summary is kept in `tests/fixtures/ia_sos/ia2026/`. Colorado's
+  2026 general is not published yet; the same discovery path covers it.
 
 Run the adapter tests:
 

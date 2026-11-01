@@ -13,8 +13,8 @@ A state module rather than a `clarity` ELECTIONS entry, because:
 * Iowa's contest names ("United States Representative District 1", "State Senator
   District 2", "State Representative District 1") miss the vendor adapter's generic
   patterns and would otherwise be filed as local races.
-* The 2026 general's election id is not published yet, so it is discovered from
-  IA/elections.json by date; ELECTIONS only pins verified ids.
+* The general's election id is discovered from IA/elections.json by date (the 2026
+  general is 127077); ELECTIONS only pins verified historical ids.
 
 Judges, school/city public measures and constitutional amendments become stable LOCAL
 slugs. `clarity` still lists IA in its `states` set (a stale placeholder from before this
@@ -47,6 +47,8 @@ ELECTIONS: dict[str, str] = {
 _STATEWIDE = {
     "GOVERNOR": "GOV",
     "GOVERNOR AND LIEUTENANT GOVERNOR": "GOV",
+    # The 2026 ballot title abbreviates it ("Governor and Lt. Governor").
+    "GOVERNOR AND LT. GOVERNOR": "GOV",
     "LIEUTENANT GOVERNOR": "LTGOV",
     "SECRETARY OF STATE": "SOS",
     "AUDITOR OF STATE": "AUD",
