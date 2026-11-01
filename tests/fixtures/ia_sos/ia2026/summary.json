@@ -1,0 +1,693 @@
+[
+{
+"CATKEY": "C_1",
+"CAT": "Federal",
+"SUBCATKEY": "C_1_1",
+"SUBCAT": "United States Senate",
+"C": "United States Senator",
+"K": "1000",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 99,
+"PR": 2,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Ashley Hinson",
+"Josh Turek",
+"Thomas Laehn",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+"LIB",
+""
+],
+"PCT": [
+0,
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_1",
+"CAT": "Federal",
+"SUBCATKEY": "C_1_2",
+"SUBCAT": "United States Representative",
+"C": "United States Representative District 1",
+"K": "1100",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 20,
+"PR": 0,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Mariannette Miller-Meeks",
+"Christina Bohannan",
+"Michael Bridgford",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+"",
+""
+],
+"PCT": [
+0,
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_1",
+"CAT": "Federal",
+"SUBCATKEY": "C_1_2",
+"SUBCAT": "United States Representative",
+"C": "United States Representative District 4",
+"K": "1400",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 36,
+"PR": 0,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Chris McGowan",
+"Dave Dawson",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+""
+],
+"PCT": [
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_2",
+"CAT": "State",
+"SUBCATKEY": "C_2_1",
+"SUBCAT": "Statewide Executive Branch",
+"C": "Governor and Lt. Governor",
+"K": "1500",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 99,
+"PR": 2,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Zach Lahn and Derek Wulf",
+"Rob Sand and Dave Muhlbauer",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+""
+],
+"PCT": [
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_2",
+"CAT": "State",
+"SUBCATKEY": "C_2_1",
+"SUBCAT": "Statewide Executive Branch",
+"C": "Secretary of State",
+"K": "1600",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 99,
+"PR": 2,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Paul D. Pate",
+"Ryan Peterman",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+""
+],
+"PCT": [
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_2",
+"CAT": "State",
+"SUBCATKEY": "C_2_2",
+"SUBCAT": "State Senate District 1 - 25",
+"C": "State Senator District 1",
+"K": "2100",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 1,
+"PR": 0,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Christopher Prosch",
+"Catelin Drey",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+""
+],
+"PCT": [
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_2",
+"CAT": "State",
+"SUBCATKEY": "C_2_4",
+"SUBCAT": "State Representative District 1 - 25",
+"C": "State Representative District 1",
+"K": "4600",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 1,
+"PR": 0,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Josh Steinhoff",
+"Shawn Olorundami",
+"Write-in"
+],
+"CHAggId": null,
+"P": [
+"REP",
+"DEM",
+""
+],
+"PCT": [
+0,
+0,
+0
+],
+"V": [
+0,
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0,
+0
+],
+"CRC": [
+0,
+0,
+0
+],
+"CRO": [
+0,
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_2",
+"CAT": "State",
+"SUBCATKEY": "C_2_8",
+"SUBCAT": "Constitutional Amendment",
+"C": "Constitutional Amendment 1",
+"K": "14600",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 99,
+"PR": 2,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Yes",
+"No"
+],
+"CHAggId": null,
+"P": [
+"",
+""
+],
+"PCT": [
+0,
+0
+],
+"V": [
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0
+],
+"CRC": [
+0,
+0
+],
+"CRO": [
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_4",
+"CAT": "School",
+"C": "AGWSR School - Public Measure IR",
+"K": "25600",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 4,
+"PR": 0,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Yes",
+"No"
+],
+"CHAggId": null,
+"P": [
+"",
+""
+],
+"PCT": [
+0,
+0
+],
+"V": [
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0
+],
+"CRC": [
+0,
+0
+],
+"CRO": [
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+},
+{
+"CATKEY": "C_5",
+"CAT": "Judicial",
+"SUBCATKEY": "C_5_1",
+"SUBCAT": "Iowa Appellate Court",
+"C": "Court of Appeals Judge - Sharon Soorholtz Greer",
+"K": "14900",
+"AggID": null,
+"regvoters": 0,
+"BCxContest": 0,
+"VF": 1,
+"TP": 98,
+"PR": 2,
+"TV": 0,
+"BC": 0,
+"RC": 0,
+"RO": 0,
+"CH": [
+"Yes",
+"No"
+],
+"CHAggId": null,
+"P": [
+"",
+""
+],
+"PCT": [
+0,
+0
+],
+"V": [
+0,
+0
+],
+"RCVRoundVGain": null,
+"RCVRoundPCTGain": null,
+"T": [
+0
+],
+"RCVExhaustedBallots": null,
+"RCVBallotsCast": null,
+"RCVOverVotes": null,
+"W": [
+0,
+0
+],
+"CRC": [
+0,
+0
+],
+"CRO": [
+0,
+0
+],
+"IsCumulative": null,
+"CumulativeVotes": null,
+"CumulativeChoices": null,
+"CumulativePercentages": null,
+"IsContestNoChoice": 0,
+"IsRCV": false,
+"RCVAwaitingResults": false,
+"RCVRounds": 0
+}
+]

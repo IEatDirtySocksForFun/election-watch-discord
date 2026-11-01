@@ -22,7 +22,7 @@ state.
 | CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                | verified fixture                                                           |
 | CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture                                                           |
 | DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture                                                           |
-| DE    | `de_doe`  | `elections.delaware.gov/reports/GE<year>.csv`                         | verified fixture                                                           |
+| DE    | `de_doe`  | `/results/enr/Election_StatewideResults_ID_GE<year>.json`             | verified fixture (2024 CSV; 2026 ENR JSON; CSV fallback)                   |
 | HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                           |
 
 ---
@@ -150,6 +150,26 @@ state.
 - Status: verified fixture; a live run for 2024 returned `IN SEN` (Jim Banks).
 - `source_updated_at` is the JSON file's own `WriteTime` (a build stamp), not a
   live update clock.
+
+---
+
+## DE — `electionwatch/sources/results/de_doe.py`
+
+- Feed: the statewide ENR JSON that the Division's own results page reads every five
+  minutes, `/results/enr/Election_StatewideResults_ID_GE<year>.json` on
+  `elections.delaware.gov`. Rows are one per candidate: `Contest Title`, `Party Name`,
+  `Machine Votes`, `Absentee Votes`, `Early Voting Votes`, `Total Votes`, `Percentage`
+  and `ReportTime`. It is published before the election with every vote at 0, and moves
+  to `/reports/json/` once the election is no longer current (the request follows that
+  redirect).
+- The reports CSV (`/reports/GE<year>.csv`) stays as the fallback for elections that
+  predate the JSON (2024 answers only there). A 404 on both is reported as "not
+  published yet".
+- The JSON's `Precincts Reported` / `Total Precincts` are per contest (530 for a statewide
+  contest, 37 for Senate District 1 in the 2026 file), so the per-race precinct fields are
+  filled from it; the CSV fallback has no precinct columns and leaves them empty.
+- Fixtures: the 2024 general CSV and the 2026 general ENR JSON (eight contests,
+  pre-election 0 votes).
 
 ---
 

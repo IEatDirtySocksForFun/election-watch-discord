@@ -11,11 +11,17 @@ from electionwatch.sources.results import ia_sos
 from electionwatch.sources.results.ia_sos import parse_ia, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "ia_sos" / "ia"
+FIX26 = Path(__file__).parent / "fixtures" / "ia_sos" / "ia2026"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
+AT26 = datetime(2026, 10, 31, 14, 30, tzinfo=timezone.utc)
 
 
 def load(name):
     return json.loads((FIX / name).read_text(encoding="utf-8"))
+
+
+def load26(name):
+    return json.loads((FIX26 / name).read_text(encoding="utf-8"))
 
 
 def by_key(results):
@@ -61,9 +67,33 @@ def test_updated_at_comes_from_electionsettings():
     assert by_key(parsed())["IA-01"].source_updated_at == datetime(2024, 12, 16, 14, 19, 48, tzinfo=timezone.utc)
 
 
+def test_2026_general_parses_the_live_summary():
+    # 2026 general (id 127077), fetched 2026-10-31: published pre-election with every
+    # vote at 0, same contest layout as the 2024 count.
+    got = by_key(parse_ia(load26("summary.json"), load26("electionsettings.json"), fetched_at=AT26))
+    assert {"IA SEN", "IA GOV", "IA-01", "IA-04", "IA SOS", "IA SD-01", "IA HD-01"} <= set(got)
+    assert got["IA GOV"].key.level is Level.GOVERNOR
+    assert got["IA GOV"].title == "Governor and Lt. Governor"
+    assert [candidate.name for candidate in got["IA GOV"].candidates][:2] == [
+        "Zach Lahn and Derek Wulf",
+        "Rob Sand and Dave Muhlbauer",
+    ]
+    assert got["IA SEN"].total_votes == 0
+    assert (got["IA SEN"].precincts_reporting, got["IA SEN"].precincts_total) == (2, 99)
+
+
+def test_2026_general_local_slugs_and_timestamp():
+    got = by_key(parse_ia(load26("summary.json"), load26("electionsettings.json"), fetched_at=AT26))
+    assert "IA LOCAL constitutional-amendment-1" in got
+    assert "IA LOCAL agwsr-school-public-measure-ir" in got
+    assert "IA LOCAL court-of-appeals-judge-sharon-soorholtz-greer" in got
+    assert got["IA SEN"].source_updated_at == datetime(2026, 10, 30, 20, 7, 48, tzinfo=timezone.utc)
+
+
 def test_race_key_mapping():
     assert format_key(race_key("United States Senator")) == "IA SEN"
     assert format_key(race_key("Governor")) == "IA GOV"
+    assert format_key(race_key("Governor and Lt. Governor")) == "IA GOV"
     assert format_key(race_key("Secretary of Agriculture")) == "IA AGCOM"
     assert format_key(race_key("Auditor of State")) == "IA AUD"
     assert format_key(race_key("United States Representative District 4")) == "IA-04"
@@ -133,4 +163,32 @@ def test_fetch_discovers_unpinned_election_id(monkeypatch):
     got = by_key(asyncio.run(go()))
     assert set(got) == {"IA-01"}
     assert got["IA-01"].url == "https://results.enr.clarityelections.com/IA/124196/"
+    assert seen[0].endswith("/IA/elections.json")
+
+
+def test_fetch_discovers_and_parses_the_2026_general(monkeypatch):
+    monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
+    seen = []
+
+    def handler(request):
+        path = request.url.path
+        seen.append(path)
+        if path.endswith("/IA/elections.json"):
+            return httpx.Response(200, json=load("elections.json"))
+        if path.endswith("/IA/127077/current_ver.txt"):
+            return httpx.Response(200, text="382865")
+        if path.endswith("/summary.json"):
+            return httpx.Response(200, json=load26("summary.json"))
+        if path.endswith("/electionsettings.json"):
+            return httpx.Response(200, json=load26("electionsettings.json"))
+        return httpx.Response(404, text="")
+
+    async def go():
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport) as client:
+            return await ia_sos.IaSos().fetch([parse("IA SEN"), parse("IA GOV"), parse("IA-01")], client)
+
+    got = by_key(asyncio.run(go()))
+    assert set(got) == {"IA SEN", "IA GOV", "IA-01"}
+    assert got["IA SEN"].url == "https://results.enr.clarityelections.com/IA/127077/"
     assert seen[0].endswith("/IA/elections.json")
