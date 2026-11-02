@@ -1,0 +1,57 @@
+{
+ "candidates": [
+  {
+   "candidatePartyCode": "D",
+   "firstName": "Jon",
+   "fullName": "Jon Ossoff",
+   "isIncumbent": true,
+   "lastName": "Ossoff",
+   "majorParty": "DEM",
+   "partyName": "Democratic",
+   "voteNum": 0,
+   "votePercentNum": 0,
+   "votePercentStr": "0.0",
+   "winner": false
+  },
+  {
+   "candidatePartyCode": "R",
+   "firstName": "Mike",
+   "fullName": "Mike Collins",
+   "isIncumbent": false,
+   "lastName": "Collins",
+   "majorParty": "REP",
+   "partyName": "Republican",
+   "voteNum": 0,
+   "votePercentNum": 0,
+   "votePercentStr": "0.0",
+   "winner": false
+  }
+ ],
+ "contestType": "SG",
+ "ecKey": "2026-SG-GA",
+ "editorialStatus": "scheduled",
+ "electionTitle": "General Election",
+ "electionType": "G",
+ "extractedAt": "2026-10-30T20:45:04.374157",
+ "percentReporting": 0,
+ "raceEmbargo": {
+  "assignedPollsClose": 1793750400000,
+  "callsRelease": 1793750400000,
+  "callsReleased": false,
+  "exitPollsRelease": 1793750400000,
+  "exitPollsReleased": false,
+  "pollsClosed": false,
+  "pollsOpen": 1793707200000,
+  "pollsOpened": false,
+  "votesRelease": 1793750400000,
+  "votesReleased": false
+ },
+ "raceTitle": "Senate",
+ "raceType": "S",
+ "stateAbbreviation": "GA",
+ "stateFipsCode": "13",
+ "stateName": "Georgia",
+ "status": "U",
+ "totalVote": 0,
+ "version": 1
+}
