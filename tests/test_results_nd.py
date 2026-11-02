@@ -1,9 +1,14 @@
+import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
 
+import httpx
+import pytest
+
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key
-from electionwatch.sources.results.nd_sos import parse_nd, race_key
+from electionwatch.sources.base import SourceUnavailable
+from electionwatch.sources.results.nd_sos import NdSos, page_election_year, parse_nd, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "nd_sos" / "ND"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
@@ -71,3 +76,37 @@ def test_race_key_mapping():
     assert format_key(race_key("Public Service Commissioner")) == "ND LOCAL public-service-commissioner"
     assert format_key(race_key("State Senator Unexpired 2-Year Term District 9")) == "ND SD-09 S"
     assert format_key(race_key("State Representative District 4B")) == "ND HD-04B"
+
+
+def test_page_heading_names_the_archived_election():
+    assert page_election_year((FIX / "2024_general_heading.html").read_text(encoding="utf-8")) == 2024
+    assert page_election_year("") is None
+
+
+def test_fetch_refuses_the_archive_when_another_election_is_tracked(monkeypatch):
+    monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
+    body = (FIX / "2024_general_heading.html").read_text(encoding="utf-8")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, text=body)
+
+    async def go():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            await NdSos().fetch([race_key("Representative in Congress")], client)
+
+    with pytest.raises(SourceUnavailable, match="2024 archive"):
+        asyncio.run(go())
+
+
+def test_fetch_accepts_the_page_of_the_tracked_election(monkeypatch):
+    monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
+    body = (FIX / "2024_general_statewide.html").read_text(encoding="utf-8")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, text=body if "type=SW" in str(request.url) else "")
+
+    async def go():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await NdSos().fetch([race_key("Representative in Congress")], client)
+
+    assert [format_key(result.key) for result in asyncio.run(go())] == ["ND-AL"]

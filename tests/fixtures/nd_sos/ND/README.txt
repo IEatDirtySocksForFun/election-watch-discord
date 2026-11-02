@@ -8,6 +8,15 @@ Source (fetched 2026-10-27, HTTP 200, text/html):
 
 Election: the site serves one election at a time; on 2026-10-27 it served
 "2024 General Election Results" (385 of 385 precincts reported), so that is the fixture.
+The state moved the 2026 count to resultsnd.sos.nd.gov; these pages are the archive,
+and the adapter refuses to return them when another election is tracked.
+
+2024_general_heading.html
+  The page header of the same SW URL, fetched again on 2026-11-02: everything from
+  `<div class="header-box-wrapper">` through the election heading
+  ("Official 2024 General Election Results"), its date and the "Results last updated"
+  line. The rest of the page is dropped. The adapter reads the heading to name the
+  election the page serves.
 
 Fixture files and trimming
 --------------------------

@@ -1,0 +1,85 @@
+{
+ "versionID": "v2097",
+ "lastUpdated": "2026-10-08T18:13:38.5390961Z",
+ "electionID": "346",
+ "message": "",
+ "isOfficial": true,
+ "turnout": {
+  "registeredVoters": 600394,
+  "precinctsReporting": 358,
+  "precinctsPartiallyReporting": 0,
+  "totalPrecincts": 358,
+  "totalBallotsCast": 125225,
+  "reportingPercent": 100,
+  "votePercent": 20.86
+ },
+ "response": {
+  "contestType": "SW",
+  "contests": {
+   "1746": {
+    "contestID": "1746",
+    "districtID": "",
+    "precinctsReporting": 358,
+    "precinctsPartiallyReporting": 0,
+    "totalPrecincts": 358,
+    "totalVotes": 116136,
+    "recountType": 0,
+    "hasRecount": false,
+    "hasLocationResults": true,
+    "choices": [
+     {
+      "choiceID": "9001",
+      "totalVotes": 77141,
+      "partyID": "   ",
+      "votePercent": 66.42,
+      "isWinner": true
+     },
+     {
+      "choiceID": "9002",
+      "totalVotes": 38995,
+      "partyID": "   ",
+      "votePercent": 33.58,
+      "isWinner": false
+     }
+    ],
+    "writeInChoices": []
+   },
+   "20040": {
+    "contestID": "20040",
+    "districtID": "",
+    "precinctsReporting": 358,
+    "precinctsPartiallyReporting": 0,
+    "totalPrecincts": 358,
+    "totalVotes": 99795,
+    "recountType": 0,
+    "hasRecount": false,
+    "hasLocationResults": true,
+    "choices": [
+     {
+      "choiceID": "35007",
+      "totalVotes": 63306,
+      "partyID": "NON",
+      "votePercent": 63.44,
+      "isWinner": true
+     },
+     {
+      "choiceID": "35924",
+      "totalVotes": 36086,
+      "partyID": "NON",
+      "votePercent": 36.16,
+      "isWinner": true
+     },
+     {
+      "choiceID": "9901",
+      "totalVotes": 403,
+      "partyID": "NON",
+      "votePercent": 0.4,
+      "isWinner": false
+     }
+    ],
+    "writeInChoices": []
+   }
+  }
+ },
+ "errorMessage": null
+}
