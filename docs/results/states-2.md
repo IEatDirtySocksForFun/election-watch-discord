@@ -22,7 +22,7 @@ state.
 | CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                | verified fixture                                                           |
 | CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture                                                           |
 | DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture                                                           |
-| DE    | `de_doe`  | `/results/enr/Election_StatewideResults_ID_GE<year>.json`             | verified fixture (2024 CSV; 2026 ENR JSON; CSV fallback)                   |
+| DE    | `de_doe`  | `/results/enr/Election_StatewideResults_ID_GE<year>.json`             | verified fixture + live run (2026 general; 77 contests, 0 votes)           |
 | HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                           |
 
 ---
@@ -170,6 +170,11 @@ state.
   filled from it; the CSV fallback has no precinct columns and leaves them empty.
 - Fixtures: the 2024 general CSV and the 2026 general ENR JSON (eight contests,
   pre-election 0 votes).
+- Live check 2026-11-01: the ENR JSON answered with 124 rows covering 77 contests
+  (federal, statewide, legislative and county), every contest mapped to a race key with
+  no duplicates, all votes still 0 and 0 of 530 precincts reported. The results page
+  `/results/enr/GE2026.html` answers 200; `/reports/GE2026.csv` still 404s, as expected
+  before publication.
 
 ---
 
