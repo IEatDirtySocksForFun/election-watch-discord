@@ -8,7 +8,10 @@ server-rendered page:
     (type=JD judicial, type=CIALL county initiatives, ... - not tracked)
 
 The same URLs serve whatever election the state is currently counting; on 2026-10-27 the URLs
-served the 2024 general election, which is what the fixture records.
+served the 2024 general election, which is what the fixture records. Each page names its
+election in a hidden form field, ``<input id="hidElectionDate" value="11/5/2024">``: a page for
+any other date than ELECTION_DATE is skipped, so the last election's results (with winners)
+never show as this election's. A page without the field is read as before.
 
 One block per contest inside `<div class="wrapper-inside wrapper-border">`:
 
@@ -38,7 +41,7 @@ The pages carry no "last updated" stamp, so `source_updated_at` stays None.
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import date, datetime
 
 import httpx
 from selectolax.parser import HTMLParser
@@ -52,6 +55,7 @@ URL = "https://results.sos.nd.gov/resultsSW.aspx?text=All&type={}&map=CTY"
 PAGES = ("SW", "LG")
 HUMAN = "https://results.sos.nd.gov/"
 
+_ELECTION_DATE = re.compile(r'id="hidElectionDate"[^>]*?value="(\d{1,2})/(\d{1,2})/(\d{4})"', re.I)
 _PRECINCTS = re.compile(r"Precincts\s+Fully:\s*([\d,]+)\s*/\s*([\d,]+)", re.I)
 _DISTRICT = re.compile(r"DISTRICT\s*0*(\d{1,2})\s*([A-Z])?", re.I)
 
@@ -125,6 +129,23 @@ def _party(node) -> str | None:
     return _PARTIES.get(re.sub(r"[^A-Za-z]", "", text).upper(), c.norm_party(text))
 
 
+def page_election_date(html: str) -> date | None:
+    """The election a results page belongs to (its hidden ``hidElectionDate`` field), or None."""
+    match = _ELECTION_DATE.search(html or "")
+    if match is None:
+        return None
+    month, day, year = (int(part) for part in match.groups())
+    return date(year, month, day)
+
+
+def _other_election(html: str) -> date | None:
+    """The page's election date when it is NOT the tracked election; None when it is (or unknown)."""
+    shown = page_election_date(html)
+    if shown is None or shown.isoformat() == c.election_date():
+        return None
+    return shown
+
+
 def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
     """Pure parse of one resultsSW.aspx contest page."""
     page = HTMLParser(html or "")
@@ -193,15 +214,25 @@ class NdSos(ResultsSource):
             return []
         results: list[RaceResult] = []
         pages = 0
+        other: date | None = None
         for page in PAGES:
             try:
                 html = await c.get_text(client, URL.format(page))
             except SourceUnavailable:
                 continue
             pages += 1
+            shown = _other_election(html)
+            if shown is not None:
+                other = shown
+                continue
             results.extend(parse_nd(html, fetched_at=c.utcnow()))
         if not pages:
             raise SourceUnavailable(f"ND: no results page fetched ({URL.format('SW')})")
+        if not results and other is not None:
+            raise SourceUnavailable(
+                f"ND: the results site still shows the {other.isoformat()} election, not {c.election_date()}"
+                " - this election's results are not published yet"
+            )
         return c.select(results, [key for key in keys if key.state == "ND"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -212,6 +243,8 @@ class NdSos(ResultsSource):
             try:
                 html = await c.get_text(client, URL.format(page))
             except SourceUnavailable:
+                continue
+            if _other_election(html) is not None:
                 continue
             for race_result in parse_nd(html, fetched_at=c.utcnow()):
                 seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))

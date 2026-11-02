@@ -33,8 +33,10 @@ and `Last Update: <span id='time-stamp'>08/05/2026 4:25 AM</span>` in the header
 Things worth knowing:
 
 - The site serves **one election at a time** (the current one); older elections are PDFs.
-  ELECTION_DATE therefore cannot select an election here - whatever the site shows is what
-  the adapter returns. This is recorded in the results docs.
+  ELECTION_DATE therefore cannot select an election here. What it can do is reject the wrong
+  one: a page last updated more than STALE_DAYS before ELECTION_DATE belongs to an earlier
+  election (in 2026 the August primary was still up on 2026-11-02, ballot questions with real
+  counts included) and is skipped. A page without the stamp is read as before.
 - Primary pages split an office by party ("United States Senate (D)", "(R)"); those are
   skipped, exactly like the Clarity feeds, because the bot tracks the general election.
 - Candidates carry no party on the page (the party is the contest suffix), so `party` is
@@ -46,7 +48,7 @@ Things worth knowing:
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 import httpx
 from selectolax.parser import HTMLParser
@@ -117,6 +119,21 @@ def nav_pages(html: str) -> list[str]:
     """Race-category pages linked from the site's navigation."""
     pages = [page for page in dict.fromkeys(_PAGE_LINK.findall(html or "")) if page not in _SKIP_PAGES]
     return pages or list(FALLBACK_PAGES)
+
+
+#: A page whose "Last Update" is this many days or more before election day is an earlier election's
+#: (the primary is in early August, three months before the general).
+STALE_DAYS = 45
+
+
+def _earlier_election(html: str) -> datetime | None:
+    """The page's "Last Update" when it is too old to be the tracked election, otherwise None."""
+    updated = _last_update(HTMLParser(html or ""))
+    if updated is None:
+        return None
+    if updated.date() <= date.fromisoformat(c.election_date()) - timedelta(days=STALE_DAYS):
+        return updated
+    return None
 
 
 def _last_update(page: HTMLParser) -> datetime | None:
@@ -212,6 +229,7 @@ class KsSos(ResultsSource):
             return []
         results: list[RaceResult] = []
         failures = 0
+        earlier: datetime | None = None
         pages = await self._pages(client)
         for page in pages:
             try:
@@ -219,9 +237,18 @@ class KsSos(ResultsSource):
             except SourceUnavailable:
                 failures += 1
                 continue
+            stamp = _earlier_election(html)
+            if stamp is not None:
+                earlier = stamp
+                continue
             results.extend(parse_ks(html, fetched_at=c.utcnow()))
         if pages and failures == len(pages):
             raise SourceUnavailable(f"KS: none of {len(pages)} category pages could be fetched")
+        if not results and earlier is not None:
+            raise SourceUnavailable(
+                f"KS: the results site still shows an earlier election (last update {earlier:%Y-%m-%d}),"
+                f" not {c.election_date()} - this election's results are not published yet"
+            )
         return c.select(results, [key for key in keys if key.state == "KS"])
 
     async def list_races(self, state: str, client: httpx.AsyncClient) -> list[tuple[RaceKey, str]]:
@@ -232,6 +259,8 @@ class KsSos(ResultsSource):
             try:
                 html = await c.get_text(client, BASE + page)
             except SourceUnavailable:
+                continue
+            if _earlier_election(html) is not None:
                 continue
             for race_result in parse_ks(html, fetched_at=c.utcnow()):
                 seen.setdefault(str(race_result.key), (race_result.key, race_result.title or str(race_result.key)))

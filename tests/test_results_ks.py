@@ -1,9 +1,13 @@
 from datetime import datetime, timezone
 from pathlib import Path
 
-from electionwatch.models import Level
+import httpx
+import pytest
+
+from electionwatch.models import Level, RaceKey
 from electionwatch.racekeys import format_key
-from electionwatch.sources.results.ks_sos import FALLBACK_PAGES, nav_pages, parse_ks, race_key
+from electionwatch.sources.base import SourceUnavailable
+from electionwatch.sources.results.ks_sos import FALLBACK_PAGES, KsSos, _earlier_election, nav_pages, parse_ks, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "ks_sos" / "KS"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
@@ -76,3 +80,43 @@ def test_navigation_skips_county_and_favorite_pages():
     ]
     html = "<a href='allen.html#top'>Allen</a><a href='favorite-races.html'>Fav</a><a href='democratic.html'>D</a>"
     assert nav_pages(html) == list(FALLBACK_PAGES)
+
+
+# --- the site still showing an earlier election ---------------------------------------------------
+
+
+def ks_client():
+    """The site as it was on 2026-11-02: the August primary pages (last update 08/05/2026)."""
+    pages = {"statewide.html": "2026_primary_statewide.html", "constitutional.html": "2026_primary_constitutional.html"}
+
+    def handler(request):
+        name = pages.get(request.url.path.rsplit("/", 1)[-1])
+        return httpx.Response(200, text=page(name)) if name else httpx.Response(404)
+
+    return httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+
+async def test_primary_pages_are_not_general_election_results(monkeypatch):
+    monkeypatch.delenv("ELECTION_DATE", raising=False)  # tracks 2026-11-03
+    async with ks_client() as client:
+        keys = [key for key, _ in await KsSos().list_races("KS", client)]
+        assert keys == []
+        with pytest.raises(SourceUnavailable, match="still shows an earlier election .last update 2026-08-05"):
+            await KsSos().fetch([RaceKey("KS", Level.SENATE, "SEN")], client)
+
+
+async def test_pages_of_the_tracked_election_are_read(monkeypatch):
+    monkeypatch.setenv("ELECTION_DATE", "2026-08-04")  # the primary itself
+    async with ks_client() as client:
+        listed = await KsSos().list_races("KS", client)
+        assert listed
+        results = await KsSos().fetch([key for key, _ in listed], client)
+        assert {format_key(result.key) for result in results} == {format_key(key) for key, _ in listed}
+
+
+def test_stale_cutoff(monkeypatch):
+    monkeypatch.delenv("ELECTION_DATE", raising=False)  # tracks 2026-11-03
+    assert not _earlier_election("<p>no stamp</p>")
+    fresh = "<span id = 'time-stamp' >10/20/2026 9:00 PM </span>"
+    assert _earlier_election(fresh) is None  # 14 days before: could be this election's page
+    assert _earlier_election(page("2026_primary_statewide.html")) is not None
