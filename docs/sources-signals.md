@@ -21,7 +21,8 @@ the 2026 US midterms, plus the national results fallbacks built on the outlets' 
 Both adapters map markets to `RaceKey` and emit `OddsSnapshot` rows with implied
 probability (0-1) and, when the market names one, the candidate. Kalshi uses series-ticker
 discovery with a small override table (e.g. Alaska governor maps to `KXGOVAK`) and reads the
-candidate from `yes_sub_title`. Polymarket paginates active events, filters titles and reads
+candidate from `yes_sub_title`. A special election has its own series with an `S` after the
+state (`SENATEOHS-26`, `SENATEFLS-26`: the 2026 Ohio and Florida Senate races). Polymarket paginates active events, filters titles and reads
 the candidate from `groupItemTitle` ("Name (D)"). `/bettingmarkets` shows "Name (PARTY)" when
 the candidate is not already part of the outcome.
 

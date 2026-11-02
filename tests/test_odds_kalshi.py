@@ -169,3 +169,18 @@ async def test_fetch_odds_requests_the_at_large_event():
     assert seen == ["/trade-api/v2/events/HOUSEAKAL-26"]
     assert {snapshot.outcome for snapshot in snaps} == {"REP", "DEM"}
     assert all(snapshot.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for snapshot in snaps)
+
+
+def test_special_elections_have_their_own_series():
+    # Ohio's and Florida's 2026 Senate races are specials; Kalshi has no SENATEOH-26 event.
+    src = KalshiSource()
+    assert src._key_to_event_ticker(RaceKey("OH", Level.SENATE, "SEN", special=True)) == "SENATEOHS-26"
+    assert src._key_to_event_ticker(RaceKey("FL", Level.SENATE, "SEN", special=True)) == "SENATEFLS-26"
+    assert src._key_to_event_ticker(RaceKey("TX", Level.SENATE, "SEN")) == "SENATETX-26"
+
+
+def test_special_election_event_parses_to_the_special_key():
+    payload = json.loads((FIX / "senateohs-26.json").read_text(encoding="utf-8"))
+    snapshots = parse_kalshi_event(payload)
+    assert snapshots and {str(snapshot.key) for snapshot in snapshots} == {"OH SEN S"}
+    assert {snapshot.outcome for snapshot in snapshots} == {"DEM", "REP"}
