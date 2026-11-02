@@ -118,13 +118,15 @@ per-candidate vote counts. All are `scrape=True` and `enabled_by_default=False`.
 | `nbc_results` | `nbcnews.com/firecracker/api/v2/national-results/2024-elections/{office}-results`                                         | All states; Senate, Governor, House | `vote` / `percentVote`             | `percentIn`                                             | Yes (2026-10-27) |
 | `fox_results` | `feeds-elections.foxnews.com/archive/politics/elections/2024/3/2024_Generals/{Office}/{ST}/state_level_results/file.json` | All states; Senate, Governor, House | `votes.count` / `votes.percentage` | `stateTotals.precinctsReporting` / `expectedPercentage` | Yes (2026-10-27) |
 | `abc_results` | `abcnews.go.com/widgets/generalstateresults?chamber={chamber}&stateAbbrev={st}&year=2024&type=general`                    | All states; Senate, Governor, House | `rawVotes` / `rawPercent`          | `reporting.value`                                       | Yes (2026-10-27) |
-| `cnn_results` | `politics.api.cnn.io/results/race/2024-{code}.json`                                                                       | All states; Senate, Governor, House | `voteNum` / `votePercentNum`       | `percentReporting`                                      | Yes (2026-10-27) |
+| `cnn_results` | `politics.api.cnn.io/results/race/2024-{code}.json`                                                                       | All states; Senate, Governor, House | `voteNum` / `votePercentNum`       | `percentReporting`                                      | Yes (2026-11-01) |
 
-CBS, NBC and CNN 2026 archive URLs return 404/empty as of 2026-10-27, so the
+CBS and NBC 2026 archive URLs return 404/empty as of 2026-10-27, so those
 fallbacks currently target the 2024 cycle. Fox has 2026 placeholder files with
-zero votes; ABC's 2026 widget is not yet populated. The `winner` flag is always
-kept `False` because outlet projections belong in the call adapters, not official
-results.
+zero votes, and CNN serves 2026 Senate placeholders (`2026-SG-<ST>`, zero votes,
+`percentReporting` 0) for TX, GA, NC and MI as of 2026-11-01, while its Governor
+and House codes are still 404. ABC's 2026 widget is not yet populated. The
+`winner` flag is always kept `False` because outlet projections belong in the
+call adapters, not official results.
 
 ---
 
