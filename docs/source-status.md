@@ -12,64 +12,64 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 
 ## Results feeds by state
 
-| State | Working (OK)                          | Waiting                                                                  | Errors |
-| ----- | ------------------------------------- | ------------------------------------------------------------------------ | ------ |
-| AK    | fox_results                           | abc_results, ak_doe, cbs_results, civicapi, nbc_results                  | -      |
-| AL    | fox_results                           | abc_results, al_counties, cbs_results, civicapi, nbc_results             | -      |
-| AR    | fox_results                           | abc_results, ar_sos, cbs_results, civicapi, nbc_results                  | -      |
-| AS    | -                                     | civicapi                                                                 | -      |
-| AZ    | fox_results                           | abc_results, cbs_results, civicapi, enhanced_voting, nbc_results         | -      |
-| CA    | ca_sos, fox_results                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| CO    | fox_results                           | abc_results, cbs_results, civicapi, co_sos, nbc_results                  | -      |
-| CT    | fox_results                           | abc_results, cbs_results, civicapi, ct_sots, nbc_results                 | -      |
-| DC    | -                                     | abc_results, cbs_results, civicapi, dc_boe, fox_results, nbc_results     | -      |
-| DE    | fox_results                           | abc_results, cbs_results, civicapi, de_doe, nbc_results                  | -      |
-| FL    | fox_results                           | abc_results, cbs_results, civicapi, fl_sos, nbc_results                  | -      |
-| GA    | cnn_results, fox_results              | abc_results, cbs_results, civicapi, enhanced_voting, ga_sos, nbc_results | -      |
-| GU    | -                                     | civicapi                                                                 | -      |
-| HI    | fox_results                           | abc_results, cbs_results, civicapi, hi_soe, nbc_results                  | -      |
-| IA    | fox_results, ia_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| ID    | fox_results                           | abc_results, cbs_results, civicapi, id_sos, nbc_results                  | -      |
-| IL    | fox_results                           | abc_results, cbs_results, civicapi, clarity, il_sbe, nbc_results         | -      |
-| IN    | fox_results                           | abc_results, cbs_results, civicapi, in_sos, nbc_results                  | -      |
-| KS    | fox_results                           | abc_results, cbs_results, civicapi, ks_sos, nbc_results                  | -      |
-| KY    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| LA    | fox_results, la_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| MA    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| MD    | fox_results, md_sbe                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| ME    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| MI    | fox_results, mi_county                | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| MN    | fox_results, mn_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| MO    | fox_results                           | abc_results, cbs_results, civicapi, mo_stlouis, nbc_results              | -      |
-| MP    | -                                     | civicapi                                                                 | -      |
-| MS    | fox_results                           | abc_results, cbs_results, civicapi, ms_sos, nbc_results                  | -      |
-| MT    | fox_results                           | abc_results, cbs_results, civicapi, mt_sos, nbc_results                  | -      |
-| NC    | fox_results, nc_sbe                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| ND    | fox_results, nd_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| NE    | fox_results, ne_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| NH    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| NJ    | fox_results, nj_counties              | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| NM    | fox_results, nm_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| NV    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| NY    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results, ny_nycboe               | -      |
-| OH    | fox_results, oh_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| OK    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| OR    | fox_results, or_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| PA    | fox_results                           | abc_results, cbs_results, civicapi, cnn_results, nbc_results, pa_dos     | -      |
-| PR    | -                                     | civicapi                                                                 | -      |
-| RI    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results, ri_boe                  | -      |
-| SC    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results, sc_sec                  | -      |
-| SD    | fox_results, sd_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| TN    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results, tn_counties             | -      |
+| State | Working (OK)             | Waiting                                                                               | Errors |
+| ----- | ------------------------ | ------------------------------------------------------------------------------------- | ------ |
+| AK    | fox_results              | abc_results, ak_doe, cbs_results, civicapi, cnn_results, nbc_results                  | -      |
+| AL    | fox_results              | abc_results, al_counties, cbs_results, civicapi, cnn_results, nbc_results             | -      |
+| AR    | fox_results              | abc_results, ar_sos, cbs_results, civicapi, cnn_results, nbc_results                  | -      |
+| AS    | -                        | civicapi                                                                              | -      |
+| AZ    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, enhanced_voting, nbc_results         | -      |
+| CA    | ca_sos, fox_results      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| CO    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, co_sos, nbc_results                  | -      |
+| CT    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, ct_sots, nbc_results                 | -      |
+| DC    | -                        | abc_results, cbs_results, civicapi, cnn_results, dc_boe, fox_results, nbc_results     | -      |
+| DE    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, de_doe, nbc_results                  | -      |
+| FL    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, fl_sos, nbc_results                  | -      |
+| GA    | cnn_results, fox_results | abc_results, cbs_results, civicapi, enhanced_voting, ga_sos, nbc_results              | -      |
+| GU    | -                        | civicapi                                                                              | -      |
+| HI    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, hi_soe, nbc_results                  | -      |
+| IA    | fox_results, ia_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| ID    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, id_sos, nbc_results                  | -      |
+| IL    | fox_results              | abc_results, cbs_results, civicapi, clarity, cnn_results, il_sbe, nbc_results         | -      |
+| IN    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, in_sos, nbc_results                  | -      |
+| KS    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, ks_sos, nbc_results                  | -      |
+| KY    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| LA    | fox_results, la_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| MA    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| MD    | fox_results, md_sbe      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| ME    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| MI    | fox_results, mi_county   | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| MN    | fox_results, mn_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| MO    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, mo_stlouis, nbc_results              | -      |
+| MP    | -                        | civicapi                                                                              | -      |
+| MS    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, ms_sos, nbc_results                  | -      |
+| MT    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, mt_sos, nbc_results                  | -      |
+| NC    | fox_results, nc_sbe      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| ND    | fox_results, nd_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| NE    | fox_results, ne_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| NH    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| NJ    | fox_results, nj_counties | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| NM    | fox_results, nm_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| NV    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| NY    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, ny_nycboe               | -      |
+| OH    | fox_results, oh_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| OK    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| OR    | fox_results, or_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| PA    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, pa_dos                  | -      |
+| PR    | -                        | civicapi                                                                              | -      |
+| RI    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, ri_boe                  | -      |
+| SC    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, sc_sec                  | -      |
+| SD    | fox_results, sd_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| TN    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, tn_counties             | -      |
 | TX    | cnn_results, fox_results, tx_counties | abc_results, cbs_results, civicapi, nbc_results, tx_sos                  | -      |
-| UT    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results, ut_lgov                 | -      |
-| VA    | fox_results, va_elect                 | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| VI    | -                                     | civicapi                                                                 | -      |
-| VT    | fox_results, vt_sos                   | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| WA    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results, wa_sos                  | -      |
-| WI    | fox_results, wi_dane                  | abc_results, cbs_results, civicapi, nbc_results                          | -      |
-| WV    | fox_results                           | abc_results, cbs_results, civicapi, clarity, nbc_results                 | -      |
-| WY    | fox_results                           | abc_results, cbs_results, civicapi, nbc_results                          | -      |
+| UT    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, ut_lgov                 | -      |
+| VA    | fox_results, va_elect    | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| VI    | -                        | civicapi                                                                              | -      |
+| VT    | fox_results, vt_sos      | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| WA    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results, wa_sos                  | -      |
+| WI    | fox_results, wi_dane     | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
+| WV    | fox_results              | abc_results, cbs_results, civicapi, clarity, cnn_results, nbc_results                 | -      |
+| WY    | fox_results              | abc_results, cbs_results, civicapi, cnn_results, nbc_results                          | -      |
 
 ---
 
