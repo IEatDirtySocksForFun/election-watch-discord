@@ -82,7 +82,7 @@ source.
 | `cbs_results` | EMPTY (2026 path not live yet)                                                                       | OK, full statewide totals                                                        | Sen/Gov/House                   | `pctIn` = expected vote                                                                                      | confirm the 2026 path on election morning (source-sweep §5)                                        |
 | `abc_results` | **OK in all 50 states**: 2026 candidate lists at 0 votes (2026-11-03)                                | OK                                                                               | Sen/Gov/House                   | expected vote %                                                                                              | the widget host answers 301 to `abcnews.com`; the adapter follows redirects                        |
 | `cnn_results` | **2026 Senate files answer at 0 votes** (TX, GA, NC, MI on 2026-11-01); Governor and House codes 404 | —                                                                                | Senate so far                   | `percentReporting` = 0 before polls open                                                                     | the 406 to this host recorded on 2026-10-27 no longer comes back; keep to the shared 10/min budget |
-| `nbc_results` | HTTP 403                                                                                             | 403                                                                              | —                               | —                                                                                                            | NBC blocks this IP; do not retry in bursts                                                         |
+| `nbc_results` | **2026 Senate, Governor and House files answer at 0 votes, every state** (2026-11-03)                | 403                                                                              | Senate, Governor, US House      | `percentIn` = expected vote; per-race page taken from the feed's `href`                                      | 403 in the earlier checks, then empty until 2026-11-03; keep to the shared 10/min budget           |
 
 None of the fallbacks has down-ballot races (statewide row offices, legislature, local). Those
 come only from the official state and county feeds above. Every fallback carries AP- or
@@ -97,6 +97,17 @@ NC and MI: the full candidate list, every `voteNum` at 0, `percentReporting` 0 a
 as the 2024 one, apart from the missing `voteTimestamp`, so the adapter needed no change. As
 with every fallback, a zero-vote answer only fills a race that no official feed answered
 completely.
+
+Re-checked on 2026-11-03: `nbc_results` answers **200** for the 2026 Senate, Governor and House
+files, where every sweep from 2026-10-30 to 2026-11-03 00:05 UTC still read empty and the 403
+recorded earlier no longer comes back. Every state with a race is listed (38 Senate, 36
+Governor, 435 House) with the full candidate list, and every vote, percentage and `percentIn`
+reads 0. Two field shapes changed against the 2024 files: `lastModified` is ISO 8601
+(`2026-11-03T12:44:39.873Z`) instead of an HTTP date, and every race entry carries a
+site-relative `href` to its own results page. Both are handled; the per-race `href` replaces the
+URL the adapter used to build from the race key, whose abbreviation form did not resolve
+(`/politics/2026-elections/alaska-senate-results` is the live page, `/ak-senate-results` a 404).
+`cbs_results` remains empty.
 
 Re-checked on 2026-11-03: `abc_results` answers **200** for all 50 states in all three
 chambers with the full 2026 candidate list, every `rawVotes` at 0 and `reporting.value` 0,

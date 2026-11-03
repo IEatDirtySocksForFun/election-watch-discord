@@ -1,0 +1,48 @@
+{
+ "mapData": {
+  "AL": {
+   "style": {
+    "fill": "#EBEBEB",
+    "textFill": "#2a2a2a"
+   },
+   "tooltip": {
+    "totalVote": 0,
+    "raceName": "Alabama",
+    "percentIn": 0,
+    "electionTypeCode": "G",
+    "geography": "states",
+    "officeCode": "G",
+    "candidates": [
+     {
+      "name": "Doug Jones",
+      "firstName": "Doug",
+      "lastName": "Jones",
+      "party": "Dem",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Tommy Tuberville",
+      "firstName": "Tommy",
+      "lastName": "Tuberville",
+      "party": "Rep",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     }
+    ]
+   },
+   "stateCode": "AL",
+   "href": "/politics/2026-elections/alabama-governor-results"
+  }
+ },
+ "lastModified": "2026-11-03T12:44:39.873Z",
+ "electionSeason": "2026"
+}

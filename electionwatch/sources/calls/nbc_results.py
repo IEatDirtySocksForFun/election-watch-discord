@@ -18,7 +18,7 @@ from electionwatch.racekeys import STATES
 from electionwatch.sources.base import ResultsSource, SourceUnavailable, register
 from electionwatch.sources.results._common import election_date
 
-from ._common import house_title, normalize_party, parse_http_date
+from ._common import feed_href, house_title, normalize_party, parse_http_date
 from .nbc import _results_url, _tooltip_key
 
 _LEVEL_OFFICES = {Level.SENATE: "senate", Level.GOVERNOR: "governor", Level.HOUSE: "house"}
@@ -119,7 +119,7 @@ def parse_nbc_results(payload: dict, fetched_at: datetime | None = None) -> list
                     source_updated_at=observed,
                     expected_vote_pct=tooltip.get("percentIn"),
                     total_votes=tooltip.get("totalVote"),
-                    url=_results_url(key, year),
+                    url=feed_href(entry.get("href")) or _results_url(key, year),
                     title=title,
                 ).finalize()
             )
