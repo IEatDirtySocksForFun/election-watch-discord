@@ -13,18 +13,31 @@ the 2026 US midterms, plus the national results fallbacks built on the outlets' 
 
 ## Betting markets
 
-| Market       | Method                                                   | Key needed | Verified         |
-| ------------ | -------------------------------------------------------- | ---------- | ---------------- |
-| `kalshi`     | Kalshi public market-data API (`/events/{series}-26`)    | None       | Yes (2026-10-27) |
-| `polymarket` | Gamma API event discovery + CLOB-derived `outcomePrices` | None       | Yes (2026-10-27) |
+| Market       | Method                                                                                            | Key needed | Verified         |
+| ------------ | ------------------------------------------------------------------------------------------------- | ---------- | ---------------- |
+| `kalshi`     | Kalshi public market-data API (`/events/{series}-26`, then batched `/markets?tickers=`)           | None       | Yes (2026-11-03) |
+| `polymarket` | Gamma API event discovery (hourly) + batched CLOB `/midpoints`, `/spreads`, `/last-trades-prices` | None       | Yes (2026-11-03) |
 
 Both adapters map markets to `RaceKey` and emit `OddsSnapshot` rows with implied
 probability (0-1) and, when the market names one, the candidate. Kalshi uses series-ticker
 discovery with a small override table (e.g. Alaska governor maps to `KXGOVAK`) and reads the
 candidate from `yes_sub_title`. A special election has its own series with an `S` after the
 state (`SENATEOHS-26`, `SENATEFLS-26`: the 2026 Ohio and Florida Senate races). Polymarket paginates active events, filters titles and reads
-the candidate from `groupItemTitle` ("Name (D)"). `/bettingmarkets` shows "Name (PARTY)" when
-the candidate is not already part of the outcome.
+the candidate from `groupItemTitle` ("Name (D)"). House events are titled by seat
+(`PA-01 House Election Winner`, `AK-AL ...`); a top-two race between two candidates of one
+party also has a `(Individual)` event, which is used instead of the party one. Inactive
+placeholder markets ("Candidate A", "Other") are skipped. `/bettingmarkets` shows
+"Name (PARTY)" when the candidate is not already part of the outcome.
+
+Neither adapter asks once per race per poll. Kalshi looks each race's event up once an hour
+(a race without an event is not asked again for that hour) and prices every known market with
+one `/markets?tickers=` request per 100 markets. Polymarket reads the whole midterms tag
+(about 1,250 events, 60 MB) once an hour and prices the requested races with batched CLOB
+requests (500 tokens each; about 40 kB for 120 races). Prices are the midpoint of the yes bid
+and ask while the spread is at most 10 cents, otherwise the last trade, the rule both sites
+use on their own pages, so a single stray trade on a thin overnight book does not show as a
+30-point swing. A failed price batch is an error for that poll; old prices are never re-stamped
+as new.
 
 The poller fetches betting markets for watched races (and races users asked about with
 `/bettingmarkets`) each minute, within the request budgets of the hosts (Polymarket publishes

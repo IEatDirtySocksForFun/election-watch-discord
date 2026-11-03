@@ -1,0 +1,360 @@
+[
+ {
+  "id": "686285",
+  "title": "CA-11 House Election Winner (Individual)",
+  "updatedAt": "2026-11-03T19:46:07.116858Z",
+  "markets": [
+   {
+    "id": "2866199",
+    "question": "Will Connie Chan win the CA-11 House seat?",
+    "groupItemTitle": "Connie Chan",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.205\", \"0.795\"]",
+    "clobTokenIds": "[\"75343200393975506320219346320697912230492975296689601609386865806880677659380\", \"68334326565581648932768196259045966024466515758715277424283640466335600693982\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "2866200",
+    "question": "Will Scott Wiener win the CA-11 House seat?",
+    "groupItemTitle": "Scott Wiener",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.8\", \"0.2\"]",
+    "clobTokenIds": "[\"112035258287671416806059192134926948999086785633546282137721997512907008011288\", \"57007904860049502023244198918141643217044442004777683946206387674876206802375\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "2866201",
+    "question": "Will Candidate A win the CA-11 House seat?",
+    "groupItemTitle": "Candidate A",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.5\", \"0.5\"]",
+    "clobTokenIds": "[\"5257117814345507716249447600862871897846377070517820327170237400151021405703\", \"81741453423450094359813343330990902591233415740561257319020611304172687070441\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-10T02:02:56.941901Z"
+   },
+   {
+    "id": "2866202",
+    "question": "Will Candidate B win the CA-11 House seat?",
+    "groupItemTitle": "Candidate B",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.5\", \"0.5\"]",
+    "clobTokenIds": "[\"110322134355068474024549208034246867067366474674835943814414398974115868706806\", \"70080691651889876768974568309784130032615883202726223071290334262663532606940\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-10T02:03:05.858093Z"
+   },
+   {
+    "id": "2866203",
+    "question": "Will Candidate C win the CA-11 House seat?",
+    "groupItemTitle": "Candidate C",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.5\", \"0.5\"]",
+    "clobTokenIds": "[\"34635956762078250732153959321738438381342164295968451474697807577247699408604\", \"94191177257561769189690614402429622287288649206868070876433737859791446114784\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-10T02:03:08.828633Z"
+   },
+   {
+    "id": "2866204",
+    "question": "Will another candidate win the CA-11 House seat?",
+    "groupItemTitle": "Other",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.5\", \"0.5\"]",
+    "clobTokenIds": "[\"13566575044770629966878326049383227099175535284541861009461610481119850126967\", \"58860947553742869134150323029748282016447141229385900581880825411405949466210\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-10T02:03:15.809114Z"
+   }
+  ]
+ },
+ {
+  "id": "106186",
+  "title": "PA-01 House Election Winner",
+  "updatedAt": "2026-11-03T19:46:07.116858Z",
+  "markets": [
+   {
+    "id": "943748",
+    "question": "Will the Republican Party win the PA-01 House seat?",
+    "groupItemTitle": "Brian Fitzpatrick (R)",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.365\", \"0.635\"]",
+    "clobTokenIds": "[\"108230243496498344855407302843123554399616537057761543327780472018667198839068\", \"111369203211028727321456260421528238448769346191696860171769554446474401287060\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "943749",
+    "question": "Will the Democratic Party win the PA-01 House seat?",
+    "groupItemTitle": "Bob Harvie (D)",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.655\", \"0.345\"]",
+    "clobTokenIds": "[\"90438836256571410927299008367228796312209722771624666597034907143954367060240\", \"90218845846153365380863189597931280535650997637137753229555191267606212456241\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "943750",
+    "question": "Will another party win the PA-01 House seat?",
+    "groupItemTitle": "Other",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"22023986292543215176056018874731039129711181572632372461018597909451696256511\", \"17855262419840030713317720472319047852635981248801276256397199188627473368481\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:28:27.759757Z"
+   },
+   {
+    "id": "943751",
+    "question": "Will A win the PA-01 House seat?",
+    "groupItemTitle": "A",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"51261018657414358521436757953453855486704071904592127382446356326941927412049\", \"52232375163741703574720714178863905403037341775526526071986067633047410287776\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:28:27.224978Z"
+   },
+   {
+    "id": "943752",
+    "question": "Will B win the PA-01 House seat?",
+    "groupItemTitle": "B",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"50939881667163460604328479894495709134023995740308042373196586080774374002435\", \"97680283676837106862483549209820603058522827562904269254284728020108991622217\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:28:27.877915Z"
+   },
+   {
+    "id": "943753",
+    "question": "Will C win the PA-01 House seat?",
+    "groupItemTitle": "C",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"33260737602811772765540755146155736845049821256558652294070239238397057643183\", \"22713133372960172490896021688504836732204024118180839616678985089864950807190\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:28:27.346097Z"
+   },
+   {
+    "id": "943754",
+    "question": "Will D win the PA-01 House seat?",
+    "groupItemTitle": "D",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"74981254631492812743080782407415311680013450441988554209827306439417067353381\", \"36749386074673196120305785112706450265189532164737975842544375603633748072931\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:28:27.993834Z"
+   },
+   {
+    "id": "943755",
+    "question": "Will E win the PA-01 House seat?",
+    "groupItemTitle": "E",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"81949526392149063403207821732873489735167175191120591863889363831354991564206\", \"14509620804516892889395659354950805580253392489640174948938729426923187047204\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:28:27.460338Z"
+   }
+  ]
+ },
+ {
+  "id": "190688",
+  "title": "AK-AL House Election Winner",
+  "updatedAt": "2026-11-03T19:46:07.116858Z",
+  "markets": [
+   {
+    "id": "1279604",
+    "question": "Will the Republican Party win the AK-AL House seat?",
+    "groupItemTitle": "Republican Party",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.805\", \"0.195\"]",
+    "clobTokenIds": "[\"55824536479051011400121423796079002447209373774987169287762599768443101947717\", \"109526975425138418953452882953836641553265451755083634868506102684421578202080\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "1279605",
+    "question": "Will the Democratic Party win the AK-AL House seat?",
+    "groupItemTitle": "Democratic Party",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.007\", \"0.993\"]",
+    "clobTokenIds": "[\"106387119478622283441026286722849456868957395499329392203969838246317853715637\", \"81824147248777253128121640144721366277671402790789611685831635841575575591064\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "1279606",
+    "question": "Will another party win the AK-AL House seat?",
+    "groupItemTitle": "Other",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"65186637129812516009078153835763272172771071796545517458353847661290394221932\", \"63929092994709128004084064037798816129811677934165619682450119947948965950188\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-09-25T21:19:24.937951Z"
+   },
+   {
+    "id": "1279607",
+    "question": "Will Bill Hill win the AK-AL House seat?",
+    "groupItemTitle": "Bill Hill",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.199\", \"0.801\"]",
+    "clobTokenIds": "[\"25264395884794585041068738174790155913872374353541552562714054259339230907354\", \"32013709221385245652646660083575610480902059101950118436651521759850687773426\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "1279608",
+    "question": "Will Jim McDermott win the AK-AL House seat?",
+    "groupItemTitle": "Jim McDermott",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+    "clobTokenIds": "[\"85781622518217507258873019162239664839911327072948544349165375474732809439743\", \"90865153989541571603918416205653839790480571238070929398115869184731695936054\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:45:56.953177Z"
+   },
+   {
+    "id": "1279609",
+    "question": "Will C win the AK-AL House seat?",
+    "groupItemTitle": "C",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"63435958527027647078024121257267737140193881985421728640667719022824316353012\", \"73568929600149404309996694864863154326300378323778276322712872675385636772220\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-09-25T21:19:24.106938Z"
+   },
+   {
+    "id": "1279610",
+    "question": "Will D win the AK-AL House seat?",
+    "groupItemTitle": "D",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"85950450543942938829467538721411448281712679601930143170007578986122555451377\", \"55523237210930665256502351832403996179773720896458393980149118231179207382026\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-09-25T21:19:25.3397Z"
+   },
+   {
+    "id": "1279611",
+    "question": "Will E win the AK-AL House seat?",
+    "groupItemTitle": "E",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"67667036504106762219556289933761173875277319214122832657128051552990066252612\", \"50025169611870558619669669109971293145446290232309385212242351373226332863180\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-09-25T21:19:25.096856Z"
+   }
+  ]
+ },
+ {
+  "id": "190902",
+  "title": "CA-11 House Election Winner",
+  "updatedAt": "2026-11-03T19:40:08.051333Z",
+  "markets": [
+   {
+    "id": "1281012",
+    "question": "Will the Republican Party win the CA-11 House seat?",
+    "groupItemTitle": "Republican Party",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.0065\", \"0.9935\"]",
+    "clobTokenIds": "[\"55041019516151972530389030667526540644897041416557870078518647689170714451932\", \"34089180539638547427965894324424299985525291169224818435842121926720100707123\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T19:37:59.015728Z"
+   },
+   {
+    "id": "1281013",
+    "question": "Will the Democratic Party win the CA-11 House seat?",
+    "groupItemTitle": "Democratic Party",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": "[\"0.963\", \"0.037\"]",
+    "clobTokenIds": "[\"9130588473619242725872857503737754849419956680804659889247137655010532613440\", \"54688718126953225039138468791375103768755534261147529995466066954554482972358\"]",
+    "active": true,
+    "closed": false,
+    "updatedAt": "2026-11-03T18:55:57.419292Z"
+   },
+   {
+    "id": "1281014",
+    "question": "Will another party win the CA-11 House seat?",
+    "groupItemTitle": "Other",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"115173833548426584512452715058158168716484216828476295657543316850291874667825\", \"112353010498451142942865779632894697338657342822065150855356078889292813181834\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:21:42.658945Z"
+   },
+   {
+    "id": "1281015",
+    "question": "Will A win the CA-11 House seat?",
+    "groupItemTitle": "A",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"42724469414026808535535622576430942939661075655679963928850720293587159475503\", \"16244082355381652696241457967943976488047347376697620587248189403696659306454\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:21:41.879213Z"
+   },
+   {
+    "id": "1281016",
+    "question": "Will B win the CA-11 House seat?",
+    "groupItemTitle": "B",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"4369696806849792351267877959865524210763005683269865379952024646355170836488\", \"47599752009748733727794529732669274614927473701232978122086328184343244750678\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:21:42.815148Z"
+   },
+   {
+    "id": "1281017",
+    "question": "Will C win the CA-11 House seat?",
+    "groupItemTitle": "C",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"101793531461656907661621561108212830801285572728019900035059693194220641101231\", \"4243847944749339670212575597244812626149794778267939948611839269975504342978\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:21:42.00708Z"
+   },
+   {
+    "id": "1281018",
+    "question": "Will D win the CA-11 House seat?",
+    "groupItemTitle": "D",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"58629555198340756367063346572366496130613211767428589342560638438506828722584\", \"47832735714984951784023648994589369188468287038956367036038866992424340128128\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:21:43.010702Z"
+   },
+   {
+    "id": "1281019",
+    "question": "Will E win the CA-11 House seat?",
+    "groupItemTitle": "E",
+    "outcomes": "[\"Yes\", \"No\"]",
+    "outcomePrices": null,
+    "clobTokenIds": "[\"81327784481254988609396050026752391223901774916427610669492657220698369828260\", \"46770328734039426162444016727232692488839499514525768408221297780829929217246\"]",
+    "active": false,
+    "closed": false,
+    "updatedAt": "2026-07-08T15:21:42.160211Z"
+   }
+  ]
+ }
+]
