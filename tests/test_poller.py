@@ -846,3 +846,20 @@ async def test_an_unchanged_price_is_not_stored_again_until_the_keepalive():
     clock[0] = NOW + timedelta(minutes=16)
     await p.tick()
     assert len(await store.odds_since(KEY, "kalshi", "REP", NOW - timedelta(hours=1))) == 2
+
+
+@pytest.mark.asyncio
+async def test_an_unchanged_price_is_not_checked_for_a_swing_again(monkeypatch):
+    import sys
+    import types
+
+    checked: list[int] = []
+    swings = types.ModuleType("electionwatch.swings")
+    swings.detect_swing = lambda history, pts, window: checked.append(1) and False
+    monkeypatch.setitem(sys.modules, "electionwatch.swings", swings)
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)], odds_alerts=True))
+    p = poller(store, {"odds": [FakeOdds()]}, RecordingPoster())
+    await p.tick()
+    await p.tick()
+    assert len(checked) == 1  # the second poll saw the same 0.70 and skipped the check

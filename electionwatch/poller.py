@@ -132,6 +132,7 @@ POLLS_CACHE = "polls"
 #: A results source's last answer stands in for it while it is not due or backing off, for at
 #: most this long; after that the fallbacks answer for its races.
 ANSWER_REUSE = timedelta(minutes=10)
+SWING_CHECKS_AT_ONCE = 16  # concurrent swing checks (store round trips) per poll
 ODDS_KEEPALIVE = timedelta(minutes=15)  # an unchanged price is stored again after this
 ODDS_CHECKED = "odds_checked"  # races the odds refresh asked about and no market answered
 
@@ -212,6 +213,9 @@ class Poller:
         # (race, market, outcome) -> (price, when stored): an unchanged price is stored again
         # only every ODDS_KEEPALIVE, so polling every market does not fill the database.
         self._odds_stored: dict[tuple[str, str, str], tuple[float, datetime]] = {}
+        # (race, market, outcome) -> the price of the previous poll: only a moved price is
+        # checked for a swing (two store reads per server), which keeps a poll of every market short.
+        self._odds_seen: dict[tuple[str, str, str], float] = {}
         self._lock = asyncio.Lock()  # /refresh and the minute loop never overlap
 
     def _watched(self, guild: GuildSettings) -> set[str]:
@@ -484,6 +488,7 @@ class Poller:
 
     async def _odds(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         snapshots: list[OddsSnapshot] = []
+        moved: list[OddsSnapshot] = []
         asked = False
         every_market = any(guild.odds_all_races for guild in guilds)
         for source in self.sources.get("odds", []):
@@ -507,6 +512,9 @@ class Poller:
             asked = True
             for snapshot in self._canonical_batch(source, fetched):
                 mark = (str(snapshot.key), snapshot.market, snapshot.outcome)
+                if self._odds_seen.get(mark) != snapshot.prob:
+                    moved.append(snapshot)
+                self._odds_seen[mark] = snapshot.prob
                 last = self._odds_stored.get(mark)
                 if last is not None and last[0] == snapshot.prob and now - last[1] < ODDS_KEEPALIVE:
                     snapshots.append(snapshot)  # unchanged: still checked for swings, not stored again
@@ -530,7 +538,7 @@ class Poller:
                     self._odds_checked[race] = now
                 except Exception:
                     logger.exception("Could not store the odds check for %s", key)
-        if not snapshots or not any(odds_alerts_anywhere(guild) for guild in guilds):
+        if not moved or not any(odds_alerts_anywhere(guild) for guild in guilds):
             return
         try:
             from electionwatch.swings import detect_swing
@@ -538,41 +546,54 @@ class Poller:
             logger.debug("Swing detector is not installed; skipping odds alerts")
             return
 
+        checks = []
         for guild in guilds:
             if not odds_alerts_anywhere(guild):
                 continue
             watched = self._watched(guild)
-            for snapshot in snapshots:
+            for snapshot in moved:
                 if (str(snapshot.key) not in watched and not guild.odds_all_races) or (
                     snapshot.market not in guild.odds_markets
                 ):
                     continue
-                ref = f"{snapshot.key}:{snapshot.market}:{snapshot.outcome}"
-                try:
-                    # Per race: a race or category override can change all three (/bettingalerts).
-                    alert = odds_alert_for(guild, snapshot.key)
-                    if not alert.enabled:
-                        continue
-                    window = timedelta(minutes=alert.window)
-                    last = await self.store.last_posted(guild.guild_id, "odds_swing", ref)
-                    if last is not None and now - last < window:
-                        continue
-                    history = await self.store.odds_since(snapshot.key, snapshot.market, snapshot.outcome, now - window)
-                    # detect_swing takes a timedelta window (see electionwatch/swings.py).
-                    swing = detect_swing(history, alert.threshold, window)
-                    if not swing:
-                        continue
-                    move, latest = swing_detail(swing, history, snapshot)
-                    headline = f"{snapshot.market} · {snapshot.outcome}: {latest.prob:.1%}"
-                    if move is not None:
-                        headline += f" ({move:+.1f} pts)"
-                    post = Post(
-                        "odds_swing",
-                        str(snapshot.key),
-                        f"Odds swing · {describe(snapshot.key)}",
-                        [headline, f"Swing within {alert.window} minutes"],
-                        url=snapshot.url,
-                    )
-                    await self._post(guild, "odds_swing", ref, post, now)
-                except Exception:
-                    logger.exception("Could not process odds swing for guild %s", guild.guild_id)
+                checks.append((guild, snapshot))
+        # Each check is two store round trips; run them side by side, a few at a time.
+        limit = asyncio.Semaphore(SWING_CHECKS_AT_ONCE)
+
+        async def check(guild: GuildSettings, snapshot: OddsSnapshot) -> None:
+            async with limit:
+                await self._odds_swing(now, guild, snapshot, detect_swing)
+
+        await asyncio.gather(*(check(guild, snapshot) for guild, snapshot in checks))
+
+    async def _odds_swing(self, now: datetime, guild: GuildSettings, snapshot: OddsSnapshot, detect_swing) -> None:
+        """Post an odds-swing alert for one moved price if it crossed the guild's threshold."""
+        ref = f"{snapshot.key}:{snapshot.market}:{snapshot.outcome}"
+        try:
+            # Per race: a race or category override can change all three (/bettingalerts).
+            alert = odds_alert_for(guild, snapshot.key)
+            if not alert.enabled:
+                return
+            window = timedelta(minutes=alert.window)
+            last = await self.store.last_posted(guild.guild_id, "odds_swing", ref)
+            if last is not None and now - last < window:
+                return
+            history = await self.store.odds_since(snapshot.key, snapshot.market, snapshot.outcome, now - window)
+            # detect_swing takes a timedelta window (see electionwatch/swings.py).
+            swing = detect_swing(history, alert.threshold, window)
+            if not swing:
+                return
+            move, latest = swing_detail(swing, history, snapshot)
+            headline = f"{snapshot.market} · {snapshot.outcome}: {latest.prob:.1%}"
+            if move is not None:
+                headline += f" ({move:+.1f} pts)"
+            post = Post(
+                "odds_swing",
+                str(snapshot.key),
+                f"Odds swing · {describe(snapshot.key)}",
+                [headline, f"Swing within {alert.window} minutes"],
+                url=snapshot.url,
+            )
+            await self._post(guild, "odds_swing", ref, post, now)
+        except Exception:
+            logger.exception("Could not process odds swing for guild %s", guild.guild_id)
