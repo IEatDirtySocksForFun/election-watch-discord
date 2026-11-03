@@ -168,3 +168,13 @@ async def test_races_resolve_from_codes_names_and_the_national_vote():
         await resolve_race(store, "NY-14")
     assert ("Pennsylvania Governor", "PA GOV") in await race_choices(store, "penn")
     assert ("Texas", "TX") in await state_choices(store, "tex")
+
+
+def test_masked_numbers_are_missing_not_negative():
+    payload = _released_pa()
+    first = payload["questions"][0]["answers"][0]
+    first["totalPercentage"] = -1
+    first["candidateAnswers"][0]["percentage"] = -1
+    race = {"ident": "PA SEN", "label": "Pennsylvania Senate", "code": "SG", "state": "PA", "file": "x"}
+    answer = parse_exit_poll(payload, race, "2026")["questions"][0]["answers"][0]
+    assert answer["share"] is None and answer["by"][0] is None
