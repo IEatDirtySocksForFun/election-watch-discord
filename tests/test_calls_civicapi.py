@@ -91,6 +91,38 @@ def test_parse_a_real_race():
     assert race_result.total_votes == sum(candidate.votes for candidate in race_result.candidates)
 
 
+def test_a_live_2026_territory_feed_parses():
+    """GU's 2026 general feed carries real votes and no call yet (winner flag only)."""
+    rows = {row["election_name"]: race_key(row) for row in _load("search_gu_2026.json")["races"]}
+    assert rows["Guam Governor"] == RaceKey("GU", Level.GOVERNOR, "GOV")
+    assert rows["Guam Delegate"] == parse("GU-AL")
+    race = _load("race_gu_gov_2026.json")
+    assert race["test_data"] is False and "called_at" not in race
+    race_result = parse_race(race, 160886, rows["Guam Governor"], NOW)
+    assert race_result.expected_vote_pct == 99.9
+    assert [
+        (candidate.name, candidate.party, candidate.votes, candidate.winner) for candidate in race_result.candidates
+    ] == [
+        ("Vicente A. Ada", "REP", 15945, False),
+        ("Therese Maria Terlaje", "DEM", 14925, False),
+        ("Write-in", "NP", 124, False),
+    ]
+    assert race_result.total_votes == 30994
+    assert race_result.url == "https://civicapi.org/results/elections/160886"
+    assert parse_call(race, 160886, rows["Guam Governor"]) is None
+
+
+@respx.mock
+async def test_a_territory_is_served_end_to_end():
+    respx.get(f"{API}/race/search").respond(json=_load("search_gu_2026.json"))
+    respx.get(f"{API}/race/160886").respond(json=_load("race_gu_gov_2026.json"))
+    respx.get(f"{API}/race/160887").respond(json=_load("race_gu_delegate_2026.json"))
+    async with httpx.AsyncClient() as client:
+        results = await CivicAPIResultsSource(_CivicAPI()).fetch([parse("GU GOV"), parse("GU-AL")], client)
+    assert {race_result.key for race_result in results} == {parse("GU GOV"), parse("GU-AL")}
+    assert {race_result.total_votes for race_result in results} == {30994, 30677}
+
+
 def test_a_real_call():
     call = parse_call(_load("race_tx_sen_2024.json"), 107793, TX_SEN)
     assert call is None or (call.outlet, call.winner, call.party) == ("CIVICAPI", "Ted Cruz", "REP")

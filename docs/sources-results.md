@@ -134,6 +134,24 @@ see the alternate-source and county notes for states whose main site is blocked 
 
 ---
 
+## Territories — `civicapi`
+
+The five territories have no official statewide feed in the bot, so the national fallback
+`civicapi` is the results source for them. A territory's non-voting House member arrives as
+row type `Delegate` with the at-large district (`GU-AL`, `VI-AL`, `AS-AL`, `MP-AL`), which maps
+to the same at-large House key used elsewhere in the bot; the territorial governor arrives as
+`Governor` and maps to `GU GOV`, `VI GOV` and so on. Boards, commissions and other territorial
+contests map to `<ST> LOCAL <slug>`; a chamber-wide row without a district is skipped like the
+mainland chamber-control summaries.
+
+On 2026-11-03 the Guam general feed carried live results: Governor (Ada 15,945, Terlaje 14,925,
+write-in 124; 30,994 votes at 99.9% reporting) and Delegate (Limtiaco 15,645, Moylan 14,983;
+30,677 votes). Neither race had `called_at`, so the call source posts no call. VI, AS and MP were
+listed with 0 votes, and PR had no 2026 rows. Fixtures: `search_gu_2026.json`,
+`race_gu_gov_2026.json` and `race_gu_delegate_2026.json` under `tests/fixtures/civicapi/`.
+
+---
+
 ## Environment
 
 - `ELECTION_DATE` — ISO date of the tracked election, default `2026-11-03`

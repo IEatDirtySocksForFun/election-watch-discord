@@ -26,7 +26,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | DE    | abc_results, de_doe, fox_results, nbc_results                   | cbs_results, civicapi                                                | -      |
 | FL    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, fl_sos                                        | -      |
 | GA    | abc_results, cnn_results, fox_results, nbc_results              | cbs_results, civicapi, enhanced_voting, ga_sos                       | -      |
-| GU    | -                                                               | civicapi                                                             | -      |
+| GU    | civicapi                                                        | -                                                                    | -      |
 | HI    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, hi_soe                                        | -      |
 | IA    | abc_results, fox_results, ia_sos, nbc_results                   | cbs_results, civicapi                                                | -      |
 | ID    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, id_sos                                        | -      |

@@ -29,7 +29,7 @@ import httpx
 
 from electionwatch.models import CandidateResult, Level, RaceCall, RaceKey, RaceResult
 from electionwatch.parties import party_code
-from electionwatch.racekeys import ALL_JURISDICTIONS, STATEWIDE, RaceKeyError, parse
+from electionwatch.racekeys import ALL_JURISDICTIONS, STATEWIDE, TERRITORIES, RaceKeyError, parse
 from electionwatch.sources.base import CallSource, ResultsSource, SourceUnavailable, register
 from electionwatch.sources.results._common import election_date
 
@@ -63,6 +63,10 @@ def race_key(row: dict) -> RaceKey | None:
         return None  # party primaries share keys with each other and with the general
     special = "special" in lowered
     try:
+        # A territory's non-voting House member is "Delegate" with the at-large district
+        # (GU-AL, VI-AL, ...): the same key the bot uses for that seat (see racekeys).
+        if kind == "Delegate" and state in TERRITORIES and district == f"{state}-AL":
+            return replace(parse(district), special=special)
         # AZ, CA, DE and MD label the US Senate race plain "Senate".
         if kind == "US Senate" or (kind == "Senate" and not district and "state senate" not in lowered):
             return RaceKey(state, Level.SENATE, "SEN", None, special)
