@@ -22,3 +22,12 @@ not_found.json                      GET .../NY/returned                         
 invalid_parameters.json             GET .../US/GA                                        (HTTP 400)
 
 States with any early-vote data on 2026-10-27 (46): every state except AL, MA, NH, NY and DC.
+
+Re-checked 2026-11-03: the four national endpoints answer in the same shape as the saved files,
+with snapshot_date 2026-11-03 and 47 states with ballots. New York was added after the October
+fetch: .../NY/inperson carries in-person votes only (1,965,043, snapshot 2026-11-02) with a
+county breakdown but no party or age data, while .../NY/returned,
+.../NY/inperson/demographics?by=age_range and
+.../historical/2022/NY/inperson?date=2022-11-01 answer 404 or zeros and the capabilities flags
+are all false. Alabama, Massachusetts, New Hampshire and DC still have no data. The saved files
+above were kept unchanged: the payload shape did not change, so a new fixture would repeat them.
