@@ -3,7 +3,7 @@ Fetched 2026-10-27 with a descriptive User-Agent.
 
   https://results.enr.clarityelections.com/CO/elections.json        -> elections.json
       (trimmed: 2024 General 122598, 2025 Coordinated 124409, 2026 Primary 126592;
-       the 2026 general is not published yet)
+       the 2026 general was not published on that date - it is in 2026-general/)
   https://results.enr.clarityelections.com/CO/122598/current_ver.txt -> "367167" on that date
   https://results.enr.clarityelections.com/CO/122598/367167/json/en/summary.json
       -> summary.json      (trimmed from 295 contests to: US House CO-01 and CO-08,

@@ -20,8 +20,8 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | AS    | -                                                               | civicapi                                                             | -      |
 | AZ    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, enhanced_voting                               | -      |
 | CA    | abc_results, ca_sos, fox_results, nbc_results                   | cbs_results, civicapi                                                | -      |
-| CO    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, co_sos                                        | -      |
-| CT    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ct_sots                                       | -      |
+| CO    | abc_results, co_sos, fox_results, nbc_results                   | cbs_results, civicapi                                                | -      |
+| CT    | abc_results, ct_ems, fox_results, nbc_results                   | cbs_results, civicapi, ct_sots                                       | -      |
 | DC    | -                                                               | abc_results, cbs_results, civicapi, dc_boe, fox_results, nbc_results | -      |
 | DE    | abc_results, de_doe, fox_results, nbc_results                   | cbs_results, civicapi                                                | -      |
 | FL    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, fl_sos                                        | -      |
@@ -32,7 +32,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | ID    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, id_sos                                        | -      |
 | IL    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, clarity, il_sbe                               | -      |
 | IN    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, in_sos                                        | -      |
-| KS    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ks_sos                                        | -      |
+| KS    | abc_results, fox_results, ks_sos, nbc_results                   | cbs_results, civicapi                                                | -      |
 | KY    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |
 | LA    | abc_results, fox_results, la_sos, nbc_results                   | cbs_results, civicapi                                                | -      |
 | MA    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |
@@ -45,7 +45,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | MS    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ms_sos                                        | -      |
 | MT    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, mt_sos                                        | -      |
 | NC    | abc_results, fox_results, nbc_results, nc_sbe                   | cbs_results, civicapi                                                | -      |
-| ND    | abc_results, fox_results, nbc_results, nd_sos                   | cbs_results, civicapi                                                | -      |
+| ND    | abc_results, fox_results, nbc_results, nd_enr                   | cbs_results, civicapi, nd_sos                                        | -      |
 | NE    | abc_results, fox_results, nbc_results, ne_sos                   | cbs_results, civicapi                                                | -      |
 | NH    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |
 | NJ    | abc_results, fox_results, nbc_results, nj_counties              | cbs_results, civicapi                                                | -      |
@@ -59,7 +59,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | PR    | -                                                               | civicapi                                                             | -      |
 | RI    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ri_boe                                        | -      |
 | SC    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, sc_sec                                        | -      |
-| SD    | abc_results, fox_results, nbc_results, sd_sos                   | cbs_results, civicapi                                                | -      |
+| SD    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, sd_sos                                        | -      |
 | TN    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, tn_counties                                   | -      |
 | TX    | abc_results, cnn_results, fox_results, nbc_results, tx_counties | cbs_results, civicapi, tx_sos                                        | -      |
 | UT    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ut_lgov                                       | -      |
@@ -103,7 +103,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 
 ## Links
 
-164 links checked; 0 broken. Nothing to fix.
+166 links checked; 0 broken. Nothing to fix.
 
 ---
 
