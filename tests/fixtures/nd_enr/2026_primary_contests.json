@@ -1,0 +1,89 @@
+{
+ "versionID": "v2097",
+ "lastUpdated": "2026-10-08T18:13:38.5390961Z",
+ "electionID": "346",
+ "message": "",
+ "isOfficial": true,
+ "turnout": null,
+ "response": {
+  "contests": {
+   "20040": {
+    "contestId": "20040",
+    "contestName": "Justice of the Supreme Court",
+    "contestTypeCode": "SW",
+    "contestOrder": 796,
+    "voteFor": 1,
+    "locationType": null,
+    "locationID": null,
+    "message": "",
+    "messageLink": "",
+    "choices": {
+     "35007": {
+      "id": "35007",
+      "name": "Jerod  Tufte ",
+      "pictureFilename": "",
+      "partyID": "NON",
+      "color": "#939393",
+      "order": 99,
+      "isWriteIn": false,
+      "isWinner": true
+     },
+     "35924": {
+      "id": "35924",
+      "name": "Ariston E Johnson ",
+      "pictureFilename": "",
+      "partyID": "NON",
+      "color": "#939393",
+      "order": 99,
+      "isWriteIn": false,
+      "isWinner": true
+     },
+     "9901": {
+      "id": "9901",
+      "name": "  write-in ",
+      "pictureFilename": "",
+      "partyID": "NON",
+      "color": "#939393",
+      "order": 99,
+      "isWriteIn": false,
+      "isWinner": false
+     }
+    }
+   },
+   "1746": {
+    "contestId": "1746",
+    "contestName": "Constitutional Measure No. 1 relating to constitutional amendments be comprised of a single subject ",
+    "contestTypeCode": "SW",
+    "contestOrder": 902,
+    "voteFor": 1,
+    "locationType": null,
+    "locationID": null,
+    "message": "",
+    "messageLink": "",
+    "choices": {
+     "9001": {
+      "id": "9001",
+      "name": "Yes ",
+      "pictureFilename": "",
+      "partyID": "",
+      "color": "#939393",
+      "order": 1,
+      "isWriteIn": false,
+      "isWinner": false
+     },
+     "9002": {
+      "id": "9002",
+      "name": "No ",
+      "pictureFilename": "",
+      "partyID": "",
+      "color": "#939393",
+      "order": 2,
+      "isWriteIn": false,
+      "isWinner": false
+     }
+    }
+   }
+  }
+ },
+ "errorMessage": null
+}

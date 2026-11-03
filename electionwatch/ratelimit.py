@@ -82,6 +82,7 @@ HOST_LIMITS: dict[str, Limit] = {
     "nbcnews.com": Limit(10, 60, "undocumented feed; NBC blocks bursts"),
     "foxnews.com": Limit(10, 60, "undocumented feed"),
     "cbsnews.com": Limit(10, 60, "undocumented feed"),
+    "abcnews.com": Limit(10, 60, "undocumented feed; abcnews.go.com redirects here since 2026-11"),
     "abcnews.go.com": Limit(10, 60, "undocumented feed"),
 }
 DEFAULT_LIMIT = Limit(1, 1, "none published: a request a second")

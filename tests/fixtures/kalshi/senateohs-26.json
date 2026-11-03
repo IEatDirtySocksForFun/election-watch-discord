@@ -1,0 +1,154 @@
+{
+ "event": {
+  "category": "Elections",
+  "collateral_return_type": "MECNET",
+  "event_ticker": "SENATEOHS-26",
+  "exchange_index": 0,
+  "last_updated_ts": "0001-01-01T00:00:00Z",
+  "mutually_exclusive": true,
+  "product_metadata": {
+   "competition": "Senate",
+   "competition_scope": "Election"
+  },
+  "series_ticker": "SENATEOHS",
+  "settlement_sources": [
+   {
+    "name": "United States Congress",
+    "url": "https://www.congress.gov/"
+   }
+  ],
+  "strike_period": "",
+  "sub_title": "In 2026",
+  "title": "Ohio Senate winner?"
+ },
+ "markets": [
+  {
+   "can_close_early": true,
+   "close_time": "2027-11-03T15:00:00Z",
+   "created_time": "2024-12-04T08:24:34.311422Z",
+   "custom_strike": {
+    "political_party": "9244ed4c-9dfd-45cc-8211-996dc902f315",
+    "politician": "b8ffded6-cbe4-4153-acca-94e17637540c"
+   },
+   "early_close_condition": "This market will close early following the swearing in of the Senator for the seat in question.",
+   "event_ticker": "SENATEOHS-26",
+   "exchange_index": 0,
+   "expected_expiration_time": "2026-12-16T15:00:00Z",
+   "expiration_time": "2027-11-03T15:00:00Z",
+   "expiration_value": "",
+   "last_price_dollars": "0.2900",
+   "latest_expiration_time": "2027-11-03T15:00:00Z",
+   "market_type": "binary",
+   "no_ask_dollars": "0.7200",
+   "no_bid_dollars": "0.7100",
+   "no_sub_title": "Jon Husted",
+   "notional_value_dollars": "1.0000",
+   "occurrence_datetime": "2027-01-03T15:00:00Z",
+   "open_interest_fp": "3708352.87",
+   "open_time": "2024-12-04T15:00:00Z",
+   "previous_price_dollars": "0.3000",
+   "previous_yes_ask_dollars": "0.3000",
+   "previous_yes_bid_dollars": "0.2900",
+   "price_level_structure": "tapered_deci_cent",
+   "price_ranges": [
+    {
+     "end": "0.1000",
+     "start": "0.0000",
+     "step": "0.0010"
+    },
+    {
+     "end": "0.9000",
+     "start": "0.1000",
+     "step": "0.0100"
+    },
+    {
+     "end": "1.0000",
+     "start": "0.9000",
+     "step": "0.0010"
+    }
+   ],
+   "result": "",
+   "rules_primary": "If a representative of the Republican party is sworn in as a Senator of Ohio pursuant to the Class III (special election) held on November 3, 2026, then the market resolves to Yes.",
+   "rules_secondary": "This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.",
+   "settlement_bounds_type": "default",
+   "settlement_timer_seconds": 1800,
+   "status": "active",
+   "strike_type": "structured",
+   "subtitle": "Republican party:: Republican party",
+   "ticker": "SENATEOHS-26-R",
+   "title": "Will Republicans win the Senate race in Ohio?",
+   "updated_time": "2026-11-01T06:44:44.179497Z",
+   "volume_24h_fp": "275311.35",
+   "volume_fp": "5148961.99",
+   "yes_ask_dollars": "0.2900",
+   "yes_ask_size_fp": "30267.88",
+   "yes_bid_dollars": "0.2800",
+   "yes_bid_size_fp": "63253.16",
+   "yes_sub_title": "Jon Husted"
+  },
+  {
+   "can_close_early": true,
+   "close_time": "2027-11-03T15:00:00Z",
+   "created_time": "2024-12-04T08:24:34.311423Z",
+   "custom_strike": {
+    "political_party": "57fa2293-3102-463b-9087-68cd9f6da0a6",
+    "politician": "56a40624-2b08-4f3a-9deb-b23918793605"
+   },
+   "early_close_condition": "This market will close early following the swearing in of the Senator for the seat in question.",
+   "event_ticker": "SENATEOHS-26",
+   "exchange_index": 0,
+   "expected_expiration_time": "2026-12-16T15:00:00Z",
+   "expiration_time": "2027-11-03T15:00:00Z",
+   "expiration_value": "",
+   "last_price_dollars": "0.7200",
+   "latest_expiration_time": "2027-11-03T15:00:00Z",
+   "market_type": "binary",
+   "no_ask_dollars": "0.2900",
+   "no_bid_dollars": "0.2800",
+   "no_sub_title": "Sherrod Brown",
+   "notional_value_dollars": "1.0000",
+   "occurrence_datetime": "2027-01-03T15:00:00Z",
+   "open_interest_fp": "3195053.75",
+   "open_time": "2024-12-04T15:00:00Z",
+   "previous_price_dollars": "0.7000",
+   "previous_yes_ask_dollars": "0.7100",
+   "previous_yes_bid_dollars": "0.7000",
+   "price_level_structure": "tapered_deci_cent",
+   "price_ranges": [
+    {
+     "end": "0.1000",
+     "start": "0.0000",
+     "step": "0.0010"
+    },
+    {
+     "end": "0.9000",
+     "start": "0.1000",
+     "step": "0.0100"
+    },
+    {
+     "end": "1.0000",
+     "start": "0.9000",
+     "step": "0.0010"
+    }
+   ],
+   "result": "",
+   "rules_primary": "If a representative of the Democratic party is sworn in as a Senator of Ohio pursuant to the Class III (special election) held on November 3, 2026, then the market resolves to Yes.",
+   "rules_secondary": "This market is eligible for accelerated determination after a consensus of media organizations project the winner. See full rules for details.",
+   "settlement_bounds_type": "default",
+   "settlement_timer_seconds": 1800,
+   "status": "active",
+   "strike_type": "structured",
+   "subtitle": "Democratic party:: Democratic party",
+   "ticker": "SENATEOHS-26-D",
+   "title": "Will Democratics win the Senate race in Ohio?",
+   "updated_time": "2026-10-19T16:49:54.720231Z",
+   "volume_24h_fp": "123973.03",
+   "volume_fp": "4922345.17",
+   "yes_ask_dollars": "0.7200",
+   "yes_ask_size_fp": "76018.34",
+   "yes_bid_dollars": "0.7100",
+   "yes_bid_size_fp": "38621.17",
+   "yes_sub_title": "Sherrod Brown"
+  }
+ ]
+}

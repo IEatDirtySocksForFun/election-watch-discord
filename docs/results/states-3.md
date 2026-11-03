@@ -16,19 +16,19 @@ no usable statewide adapter; the notes below explain why.
 
 ## Summary
 
-| State | Adapter        | Feed                                                                                                                          | Status                                                                                                                                                 |
-| ----- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| KS    | `ks_sos` (new) | `https://www.sos.ks.gov/ent/{national,statewide,ks-house,ks-boe,judicial,constitutional}.html`                                | HTML parser, `scrape=True`, enabled. Verified against the live 2026 primary pages (2024 general HTML is not published).                                |
-| KY    | —              | `https://vrsws.sos.ky.gov/liveresults/`                                                                                       | Not possible: HTTP 403 "KY SBE Acceptable Use Policy" access gate.                                                                                     |
-| LA    | `la_sos` (new) | `https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=<YYYYMMDD>/{RacesCandidates,Votes}_Multiparish.htm` | Verified fixture (2024 general with counts, 2026 general race list).                                                                                   |
-| MA    | —              | `https://electionstats.state.ma.us/` (PD43+)                                                                                  | Not implemented: no election-night feed at all; certified per-election CSVs only. See below.                                                           |
-| MD    | `md_sbe` (new) | `https://elections.maryland.gov/elections/archive/<YYYY>/election_data/PG<YY>_{Congressional,Legislative}BreakDown.csv`       | Verified fixture (2024 general). Certified files, published after the count.                                                                           |
-| MO    | —              | `https://enr.sos.mo.gov/`                                                                                                     | Not possible: Cloudflare bot challenge (`cf-mitigated: challenge`).                                                                                    |
-| MS    | `ms_sos` (new) | `https://www.sos.ms.gov/elections/electionresults/<YYYY>ElectionRecapSheets.csv`                                              | Verified fixture (2024 general). Certified recap, published after the count.                                                                           |
-| MT    | `mt_sos`       | `electionresults.mt.gov/resultsSW.aspx`                                                                                       | Statewide adapter added through the alternate endpoint in [alt-c.md](alt-c.md); the main site is Cloudflare-blocked.                                   |
-| ND    | `nd_sos` (new) | `https://results.sos.nd.gov/resultsSW.aspx?text=All&type={SW,LG}&map=CTY`                                                     | HTML parser, `scrape=True`, enabled. Verified fixture (2024 general, 385/385 precincts).                                                               |
-| NJ    | —              | `https://www.nj.gov/state/elections/election-results.shtml`                                                                   | Not possible: PDF only (statewide and per-county PDFs), no CSV/JSON/XLSX.                                                                              |
-| NM    | `nm_sos` (new) | `https://electionresults.sos.nm.gov/resultsSW.aspx?text=All&type={FED,LGX}&map=CTY`                                           | HTML parser, `scrape=True`, enabled. Structure verified on the live 2026 general pages (0 of 2204 precincts at capture); no archived 2024 page exists. |
+| State | Adapter        | Feed                                                                                                                          | Status                                                                                                                                                          |
+| ----- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| KS    | `ks_sos` (new) | `https://www.sos.ks.gov/ent/{national,statewide,ks-house,ks-boe,judicial,constitutional}.html`                                | HTML parser, `scrape=True`, enabled. Verified against the live 2026 primary pages (2024 general HTML is not published).                                         |
+| KY    | —              | `https://vrsws.sos.ky.gov/liveresults/`                                                                                       | Not possible: HTTP 403 "KY SBE Acceptable Use Policy" access gate.                                                                                              |
+| LA    | `la_sos` (new) | `https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=<YYYYMMDD>/{RacesCandidates,Votes}_Multiparish.htm` | Verified fixture (2024 general with counts, 2026 general race list).                                                                                            |
+| MA    | —              | `https://electionstats.state.ma.us/` (PD43+)                                                                                  | Not implemented: no election-night feed at all; certified per-election CSVs only. See below.                                                                    |
+| MD    | `md_sbe` (new) | `https://elections.maryland.gov/elections/archive/<YYYY>/election_data/PG<YY>_{Congressional,Legislative}BreakDown.csv`       | Verified fixture (2024 general). Certified files, published after the count.                                                                                    |
+| MO    | —              | `https://enr.sos.mo.gov/`                                                                                                     | Not possible: Cloudflare bot challenge (`cf-mitigated: challenge`).                                                                                             |
+| MS    | `ms_sos` (new) | `https://www.sos.ms.gov/elections/electionresults/<YYYY>ElectionRecapSheets.csv`                                              | Verified fixture (2024 general). Certified recap, published after the count.                                                                                    |
+| MT    | `mt_sos`       | `electionresults.mt.gov/resultsSW.aspx`                                                                                       | Statewide adapter added through the alternate endpoint in [alt-c.md](alt-c.md); the main site is Cloudflare-blocked.                                            |
+| ND    | `nd_enr` (new) | `https://api.resultsnd.sos.nd.gov/Contest/GetContestResults?cId=north-dakota&electionID=348&contestType={SW,LEG}`             | JSON API, enabled. Verified against the live 2026 general (0 of 358 precincts, 0 votes) and the finished 2026 primary count. `nd_sos` (2024 archive) is opt-in. |
+| NJ    | —              | `https://www.nj.gov/state/elections/election-results.shtml`                                                                   | Not possible: PDF only (statewide and per-county PDFs), no CSV/JSON/XLSX.                                                                                       |
+| NM    | `nm_sos` (new) | `https://electionresults.sos.nm.gov/resultsSW.aspx?text=All&type={FED,LGX}&map=CTY`                                           | HTML parser, `scrape=True`, enabled. Structure verified on the live 2026 general pages (0 of 2204 precincts at capture); no archived 2024 page exists.          |
 
 All adapters map US Senate → `XX SEN`, US House → `XX-DD` (at-large → `XX-AL`), Governor and
 statewide executive offices → `XX GOV`, `XX AG`, ... , state legislature → `XX SD-DD` /
@@ -44,9 +44,12 @@ statewide executive offices → `XX GOV`, `XX AG`, ... , state legislature → `
 - One server-rendered page per race category; the category list is read from the page
   navigation (county pages and the "favourites" page are skipped), so a renamed tab does not
   need a code change.
-- The site serves **one election at a time**; `ELECTION_DATE` cannot select an election and
-  the adapter returns whatever the site currently shows. On 2026-10-27 that was the
-  2026-08-04 primary.
+- The site serves **one election at a time**; `ELECTION_DATE` cannot select an election. On
+  2026-10-27 the site showed the 2026-08-04 primary, and on 2026-11-02 it still did, ballot
+  questions with real counts included. A page whose "Last Update" is 45 days or more before
+  `ELECTION_DATE` (`STALE_DAYS`) belongs to an earlier election and is skipped; when every page
+  is skipped the adapter reports the results as not published yet. A page without the stamp
+  is read as before.
 - Primary pages split each office into `(D)` / `(R)` halves; those are skipped exactly like
   the Clarity feeds. General-election headings carry no party suffix and are parsed
   normally (`tests/test_results_ks.py::test_general_election_headings_parse` runs the real
@@ -95,14 +98,33 @@ President`.
   page is not published yet (HTTP 404 on 2026-10-27), so `fetch()` raises `SourceUnavailable`
   until it appears.
 
-### ND — `nd_sos`
+### ND — `nd_enr` (2026 general)
 
-- ASP.NET pages, one per contest group: `type=SW` (statewide, includes the at-large House
-  seat and the measures) and `type=LG` (legislative districts). Legislative district names
-  include lettered seats (`State Representative District 04a` → `ND HD-04A`).
-- Winner comes from the `winner` class / `img.winner-icon` the state sets on the elected
-  candidate. No timestamp on the page.
-- Party labels `Democratic-NPL` → `DEM`, `Independent Nomination` → `IND`.
+- For the 2026 general election the state moved the live count to a new Election Night
+  Reporting site, linked from `sos.nd.gov/elections/election-results`. It is a single-page
+  app over a JSON API on `api.resultsnd.sos.nd.gov`; the adapter reads that API:
+  `Election/GetElectionList?cid=north-dakota` (election ids), `Contest/GetContestSearchList`
+  (contest names, parties, write-in choices) and `Contest/GetContestResults` once per contest
+  type (`SW` statewide, `LEG` legislative districts).
+- The results payload carries choice ids only, so the two payloads are joined on
+  `contestID` / `choiceID`. `lastUpdated` (UTC, seven fractional digits) becomes
+  `source_updated_at`; the human page is `resultsnd.sos.nd.gov/#election=<id>`.
+- Winner comes from `isWinner`; precincts from `precinctsReporting` / `totalPrecincts`. Before
+  the count starts every contest answers 0 votes and 0 of 358 precincts, which is the state of
+  the general fixture. At-large House, row offices, legislative districts (including
+  `State Representative Unexpired 2-Year Term District 20` → `ND HD-20 S`) and measures are
+  mapped as before.
+- Election id `348` is the 2026 general and is pinned in `ELECTIONS`; any other date is
+  discovered from `GetElectionList` by date.
+- Party ids are `REP`, `DEM`, `IND`, `LIB`, `GRE`, `CON`, `NON`, `OTH`; a measure's Yes/No
+  choices carry no party.
+- The old ASP.NET pages (`nd_sos`, `results.sos.nd.gov/resultsSW.aspx`) still serve the 2024
+  general election and are now an archive: `enabled_by_default = False`, and `fetch()` reads
+  the page heading and raises `SourceUnavailable` when it names another election than
+  `ELECTION_DATE`, so a stale count is never published as the current one. With
+  `ELECTION_DATE=2024-11-05` it still parses the archive.
+- `nd_sos` also skips any page whose hidden `hidElectionDate` field names another date than
+  `ELECTION_DATE` (added for the same 2024 pages before `nd_enr` existed).
 
 ### NM — `nm_sos`
 
@@ -171,7 +193,8 @@ scraped unreliably.
 ```bash
 pytest -q \
     tests/test_results_la.py tests/test_results_ms.py tests/test_results_ks.py \
-    tests/test_results_nd.py tests/test_results_md.py tests/test_results_nm.py
+    tests/test_results_nd_enr.py tests/test_results_nd.py tests/test_results_md.py \
+    tests/test_results_nm.py
 ```
 
 Fixtures live in `tests/fixtures/<adapter>/<ST>/` with a `README.txt` recording the URLs,
