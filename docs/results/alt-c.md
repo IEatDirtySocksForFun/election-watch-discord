@@ -73,6 +73,10 @@ New dependencies: none. Shared contracts unchanged.
   ballot questions, legislative districts, county races/questions, municipal races/questions.
   House districts 26 and 28 are split into lettered sub-districts (26A/26B, 28A/28B) and each
   one is keyed separately (`SD HD-26A` … `SD HD-28B`); the `AreaNum` letter is part of the key.
+  County races carry the county in the heading (`Sheriff - Brookings`), municipal questions
+  arrive as `Question : …` / `Bond Issue : …` rows, and counties that count at vote centres
+  publish the area as `Brookings (Vote Center)`: the key keeps that suffix, the displayed title
+  does not repeat the county.
 - **Verification:** live on 2026-10-27 the site was in "Testing In Progress" mode
   (122 of 671 precincts), so the 2026 general CSV was already serving. Re-checked on
   2026-11-03 before any precinct reported: "Unofficial Results — General Election
@@ -82,10 +86,11 @@ New dependencies: none. Shared contracts unchanged.
   Keys checked live: `SD SEN`, `SD-AL`, `SD GOV`, `SD SD-01`, `SD HD-01`, `SD HD-26A`.
 - **Known site behaviour:** on 2026-11-03 about half of the requests for the media page
   answered **302** to `/ErrorPages/Error.aspx` (a 172-byte "Object moved" stub with no hidden
-  fields), and some timed out, while the five CSVs answered 200 throughout. The adapter reads
-  the media page once before the CSVs and once after them; if both reads fail, the counts are
-  still reported (turnout and update stamp empty) and the election-date check cannot be
-  applied for that poll.
+  fields), and between 14:22 and 16:06 UTC the page hung past the 30 s fetch budget on every
+  health check while the five CSVs answered in under a second. The adapter reads the media page
+  once before the CSVs and once after them, each under a 5 s deadline
+  (`MEDIA_TIMEOUT`); if both reads fail or expire, the counts are still reported (turnout and
+  update stamp empty) and the election-date check cannot be applied for that poll.
 
 ---
 

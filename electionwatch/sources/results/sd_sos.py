@@ -27,6 +27,9 @@ per candidate per contest:
   of the race key (`SD HD-26A`, `SD HD-26B`), otherwise the second sub-district's candidates
   would overwrite the first's.
 - `VoteFor` is 2 for the two-seat South Dakota House districts; no winner flag is published.
+- Counties that count at vote centres publish the area as `Brookings (Vote Center)`. The suffix
+  is part of `AreaNum`, so the race key keeps it; the heading already names the county
+  (`Sheriff - Brookings`), and the displayed title does not repeat it.
 
 The media page carries the election name/date plus turnout, and the site serves whichever
 election it is currently reporting when `eid` is omitted. The adapter therefore omits `eid`
@@ -40,10 +43,16 @@ silently drop the election-date check and the turnout figures; `fetch()` therefo
 page once before the CSVs and once more after them (a cold front end is what 302s, and the CSVs
 warm it up). If both reads fail the vote counts are still reported, without turnout and without
 an update stamp.
+
+Some requests did not fail but hung: between 14:22 and 16:06 UTC on 2026-11-03 the page
+took longer than the poller's 30 s fetch budget on every health check while the five CSVs
+answered in under a second. Metadata must never cost the vote counts, so each media-page read
+runs under `MEDIA_TIMEOUT`. A read that hits that deadline is treated like a failed one.
 """
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import io
 import os
@@ -62,6 +71,9 @@ BASE = "https://electionresults.sd.gov"
 MEDIA = BASE + "/ResultsMedia.aspx"
 CSV_URL = BASE + "/resultsCSV.aspx?text=All&type={}&map={}"
 HUMAN = "https://electionresults.sd.gov/"
+#: Deadline for one media-page read. The page is metadata only and has hung for long stretches
+#: while the CSVs stayed fast, so it must not be allowed to use up the fetch budget.
+MEDIA_TIMEOUT = 5.0
 #: Contest groups the media feed publishes, with the map parameter each one needs.
 PAGES = (("SWR", "CTY"), ("BQ", "CTY"), ("LEG", "DIST"), ("CTY", "CTY"), ("MUN", "CTY"))
 
@@ -99,6 +111,11 @@ def _candidate_name(text: str) -> str:
 
 def _area(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").strip())
+
+
+def _area_core(area: str) -> str:
+    """'Brookings (Vote Center)' -> 'Brookings': the county a vote-centre area belongs to."""
+    return re.sub(r"\s*\([^)]*\)\s*$", "", area or "").strip()
 
 
 def _district(text: str) -> str | None:
@@ -215,7 +232,8 @@ def parse_sd(
             continue
         seen.add(str(key))
         reporting, total = _precincts(rows[0].get("PrecinctsReporting") or "")
-        title = name if not area or _norm(area) in _norm(name) else f"{name} ({area})"
+        named = _norm(area) in _norm(name) or _norm(_area_core(area)) in _norm(name)
+        title = name if not area or named else f"{name} ({area})"
         results.append(
             c.make_result(
                 key,
@@ -251,13 +269,13 @@ async def _media_page(client: httpx.AsyncClient, eid: str | None) -> tuple[str, 
     """One read of ResultsMedia.aspx: the page plus its hidden fields (date, turnout, stamp).
 
     About half of the requests on 2026-11-03 answered **302** to `/ErrorPages/Error.aspx`, a
-    172-byte "Object moved" stub with no hidden fields, while the CSVs stayed at 200; some
-    requests timed out instead. The page is metadata only, so a failed read returns an empty
-    dict and the caller asks again after the CSVs.
+    172-byte "Object moved" stub with no hidden fields, while the CSVs stayed at 200; other
+    requests hung past the poller's budget. The page is metadata only, so a failed or slow read
+    returns an empty dict and the caller asks again after the CSVs.
     """
     try:
-        media = await c.get_text(client, _with_eid(MEDIA, eid))
-    except SourceUnavailable:
+        media = await asyncio.wait_for(c.get_text(client, _with_eid(MEDIA, eid)), timeout=MEDIA_TIMEOUT)
+    except (SourceUnavailable, TimeoutError):
         return "", {}
     return media, media_info(media)
 

@@ -75,3 +75,25 @@ like after the test data is cleared and before counting starts.
       Complete response body, 172 bytes, fetched 2026-11-03 13:55 UTC. The site returned this
       stub instead of the media page for roughly half of the requests that day, while the CSV
       endpoints kept answering 200. Parses to no hidden fields.
+
+County and municipal area shapes (fetched 2026-11-03 16:52 UTC)
+---------------------------------------------------------------
+
+The two files below are slices of the same five CSVs, taken later on 2026-11-03 (0 of 671
+precincts, every count 0) to record contest shapes the earlier fixtures do not contain: counties
+that count at vote centres publish `AreaNum` as `Brookings (Vote Center)`, county-commissioner
+headings repeat the district name (`County Commissioner - Campbell - Campbell`), and municipal
+ballot questions arrive as `Question : …` / `Bond Issue : …` rows with `AreaType` `MUN` or `SCH`.
+Header and CRLF endings are the source's.
+
+  2026_general_county_areas.csv
+      https://electionresults.sd.gov/resultsCSV.aspx?text=All&type=CTY&map=CTY
+      Trimmed: the County Auditor - Codington rows, the Sheriff - Brookings rows
+      (`AreaNum="Brookings (Vote Center)"`) and the County Commissioner - Campbell - Campbell
+      rows.
+
+  2026_general_municipal_areas.csv
+      https://electionresults.sd.gov/resultsCSV.aspx?text=All&type=MUN&map=CTY
+      Trimmed: the Brookings and Platte Ward-01 "City Council Member" rows, the Milbank
+      "Question : TEMPORARY ONE PERCENT (1%) MUNICIPAL GROSS RECEIPTS TAX" rows and the
+      Armour School District 21-1 "Bond Issue" rows.
