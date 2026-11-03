@@ -26,10 +26,10 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | DE    | abc_results, de_doe, fox_results, nbc_results                   | cbs_results, civicapi                                                | -      |
 | FL    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, fl_sos                                        | -      |
 | GA    | abc_results, cnn_results, fox_results, nbc_results              | cbs_results, civicapi, enhanced_voting, ga_sos                       | -      |
-| GU    | civicapi                                                        | -                                                                    | -      |
+| GU    | -                                                               | civicapi                                                             | -      |
 | HI    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, hi_soe                                        | -      |
 | IA    | abc_results, fox_results, ia_sos, nbc_results                   | cbs_results, civicapi                                                | -      |
-| ID    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, id_sos                                        | -      |
+| ID    | abc_results, fox_results, id_results, nbc_results               | cbs_results, civicapi, id_sos                                        | -      |
 | IL    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, clarity, il_sbe                               | -      |
 | IN    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, in_sos                                        | -      |
 | KS    | abc_results, fox_results, ks_sos, nbc_results                   | cbs_results, civicapi                                                | -      |
@@ -47,7 +47,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | NC    | abc_results, fox_results, nbc_results, nc_sbe                   | cbs_results, civicapi                                                | -      |
 | ND    | abc_results, fox_results, nbc_results, nd_enr                   | cbs_results, civicapi, nd_sos                                        | -      |
 | NE    | abc_results, fox_results, nbc_results, ne_sos                   | cbs_results, civicapi                                                | -      |
-| NH    | abc_results, civicapi, fox_results, nbc_results                 | cbs_results                                                          | -      |
+| NH    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |
 | NJ    | abc_results, fox_results, nbc_results, nj_counties              | cbs_results, civicapi                                                | -      |
 | NM    | abc_results, fox_results, nbc_results, nm_sos                   | cbs_results, civicapi                                                | -      |
 | NV    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |
@@ -75,35 +75,35 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 
 ## Other sources
 
-| Kind      | Source         | Status  |
-| --------- | -------------- | ------- |
-| calls     | abc            | EMPTY   |
-| calls     | ap             | SKIPPED |
-| calls     | cbs            | EMPTY   |
-| calls     | civicapi       | EMPTY   |
-| calls     | cnn            | EMPTY   |
-| calls     | ddhq           | SKIPPED |
-| calls     | fox            | EMPTY   |
-| calls     | nbc            | EMPTY   |
-| calls     | nyt            | EMPTY   |
-| calls     | votehub        | EMPTY   |
-| odds      | kalshi         | OK      |
-| odds      | polymarket     | OK      |
-| exitpolls | cbs_exit_polls | OK      |
-| exitpolls | cnn_exit_polls | OK      |
-| exitpolls | fox_exit_polls | OK      |
-| exitpolls | nbc_exit_polls | OK      |
-| polls     | 270towin       | OK      |
-| polls     | votehub        | OK      |
-| polls     | wikipedia      | OK      |
-| earlyvote | national       | OK      |
-| earlyvote | states         | OK      |
+| Kind      | Source         | Status      |
+| --------- | -------------- | ----------- |
+| calls     | abc            | EMPTY       |
+| calls     | ap             | SKIPPED     |
+| calls     | cbs            | EMPTY       |
+| calls     | civicapi       | UNAVAILABLE |
+| calls     | cnn            | EMPTY       |
+| calls     | ddhq           | SKIPPED     |
+| calls     | fox            | EMPTY       |
+| calls     | nbc            | EMPTY       |
+| calls     | nyt            | EMPTY       |
+| calls     | votehub        | EMPTY       |
+| odds      | kalshi         | OK          |
+| odds      | polymarket     | OK          |
+| exitpolls | cbs_exit_polls | OK          |
+| exitpolls | cnn_exit_polls | OK          |
+| exitpolls | fox_exit_polls | OK          |
+| exitpolls | nbc_exit_polls | OK          |
+| polls     | 270towin       | OK          |
+| polls     | votehub        | OK          |
+| polls     | wikipedia      | OK          |
+| earlyvote | national       | OK          |
+| earlyvote | states         | OK          |
 
 ---
 
 ## Links
 
-166 links checked; 0 broken. Nothing to fix.
+168 links checked; 0 broken. Nothing to fix.
 
 ---
 
