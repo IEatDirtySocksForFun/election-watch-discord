@@ -120,3 +120,82 @@ def test_stale_cutoff(monkeypatch):
     fresh = "<span id = 'time-stamp' >10/20/2026 9:00 PM </span>"
     assert _earlier_election(fresh) is None  # 14 days before: could be this election's page
     assert _earlier_election(page("2026_primary_statewide.html")) is not None
+
+
+# --- the 2026 general election (published 2026-11-03) ---------------------------------------
+
+
+def general(name):
+    return parse_ks(page(name), fetched_at=AT)
+
+
+def general_results():
+    results = general("2026_general_statewide.html") + general("2026_general_national.html")
+    return {format_key(result.key): result for result in results}
+
+
+def test_general_election_candidates_carry_the_party_prefix():
+    gov = general_results()["KS GOV"]
+    assert [(candidate.name, candidate.party) for candidate in gov.candidates] == [
+        ("Cindy Holscher", "DEM"),
+        ("Ty Masterson", "REP"),
+    ]
+    assert [(candidate.votes, candidate.pct) for candidate in gov.candidates] == [(0, 0.0), (0, 0.0)]
+    assert gov.total_votes == 0
+    assert (gov.precincts_reporting, gov.precincts_total) == (0, 4168)
+
+
+def test_general_election_two_letter_and_lowercase_party_codes():
+    assert [(candidate.name, candidate.party) for candidate in general_results()["KS SOS"].candidates] == [
+        ("Jennifer Day", "DEM"),
+        ("Pat Proctor", "REP"),
+        ("Scott E. Morgan", "UK"),
+    ]
+    assert [(candidate.name, candidate.party) for candidate in general_results()["KS SEN"].candidates] == [
+        ("Adam Hamilton", "DEM"),
+        ("Roger Marshall", "REP"),
+        ("David C Graham", "LIB"),
+    ]
+
+
+def test_general_election_house_district_comes_from_the_heading():
+    house = general_results()["KS-01"]
+    assert house.title == "United States House of Representatives 1"
+    assert [(candidate.name, candidate.party) for candidate in house.candidates] == [
+        ("Lauren Reinhold", "DEM"),
+        ("Tracey Mann", "REP"),
+        ("Steven Jacob", "LIB"),
+    ]
+    assert house.precincts_total == 1403
+
+
+def test_general_election_stamp_is_election_day():
+    # <span id='time-stamp'>11/03/2026 7:59 AM</span> in America/Chicago
+    assert general_results()["KS GOV"].source_updated_at == datetime(2026, 11, 3, 13, 59, tzinfo=timezone.utc)
+
+
+def test_general_navigation_adds_the_state_senate_tab():
+    pages = nav_pages(page("2026_general_statewide.html"))
+    assert "ks-senate.html" in pages
+    assert pages[0] == "national.html"  # the general page is the current election, no stale skip
+
+
+async def test_general_pages_are_fetched_and_parsed(monkeypatch):
+    monkeypatch.delenv("ELECTION_DATE", raising=False)  # tracks 2026-11-03
+    pages = {
+        "statewide.html": "2026_general_statewide.html",
+        "national.html": "2026_general_national.html",
+    }
+
+    def handler(request):
+        name = pages.get(request.url.path.rsplit("/", 1)[-1])
+        return httpx.Response(200, text=page(name)) if name else httpx.Response(404)
+
+    keys = [RaceKey("KS", Level.GOVERNOR, "GOV"), RaceKey("KS", Level.SENATE, "SEN")]
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        results = await KsSos().fetch(keys, client)
+
+    got = {format_key(result.key): result for result in results}
+    assert set(got) == {"KS GOV", "KS SEN"}
+    assert got["KS GOV"].candidates[0].party == "DEM"
+    assert got["KS SEN"].candidates[1].name == "Roger Marshall"

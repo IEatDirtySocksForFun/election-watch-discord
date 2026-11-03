@@ -108,7 +108,8 @@ Both publish through Clarity ENR, so the transport matches `clarity.py`
 for `websiteupdatedat`), but the contest names miss the vendor adapter's patterns:
 
 ```text
-CO: Representative to the 119th United States Congress - District 1
+CO: Representative to the 120th United States Congress - District 1
+CO: Governor / Lieutenant Governor       CO: United States Senator
 CO: State Senator - District 2          CO: State Representative - District 1
 IA: United States Representative District 1
 IA: State Senator District 2            IA: State Representative District 1
@@ -119,15 +120,19 @@ has its own small module and `race_key()` mapper. Both reuse `clarity.parse_sett
 `source_updated_at` and discover the election id from `<ST>/elections.json` when the date is
 not pinned.
 
-- `co_sos`: `ELECTIONS["2024-11-05"] = "122598"`; regents, State Board of Education,
-  district attorneys, judicial retention and amendments/propositions -> LOCAL slugs.
+- `co_sos`: `ELECTIONS["2024-11-05"] = "122598"` and `ELECTIONS["2026-11-03"] = "127407"`;
+  regents, State Board of Education, district attorneys, judicial retention and
+  amendments/propositions -> LOCAL slugs. The 2026 general names the top of the ticket
+  `Governor / Lieutenant Governor` (one joint-ticket choice, "Phil Weiser / Lesley
+  Dahlkemper"), and the Senate contest `United States Senator`.
 - `ia_sos`: `ELECTIONS["2024-11-05"] = "122322"`; `Secretary of Agriculture` ->
   `IA AGCOM`; `Governor and Lt. Governor` (the 2026 ballot wording) -> `IA GOV`; judges,
   constitutional amendments and school/city measures -> LOCAL slugs.
-- The 2026 general is published for Iowa (id `127077`, 11/3/2026, 274 contests, every
-  vote 0 until counting starts); the date-matched discovery in `IA/elections.json` finds
-  it, and the pre-election summary is kept in `tests/fixtures/ia_sos/ia2026/`. Colorado's
-  2026 general is not published yet; the same discovery path covers it.
+- The 2026 general is published for both states: Iowa id `127077` (274 contests) and
+  Colorado id `127407` (302 contests, 11/3/2026 6:52 AM MST), every vote 0 until counting
+  starts. Summaries captured before counting began are kept in
+  `tests/fixtures/ia_sos/ia2026/` and `tests/fixtures/co_sos/co/2026-general/`. Colorado's
+  election id is pinned; a date without a pin is still discovered from `CO/elections.json`.
 
 Run the adapter tests:
 

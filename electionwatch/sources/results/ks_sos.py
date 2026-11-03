@@ -39,8 +39,11 @@ Things worth knowing:
   counts included) and is skipped. A page without the stamp is read as before.
 - Primary pages split an office by party ("United States Senate (D)", "(R)"); those are
   skipped, exactly like the Clarity feeds, because the bot tracks the general election.
-- Candidates carry no party on the page (the party is the contest suffix), so `party` is
-  None for general-election contests.
+- General-election pages put the party on each candidate instead, as a one- or two-letter
+  prefix: "D-Cindy Holscher", "R-Ty Masterson", "L-David C Graham", "i-Lex Goff",
+  "UK-Scott E. Morgan". `_split_party()` strips it and maps the code (D -> DEM, i -> IND).
+- Primary pages leave the party in the heading, and judicial retention and ballot-question
+  rows ("Constitutional Amendment - \"YES\"") never carry one, so `party` stays None there.
 - The category pages are discovered from the navigation of the first page, so a renaming
   of a tab does not need a code change.
 """
@@ -77,6 +80,9 @@ _PAGE_LINK = re.compile(r"href=['\"]([a-z0-9-]+\.html)['\"]")
 
 _PRIMARY_SUFFIX = re.compile(r"\s*\((?:D|R|DEM|REP|LIB|LBT|G|GRN|I|IND|NPA)\)\s*$", re.I)
 _PRECINCTS = re.compile(r"Precincts\s+Reporting:\s*([\d,]+)\s+of\s+([\d,]+)", re.I)
+#: General-election candidate rows start with the party code: "D-Cindy Holscher", "i-Lex Goff",
+#: "UK-Scott E. Morgan". Primary pages carry the party in the heading instead and have none.
+_PARTY_PREFIX = re.compile(r"^(D|R|L|G|I|C|W|UK)-(?=\S)", re.I)
 
 _STATEWIDE = (
     ("GOVERNOR", "GOV"),
@@ -95,6 +101,14 @@ def _norm(text: str) -> str:
 def _trailing_number(text: str) -> str | None:
     match = re.search(r"(\d{1,3})\s*$", text or "")
     return f"{int(match.group(1)):02d}" if match else None
+
+
+def _split_party(name: str) -> tuple[str, str | None]:
+    """'D-Cindy Holscher' -> ('Cindy Holscher', 'DEM'); a name without a prefix is unchanged."""
+    match = _PARTY_PREFIX.match(name)
+    if not match:
+        return name, None
+    return name[match.end() :].strip(), c.norm_party(match.group(1))
 
 
 def race_key(name: str) -> RaceKey:
@@ -157,11 +171,12 @@ def _candidate_rows(page: HTMLParser) -> tuple[list[CandidateResult], int | None
         if _norm(name) == "TOTAL VOTES":
             total = c.to_int(votes.text())
             continue
+        name, party = _split_party(name)
         raw_pct = row.css_first("div.col-1 p")
         cands.append(
             CandidateResult(
                 name=name,
-                party=None,
+                party=party,
                 votes=c.to_int(votes.text()),
                 pct=c.to_pct(raw_pct.text() if raw_pct is not None else None),
             )

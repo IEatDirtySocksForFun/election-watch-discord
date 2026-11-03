@@ -11,11 +11,12 @@ from electionwatch.sources.results import co_sos
 from electionwatch.sources.results.co_sos import parse_co, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "co_sos" / "co"
+GEN = FIX / "2026-general"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 
 
-def load(name):
-    return json.loads((FIX / name).read_text(encoding="utf-8"))
+def load(name, where=FIX):
+    return json.loads((where / name).read_text(encoding="utf-8"))
 
 
 def by_key(results):
@@ -69,6 +70,8 @@ def test_updated_at_comes_from_electionsettings():
 
 def test_race_key_mapping():
     assert format_key(race_key("Governor")) == "CO GOV"
+    assert format_key(race_key("Governor / Lieutenant Governor")) == "CO GOV"
+    assert format_key(race_key("United States Senator")) == "CO SEN"
     assert format_key(race_key("Secretary of State")) == "CO SOS"
     assert format_key(race_key("State Treasurer")) == "CO TREAS"
     assert format_key(race_key("Attorney General")) == "CO AG"
@@ -131,3 +134,70 @@ def test_fetch_discovers_unpinned_election_id(monkeypatch):
     got = by_key(asyncio.run(go()))
     assert set(got) == {"CO-01"}
     assert got["CO-01"].url == "https://results.enr.clarityelections.com/CO/124409/"
+
+
+# --- the 2026 general election (published 2026-11-03) ---------------------------------------
+
+
+def gen(name):
+    return load(name, GEN)
+
+
+def gen_parsed():
+    return parse_co(gen("summary.json"), gen("electionsettings.json"), fetched_at=AT)
+
+
+def test_general_election_joint_ticket_is_governor_not_a_local_race():
+    got = by_key(gen_parsed())
+    assert "CO GOV" in got
+    assert got["CO GOV"].key.level is Level.GOVERNOR
+    assert got["CO GOV"].title == "Governor / Lieutenant Governor"
+    assert [(candidate.name, candidate.party) for candidate in got["CO GOV"].candidates][:2] == [
+        ("Victor Marx / George Washington Markert", "REP"),
+        ("Phil Weiser / Lesley Dahlkemper", "DEM"),
+    ]
+    assert "CO LOCAL governor-lieutenant-governor" not in got
+
+
+def test_general_election_senator_and_house_titles():
+    got = by_key(gen_parsed())
+    assert got["CO SEN"].title == "United States Senator"
+    assert (got["CO SEN"].precincts_total, got["CO SEN"].precincts_reporting) == (64, None)
+    assert got["CO-01"].title == "Representative to the 120th United States Congress - District 1"
+    assert got["CO-01"].candidates[0].name == "Melat Kiros"
+    assert got["CO-01"].precincts_total == 3
+    assert got["CO-01"].total_votes == 0  # counting had not started
+
+
+def test_general_election_board_of_education_districts_stay_apart():
+    got = by_key(gen_parsed())
+    assert "CO LOCAL state-board-of-education-member-congressional-district-1" in got
+    assert "CO LOCAL state-board-of-education-member-congressional-district-3" in got
+    assert got["CO LOCAL state-board-of-education-member-congressional-district-3"].precincts_total == 27
+
+
+def test_general_election_fetch_uses_the_pinned_id(monkeypatch):
+    monkeypatch.delenv("ELECTION_DATE", raising=False)  # tracks 2026-11-03
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        seen.append(path)
+        if path.endswith("/CO/127407/current_ver.txt"):
+            return httpx.Response(200, text="383193")
+        if path.endswith("/summary.json"):
+            return httpx.Response(200, json=gen("summary.json"))
+        if path.endswith("/electionsettings.json"):
+            return httpx.Response(200, json=gen("electionsettings.json"))
+        raise AssertionError(path)
+
+    async def go():
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport) as client:
+            return await co_sos.CoSos().fetch([parse("CO GOV"), parse("CO SEN")], client)
+
+    got = by_key(asyncio.run(go()))
+    assert set(got) == {"CO GOV", "CO SEN"}
+    assert got["CO GOV"].url == "https://results.enr.clarityelections.com/CO/127407/"
+    assert got["CO GOV"].source_updated_at == datetime(2026, 11, 3, 13, 52, 34, tzinfo=timezone.utc)
+    assert not any(path.endswith("/CO/elections.json") for path in seen)  # pinned id, no lookup

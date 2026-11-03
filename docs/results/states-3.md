@@ -18,7 +18,7 @@ no usable statewide adapter; the notes below explain why.
 
 | State | Adapter        | Feed                                                                                                                          | Status                                                                                                                                                          |
 | ----- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| KS    | `ks_sos` (new) | `https://www.sos.ks.gov/ent/{national,statewide,ks-house,ks-boe,judicial,constitutional}.html`                                | HTML parser, `scrape=True`, enabled. Verified against the live 2026 primary pages (2024 general HTML is not published).                                         |
+| KS    | `ks_sos` (new) | `https://www.sos.ks.gov/ent/{national,statewide,ks-house,ks-senate,ks-boe,judicial,constitutional}.html`                      | HTML parser, `scrape=True`, enabled. Verified against the live 2026 general pages (2024 general HTML is not published) and the 2026 primary.                    |
 | KY    | —              | `https://vrsws.sos.ky.gov/liveresults/`                                                                                       | Not possible: HTTP 403 "KY SBE Acceptable Use Policy" access gate.                                                                                              |
 | LA    | `la_sos` (new) | `https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=<YYYYMMDD>/{RacesCandidates,Votes}_Multiparish.htm` | Verified fixture (2024 general with counts, 2026 general race list).                                                                                            |
 | MA    | —              | `https://electionstats.state.ma.us/` (PD43+)                                                                                  | Not implemented: no election-night feed at all; certified per-election CSVs only. See below.                                                                    |
@@ -54,9 +54,16 @@ statewide executive offices → `XX GOV`, `XX AG`, ... , state legislature → `
   the Clarity feeds. General-election headings carry no party suffix and are parsed
   normally (`tests/test_results_ks.py::test_general_election_headings_parse` runs the real
   primary blocks with the suffix removed).
-- Candidates have no party on the page (the party is the contest suffix), so `party` is
-  `None` for general-election contests. "Last Update" (`#time-stamp`, America/Chicago) is
-  converted to UTC.
+- Candidates on the general-election pages carry the party as a one- or two-letter prefix
+  (`D-Cindy Holscher`, `L-David C Graham`, `i-Lex Goff`, `UK-Scott E. Morgan`); the parser
+  strips it and stores the canonical code (`DEM`, `LIB`, `IND`, ...), so the displayed name
+  is the bare name. Primary pages have no prefix (the party is in the heading), and judicial
+  retention and ballot-question rows have none either. "Last Update" (`#time-stamp`,
+  America/Chicago) is converted to UTC.
+- On 2026-11-03 the site served the 2026 general election and the navigation added a
+  `ks-senate.html` tab; the tab list is read from the page, so no code change was needed.
+  `ks-boe.html` still answered with the August primary page and is skipped as stale until
+  the state updates it.
 
 ### LA — `la_sos`
 

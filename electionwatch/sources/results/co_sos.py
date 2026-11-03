@@ -11,12 +11,12 @@ as `clarity.py` — a per-election base URL and a data version that changes on e
 This module exists (instead of a `clarity` ELECTIONS entry) for two reasons:
 
 * Colorado's contest names do not fit the vendor adapter's generic patterns — US House is
-  "Representative to the 119th United States Congress - District 1" (no "Congressional
-  District", no "House of Representatives"), so the vendor mapping would file it as a
-  local race. `race_key()` here knows the Colorado phrasing.
-* The 2026 general's election id is not published yet, so the id is discovered from
-  CO/elections.json (matched on the election date) rather than hard-coded; ELECTIONS only
-  pins the verified ids.
+  "Representative to the 120th United States Congress - District 1" (no "Congressional
+  District", no "House of Representatives"), and Governor is the joint ticket
+  "Governor / Lieutenant Governor" — so the vendor mapping would file them as local races.
+  `race_key()` here knows the Colorado phrasing.
+* ELECTIONS pins the verified ids; a date without one is discovered from CO/elections.json
+  (matched on the election date) rather than guessed.
 
 Everything not federal / statewide executive / state legislature — regents, State Board of
 Education, district attorneys, judicial retention, amendments and propositions — becomes a
@@ -43,10 +43,13 @@ HUMAN = f"{BASE}/{STATE}/"
 ELECTIONS: dict[str, str] = {
     # date -> Clarity election id (missing = discover from elections.json).
     "2024-11-05": "122598",
+    "2026-11-03": "127407",
 }
 
 _STATEWIDE = {
     "GOVERNOR": "GOV",
+    # 2026 general: the governor and lieutenant governor run as one ticket.
+    "GOVERNOR / LIEUTENANT GOVERNOR": "GOV",
     "LIEUTENANT GOVERNOR": "LTGOV",
     "SECRETARY OF STATE": "SOS",
     "STATE TREASURER": "TREAS",
