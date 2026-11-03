@@ -41,16 +41,41 @@ def epoch_ms_to_dt(value) -> datetime | None:
 
 
 def parse_http_date(value) -> datetime | None:
-    """RFC 2822 / HTTP date (e.g. NBC's ``lastModified``) -> aware datetime."""
+    """Timestamp on a feed -> aware datetime.
+
+    Accepts the RFC 2822 / HTTP-date form (``Fri, 22 Aug 2025 13:29:37 GMT``) and the
+    ISO 8601 form with a ``Z`` suffix that NBC's 2026 ``lastModified`` now carries
+    (``2026-11-03T12:44:39.873Z``); anything else -> None.
+    """
     if not value:
         return None
+    text = str(value).strip()
     try:
-        parsed = parsedate_to_datetime(str(value))
+        parsed = parsedate_to_datetime(text)
     except (TypeError, ValueError):
-        return None
+        parsed = None
+    if parsed is None:
+        # ISO 8601 form, e.g. 2026-11-03T12:44:39.873Z; a bare year or other free text stays None.
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}(?:[T ].*)?", text):
+            return None
+        try:
+            parsed = datetime.fromisoformat(text[:-1] + "+00:00" if text.endswith("Z") else text)
+        except (TypeError, ValueError):
+            return None
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
     return parsed
+
+
+def feed_href(href) -> str | None:
+    """Site-relative ``href`` from a feed (``/politics/2026-elections/...``) -> absolute URL.
+
+    NBC's payload carries the per-race results page for every entry; the adapter prefers it over
+    a URL built from the race key, whose abbreviation form (``/ak-senate-results``) 404s.
+    """
+    if not isinstance(href, str) or not href.startswith("/"):
+        return None
+    return f"https://www.nbcnews.com{href}"
 
 
 def cnn_code_to_key(code: str) -> RaceKey | None:

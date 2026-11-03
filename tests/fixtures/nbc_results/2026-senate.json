@@ -1,0 +1,174 @@
+{
+ "mapData": {
+  "AK": {
+   "style": {
+    "fill": "#EBEBEB",
+    "textFill": "#2a2a2a"
+   },
+   "tooltip": {
+    "totalVote": 0,
+    "raceName": "Alaska",
+    "percentIn": 0,
+    "electionTypeCode": "G",
+    "geography": "states",
+    "officeCode": "S",
+    "candidates": [
+     {
+      "name": "Gerald Heikes",
+      "firstName": "Gerald",
+      "lastName": "Heikes",
+      "party": "Rep",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Mary Peltola",
+      "firstName": "Mary",
+      "lastName": "Peltola",
+      "party": "Dem",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Dan S. Sullivan",
+      "firstName": "Dan S.",
+      "lastName": "Sullivan",
+      "party": "Rep",
+      "isIncumbent": true,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Daniel J. Sullivan Jr.",
+      "firstName": "Daniel J.",
+      "lastName": "Sullivan Jr.",
+      "party": "UDC",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": " Total Write-ins",
+      "firstName": "",
+      "lastName": "Total Write-ins",
+      "party": "Oth",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     }
+    ]
+   },
+   "stateCode": "AK",
+   "href": "/politics/2026-elections/alaska-senate-results"
+  },
+  "CO": {
+   "style": {
+    "fill": "#EBEBEB",
+    "textFill": "#2a2a2a"
+   },
+   "tooltip": {
+    "totalVote": 0,
+    "raceName": "Colorado",
+    "percentIn": 0,
+    "electionTypeCode": "G",
+    "geography": "states",
+    "officeCode": "S",
+    "candidates": [
+     {
+      "name": "Mark Baisley",
+      "firstName": "Mark",
+      "lastName": "Baisley",
+      "party": "Rep",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "John Hickenlooper",
+      "firstName": "John",
+      "lastName": "Hickenlooper",
+      "party": "Dem",
+      "isIncumbent": true,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Bob Chew",
+      "firstName": "Bob",
+      "lastName": "Chew",
+      "party": "FWD",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Christopher Baum",
+      "firstName": "Christopher",
+      "lastName": "Baum",
+      "party": "AVP",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Blake Huber",
+      "firstName": "Blake",
+      "lastName": "Huber",
+      "party": "Lib",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Adam Withrow",
+      "firstName": "Adam",
+      "lastName": "Withrow",
+      "party": "Uty",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     }
+    ]
+   },
+   "stateCode": "CO",
+   "href": "/politics/2026-elections/colorado-senate-results"
+  }
+ },
+ "lastModified": "2026-11-03T12:44:39.873Z",
+ "electionSeason": "2026"
+}

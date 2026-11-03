@@ -23,6 +23,7 @@ from electionwatch.sources.results._common import election_date
 
 from ._common import (
     district_key,
+    feed_href,
     normalize_party,
     parse_http_date,
     state_from_name,
@@ -102,7 +103,7 @@ def parse_nbc_results(payload: dict) -> list[RaceCall]:
                     winner=name.strip(),
                     party=normalize_party(winner.get("party")),
                     called_at=observed,
-                    url=_results_url(key, year),
+                    url=feed_href(entry.get("href")) or _results_url(key, year),
                 )
             )
         except Exception:

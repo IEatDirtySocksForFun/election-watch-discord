@@ -1,0 +1,48 @@
+{
+ "mapData": {
+  "0101": {
+   "style": {
+    "fill": "#EBEBEB",
+    "textFill": "#2a2a2a"
+   },
+   "tooltip": {
+    "totalVote": 0,
+    "raceName": "Alabama District 1",
+    "percentIn": 0,
+    "electionTypeCode": "G",
+    "geography": "districts",
+    "officeCode": "H",
+    "candidates": [
+     {
+      "name": "Clyde Jones",
+      "firstName": "Clyde",
+      "lastName": "Jones",
+      "party": "Dem",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     },
+     {
+      "name": "Jerry Carl",
+      "firstName": "Jerry",
+      "lastName": "Carl",
+      "party": "Rep",
+      "isIncumbent": false,
+      "isWinner": false,
+      "vote": 0,
+      "votes": 0,
+      "percentVote": 0,
+      "formattedPercentVote": null
+     }
+    ]
+   },
+   "stateCode": "AL",
+   "href": "/politics/2026-elections/alabama-us-house-district-1-results"
+  }
+ },
+ "lastModified": "2026-11-03T12:44:39.873Z",
+ "electionSeason": "2026"
+}
