@@ -38,7 +38,7 @@ class ABCResultsSource(ResultsSource):
     fallback = True  # ranked after the official state feeds
     states = frozenset(STATES)
 
-    BASE = "https://abcnews.go.com/widgets/generalstateresults"
+    BASE = "https://abcnews.com/widgets/generalstateresults"
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     def _url(self, key: RaceKey) -> str | None:
@@ -68,8 +68,8 @@ class ABCResultsSource(ResultsSource):
                 continue
             seen.add(url)
             try:
-                # The widget host answers 301 towards abcnews.com, and the shared client does not
-                # follow redirects, so ask per request.
+                # abcnews.go.com moved to abcnews.com (301) in 2026-11. The shared client does not
+                # follow redirects, so ask per request in case it moves again.
                 resp = await client.get(url, follow_redirects=True)
             except httpx.HTTPError as exc:
                 raise SourceUnavailable(f"abc_results unreachable: {exc}") from exc

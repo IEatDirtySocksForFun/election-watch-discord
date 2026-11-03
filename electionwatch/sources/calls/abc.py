@@ -1,6 +1,6 @@
 """ABC News race-call adapter.
 
-ABC's state results widget (``abcnews.go.com/widgets/generalstateresults``)
+ABC's state results widget (``abcnews.com/widgets/generalstateresults``)
 server-renders its data into ``window['__abcnews__']`` as JSON. This is HTML
 scraping of the outlet's own page, so ``scrape=True`` and disabled by default.
 
@@ -37,7 +37,7 @@ class ABCSource(CallSource):
     scrape = True
     enabled_by_default = False
 
-    BASE = "https://abcnews.go.com/widgets/generalstateresults"
+    BASE = "https://abcnews.com/widgets/generalstateresults"
     YEAR = int(election_date()[:4])  # from ELECTION_DATE (default 2026-11-03)
 
     def _url(self, key: RaceKey) -> str | None:
@@ -57,8 +57,8 @@ class ABCSource(CallSource):
                 continue
             seen.add(url)
             try:
-                # The widget host answers 301 towards abcnews.com, and the shared client does not
-                # follow redirects, so ask per request.
+                # abcnews.go.com moved to abcnews.com (301) in 2026-11. The shared client does not
+                # follow redirects, so ask per request in case it moves again.
                 resp = await client.get(url, follow_redirects=True)
             except httpx.HTTPError as exc:
                 raise SourceUnavailable(f"abc unreachable: {exc}") from exc

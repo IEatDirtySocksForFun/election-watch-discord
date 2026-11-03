@@ -61,7 +61,8 @@ def test_metadata():
 async def test_fetch_calls_follows_the_widget_redirect():
     key = RaceKey("TX", Level.SENATE, "SEN")
     url = ABCSource()._url(key)
-    moved = url.replace("abcnews.go.com", "abcnews.com")
+    assert url.startswith("https://abcnews.com/")  # abcnews.go.com answers 301 to here
+    moved = url.replace("://abcnews.com", "://www.abcnews.com")  # in case ABC moves it again
     respx.get(url).mock(return_value=httpx.Response(301, headers={"Location": moved}))
     respx.get(moved).mock(return_value=httpx.Response(200, text=_load("2024-tx-senate.html")))
     async with httpx.AsyncClient() as client:  # no follow_redirects on the client: the adapter asks
