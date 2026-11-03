@@ -123,6 +123,41 @@ async def test_a_territory_is_served_end_to_end():
     assert {race_result.total_votes for race_result in results} == {30994, 30677}
 
 
+def test_a_live_2026_state_feed_parses():
+    """NH's 2026 general now carries real (early) votes; percent_reporting is still 0."""
+    rows = {row["election_name"]: race_key(row) for row in _load("search_nh_2026.json")["races"]}
+    assert rows["New Hampshire US Senate"] == RaceKey("NH", Level.SENATE, "SEN")
+    assert rows["New Hampshire Governor"] == RaceKey("NH", Level.GOVERNOR, "GOV")
+    assert rows["New Hampshire State Senate"] is None  # chamber-control summary, not a race
+    assert rows["New Hampshire State Senate District 1"] == parse("NH SD-01")
+    assert rows["New Hampshire Question 2 - Property Tax Cap"].level is Level.LOCAL
+    senate = _load("race_nh_sen_2026.json")
+    assert senate["test_data"] is False and "called_at" not in senate
+    race_result = parse_race(senate, 87283, rows["New Hampshire US Senate"], NOW)
+    assert [(candidate.name, candidate.party, candidate.votes) for candidate in race_result.candidates] == [
+        ("John E. Sununu", "REP", 5),
+        ("Chris Pappas", "DEM", 2),
+        ("Edmond Laplante", "CST", 0),
+    ]
+    assert race_result.total_votes == 7
+    # 0% of precincts reporting with votes already counted is unknown, not zero.
+    assert race_result.expected_vote_pct is None
+    assert race_result.url == "https://civicapi.org/results/elections/87283"
+    assert parse_call(senate, 87283, rows["New Hampshire US Senate"]) is None
+
+
+@respx.mock
+async def test_new_hampshire_is_served_end_to_end():
+    respx.get(f"{API}/race/search").respond(json=_load("search_nh_2026.json"))
+    respx.get(f"{API}/race/87283").respond(json=_load("race_nh_sen_2026.json"))
+    respx.get(f"{API}/race/87284").respond(json=_load("race_nh_gov_2026.json"))
+    keys = [parse("NH SEN"), parse("NH GOV")]
+    async with httpx.AsyncClient() as client:
+        results = await CivicAPIResultsSource(_CivicAPI()).fetch(keys, client)
+    assert {race_result.key for race_result in results} == set(keys)
+    assert {race_result.total_votes for race_result in results} == {7}
+
+
 def test_a_real_call():
     call = parse_call(_load("race_tx_sen_2024.json"), 107793, TX_SEN)
     assert call is None or (call.outlet, call.winner, call.party) == ("CIVICAPI", "Ted Cruz", "REP")

@@ -40,11 +40,13 @@ in the notes under [docs/results/](results/).
 | CT              | `ct_ems`          | https://ctemspublic.pcctg.net/ng-app/data/Elections.json (then `election/<id>/<version>/`) | **verified fixture** — 2026 state election (id 108) lists every race at 0 votes; JSON, opt-in; the host answers 301 and the adapter follows it     |
 | MN              | `mn_sos`          | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt                                 | **verified fixture** — 2026 general text exports; live 2026-10-27 returns 871 contests (statewide)                                                 |
 | ND              | `nd_enr`          | https://api.resultsnd.sos.nd.gov/Contest/GetContestResults                                 | **verified fixture** — 2026 general (0 votes, 0/358 precincts) and 2026 primary counts; `nd_sos` keeps the 2024 archive                            |
+| ID              | `id_results`      | https://results.voteidaho.gov/results/public/api/elections/id/<slug>/data                  | **verified fixture** — 2026 general (0 votes, 0/44 precincts) and 2025 local counts; JSON, opt-in; `id_sos` keeps the certified archive            |
 | MI              | `mi_county`       | https://results.enr.clarityelections.com/MI/<County>/                                      | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)`       |
 | WI              | `wi_dane`         | https://elections.countyofdane.com/Election-Result                                         | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)`                                     |
 | TN (Shelby Co.) | `tn_counties`     | https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export-General11052024.json    | **verified fixture** — Shelby 2024 general (142 precincts); 2026 export 404 on 2026-10-27; `TN_COUNTY_FEEDS` pins another county/slug              |
 | TX (counties)   | `tx_counties`     | https://results.enr.clarityelections.com/TX/<County>/                                      | **verified fixtures** — 17 configured, 2024 for 13 counties, 2026 for Denton/Galveston/Kaufman; per-county 2024 shares in docs/results/counties.md |
-| NV, NH, ME      | —                 | —                                                                                          | blocked / PDF-only; see docs/results/alt-a.md                                                                                                      |
+| NV, ME          | —                 | —                                                                                          | blocked / PDF-only; see docs/results/alt-a.md                                                                                                      |
+| NH              | `civicapi`        | https://civicapi.org/api/v2/race/search?country=US&province=NH                             | **verified fixture** — live 2026 general (308 rows, 0% reporting); no official state feed; SOS still 403                                           |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under
 `tests/fixtures/<adapter>/` (each README.txt records the URL and fetch date). Nothing in
@@ -149,6 +151,21 @@ write-in 124; 30,994 votes at 99.9% reporting) and Delegate (Limtiaco 15,645, Mo
 30,677 votes). Neither race had `called_at`, so the call source posts no call. VI, AS and MP were
 listed with 0 votes, and PR had no 2026 rows. Fixtures: `search_gu_2026.json`,
 `race_gu_gov_2026.json` and `race_gu_delegate_2026.json` under `tests/fixtures/civicapi/`.
+
+---
+
+## New Hampshire — `civicapi`
+
+The SOS site still answers CloudFront 403, so NH has no official adapter. On 2026-11-03
+the civicAPI general feed changed from empty to live: 308 rows, including US Senate and
+Governor with early votes (Sununu 5, Pappas 2, Laplante 0; Ayotte 6, Warmington 1,
+Villee 0), `percent_reporting` still 0 and no `called_at`, so no call is posted. The
+state Senate's 24 district rows put the district only in `election_name` ("New Hampshire
+State Senate District 1") and leave `district` empty; `race_key` now falls back to the
+name and maps those to `NH SD-nn`. State House rows are county-scoped ("... Hillsborough
+County District 39") and have no district-wide key in the bot, so they stay unmapped.
+Fixtures: `search_nh_2026.json`, `race_nh_sen_2026.json` and `race_nh_gov_2026.json`
+under `tests/fixtures/civicapi/`.
 
 ---
 

@@ -47,7 +47,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | NC    | abc_results, fox_results, nbc_results, nc_sbe                   | cbs_results, civicapi                                                | -      |
 | ND    | abc_results, fox_results, nbc_results, nd_enr                   | cbs_results, civicapi, nd_sos                                        | -      |
 | NE    | abc_results, fox_results, nbc_results, ne_sos                   | cbs_results, civicapi                                                | -      |
-| NH    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |
+| NH    | abc_results, civicapi, fox_results, nbc_results                 | cbs_results                                                          | -      |
 | NJ    | abc_results, fox_results, nbc_results, nj_counties              | cbs_results, civicapi                                                | -      |
 | NM    | abc_results, fox_results, nbc_results, nm_sos                   | cbs_results, civicapi                                                | -      |
 | NV    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi                                                | -      |

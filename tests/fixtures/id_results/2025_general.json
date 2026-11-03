@@ -1,0 +1,496 @@
+{
+ "election": {
+  "ballotItemCount": 1,
+  "dateText": [
+   {
+    "languageId": "en",
+    "text": "November 4, 2025"
+   }
+  ],
+  "id": "01000000-73d7-4278-629e-08ddfb901fdd",
+  "jurisdictionId": "8c9d6490-6c2e-460e-8e42-0d1c8609ce42",
+  "name": [
+   {
+    "languageId": "en",
+    "text": "Consolidated Election - November 4, 2025"
+   }
+  ],
+  "isOfficialResults": false,
+  "electionDate": "2025-11-04",
+  "isProduction": true,
+  "asOf": "2026-05-27T16:08:29.5583087Z",
+  "lastUpdated": "2026-05-27T15:45:52.5509018Z",
+  "publishDate": "2026-05-27T16:08:32.9235574Z",
+  "publishVersionId": "3c190cfb-8994-4487-9bae-b8e878932592",
+  "publicReportCategories": [],
+  "groupReportingStatus": [
+   {
+    "groupName": [
+     {
+      "languageId": "en",
+      "text": "Election Day"
+     }
+    ],
+    "reportingStatusClientTextKey": "reporting-status-not-reported",
+    "order": 1,
+    "value": null
+   },
+   {
+    "groupName": [
+     {
+      "languageId": "en",
+      "text": "Absentee"
+     }
+    ],
+    "reportingStatusClientTextKey": "reporting-status-not-reported",
+    "order": 2,
+    "value": null
+   },
+   {
+    "groupName": [
+     {
+      "languageId": "en",
+      "text": "Early Vote"
+     }
+    ],
+    "reportingStatusClientTextKey": "reporting-status-not-reported",
+    "order": 3,
+    "value": null
+   }
+  ],
+  "precinctReportingStatus": null,
+  "contestGroups": [
+   {
+    "id": "01000000-e986-7ed9-0aa9-08de06a6f90f",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "City Districts"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 1,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-e986-7ed9-26d8-08de06a76e1b",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "School Districts"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 2,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-e986-7ed9-2543-08de06a755ed",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Fire Districts"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 3,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-07cc-0461-3bad-08de1318e488",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Cemetery District"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 4,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-4fc7-03f8-6f04-08de1318ee92",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Library District"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 5,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-4fc7-03f8-c40b-08de1318dcf8",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Auditorium District Creation"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 6,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "other",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Other Contests"
+     }
+    ],
+    "groupSubHeading": null,
+    "hideIfEmpty": true,
+    "order": 7,
+    "showInPublicResultsFilters": null
+   }
+  ],
+  "countGroups": null,
+  "precinctsReporting": null,
+  "map": {
+   "enabled": true,
+   "styleUrl": "mapbox://styles/enhancedvoting/cmfec58ug00j601rw0ihv00bq",
+   "featureIdField": "County",
+   "disclaimer": [],
+   "showMapLegend": true
+  },
+  "totalVoters": 889567.0,
+  "ballotsCast": 0.0,
+  "redactingPrecinctCountGroups": false,
+  "precinctResultsProtected": false,
+  "reportingStatusBy": 0,
+  "customPublicMessages": [
+   {
+    "text": [
+     {
+      "languageId": "en",
+      "text": "<p>Unofficial results will be posted after the polls close, no earlier than 8 pm local time.</p>"
+     }
+    ],
+    "type": 1,
+    "order": 1
+   }
+  ],
+  "closeRaceThreshold": 8.0,
+  "closeRaceThresholdDisclaimer": [
+   {
+    "languageId": "en",
+    "text": "<p>Races will be displayed at any point where the margin of difference is within 8 percentage points.</p>"
+   }
+  ],
+  "hasStateWideCloseRaces": false,
+  "nextUpdateAt": null,
+  "hidePrecincts": false,
+  "includePrecinctResults": null,
+  "includePrecinctStatuses": null,
+  "showOverUnderVotes": null,
+  "isPrimary": false,
+  "parties": [
+   {
+    "id": "01000000-e1e9-13c5-fc26-08de12345d91",
+    "name": [
+     {
+      "languageId": "en",
+      "text": ""
+     }
+    ],
+    "abbreviation": "NON",
+    "standardName": "",
+    "color": "#b3ab95",
+    "textColor": "#FFFFFF",
+    "showInPublicResultsFilters": null
+   }
+  ]
+ },
+ "ballotItems": [
+  {
+   "id": "7756c0fb-7d08-4b55-98d1-0131498981a4",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2025",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Burley City Mayor"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 2,
+    "totalUnits": 2,
+    "asOf": "2026-05-27T16:08:29.5583087Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 640,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-e986-7ed9-0aa9-08de06a6f90f",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "4b5f6c56-0644-4f30-8e1b-da414a1c1ef9",
+      "nativeId": null,
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Steve Ormond"
+       }
+      ],
+      "voteCount": 640,
+      "party": {
+       "id": "01000000-e1e9-13c5-fc26-08de12345d91",
+       "name": [
+        {
+         "languageId": "en",
+         "text": ""
+        }
+       ],
+       "abbreviation": "NON",
+       "standardName": null,
+       "color": "#b3ab95",
+       "textColor": "#FFFFFF",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": null,
+   "crossCounties": [
+    "Cassia County",
+    "Minidoka County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "bf352e3b-a51b-4e0f-9b2a-1f750745953e",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2025",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Bruneau-Grand View School District Trustee Zone 3"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 2,
+    "totalUnits": 2,
+    "asOf": "2026-05-27T16:08:29.5583087Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 137,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-e986-7ed9-26d8-08de06a76e1b",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "00d65586-53e1-45b8-b998-9fa8b35e2e40",
+      "nativeId": null,
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Raelynn Mathews"
+       }
+      ],
+      "voteCount": 70,
+      "party": {
+       "id": "01000000-e1e9-13c5-fc26-08de12345d91",
+       "name": [
+        {
+         "languageId": "en",
+         "text": ""
+        }
+       ],
+       "abbreviation": "NON",
+       "standardName": null,
+       "color": "#b3ab95",
+       "textColor": "#FFFFFF",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "66d70c72-2926-45c1-8c3d-8b6931bde917",
+      "nativeId": null,
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Jeremy Pineda"
+       }
+      ],
+      "voteCount": 67,
+      "party": {
+       "id": "01000000-e1e9-13c5-fc26-08de12345d91",
+       "name": [
+        {
+         "languageId": "en",
+         "text": ""
+        }
+       ],
+       "abbreviation": "NON",
+       "standardName": null,
+       "color": "#b3ab95",
+       "textColor": "#FFFFFF",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": null,
+   "crossCounties": [
+    "Elmore County",
+    "Owyhee County"
+   ],
+   "isCloseRace": true,
+   "partyName": null
+  },
+  {
+   "id": "70c10933-e84b-4a04-bb1d-13e7ec7022f6",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2025",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Mountain Community Center District Creation Question"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Requires over 50% to pass"
+    }
+   ],
+   "referendum": [
+    {
+     "languageId": "en",
+     "text": "The question being submitted to the electors of the proposed Mountain Community Center District is as follows: \r\n\r\nShall the Mountain Community Center District be created and organized under the laws of the State of Idaho, with the boundaries as described in the Petition approved by the Court, and shall the following individuals, nominated in the Petition, be elected as the initial Board of Directors of the district?"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 2,
+    "totalUnits": 2,
+    "asOf": "2026-05-27T16:08:29.5583087Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 2768,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-4fc7-03f8-c40b-08de1318dcf8",
+   "contestType": "BallotMeasure",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "e0f0186d-84ae-4717-867d-ecc9283b6964",
+      "nativeId": null,
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Yes"
+       }
+      ],
+      "voteCount": 1760,
+      "party": {
+       "id": "01000000-e1e9-13c5-fc26-08de12345d91",
+       "name": [
+        {
+         "languageId": "en",
+         "text": ""
+        }
+       ],
+       "abbreviation": "NON",
+       "standardName": null,
+       "color": "#b3ab95",
+       "textColor": "#FFFFFF",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": true
+     },
+     {
+      "id": "37faf850-620e-42a2-b94c-a07975b38419",
+      "nativeId": null,
+      "name": [
+       {
+        "languageId": "en",
+        "text": "No"
+       }
+      ],
+      "voteCount": 1008,
+      "party": {
+       "id": "01000000-e1e9-13c5-fc26-08de12345d91",
+       "name": [
+        {
+         "languageId": "en",
+         "text": ""
+        }
+       ],
+       "abbreviation": "NON",
+       "standardName": null,
+       "color": "#b3ab95",
+       "textColor": "#FFFFFF",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": false
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": null,
+   "crossCounties": [
+    "Adams County",
+    "Valley County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  }
+ ]
+}

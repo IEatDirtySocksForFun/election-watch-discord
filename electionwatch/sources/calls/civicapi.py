@@ -76,8 +76,16 @@ def race_key(row: dict) -> RaceKey | None:
             return RaceKey(state, Level.GOVERNOR, _OFFICES[kind], None, special)
         if kind in ("State House", "State Senate"):
             match = _LEGISLATURE.fullmatch(district or "")
-            # No district = the chamber-control summary (seats per party), not a race.
-            key = parse(f"{state} {match.group(1)}-{match.group(2)}") if match else None
+            if match:
+                key = parse(f"{state} {match.group(1)}-{match.group(2)}")
+            elif kind == "State Senate":
+                # NH leaves `district` empty and puts it in the name instead
+                # ("New Hampshire State Senate District 1").
+                named = re.search(r"state senate district (\d{1,2})$", lowered)
+                key = parse(f"{state} SD-{int(named.group(1)):02d}") if named else None
+            else:
+                # No district = the chamber-control summary (seats per party), not a race.
+                key = None
             return replace(key, special=special) if key else None
     except (RaceKeyError, ValueError):
         return None

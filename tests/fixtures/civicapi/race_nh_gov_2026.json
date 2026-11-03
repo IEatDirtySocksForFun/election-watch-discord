@@ -1,0 +1,106 @@
+{
+ "election_name": "New Hampshire Governor",
+ "election_type": "Governor",
+ "election_scope": "Statewide",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "NH",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2026-11-03T13:00:00.000Z",
+ "polls_close": "2026-11-04T01:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 0,
+ "test_data": false,
+ "last_updated": "2026-11-03T21:48:52.835Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "New Hampshire",
+   "map": "assets/New_Hampshire.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "Kelly Ayotte",
+   "candidate_id": 220782,
+   "party": "Republican",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 6,
+   "percent": 85.71
+  },
+  {
+   "name": "Cinde Warmington",
+   "candidate_id": 220781,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 1,
+   "percent": 14.29
+  },
+  {
+   "name": "Stephen Villee",
+   "candidate_id": 220783,
+   "party": "Libertarian",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#d4c029",
+   "votes": 0,
+   "percent": 0
+  }
+ ],
+ "region_results": {
+  "alton": {
+   "name": "Alton",
+   "type": "Town",
+   "fill": "#404040",
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Kelly Ayotte",
+     "party": "Republican",
+     "votes": 0,
+     "percent": 0,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "Cinde Warmington",
+     "party": "Democratic",
+     "votes": 0,
+     "percent": 0,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "Stephen Villee",
+     "party": "Libertarian",
+     "votes": 0,
+     "percent": 0,
+     "color": "#d4c029",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  }
+ }
+}

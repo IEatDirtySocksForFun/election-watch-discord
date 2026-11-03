@@ -239,7 +239,10 @@ The bot uses civicAPI, then `fox_results`.
 ## Massachusetts, Maine, New Hampshire
 
 No live state feed exists (MA: PD43+ is certified-only; ME and NH towns report by phone/PDF;
-NH's SOS is CloudFront 403). Use civicAPI or an enabled national fallback.
+NH's SOS is CloudFront 403). On 2026-11-03 civicAPI carried the NH general with early
+Senate and Governor votes (308 rows, `percent_reporting` 0, no calls); state Senate
+districts map from `election_name`, while county-scoped House rows stay unmapped. Use
+civicAPI or an enabled national fallback.
 
 ---
 

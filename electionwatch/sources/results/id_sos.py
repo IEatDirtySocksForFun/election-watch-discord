@@ -1,10 +1,8 @@
 """Idaho — Secretary of State results archive (HTML, data embedded as JSON).
 
-Idaho's live results app (results.voteidaho.gov) is an Angular SPA whose API is
-per-jurisdiction (one entry per county plus a statewide "id" slug) and returns
-contest metadata only - the actual vote numbers are loaded through an endpoint the
-bundle does not expose. The SOS also publishes a static, per-election archive that
-*does* carry the numbers, and it is the same data the app shows:
+The live results app (results.voteidaho.gov) has a statewide JSON document with the
+election-night numbers; `id_results` reads that. This adapter reads the SOS's static,
+per-election archive, which is the same data after certification:
 
     https://archive.voteidaho.gov/results/2024/general/index.html
         ./congressional.html   "District 1 US Representative" ...

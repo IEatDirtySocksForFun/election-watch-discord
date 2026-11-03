@@ -180,7 +180,10 @@ Congress District n` -> `WI-nn`, `State Senator District n` -> `WI SD-nn`,
   for a browser UA alike (`/elections-results` included).
 - `electionresults.sos.nh.gov` does not resolve at all (curl exit 6), and NH reports
   town-by-town rather than through a state ENR application.
-- No reachable feed; NH stays on `cbs_results`.
+- No reachable state feed. On 2026-11-03 civicAPI carried the NH general (US Senate and
+  Governor with early votes, `percent_reporting` 0, no calls); state Senate districts map
+  from the race name, county-scoped House districts do not. `cbs_results` remains the call
+  source.
 
 ---
 

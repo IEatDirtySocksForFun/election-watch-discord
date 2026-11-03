@@ -91,17 +91,22 @@ state.
 
 ---
 
-## ID — `electionwatch/sources/results/id_sos.py`
+## ID — `electionwatch/sources/results/id_sos.py` and `id_results.py`
 
-- The live app (`results.voteidaho.gov`) is an Angular SPA whose API is
-  per-jurisdiction (one per county plus a statewide `id` slug); the election document
-  returns contest groups but not vote totals, and the bundle exposes no endpoint that
-  returns the totals, so the app was not used.
-- Feed: the SOS archive, `https://archive.voteidaho.gov/results/<year>/<kind>/`
-  (`general` in November, `primary` in May), which carries the same numbers as
-  reactable widgets: each contest is an `<h4>` heading followed by a
-  `<script type="application/json">` block with `ContestantName`, `TotalVotes`,
-  `Percent`. Party is in the candidate name's parentheses ("Russ Fulcher (REP)").
+- The live app (`results.voteidaho.gov`) is an Angular SPA with one JSON document per
+  jurisdiction and election. The statewide document carries every ballot item with
+  `voteCount`, `reportingStatus` and `asOf`, at
+  `https://results.voteidaho.gov/results/public/api/elections/id/<slug>/data`
+  (`slug` = month + year, e.g. `nov2026`). `id_results` reads it; the adapter is opt-in
+  (`scrape=True`, `enabled_by_default=False`) because the path is the app's own data
+  endpoint rather than a documented API, and the document is about 0.5 MB for a general
+  election.
+- Feed for certified results: the SOS archive,
+  `https://archive.voteidaho.gov/results/<year>/<kind>/` (`general` in November,
+  `primary` in May), which carries the same numbers as reactable widgets: each contest
+  is an `<h4>` heading followed by a `<script type="application/json">` block with
+  `ContestantName`, `TotalVotes`, `Percent`. Party is in the candidate name's
+  parentheses ("Russ Fulcher (REP)"). `id_sos` reads the archive.
 - Pages polled: `congressional.html` for US House, `legislative.html` for the
   legislature, and any other page the index lists when a statewide office is asked
   for; `county`/`measures`/`turnout`/`xml`/`close-races` are skipped. `fetch()` only
@@ -109,10 +114,15 @@ state.
   legislative ≈ 38 MB — the archive is a finished-results snapshot, not a live feed).
 - Idaho House districts elect two members from separate positions, so those races use
   district codes `01A` / `01B` (`ID HD-01A`).
-- Fixture: the archive index plus the District 1 sections of the congressional and
-  legislative pages.
-- Status: verified fixture; a live run for 2024 general returned `ID-01` (Fulcher
-  466,232) and `ID SD-01` (Woodward 30,859).
+- Fixtures: the archive index plus the District 1 sections of the congressional and
+  legislative pages (`tests/fixtures/id_sos/`); the statewide 2026 general document
+  (6 ballot items, before polls closed) and a 2025 local election with counts
+  (`tests/fixtures/id_results/`).
+- Status: verified fixtures; a live run for 2024 general returned `ID-01` (Fulcher
+  466,232) and `ID SD-01` (Woodward 30,859). On 2026-11-03 the live document listed all
+  statewide contests with 0 votes and 0 of 44 precincts reporting, as expected before the
+  count started. Enable it with `EW_ENABLED_SOURCES=id_results`; `id_sos` stays on for the
+  certified archive.
 
 ---
 

@@ -1,0 +1,106 @@
+{
+ "election_name": "New Hampshire US Senate",
+ "election_type": "US Senate",
+ "election_scope": "General",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "NH",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2026-11-03T13:00:00.000Z",
+ "polls_close": "2026-11-04T01:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 0,
+ "test_data": false,
+ "last_updated": "2026-11-03T21:48:52.522Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "New Hampshire",
+   "map": "assets/New_Hampshire.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "John E. Sununu",
+   "candidate_id": 220780,
+   "party": "Republican",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 5,
+   "percent": 71.43
+  },
+  {
+   "name": "Chris Pappas",
+   "candidate_id": 220778,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 2,
+   "percent": 28.57
+  },
+  {
+   "name": "Edmond Laplante",
+   "candidate_id": 220779,
+   "party": "Constitution",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#808080",
+   "votes": 0,
+   "percent": 0
+  }
+ ],
+ "region_results": {
+  "alton": {
+   "name": "Alton",
+   "type": "Town",
+   "fill": "#404040",
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "John E. Sununu",
+     "party": "Republican",
+     "votes": 0,
+     "percent": 0,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "Chris Pappas",
+     "party": "Democratic",
+     "votes": 0,
+     "percent": 0,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    },
+    {
+     "name": "Edmond Laplante",
+     "party": "Constitution",
+     "votes": 0,
+     "percent": 0,
+     "color": "#808080",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  }
+ }
+}
