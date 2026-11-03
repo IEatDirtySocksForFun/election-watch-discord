@@ -47,6 +47,9 @@ class GuildSettings:
     odds_markets: list[str] = field(default_factory=lambda: ["kalshi", "polymarket"])
     odds_swing_pts: float = 50.0  # alert when implied prob moves >= this many points
     odds_window_minutes: int = 60  #   ... within this look-back window
+    # Odds for every race Kalshi or Polymarket has a market for, not only the watched races:
+    # polled, stored and checked for swings. Result posts still follow `important`.
+    odds_all_races: bool = False
     paused: bool = False
     post_early_vote: bool = False  # daily civicAPI early-vote summary (/earlyvote_posts)
     # /limits overrides for this server; None = the operator's value, else computed

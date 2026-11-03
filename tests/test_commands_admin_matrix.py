@@ -1300,6 +1300,7 @@ def test_settings_card_shows_every_setting():
         "odds_markets": ["kalshi"],
         "odds_swing_pts": 7.5,
         "odds_window_minutes": 15,
+        "odds_all_races": True,
         "paused": True,
         "post_early_vote": True,
         "user_cooldown_seconds": 30,

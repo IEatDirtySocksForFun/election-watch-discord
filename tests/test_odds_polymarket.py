@@ -225,3 +225,13 @@ async def test_a_failed_price_batch_is_an_error_not_old_prices():
         clock[0] = 60.0
         with pytest.raises(SourceUnavailable):
             await source.fetch_odds([PA01], client)
+
+
+async def test_market_keys_are_the_discovered_races():
+    import httpx
+
+    transport = _routes(_house_events(), mids=lambda token: "0.5", spreads=lambda token: "0.01")
+    source = PolymarketSource(clock=lambda: 0.0)
+    async with httpx.AsyncClient(transport=transport) as client:
+        keys = await source.market_keys(client)
+    assert set(keys) == {PA01, CA11, RaceKey("AK", Level.HOUSE, "HOUSE", "AL")}

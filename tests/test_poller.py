@@ -792,3 +792,57 @@ async def test_outlet_flagging_specials_does_not_alias_the_regular_race():
     assert [(poller.race, poller.lines[0]) for _, _, poller in poster.sent] == [
         ("CA SEN S", "🔵 Projected winner: Adam Schiff (DEM)")
     ]
+
+
+class ListingOdds(OddsSource):
+    """A market source that lists its own races (market_keys) and prices whatever it is asked."""
+
+    name = "listing"
+
+    def __init__(self, price: float = 0.70) -> None:
+        self.price = price
+        self.asked: list[list] = []
+
+    async def market_keys(self, client):
+        return [parse("PA-01"), KEY]
+
+    async def fetch_odds(self, keys, client):
+        self.asked.append([str(key) for key in keys])
+        return [OddsSnapshot(key, "kalshi", "REP", self.price, NOW) for key in keys]
+
+
+@pytest.mark.asyncio
+async def test_a_server_can_follow_odds_for_every_market_without_result_posts(monkeypatch):
+    import sys
+    import types
+
+    swings = types.ModuleType("electionwatch.swings")
+    swings.detect_swing = lambda history, pts, window: history[-1].prob - history[0].prob >= pts / 100
+    monkeypatch.setitem(sys.modules, "electionwatch.swings", swings)
+    store = MemoryStore()
+    await store.save_guild(
+        GuildSettings(1, channel_id=10, important=[str(KEY)], odds_alerts=True, odds_swing_pts=20, odds_all_races=True)
+    )
+    await store.add_odds(OddsSnapshot(parse("PA-01"), "kalshi", "REP", 0.40, NOW - timedelta(minutes=5)))
+    source = ListingOdds()
+    poster = RecordingPoster()
+    await poller(store, {"odds": [source]}, poster).tick()
+    assert "PA-01" in source.asked[0]  # asked although only TX SEN is watched
+    assert [post[2].kind for post in poster.sent] == ["odds_swing"]
+    assert poster.sent[0][2].race == "PA-01"  # the swing alert covers the unwatched market race
+
+
+@pytest.mark.asyncio
+async def test_an_unchanged_price_is_not_stored_again_until_the_keepalive():
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    sources = {"odds": [FakeOdds()]}
+    clock = [NOW]
+    p = Poller(store, sources, RecordingPoster(), lambda: clock[0], object())
+    await p.tick()
+    clock[0] = NOW + timedelta(minutes=2)
+    await p.tick()
+    assert len(await store.odds_since(KEY, "kalshi", "REP", NOW - timedelta(hours=1))) == 1
+    clock[0] = NOW + timedelta(minutes=16)
+    await p.tick()
+    assert len(await store.odds_since(KEY, "kalshi", "REP", NOW - timedelta(hours=1))) == 2

@@ -77,6 +77,14 @@ class PolymarketSource(OddsSource):
             snapshots.extend(replace(snap, ts=fetched) for snap in snaps if snap.key == key)
         return snapshots
 
+    async def market_keys(self, client: httpx.AsyncClient) -> list[RaceKey]:
+        """Every race the midterms tag has a winner event for (the hourly discovery)."""
+        now = self._clock()
+        if self._discovered is None or now - self._discovered >= self.DISCOVERY_TTL:
+            self._events = await self._discover(client)
+            self._discovered = now
+        return list(self._events)
+
     async def _discover(self, client: httpx.AsyncClient) -> dict[RaceKey, dict]:
         """Every race event under the tag. A top-two race between two candidates of one party
         has a party event ("Democratic Party" at 99%) and a "(by individual)" one; the latter

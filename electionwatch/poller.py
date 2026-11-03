@@ -132,6 +132,7 @@ POLLS_CACHE = "polls"
 #: A results source's last answer stands in for it while it is not due or backing off, for at
 #: most this long; after that the fallbacks answer for its races.
 ANSWER_REUSE = timedelta(minutes=10)
+ODDS_KEEPALIVE = timedelta(minutes=15)  # an unchanged price is stored again after this
 ODDS_CHECKED = "odds_checked"  # races the odds refresh asked about and no market answered
 
 
@@ -208,6 +209,9 @@ class Poller:
         self.demand = demand
         self._answers: dict[str, tuple] = {}  # source -> (when, its last results), see _fetch
         self._odds_checked: dict[str, datetime] = {}  # race -> when its "no market" marker was written
+        # (race, market, outcome) -> (price, when stored): an unchanged price is stored again
+        # only every ODDS_KEEPALIVE, so polling every market does not fill the database.
+        self._odds_stored: dict[tuple[str, str, str], tuple[float, datetime]] = {}
         self._lock = asyncio.Lock()  # /refresh and the minute loop never overlap
 
     def _watched(self, guild: GuildSettings) -> set[str]:
@@ -481,21 +485,35 @@ class Poller:
     async def _odds(self, now: datetime, guilds: list[GuildSettings], keys: list) -> None:
         snapshots: list[OddsSnapshot] = []
         asked = False
+        every_market = any(guild.odds_all_races for guild in guilds)
         for source in self.sources.get("odds", []):
             if not self._enabled(source):
                 continue
             name = getattr(source, "name", repr(source))
             if self.rates is not None and not self.rates.due(f"{name}:odds", "odds"):
                 continue
+            source_keys = keys
+            if every_market and hasattr(source, "market_keys"):
+                try:
+                    listed = await asyncio.wait_for(source.market_keys(self.http), timeout=self.fetch_timeout)
+                    source_keys = list(dict.fromkeys([*keys, *listed]))
+                except Exception:
+                    logger.exception("Odds source %s could not list its markets", name)
             try:
-                fetched = await self._fetch(source, "fetch_odds", keys)
+                fetched = await self._fetch(source, "fetch_odds", source_keys)
             except Exception:
                 logger.exception("Odds source %s failed", source.name)
                 continue
             asked = True
             for snapshot in self._canonical_batch(source, fetched):
+                mark = (str(snapshot.key), snapshot.market, snapshot.outcome)
+                last = self._odds_stored.get(mark)
+                if last is not None and last[0] == snapshot.prob and now - last[1] < ODDS_KEEPALIVE:
+                    snapshots.append(snapshot)  # unchanged: still checked for swings, not stored again
+                    continue
                 try:
                     await self.store.add_odds(snapshot)
+                    self._odds_stored[mark] = (snapshot.prob, now)
                     snapshots.append(snapshot)
                 except Exception:
                     logger.exception("Could not store odds for %s", snapshot.key)
@@ -525,7 +543,9 @@ class Poller:
                 continue
             watched = self._watched(guild)
             for snapshot in snapshots:
-                if str(snapshot.key) not in watched or snapshot.market not in guild.odds_markets:
+                if (str(snapshot.key) not in watched and not guild.odds_all_races) or (
+                    snapshot.market not in guild.odds_markets
+                ):
                     continue
                 ref = f"{snapshot.key}:{snapshot.market}:{snapshot.outcome}"
                 try:
