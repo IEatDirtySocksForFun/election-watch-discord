@@ -1,17 +1,21 @@
-"""North Dakota — Secretary of State results site (results.sos.nd.gov).
+"""North Dakota — Secretary of State archive pages (results.sos.nd.gov).
 
-North Dakota runs the "Results SW" ASP.NET application, one URL per contest group, each a
-server-rendered page:
+North Dakota ran this "Results SW" ASP.NET application, one URL per contest group:
 
     https://results.sos.nd.gov/resultsSW.aspx?text=All&type=SW&map=CTY   statewide contests
     https://results.sos.nd.gov/resultsSW.aspx?text=All&type=LG&map=CTY   legislative districts
     (type=JD judicial, type=CIALL county initiatives, ... - not tracked)
 
-The same URLs serve whatever election the state is currently counting; on 2026-10-27 the URLs
-served the 2024 general election, which is what the fixture records. Each page names its
-election in a hidden form field, ``<input id="hidElectionDate" value="11/5/2024">``: a page for
-any other date than ELECTION_DATE is skipped, so the last election's results (with winners)
-never show as this election's. A page without the field is read as before.
+Legacy archive. For the 2026 general election the state moved its live count to a new
+Election Night Reporting site (``nd_enr``); these pages still serve the 2024 general
+election, which is what the fixture records. ``fetch()`` reads the election heading and
+raises ``SourceUnavailable`` when the page is not the tracked election, so the adapter
+can never present an old count as the current one. It stays available for replaying a
+past election (``ELECTION_DATE=2024-11-05``).
+
+Each page also names its election in a hidden form field,
+``<input id="hidElectionDate" value="11/5/2024">``: a page for any other date than
+ELECTION_DATE is skipped. A page without the field is read as before.
 
 One block per contest inside `<div class="wrapper-inside wrapper-border">`:
 
@@ -58,6 +62,8 @@ HUMAN = "https://results.sos.nd.gov/"
 _ELECTION_DATE = re.compile(r'id="hidElectionDate"[^>]*?value="(\d{1,2})/(\d{1,2})/(\d{4})"', re.I)
 _PRECINCTS = re.compile(r"Precincts\s+Fully:\s*([\d,]+)\s*/\s*([\d,]+)", re.I)
 _DISTRICT = re.compile(r"DISTRICT\s*0*(\d{1,2})\s*([A-Z])?", re.I)
+#: "<h1><span>Official</span> 2024 General Election Results</h1>" in the page header.
+_ELECTION_YEAR = re.compile(r"\b(20\d{2})\s+General\s+Election\s+Results\b", re.I)
 
 _PARTIES = {
     "REPUBLICAN": "REP",
@@ -127,6 +133,12 @@ def _party(node) -> str | None:
     if not text:
         return None
     return _PARTIES.get(re.sub(r"[^A-Za-z]", "", text).upper(), c.norm_party(text))
+
+
+def page_election_year(html: str) -> int | None:
+    """Year in the page's election heading ('2024 General Election Results')."""
+    match = _ELECTION_YEAR.search(html or "")
+    return int(match.group(1)) if match else None
 
 
 def page_election_date(html: str) -> date | None:
@@ -206,12 +218,13 @@ def parse_nd(html: str, *, fetched_at: datetime) -> list[RaceResult]:
 class NdSos(ResultsSource):
     name = "nd_sos"
     states = frozenset({"ND"})
-    scrape = True  # ASP.NET HTML pages, no JSON feed
-    enabled_by_default = True  # the state's own official results site
+    scrape = True  # legacy ASP.NET HTML archive, no JSON feed
+    enabled_by_default = False  # 2024 archive; the 2026 count is served by nd_enr
 
     async def fetch(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[RaceResult]:
         if not any(key.state == "ND" for key in keys):
             return []
+        tracked = c.election_date()
         results: list[RaceResult] = []
         pages = 0
         other: date | None = None
@@ -220,6 +233,12 @@ class NdSos(ResultsSource):
                 html = await c.get_text(client, URL.format(page))
             except SourceUnavailable:
                 continue
+            year = page_election_year(html)
+            if year is not None and year != int(tracked[:4]):
+                raise SourceUnavailable(
+                    f"ND: resultsSW.aspx serves the {year} archive, not the {tracked} election; "
+                    "the live count is at resultsnd.sos.nd.gov"
+                )
             pages += 1
             shown = _other_election(html)
             if shown is not None:

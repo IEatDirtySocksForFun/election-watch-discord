@@ -21,7 +21,8 @@ One module per feed family; each registers a `ResultsSource` in
                       with the certified breakdown CSVs as the fallback
     ms_sos            Mississippi Secretary of State statewide recap CSV
     mt_sos            Montana Secretary of State resultsSW.aspx pages (id from candidate filing)
-    nd_sos            North Dakota Secretary of State resultsSW.aspx pages
+    nd_enr            North Dakota Election Night Reporting JSON API (resultsnd.sos.nd.gov)
+    nd_sos            North Dakota Secretary of State resultsSW.aspx archive pages (2024)
     nm_sos            New Mexico Secretary of State resultsSW.aspx pages
     or_sos            Oregon Secretary of State ResultsAjax.svc JSON (GetMapData)
     ri_boe            Rhode Island Board of Elections JSON downloads

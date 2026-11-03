@@ -1,0 +1,134 @@
+{
+ "versionID": "v48-1",
+ "lastUpdated": "2026-10-22T19:14:18.2013678Z",
+ "electionID": "348",
+ "message": "",
+ "isOfficial": false,
+ "turnout": {
+  "registeredVoters": 600394,
+  "precinctsReporting": 0,
+  "precinctsPartiallyReporting": 0,
+  "totalPrecincts": 358,
+  "totalBallotsCast": 0,
+  "reportingPercent": 0,
+  "votePercent": 0
+ },
+ "response": {
+  "contestType": "LEG",
+  "contests": {
+   "22083": {
+    "contestID": "22083",
+    "districtID": "01",
+    "precinctsReporting": 0,
+    "precinctsPartiallyReporting": 0,
+    "totalPrecincts": 7,
+    "totalVotes": 0,
+    "recountType": 0,
+    "hasRecount": false,
+    "hasLocationResults": true,
+    "choices": [
+     {
+      "choiceID": "37211",
+      "totalVotes": 0,
+      "partyID": "REP",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "9901",
+      "totalVotes": 0,
+      "partyID": "NON",
+      "votePercent": 0,
+      "isWinner": false
+     }
+    ],
+    "writeInChoices": []
+   },
+   "22058": {
+    "contestID": "22058",
+    "districtID": "01",
+    "precinctsReporting": 0,
+    "precinctsPartiallyReporting": 0,
+    "totalPrecincts": 7,
+    "totalVotes": 0,
+    "recountType": 0,
+    "hasRecount": false,
+    "hasLocationResults": true,
+    "choices": [
+     {
+      "choiceID": "37160",
+      "totalVotes": 0,
+      "partyID": "DEM",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "37203",
+      "totalVotes": 0,
+      "partyID": "REP",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "37249",
+      "totalVotes": 0,
+      "partyID": "REP",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "37431",
+      "totalVotes": 0,
+      "partyID": "DEM",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "9901",
+      "totalVotes": 0,
+      "partyID": "NON",
+      "votePercent": 0,
+      "isWinner": false
+     }
+    ],
+    "writeInChoices": []
+   },
+   "22133": {
+    "contestID": "22133",
+    "districtID": "20",
+    "precinctsReporting": 0,
+    "precinctsPartiallyReporting": 0,
+    "totalPrecincts": 19,
+    "totalVotes": 0,
+    "recountType": 0,
+    "hasRecount": false,
+    "hasLocationResults": true,
+    "choices": [
+     {
+      "choiceID": "37944",
+      "totalVotes": 0,
+      "partyID": "REP",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "37947",
+      "totalVotes": 0,
+      "partyID": "DEM",
+      "votePercent": 0,
+      "isWinner": false
+     },
+     {
+      "choiceID": "9901",
+      "totalVotes": 0,
+      "partyID": "NON",
+      "votePercent": 0,
+      "isWinner": false
+     }
+    ],
+    "writeInChoices": []
+   }
+  }
+ },
+ "errorMessage": null
+}
