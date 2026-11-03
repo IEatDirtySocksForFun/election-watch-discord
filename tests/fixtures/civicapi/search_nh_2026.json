@@ -1,0 +1,198 @@
+{
+ "count": 308,
+ "offset": 0,
+ "limit": 1000,
+ "races": [
+  {
+   "id": 154201,
+   "type": "Referendum",
+   "country": "US",
+   "province": "NH",
+   "district": null,
+   "municipality": null,
+   "election_name": "New Hampshire Question 2 - Property Tax Cap",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Yes",
+     "candidate_id": 39679722,
+     "party": "Nonpartisan",
+     "color": "#63c660",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    },
+    {
+     "name": "No",
+     "candidate_id": 39679723,
+     "party": "Nonpartisan",
+     "color": "#c6606b",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 87284,
+   "type": "Governor",
+   "country": "US",
+   "province": "NH",
+   "district": null,
+   "municipality": null,
+   "election_name": "New Hampshire Governor",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Kelly Ayotte",
+     "candidate_id": 220782,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 6,
+     "percent": 85.71,
+     "winner": false
+    },
+    {
+     "name": "Cinde Warmington",
+     "candidate_id": 220781,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 1,
+     "percent": 14.29,
+     "winner": false
+    },
+    {
+     "name": "Stephen Villee",
+     "candidate_id": 220783,
+     "party": "Libertarian",
+     "color": "#d4c029",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 159552,
+   "type": "State Senate",
+   "country": "US",
+   "province": "NH",
+   "district": null,
+   "municipality": null,
+   "election_name": "New Hampshire State Senate",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "seats": 24,
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "Democratic",
+     "candidate_id": 385554,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 0,
+     "percent": 0,
+     "seats": 1,
+     "winner": false
+    },
+    {
+     "name": "Republican",
+     "candidate_id": 385555,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 0,
+     "percent": 0,
+     "seats": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 153905,
+   "type": "State Senate",
+   "country": "US",
+   "province": "NH",
+   "district": null,
+   "municipality": null,
+   "election_name": "New Hampshire State Senate District 1",
+   "election_type": "Local",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 2,
+   "candidates": [
+    {
+     "name": "David Rochefort",
+     "candidate_id": 373518,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 6,
+     "percent": 85.71,
+     "winner": false
+    },
+    {
+     "name": "Cathleen A. Fountain",
+     "candidate_id": 373517,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 1,
+     "percent": 14.29,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 87283,
+   "type": "US Senate",
+   "country": "US",
+   "province": "NH",
+   "district": null,
+   "municipality": null,
+   "election_name": "New Hampshire US Senate",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 0,
+   "candidates": [
+    {
+     "name": "John E. Sununu",
+     "candidate_id": 220780,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 5,
+     "percent": 71.43,
+     "winner": false
+    },
+    {
+     "name": "Chris Pappas",
+     "candidate_id": 220778,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 2,
+     "percent": 28.57,
+     "winner": false
+    },
+    {
+     "name": "Edmond Laplante",
+     "candidate_id": 220779,
+     "party": "Constitution",
+     "color": "#808080",
+     "votes": 0,
+     "percent": 0,
+     "winner": false
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1322 @@
+{
+ "election": {
+  "ballotItemCount": 1,
+  "dateText": [
+   {
+    "languageId": "en",
+    "text": "November 3, 2026"
+   }
+  ],
+  "id": "01000000-9c16-51a0-5d47-08df20ba1eaa",
+  "jurisdictionId": "8c9d6490-6c2e-460e-8e42-0d1c8609ce42",
+  "name": [
+   {
+    "languageId": "en",
+    "text": "General Election - November 3, 2026"
+   }
+  ],
+  "isOfficialResults": false,
+  "electionDate": "2026-11-03",
+  "isProduction": true,
+  "asOf": "2026-11-02T22:00:03.3396935Z",
+  "lastUpdated": "2026-11-02T17:27:56.8554206Z",
+  "publishDate": "2026-11-02T22:01:26.3885714Z",
+  "publishVersionId": "7e503857-1220-4371-bb74-bc7d1fa51de5",
+  "publicReportCategories": [
+   {
+    "id": null,
+    "categoryName": null,
+    "reports": [
+     {
+      "reportName": "Ballots Cast by Precinct",
+      "blobName": "Ballots Cast by Precinct_d417c95f-e55c-47d7-bf3a-2686e01f703f.xlsx",
+      "order": 0,
+      "versions": null,
+      "county": null
+     },
+     {
+      "reportName": "Summary Results by Contest with Contest-Level Details",
+      "blobName": "Summary Results with Contest-Level Details_7864995f-79b6-4269-a6e1-943affad1c4c.PDF",
+      "order": 0,
+      "versions": null,
+      "county": null
+     },
+     {
+      "reportName": "Precinct/District Results with Write-Ins by Contest Table",
+      "blobName": "Detailed Results with Write-Ins by Contest Table_c6d10571-0ec6-4208-9f58-09c85224c205.pdf",
+      "order": 0,
+      "versions": null,
+      "county": null
+     },
+     {
+      "reportName": "Summary and Precinct Results Excel",
+      "blobName": "Results_03132632-ec3a-44e3-91bf-1aafe307f2cd.xlsx",
+      "order": 0,
+      "versions": null,
+      "county": null
+     }
+    ],
+    "order": 0,
+    "categoryType": null,
+    "description": null,
+    "categoryNameTranslations": null
+   }
+  ],
+  "groupReportingStatus": [],
+  "precinctReportingStatus": null,
+  "contestGroups": [
+   {
+    "id": "01000000-8385-8f9a-96fe-08df23e190ce",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Federal"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 0,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-8385-8f9a-eaab-08df23e197c8",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Statewide"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 0,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-8385-8f9a-861e-08df23e19dba",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "State Legislature"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 0,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-8385-8f9a-80f4-08df23e4cb07",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "State Measures"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 0,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-8385-8f9a-3147-08df23e4ced2",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Judicial"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 0,
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-14c1-2be1-2a7c-08df2634df25",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Local Districts"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 6,
+    "showInPublicResultsFilters": false
+   },
+   {
+    "id": "01000000-0767-a0c4-b20d-08df256e48d2",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Local Measures"
+     }
+    ],
+    "groupSubHeading": [],
+    "hideIfEmpty": false,
+    "order": 7,
+    "showInPublicResultsFilters": false
+   },
+   {
+    "id": "other",
+    "groupHeading": [
+     {
+      "languageId": "en",
+      "text": "Other Contests"
+     }
+    ],
+    "groupSubHeading": null,
+    "hideIfEmpty": true,
+    "order": 8,
+    "showInPublicResultsFilters": null
+   }
+  ],
+  "countGroups": null,
+  "precinctsReporting": null,
+  "map": {
+   "enabled": true,
+   "styleUrl": "mapbox://styles/enhancedvoting/cmfec58ug00j601rw0ihv00bq",
+   "featureIdField": "County",
+   "disclaimer": [],
+   "showMapLegend": true
+  },
+  "totalVoters": 0.0,
+  "ballotsCast": 0.0,
+  "redactingPrecinctCountGroups": false,
+  "precinctResultsProtected": false,
+  "reportingStatusBy": 0,
+  "customPublicMessages": [
+   {
+    "text": [
+     {
+      "languageId": "en",
+      "text": "<p>Unofficial results will be posted after the polls close statewide, no earlier than 9 PM MT/8 PM PT.&nbsp;</p>"
+     }
+    ],
+    "type": 1,
+    "order": 1
+   }
+  ],
+  "closeRaceThreshold": 8.0,
+  "closeRaceThresholdDisclaimer": [
+   {
+    "languageId": "en",
+    "text": "<p>Close races include any race with a difference of fewer than 8 percentage points</p>"
+   }
+  ],
+  "hasStateWideCloseRaces": false,
+  "nextUpdateAt": null,
+  "hidePrecincts": false,
+  "includePrecinctResults": true,
+  "includePrecinctStatuses": true,
+  "showOverUnderVotes": false,
+  "isPrimary": false,
+  "parties": [
+   {
+    "id": "01000000-9b8a-13bb-27ef-08df23e9dca7",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Constitution"
+     }
+    ],
+    "abbreviation": "CON",
+    "standardName": "Constitution",
+    "color": "#b07aa1",
+    "textColor": "#000000",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-70f4-ca87-5f8d-08df23e9e280",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Democratic"
+     }
+    ],
+    "abbreviation": "DEM",
+    "standardName": "Democratic",
+    "color": "#10b4e5",
+    "textColor": "#ffffff",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-9b8a-13bb-cbe1-08df23e9eb77",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Libertarian"
+     }
+    ],
+    "abbreviation": "LIB",
+    "standardName": "Libertarian",
+    "color": "#f1ce63",
+    "textColor": "#000000",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-9b8a-13bb-9f1e-08df23e9f14a",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Republican"
+     }
+    ],
+    "abbreviation": "REP",
+    "standardName": "Republican",
+    "color": "#ee4345",
+    "textColor": "#ffffff",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-9b8a-13bb-ad67-08df23ea0457",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Nonpartisan"
+     }
+    ],
+    "abbreviation": "NON",
+    "standardName": "Nonpartisan",
+    "color": "#b3ab95",
+    "textColor": "#FFFFFF",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Independent"
+     }
+    ],
+    "abbreviation": "IND",
+    "standardName": "Independent",
+    "color": "#b3ab95",
+    "textColor": "#000000",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-14c1-2be1-8930-08df262d880a",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "Yes"
+     }
+    ],
+    "abbreviation": null,
+    "standardName": "Yes",
+    "color": "#198754",
+    "textColor": "#000000",
+    "showInPublicResultsFilters": true
+   },
+   {
+    "id": "01000000-14c1-2be1-03e5-08df262e4511",
+    "name": [
+     {
+      "languageId": "en",
+      "text": "No"
+     }
+    ],
+    "abbreviation": null,
+    "standardName": "No",
+    "color": "#dc3545",
+    "textColor": "#000000",
+    "showInPublicResultsFilters": true
+   }
+  ]
+ },
+ "ballotItems": [
+  {
+   "id": "01000000-70f4-ca87-27ba-08df23e9954c",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2026",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "United States Senator"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 0,
+    "totalUnits": 44,
+    "asOf": "2026-11-02T22:00:03.3396935Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 0,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-8385-8f9a-96fe-08df23e190ce",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-70f4-ca87-4f8b-08df23eb612d",
+      "nativeId": "NatalieMFleming-3-Independent",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Natalie M Fleming"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Independent"
+        }
+       ],
+       "abbreviation": "IND",
+       "standardName": null,
+       "color": "#fc8d62",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-70f4-ca87-5037-08df23eb612d",
+      "nativeId": "ToddAchilles-4-Independent",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Todd Achilles"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Independent"
+        }
+       ],
+       "abbreviation": "IND",
+       "standardName": null,
+       "color": "#66c2a5",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-70f4-ca87-4c00-08df23eb612d",
+      "nativeId": "MattLoesby-2-Libertarian",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Matt Loesby"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-cbe1-08df23e9eb77",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Libertarian"
+        }
+       ],
+       "abbreviation": "LIB",
+       "standardName": null,
+       "color": "#f1ce63",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-70f4-ca87-9880-08df23eb612c",
+      "nativeId": "JimRisch-1-Republican",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Jim Risch"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-9f1e-08df23e9f14a",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "REP",
+       "standardName": null,
+       "color": "#ee4345",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": true,
+   "crossCounties": [
+    "Latah County",
+    "Kootenai County",
+    "Boise County",
+    "Blaine County",
+    "Bingham County",
+    "Benewah County",
+    "Bear Lake County",
+    "Bannock County",
+    "Adams County",
+    "Ada County",
+    "Jerome County",
+    "Jefferson County",
+    "Idaho County",
+    "Gooding County",
+    "Gem County",
+    "Fremont County",
+    "Franklin County",
+    "Elmore County",
+    "Custer County",
+    "Clearwater County",
+    "Clark County",
+    "Cassia County",
+    "Caribou County",
+    "Canyon County",
+    "Camas County",
+    "Butte County",
+    "Boundary County",
+    "Bonneville County",
+    "Bonner County",
+    "Washington County",
+    "Valley County",
+    "Twin Falls County",
+    "Teton County",
+    "Shoshone County",
+    "Power County",
+    "Payette County",
+    "Owyhee County",
+    "Oneida County",
+    "Nez Perce County",
+    "Minidoka County",
+    "Madison County",
+    "Lincoln County",
+    "Lewis County",
+    "Lemhi County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-9b8a-13bb-e31b-08df23ec9989",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2026",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "United States Representative District 1"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 0,
+    "totalUnits": 19,
+    "asOf": "2026-11-02T22:00:03.3396935Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 0,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-8385-8f9a-96fe-08df23e190ce",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-3891-2312-436f-08df23f72dae",
+      "nativeId": "BrendanJ.Gomez-0-Constitution",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Brendan J. Gomez"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-27ef-08df23e9dca7",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Constitution"
+        }
+       ],
+       "abbreviation": "CON",
+       "standardName": null,
+       "color": "#b07aa1",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-93c0-08df23f72dae",
+      "nativeId": "KayleePeterson-0-Democratic",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Kaylee Peterson"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-5f8d-08df23e9e280",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "DEM",
+       "standardName": null,
+       "color": "#10b4e5",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-9869-08df23f72dae",
+      "nativeId": "SarahZabel-0-Independent",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Sarah Zabel"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Independent"
+        }
+       ],
+       "abbreviation": "IND",
+       "standardName": null,
+       "color": "#66c2a5",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-99fe-08df23f72dae",
+      "nativeId": "RussFulcher-0-Republican",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Russ Fulcher"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-9f1e-08df23e9f14a",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "REP",
+       "standardName": null,
+       "color": "#ee4345",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": true,
+   "crossCounties": [
+    "Idaho County",
+    "Gem County",
+    "Clearwater County",
+    "Canyon County",
+    "Boundary County",
+    "Bonner County",
+    "Boise County",
+    "Benewah County",
+    "Adams County",
+    "Ada County",
+    "Washington County",
+    "Valley County",
+    "Shoshone County",
+    "Payette County",
+    "Owyhee County",
+    "Nez Perce County",
+    "Lewis County",
+    "Latah County",
+    "Kootenai County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-70f4-ca87-1a95-08df23ecef0e",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2026",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Governor"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 0,
+    "totalUnits": 44,
+    "asOf": "2026-11-02T22:00:03.3396935Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 0,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-8385-8f9a-eaab-08df23e197c8",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-3891-2312-c408-08df23f7fb2c",
+      "nativeId": "Pro-Life-1-Constitution",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Pro-Life"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-27ef-08df23e9dca7",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Constitution"
+        }
+       ],
+       "abbreviation": "CON",
+       "standardName": null,
+       "color": "#b07aa1",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-ce34-08df23f7fb2c",
+      "nativeId": "TerriPickens-2-Democratic",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Terri Pickens"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-5f8d-08df23e9e280",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "DEM",
+       "standardName": null,
+       "color": "#10b4e5",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-d6d8-08df23f7fb2c",
+      "nativeId": "JohnR.Stegner-3-Independent",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "John R. Stegner"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Independent"
+        }
+       ],
+       "abbreviation": "IND",
+       "standardName": null,
+       "color": "#66c2a5",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-d8e6-08df23f7fb2c",
+      "nativeId": "PaulSand-4-Libertarian",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Paul Sand"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-cbe1-08df23e9eb77",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Libertarian"
+        }
+       ],
+       "abbreviation": "LIB",
+       "standardName": null,
+       "color": "#f1ce63",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-3891-2312-db56-08df23f7fb2c",
+      "nativeId": "BradLittle-5-Republican",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Brad Little"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-9f1e-08df23e9f14a",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "REP",
+       "standardName": null,
+       "color": "#ee4345",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-0498-e71b-abc2-08df23f80648",
+      "nativeId": "JacobBurnett-6-Independent",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Jacob Burnett"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Independent"
+        }
+       ],
+       "abbreviation": "IND",
+       "standardName": null,
+       "color": "#b3ab95",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": true,
+      "isQualifiedWriteIn": true,
+      "isWinner": null
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": true,
+   "crossCounties": [
+    "Lemhi County",
+    "Latah County",
+    "Boise County",
+    "Blaine County",
+    "Bingham County",
+    "Benewah County",
+    "Bear Lake County",
+    "Bannock County",
+    "Adams County",
+    "Ada County",
+    "Kootenai County",
+    "Jerome County",
+    "Jefferson County",
+    "Idaho County",
+    "Gooding County",
+    "Gem County",
+    "Fremont County",
+    "Franklin County",
+    "Elmore County",
+    "Custer County",
+    "Clearwater County",
+    "Clark County",
+    "Cassia County",
+    "Caribou County",
+    "Canyon County",
+    "Camas County",
+    "Butte County",
+    "Boundary County",
+    "Bonneville County",
+    "Bonner County",
+    "Washington County",
+    "Valley County",
+    "Twin Falls County",
+    "Teton County",
+    "Shoshone County",
+    "Power County",
+    "Payette County",
+    "Owyhee County",
+    "Oneida County",
+    "Nez Perce County",
+    "Minidoka County",
+    "Madison County",
+    "Lincoln County",
+    "Lewis County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-70f4-ca87-78de-08df23edcfeb",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2026",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "State Senator District 1"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 0,
+    "totalUnits": 2,
+    "asOf": "2026-11-02T22:00:03.3396935Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 0,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-8385-8f9a-861e-08df23e19dba",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-91b7-fa5d-4b7f-08df25522a01",
+      "nativeId": "SteveJohnson-1-Independent",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Steve Johnson"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-c003-08df23eadaf8",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Independent"
+        }
+       ],
+       "abbreviation": "IND",
+       "standardName": null,
+       "color": "#66c2a5",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-91b7-fa5d-95e1-08df25522a01",
+      "nativeId": "ScottHerndon-2-Republican",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Scott Herndon"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-9f1e-08df23e9f14a",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "REP",
+       "standardName": null,
+       "color": "#ee4345",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": true,
+   "crossCounties": [
+    "Boundary County",
+    "Bonner County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-9b8a-13bb-1e26-08df23ede22e",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2026",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "State Representative District 1 Seat A"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Vote for 1"
+    }
+   ],
+   "referendum": [],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 0,
+    "totalUnits": 2,
+    "asOf": "2026-11-02T22:00:03.3396935Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 0,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-8385-8f9a-861e-08df23e19dba",
+   "contestType": "Candidate",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-91b7-fa5d-50da-08df25524ea3",
+      "nativeId": "KarenMatthee-1-Democratic",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Karen Matthee"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-70f4-ca87-5f8d-08df23e9e280",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Democratic"
+        }
+       ],
+       "abbreviation": "DEM",
+       "standardName": null,
+       "color": "#10b4e5",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-91b7-fa5d-56b0-08df25524ea3",
+      "nativeId": "JaneSauter-2-Republican",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "Jane Sauter"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-9b8a-13bb-9f1e-08df23e9f14a",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Republican"
+        }
+       ],
+       "abbreviation": "REP",
+       "standardName": null,
+       "color": "#ee4345",
+       "textColor": "#ffffff",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": true,
+   "crossCounties": [
+    "Boundary County",
+    "Bonner County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  },
+  {
+   "id": "01000000-d17b-5755-3266-08df23f601c9",
+   "parentId": null,
+   "parentJurisdictionName": "",
+   "publishPublicElectionId": "nov2026",
+   "relatedIds": null,
+   "name": [
+    {
+     "languageId": "en",
+     "text": "Proposition 1: Reproductive Freedom & Privacy Act"
+    }
+   ],
+   "voteFor": [
+    {
+     "languageId": "en",
+     "text": "Requires 50% + 1 vote to pass"
+    }
+   ],
+   "referendum": [
+    {
+     "languageId": "en",
+     "text": "<p>Measure creating right to abortion before fetus viability, and post-viability to protect health; right to privacy; healthcare provider liability protections.</p>"
+    }
+   ],
+   "turnout": null,
+   "reportingStatus": {
+    "reportingUnits": 0,
+    "totalUnits": 44,
+    "asOf": "2026-11-02T22:00:03.3396935Z",
+    "reportingStatusDetails": null
+   },
+   "voteTotal": 0,
+   "underVoteCount": null,
+   "overVoteCount": null,
+   "contestGroupId": "01000000-8385-8f9a-80f4-08df23e4cb07",
+   "contestType": "BallotMeasure",
+   "summaryResults": {
+    "ballotOptions": [
+     {
+      "id": "01000000-cd30-0ebd-467a-08df255e7c55",
+      "nativeId": "InFavor-1-",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "YES"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-14c1-2be1-8930-08df262d880a",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "Yes"
+        }
+       ],
+       "abbreviation": null,
+       "standardName": null,
+       "color": "#198754",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     },
+     {
+      "id": "01000000-cd30-0ebd-4c5c-08df255e7c55",
+      "nativeId": "Against-2-",
+      "name": [
+       {
+        "languageId": "en",
+        "text": "NO"
+       }
+      ],
+      "voteCount": 0,
+      "party": {
+       "id": "01000000-14c1-2be1-03e5-08df262e4511",
+       "name": [
+        {
+         "languageId": "en",
+         "text": "No"
+        }
+       ],
+       "abbreviation": null,
+       "standardName": null,
+       "color": "#dc3545",
+       "textColor": "#000000",
+       "showInPublicResultsFilters": null
+      },
+      "groupResults": null,
+      "isWriteIn": false,
+      "isQualifiedWriteIn": false,
+      "isWinner": null
+     }
+    ]
+   },
+   "rankedChoiceSummaryResults": null,
+   "hasBreakdownResults": true,
+   "crossCounties": [
+    "Lemhi County",
+    "Latah County",
+    "Boise County",
+    "Blaine County",
+    "Bingham County",
+    "Benewah County",
+    "Bear Lake County",
+    "Bannock County",
+    "Adams County",
+    "Ada County",
+    "Kootenai County",
+    "Jerome County",
+    "Jefferson County",
+    "Idaho County",
+    "Gooding County",
+    "Gem County",
+    "Fremont County",
+    "Franklin County",
+    "Elmore County",
+    "Custer County",
+    "Clearwater County",
+    "Clark County",
+    "Cassia County",
+    "Caribou County",
+    "Canyon County",
+    "Camas County",
+    "Butte County",
+    "Boundary County",
+    "Bonneville County",
+    "Bonner County",
+    "Washington County",
+    "Valley County",
+    "Twin Falls County",
+    "Teton County",
+    "Shoshone County",
+    "Power County",
+    "Payette County",
+    "Owyhee County",
+    "Oneida County",
+    "Nez Perce County",
+    "Minidoka County",
+    "Madison County",
+    "Lincoln County",
+    "Lewis County"
+   ],
+   "isCloseRace": false,
+   "partyName": null
+  }
+ ]
+}
