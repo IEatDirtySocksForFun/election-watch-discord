@@ -66,7 +66,8 @@ class KalshiSource(OddsSource):
     def _key_to_event_ticker(self, key: RaceKey) -> str | None:
         state = key.state
         if key.level is Level.SENATE:
-            series = f"SENATE{state}"
+            # Special elections have their own series: SENATEOHS-26 is Ohio's 2026 special.
+            series = f"SENATE{state}S" if key.special else f"SENATE{state}"
         elif key.level is Level.GOVERNOR and key.office == "GOV":
             series = self._GOV_OVERRIDES.get(state, f"GOVPARTY{state}")
         elif key.level is Level.HOUSE and key.district is not None:
@@ -124,7 +125,7 @@ def parse_kalshi_event(payload: dict) -> list[OddsSnapshot]:
 def _event_ticker_to_key(event_ticker: str) -> RaceKey | None:
     """Map a Kalshi event ticker to a RaceKey, or None if it is not a race.
 
-    Supports SENATE<ST>-26, GOVPARTY<ST>-26 / KXGOV<ST>-26, HOUSE<ST><DIST>-26 and
+    Supports SENATE<ST>-26, SENATE<ST>S-26 (special), GOVPARTY<ST>-26 / KXGOV<ST>-26, HOUSE<ST><DIST>-26 and
     HOUSE<ST>AL-26 (e.g. HOUSEAKAL-26 is the at-large seat, not district "AL").
     Unknown tickers (presidential, control-of-chamber, ...) return None rather
     than being mislabelled as a Senate race.
@@ -133,7 +134,10 @@ def _event_ticker_to_key(event_ticker: str) -> RaceKey | None:
     base = parts[0]
     try:
         if base.startswith("SENATE"):
-            return RaceKey(base[6:], Level.SENATE, "SEN")
+            tail = base[6:]
+            if len(tail) == 3 and tail.endswith("S"):  # SENATEOHS: the special election
+                return RaceKey(tail[:2], Level.SENATE, "SEN", special=True)
+            return RaceKey(tail, Level.SENATE, "SEN")
         if base.startswith("GOVPARTY"):
             return RaceKey(base[8:], Level.GOVERNOR, "GOV")
         if base.startswith("KXGOV"):
