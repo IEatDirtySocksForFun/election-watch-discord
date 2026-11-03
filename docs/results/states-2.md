@@ -20,7 +20,8 @@ state.
 | IL    | `il_sbe`  | SBE `ElectionVoteTotals.aspx` HTML                                    | verified fixture + live run (2026 primary); 2026 general not published yet |
 | IN    | `in_sos`  | `enr.indianavoters.in.gov/archive/<election>/data/*.json`             | verified fixture + live run (2024 general)                                 |
 | CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                | verified fixture                                                           |
-| CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture                                                           |
+| CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture; no 2026 general rows on 2026-11-03                       |
+| CT    | `ct_ems`  | Secretary of the State EMS JSON (`ctemspublic.pcctg.net`)             | verified fixture (2026 general, 0 votes)                                   |
 | DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture                                                           |
 | DE    | `de_doe`  | `/results/enr/Election_StatewideResults_ID_GE<year>.json`             | verified fixture + live run (2026 general; 77 contests, 0 votes)           |
 | HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                           |

@@ -80,7 +80,7 @@ source.
 | ------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
 | `fox_results` | **OK in all 16 states**: 2026 candidates listed at 0 votes                                           | OK; but TX-01 read 0 votes and NY/WI House rows were missing in the 2024 archive | Senate, Governor, US House only | state level; Fox's file also has `county_level_results` for statewide races, which the adapter does not read | the only fallback with 2026 Senate, Governor and House files today. Recommended.                   |
 | `cbs_results` | EMPTY (2026 path not live yet)                                                                       | OK, full statewide totals                                                        | Sen/Gov/House                   | `pctIn` = expected vote                                                                                      | confirm the 2026 path on election morning (source-sweep §5)                                        |
-| `abc_results` | EMPTY                                                                                                | OK                                                                               | Sen/Gov/House                   | expected vote %                                                                                              |                                                                                                    |
+| `abc_results` | **OK in all 50 states**: 2026 candidate lists at 0 votes (2026-11-03)                                | OK                                                                               | Sen/Gov/House                   | expected vote %                                                                                              | the widget host answers 301 to `abcnews.com`; the adapter follows redirects                        |
 | `cnn_results` | **2026 Senate files answer at 0 votes** (TX, GA, NC, MI on 2026-11-01); Governor and House codes 404 | —                                                                                | Senate so far                   | `percentReporting` = 0 before polls open                                                                     | the 406 to this host recorded on 2026-10-27 no longer comes back; keep to the shared 10/min budget |
 | `nbc_results` | HTTP 403                                                                                             | 403                                                                              | —                               | —                                                                                                            | NBC blocks this IP; do not retry in bursts                                                         |
 
@@ -97,6 +97,14 @@ NC and MI: the full candidate list, every `voteNum` at 0, `percentReporting` 0 a
 as the 2024 one, apart from the missing `voteTimestamp`, so the adapter needed no change. As
 with every fallback, a zero-vote answer only fills a race that no official feed answered
 completely.
+
+Re-checked on 2026-11-03: `abc_results` answers **200** for all 50 states in all three
+chambers with the full 2026 candidate list, every `rawVotes` at 0 and `reporting.value` 0,
+including the at-large House rows (AK, DE, ND, SD, VT, WY). The payload shape is the same as in
+2024 apart from new top-level keys, so the parser needed no change. The widget host answers
+**301** to `abcnews.com`, and the bot's client does not follow redirects, so the adapter now
+asks for them on every request; before that change it parsed the redirect page and returned
+nothing.
 
 ---
 
@@ -189,6 +197,11 @@ is therefore flagged. **Do not probe it again.** The SBE documents an XML data f
 found by web search). That feed is the right source, but only with the Board's permission.
 Kentucky counties' Clarity paths answered 403 earlier (alt-b.md).
 
+Re-checked on 2026-11-03 without touching the blocked host: the 2026 page
+(`elect.ky.gov/results/2020-2029/Pages/2026.aspx`) exists and lists only the **2026 primary**
+certification and recap sheets, with no general-results page and no feed link. Nothing to wire
+up yet.
+
 Not pursued: the bot uses civicAPI, then `fox_results`.
 
 ---
@@ -271,6 +284,12 @@ Fox, while county detail and down-ballot races come from the official county fee
 - Bexar's 2024 ES&S HTML summary (`home.bexar.org/el45a.html`) is parseable, but it is moot:
   Bexar moved to Clarity for 2026.
 - Collin publishes a full precinct CSV after the canvass, not on the night.
+- Connecticut: the Secretary of the State's Election Management System now lists the
+  **2026 state election (id 108)** and the live `ct_sots` platform has only January and
+  February specials. `ct_ems` (new, opt-in) reads the EMS JSON under
+  `https://ctemspublic.pcctg.net/ng-app/data/`; on 2026-11-03 every office is listed with 0
+  votes. Enable it with `EW_ENABLED_SOURCES=ct_ems` while `ct_sots` stays on for the
+  ElectionStats archive.
 - When running from a source checkout, put the checkout on `PYTHONPATH` so
   `tools/health_check.py` imports that copy of `electionwatch`:
 

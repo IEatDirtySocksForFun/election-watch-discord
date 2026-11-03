@@ -14,6 +14,7 @@ One module per feed family; each registers a `ResultsSource` in
     oh_sos            Ohio Secretary of State live-results JSON API
     ne_sos            Nebraska Secretary of State server-rendered HTML (scraper)
     co_sos            Colorado Secretary of State Clarity feed
+    ct_ems            Connecticut Secretary of the State EMS static JSON (opt-in)
     ia_sos            Iowa Secretary of State Clarity feed
     ks_sos            Kansas Secretary of State HTML results pages
     la_sos            Louisiana Secretary of State graphical-results JSON blobs

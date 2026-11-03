@@ -1,0 +1,81 @@
+{
+ "election": {
+  "ID": "91",
+  "NM": "11/05/2024 -- Presidential Election 2024",
+  "DT": "11/05/2024",
+  "ET": "G",
+  "EC": "SE",
+  "P": "",
+  "DNM": ""
+ },
+ "officeList": [
+  {
+   "16524": {
+    "ID": "16524",
+    "NM": "United States Senator",
+    "OT": "SW",
+    "OO": "2",
+    "DT": "",
+    "D": "0"
+   }
+  }
+ ],
+ "candidateIds": {
+  "36142": {
+   "NM": "John Flynn",
+   "P": "1026"
+  },
+  "35859": {
+   "NM": "Robert Finley Hyde",
+   "P": "1068"
+  },
+  "35495": {
+   "NM": "Christopher S. Murphy",
+   "P": "1"
+  },
+  "36064": {
+   "NM": "Justin C. Paglino",
+   "P": "7"
+  },
+  "35860": {
+   "NM": "Christopher S. Murphy",
+   "P": "12"
+  },
+  "35830": {
+   "NM": "Matthew M. Corey",
+   "P": "6"
+  }
+ },
+ "partyIds": {
+  "1": {
+   "CD": "D",
+   "NM": "Democratic Party",
+   "P": "250"
+  },
+  "6": {
+   "CD": "R",
+   "NM": "Republican Party",
+   "P": "135"
+  },
+  "7": {
+   "CD": "G",
+   "NM": "Green Party",
+   "P": "112"
+  },
+  "12": {
+   "CD": "WF",
+   "NM": "Working Families Party",
+   "P": "22"
+  },
+  "1026": {
+   "CD": "WI",
+   "NM": "Write In",
+   "P": "274"
+  },
+  "1068": {
+   "CD": "CGG",
+   "NM": "Cheaper Gas Groceries Party",
+   "P": "0"
+  }
+ }
+}

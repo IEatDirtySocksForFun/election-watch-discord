@@ -1,0 +1,12 @@
+[
+ {
+  "ID": "108",
+  "Name": "11/03/2026 -- November 2026 State Election",
+  "DefaultElection": "Y"
+ },
+ {
+  "ID": "106",
+  "Name": "01/06/2026 -- 25th Assembly District Special Election",
+  "DefaultElection": "N"
+ }
+]

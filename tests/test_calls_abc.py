@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
 
+import httpx
 import pytest
+import respx
 
 from electionwatch.models import Level, RaceKey
 from electionwatch.sources.calls.abc import (
@@ -53,3 +55,15 @@ def test_metadata():
     assert ABCSource.scrape is True
     assert ABCSource.enabled_by_default is False
     assert ABCSource.env == ()
+
+
+@respx.mock
+async def test_fetch_calls_follows_the_widget_redirect():
+    key = RaceKey("TX", Level.SENATE, "SEN")
+    url = ABCSource()._url(key)
+    moved = url.replace("abcnews.go.com", "abcnews.com")
+    respx.get(url).mock(return_value=httpx.Response(301, headers={"Location": moved}))
+    respx.get(moved).mock(return_value=httpx.Response(200, text=_load("2024-tx-senate.html")))
+    async with httpx.AsyncClient() as client:  # no follow_redirects on the client: the adapter asks
+        calls = await ABCSource().fetch_calls([key], client)
+    assert [call.key for call in calls] == [key]
