@@ -44,9 +44,12 @@ statewide executive offices → `XX GOV`, `XX AG`, ... , state legislature → `
 - One server-rendered page per race category; the category list is read from the page
   navigation (county pages and the "favourites" page are skipped), so a renamed tab does not
   need a code change.
-- The site serves **one election at a time**; `ELECTION_DATE` cannot select an election and
-  the adapter returns whatever the site currently shows. On 2026-10-27 that was the
-  2026-08-04 primary.
+- The site serves **one election at a time**; `ELECTION_DATE` cannot select an election. On
+  2026-10-27 the site showed the 2026-08-04 primary, and on 2026-11-02 it still did, ballot
+  questions with real counts included. A page whose "Last Update" is 45 days or more before
+  `ELECTION_DATE` (`STALE_DAYS`) belongs to an earlier election and is skipped; when every page
+  is skipped the adapter reports the results as not published yet. A page without the stamp
+  is read as before.
 - Primary pages split each office into `(D)` / `(R)` halves; those are skipped exactly like
   the Clarity feeds. General-election headings carry no party suffix and are parsed
   normally (`tests/test_results_ks.py::test_general_election_headings_parse` runs the real
@@ -103,6 +106,11 @@ President`.
 - Winner comes from the `winner` class / `img.winner-icon` the state sets on the elected
   candidate. No timestamp on the page.
 - Party labels `Democratic-NPL` → `DEM`, `Independent Nomination` → `IND`.
+- The site serves one election at a time and names it in a hidden field
+  (`<input id="hidElectionDate" value="11/5/2024">`). A page for any other date than
+  `ELECTION_DATE` is skipped, so the 2024 results (winners included) still up on 2026-11-02
+  never show as 2026 results; the adapter reports "not published yet" instead. A page
+  without the field is read as before.
 
 ### NM — `nm_sos`
 
