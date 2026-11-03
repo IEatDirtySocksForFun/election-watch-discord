@@ -1,14 +1,14 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import httpx
 import pytest
 
-from electionwatch.models import Level
+from electionwatch.models import Level, RaceKey
 from electionwatch.racekeys import format_key
 from electionwatch.sources.base import SourceUnavailable
-from electionwatch.sources.results.nd_sos import NdSos, page_election_year, parse_nd, race_key
+from electionwatch.sources.results.nd_sos import NdSos, page_election_date, page_election_year, parse_nd, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "nd_sos" / "ND"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
@@ -110,3 +110,50 @@ def test_fetch_accepts_the_page_of_the_tracked_election(monkeypatch):
             return await NdSos().fetch([race_key("Representative in Congress")], client)
 
     assert [format_key(result.key) for result in asyncio.run(go())] == ["ND-AL"]
+
+
+# --- a page for another election is not this election's results ---------------------------------
+
+HIDDEN = '<input type="hidden" name="ctl00$hidElectionDate" id="hidElectionDate" value="{}" />'
+
+
+def with_date(name, shown):
+    """A fixture page carrying the hidden election-date field the live site has (the fixture was trimmed)."""
+    return HIDDEN.format(shown) + (FIX / name).read_text(encoding="utf-8")
+
+
+def nd_client(shown):
+    def handler(request):
+        name = "2024_general_legislative.html" if "type=LG" in str(request.url) else "2024_general_statewide.html"
+        return httpx.Response(200, text=with_date(name, shown) if shown else (FIX / name).read_text(encoding="utf-8"))
+
+    return httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+
+def test_page_election_date():
+    assert page_election_date(with_date("2024_general_statewide.html", "11/5/2024")) == date(2024, 11, 5)
+    assert page_election_date((FIX / "2024_general_statewide.html").read_text(encoding="utf-8")) is None
+
+
+async def test_last_elections_page_is_not_published_results(monkeypatch):
+    monkeypatch.delenv("ELECTION_DATE", raising=False)  # tracks 2026-11-03
+    keys = [RaceKey("ND", Level.SENATE, "SEN"), RaceKey("ND", Level.HOUSE, "HOUSE", "AL")]
+    async with nd_client("11/5/2024") as client:
+        with pytest.raises(SourceUnavailable, match="still shows the 2024-11-05 election"):
+            await NdSos().fetch(keys, client)
+        assert await NdSos().list_races("ND", client) == []
+
+
+async def test_this_elections_page_is_read(monkeypatch):
+    monkeypatch.setenv("ELECTION_DATE", "2024-11-05")
+    keys = [RaceKey("ND", Level.SENATE, "SEN")]
+    async with nd_client("11/5/2024") as client:
+        assert [format_key(result.key) for result in await NdSos().fetch(keys, client)] == ["ND SEN"]
+        assert await NdSos().list_races("ND", client)
+
+
+async def test_page_without_the_date_field_is_read(monkeypatch):
+    # A layout change on election night must not drop the state: no field, no check.
+    monkeypatch.delenv("ELECTION_DATE", raising=False)
+    async with nd_client(None) as client:
+        assert await NdSos().fetch([RaceKey("ND", Level.SENATE, "SEN")], client)
