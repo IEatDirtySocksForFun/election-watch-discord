@@ -116,6 +116,11 @@ def released(payload: dict) -> bool:
     return bool(embargo.get("exitPollsReleased")) and bool(payload.get("hasData"))
 
 
+def _percent(value) -> int | None:
+    """A share, or None: CNN masks numbers as -1 (before release, and for groups too small to report)."""
+    return value if isinstance(value, (int, float)) and value >= 0 else None
+
+
 def parse_exit_poll(payload: dict, race: dict, year: str) -> dict:
     """One released exit-poll file -> the stored shape:
     {ident, label, state, url, respondents, updated, candidates: [[name, party]],
@@ -136,11 +141,11 @@ def parse_exit_poll(payload: dict, race: dict, year: str) -> dict:
             for share in answer.get("candidateAnswers") or []:
                 index = order.get(share.get("candidateId"))
                 if index is not None:
-                    by[index] = share.get("percentage")
+                    by[index] = _percent(share.get("percentage"))
             answers.append(
                 {
                     "a": (answer.get("answer") or answer.get("answerShort") or "").strip(),
-                    "share": answer.get("totalPercentage"),
+                    "share": _percent(answer.get("totalPercentage")),
                     "by": by,
                 }
             )
