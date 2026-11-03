@@ -32,6 +32,7 @@ EXPECTED_COMMANDS = {
     "faq",
     "earlyvote",
     "earlyvote_posts",
+    "exitpoll",
     "refresh",
     "limits",
     "menu",

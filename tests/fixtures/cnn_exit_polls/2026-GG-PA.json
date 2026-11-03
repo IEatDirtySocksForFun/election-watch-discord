@@ -1,0 +1,147 @@
+{
+ "exitPollSubsetKey": "2026-11-03.39.SW.0.G.G.0",
+ "exitPollKey": "2026-11-03.39.SW.0.G.G",
+ "electionKey": "2026-11-03.39.SW.0.G",
+ "jurisdictionType": "SW",
+ "jurisdictionCode": 0,
+ "electionType": "G",
+ "raceType": "G",
+ "electionDate": "2026-11-03",
+ "stateId": 39,
+ "isPartisan": true,
+ "raceToWatch": true,
+ "subset": {
+  "sub": 0,
+  "longName": "Main",
+  "shortName": "MN"
+ },
+ "titles": {
+  "raceTitle": {
+   "title": "Governor",
+   "subtitle": "",
+   "shortTitle": ""
+  },
+  "electionTitle": {
+   "title": "General Election",
+   "subtitle": "",
+   "shortTitle": "General"
+  }
+ },
+ "state": {
+  "title": "Pennsylvania",
+  "stateId": 39,
+  "fipsCode": "42",
+  "abbreviation": "PA"
+ },
+ "questions": [
+  {
+   "mxId": 11001,
+   "onTv": true,
+   "type": 0,
+   "numRows": 3,
+   "questionShort": "Gender",
+   "sequence": 1,
+   "onDigital": true,
+   "isMacroView": true,
+   "isDemographic": true,
+   "onBannerboard": true,
+   "sortVerticalPercent": true,
+   "question": "Gender",
+   "answers": [
+    {
+     "row": 1,
+     "mxId": 11001,
+     "answerShort": "Male",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "Male"
+    },
+    {
+     "row": 2,
+     "mxId": 11001,
+     "answerShort": "Female",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "Female"
+    },
+    {
+     "row": 3,
+     "mxId": 11001,
+     "answerShort": "Identify another way",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "Identify another way"
+    }
+   ]
+  },
+  {
+   "mxId": 159,
+   "onTv": true,
+   "type": 0,
+   "numRows": 4,
+   "questionShort": "Age",
+   "sequence": 5,
+   "onDigital": true,
+   "isMacroView": true,
+   "isDemographic": true,
+   "onBannerboard": true,
+   "sortVerticalPercent": false,
+   "question": "Age",
+   "answers": [
+    {
+     "row": 1,
+     "mxId": 159,
+     "answerShort": "18-29",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "18-29"
+    },
+    {
+     "row": 2,
+     "mxId": 159,
+     "answerShort": "30-44",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "30-44"
+    },
+    {
+     "row": 3,
+     "mxId": 159,
+     "answerShort": "45-64",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "45-64"
+    },
+    {
+     "row": 4,
+     "mxId": 159,
+     "answerShort": "65 or older",
+     "totalPercentage": 0,
+     "candidateAnswers": [],
+     "answer": "65 or older"
+    }
+   ]
+  }
+ ],
+ "exitPollEmbargo": {
+  "exitPollsRelease": 1793754000000,
+  "exitPollsReleased": false,
+  "assignedPollsClose": 1793754000000
+ },
+ "hasData": false,
+ "stage": 0,
+ "respondents": 0,
+ "timestamp": null,
+ "topline": null,
+ "candidates": [],
+ "raceEmbargo": {
+  "exitPollsRelease": 1793754000000,
+  "exitPollsReleased": false,
+  "assignedPollsClose": 1793754000000
+ },
+ "ecKey": "2026-GG-PA",
+ "externalKey": "production-key",
+ "version": 1,
+ "raceTypeCode": "G",
+ "extractedAt": "2026-11-03T20:50:04.010618"
+}
