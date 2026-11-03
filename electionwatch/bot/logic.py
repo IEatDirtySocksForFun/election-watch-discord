@@ -387,6 +387,7 @@ def settings_card(gs: GuildSettings) -> Card:
     odds = [
         f"Server default: {_on(gs.odds_alerts)}, {gs.odds_swing_pts:g} points within {gs.odds_window_minutes} minutes",
         "Markets: " + (", ".join(market.capitalize() for market in gs.odds_markets) or "none"),
+        "Races: " + ("every race with a market" if gs.odds_all_races else "the watched races"),
     ]
     odds += [
         f"{ODDS_CATEGORIES.get(name, name)}: {_override_text(rule)}" for name, rule in gs.odds_alert_categories.items()

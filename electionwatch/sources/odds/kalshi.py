@@ -12,6 +12,8 @@ is tight, so one stray overnight trade does not move the number.
 
 from __future__ import annotations
 
+import asyncio
+import re
 import time
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -46,6 +48,35 @@ class KalshiSource(OddsSource):
         self._clock = clock
         self._layout: dict[RaceKey, tuple[float, dict]] = {}  # key -> (looked up, /events payload)
         self._missing: dict[RaceKey, float] = {}  # key -> when Kalshi answered 404
+        self._series: list[RaceKey] = []  # every race Kalshi has a series for
+        self._series_at: float | None = None
+
+    #: Pause between two /events lookups, so the hourly layout pass stays under Kalshi's rate.
+    LOOKUP_SPACING: ClassVar[float] = 0.15
+
+    async def market_keys(self, client: httpx.AsyncClient) -> list[RaceKey]:
+        """Every race Kalshi lists a series for (SENATE<ST>, HOUSE<ST><N>, GOVPARTY<ST>, ...),
+        from one /series request an hour. Races without a 2026 event answer 404 once an hour."""
+        now = self._clock()
+        if self._series_at is None or now - self._series_at >= self.LAYOUT_TTL:
+            try:
+                resp = await client.get(f"{self.BASE}/series", params={"category": "Elections"})
+            except httpx.HTTPError as exc:
+                raise SourceUnavailable(f"kalshi unreachable: {exc}") from exc
+            if resp.status_code >= 400:
+                raise SourceUnavailable(f"kalshi returned {resp.status_code} for the series list")
+            try:
+                rows = resp.json().get("series") or []
+            except Exception as exc:
+                raise SourceUnavailable(f"kalshi bad JSON: {exc}") from exc
+            keys = []
+            for row in rows:
+                ticker = str(row.get("ticker") or "") if isinstance(row, dict) else ""
+                if _RACE_SERIES.fullmatch(ticker) and (key := _event_ticker_to_key(f"{ticker}-26")) is not None:
+                    keys.append(key)
+            self._series = list(dict.fromkeys(keys))
+            self._series_at = now
+        return list(self._series)
 
     async def fetch_odds(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[OddsSnapshot]:
         if not keys:
@@ -66,6 +97,8 @@ class KalshiSource(OddsSource):
                 payloads[key] = known[1]
                 stale.append(key)
                 continue
+            if self._layout or self._missing:
+                await asyncio.sleep(self.LOOKUP_SPACING)
             payload = await self._event(client, event_ticker)
             if payload is None:
                 self._missing[key] = now
@@ -148,6 +181,10 @@ class KalshiSource(OddsSource):
         else:
             return None
         return f"{series}-26"
+
+
+#: Series tickers of single races: SENATETX, SENATEOHS, HOUSEPA1, HOUSEAKAL, GOVPARTYGA, KXGOVAK.
+_RACE_SERIES = re.compile(r"SENATE[A-Z]{2}S?|HOUSE[A-Z]{2}(?:\d{1,2}|AL)|GOVPARTY[A-Z]{2}|KXGOV[A-Z]{2}")
 
 
 def _markets(payload: dict) -> list[dict]:

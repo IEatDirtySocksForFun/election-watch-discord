@@ -263,3 +263,28 @@ async def test_a_failed_batch_is_an_error_not_old_prices():
         clock[0] = 60.0
         with pytest.raises(SourceUnavailable):
             await source.fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
+
+
+async def test_every_race_series_is_listed_once_an_hour():
+    import httpx
+
+    series = {
+        "series": [
+            {"ticker": t}
+            for t in ("SENATETX", "SENATEOHS", "HOUSEPA1", "HOUSEAKAL", "GOVPARTYGA", "KXCPI", "SENATECONTROL")
+        ]
+    }
+    asked: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        asked.append(request.url.path)
+        return httpx.Response(200, json=series)
+
+    clock = [0.0]
+    source = KalshiSource(clock=lambda: clock[0])
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        keys = await source.market_keys(client)
+        clock[0] = 600.0
+        assert await source.market_keys(client) == keys
+    assert [str(key) for key in keys] == ["TX SEN", "OH SEN S", "PA-01", "AK-AL", "GA GOV"]
+    assert asked == ["/trade-api/v2/series"]
