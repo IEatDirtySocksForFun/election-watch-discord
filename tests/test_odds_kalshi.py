@@ -139,8 +139,10 @@ def test_parse_house_at_large_ak():
     assert len(snaps) == 2
     assert all(snapshot.key == RaceKey("AK", Level.HOUSE, "HOUSE", "AL") for snapshot in snaps)
     by_outcome = {snapshot.outcome: snapshot for snapshot in snaps}
-    assert by_outcome["REP"].prob == pytest.approx(0.78, abs=1e-6)
-    assert by_outcome["DEM"].prob == pytest.approx(0.03, abs=1e-6)
+    # Tight books are priced at their midpoint, not the last trade: REP 0.77/0.78 (last 0.78),
+    # DEM 0.012/0.027 (last 0.03, outside the current book).
+    assert by_outcome["REP"].prob == pytest.approx(0.775, abs=1e-6)
+    assert by_outcome["DEM"].prob == pytest.approx(0.0195, abs=1e-6)
     assert by_outcome["REP"].url == "https://kalshi.com/markets/houseakal"
 
 
@@ -184,3 +186,80 @@ def test_special_election_event_parses_to_the_special_key():
     snapshots = parse_kalshi_event(payload)
     assert snapshots and {str(snapshot.key) for snapshot in snapshots} == {"OH SEN S"}
     assert {snapshot.outcome for snapshot in snapshots} == {"DEM", "REP"}
+
+
+# --- prices: midpoint of a tight book, one batched request per poll ------------------------------
+
+
+def test_a_stray_last_trade_does_not_move_a_tight_book():
+    from electionwatch.sources.odds.kalshi import _market_prob
+
+    # PA-01 on 2026-11-03 01:24 ET: one trade at 0.69 against a 0.36/0.37 book.
+    assert _market_prob({"last_price_dollars": "0.6900", "yes_bid_dollars": "0.3600", "yes_ask_dollars": "0.3700"}) == (
+        pytest.approx(0.365)
+    )
+    # A wide book (or one side missing) falls back to the last trade, then the bid.
+    assert _market_prob({"last_price_dollars": "0.4000", "yes_bid_dollars": "0.1000", "yes_ask_dollars": "0.9000"}) == (
+        pytest.approx(0.40)
+    )
+    assert _market_prob({"last_price_dollars": "0.0000", "yes_bid_dollars": "0.2000", "yes_ask_dollars": "0"}) == (
+        pytest.approx(0.20)
+    )
+    assert _market_prob({"last_price": 55, "yes_bid": 50, "yes_ask": 54}) == pytest.approx(0.52)
+
+
+async def test_layout_is_looked_up_once_then_prices_come_from_one_batch():
+    import httpx
+
+    event = _load("senatetx-26.json")
+    tickers = [market["ticker"] for market in event.get("markets") or event["event"]["markets"]]
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.url.path)
+        if request.url.path.endswith("/markets"):
+            asked = request.url.params["tickers"].split(",")
+            rows = [{"ticker": ticker, "yes_bid_dollars": "0.6000", "yes_ask_dollars": "0.6200"} for ticker in asked]
+            return httpx.Response(200, json={"markets": rows})
+        if request.url.path.endswith("/events/SENATENE-26"):
+            return httpx.Response(404, json={"error": "not found"})
+        return httpx.Response(200, json=event)
+
+    clock = [0.0]
+    source = KalshiSource(clock=lambda: clock[0])
+    keys = [RaceKey("TX", Level.SENATE, "SEN"), RaceKey("NE", Level.SENATE, "SEN")]
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        first = await source.fetch_odds(keys, client)
+        clock[0] = 120.0
+        second = await source.fetch_odds(keys, client)
+        clock[0] = 3700.0
+        await source.fetch_odds(keys, client)
+    assert first and {snapshot.key for snapshot in first} == {RaceKey("TX", Level.SENATE, "SEN")}
+    # First poll: one /events per race (NE answers 404). Second: one batch, NE not asked again.
+    assert seen[:2] == ["/trade-api/v2/events/SENATETX-26", "/trade-api/v2/events/SENATENE-26"]
+    assert seen[2:3] == ["/trade-api/v2/markets"]
+    assert {snapshot.market_id for snapshot in second} == set(tickers)
+    assert all(snapshot.prob == pytest.approx(0.61) for snapshot in second)
+    # After an hour both races are looked up again.
+    assert seen[3:] == ["/trade-api/v2/events/SENATETX-26", "/trade-api/v2/events/SENATENE-26"]
+
+
+async def test_a_failed_batch_is_an_error_not_old_prices():
+    import httpx
+
+    from electionwatch.sources.base import SourceUnavailable
+
+    event = _load("senatetx-26.json")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/markets"):
+            return httpx.Response(503)
+        return httpx.Response(200, json=event)
+
+    clock = [0.0]
+    source = KalshiSource(clock=lambda: clock[0])
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        await source.fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)
+        clock[0] = 60.0
+        with pytest.raises(SourceUnavailable):
+            await source.fetch_odds([RaceKey("TX", Level.SENATE, "SEN")], client)

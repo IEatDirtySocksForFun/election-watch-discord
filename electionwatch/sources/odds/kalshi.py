@@ -2,13 +2,20 @@
 
 Discovers 2026 U.S. election events from series tickers and parses each market
 as an OddsSnapshot. No API key is required for reads.
+
+Each race's event (its market tickers) is looked up once an hour, and a race Kalshi has no
+event for is not asked again for that hour. Every poll in between prices all known markets
+with one batched ``/markets?tickers=`` request per 100 markets instead of one ``/events``
+request per race. A market is priced at the midpoint of its yes bid and ask when the spread
+is tight, so one stray overnight trade does not move the number.
 """
 
 from __future__ import annotations
 
+import time
 from dataclasses import replace
 from datetime import datetime, timezone
-from typing import ClassVar
+from typing import Callable, ClassVar
 
 import httpx
 
@@ -30,38 +37,97 @@ class KalshiSource(OddsSource):
         "AK": "KXGOVAK",
     }
 
+    #: How long an event's layout (or Kalshi's 404 for a race) is trusted before asking again.
+    LAYOUT_TTL: ClassVar[float] = 3600.0
+    #: Market tickers per batched /markets request.
+    BATCH: ClassVar[int] = 100
+
+    def __init__(self, clock: Callable[[], float] = time.monotonic) -> None:
+        self._clock = clock
+        self._layout: dict[RaceKey, tuple[float, dict]] = {}  # key -> (looked up, /events payload)
+        self._missing: dict[RaceKey, float] = {}  # key -> when Kalshi answered 404
+
     async def fetch_odds(self, keys: list[RaceKey], client: httpx.AsyncClient) -> list[OddsSnapshot]:
         if not keys:
             return []
 
-        snapshots: list[OddsSnapshot] = []
-        for key in keys:
+        now = self._clock()
+        payloads: dict[RaceKey, dict] = {}
+        stale: list[RaceKey] = []  # layout known from an earlier poll: priced by the batch below
+        for key in dict.fromkeys(keys):
             event_ticker = self._key_to_event_ticker(key)
             if not event_ticker:
                 continue
-            url = f"{self.BASE}/events/{event_ticker}"
-            try:
-                resp = await client.get(url)
-            except httpx.HTTPError as exc:
-                raise SourceUnavailable(f"kalshi unreachable: {exc}") from exc
-            if resp.status_code == 404:
+            missing = self._missing.get(key)
+            if missing is not None and now - missing < self.LAYOUT_TTL:
                 continue
-            if resp.status_code >= 400:
-                raise SourceUnavailable(f"kalshi returned {resp.status_code} for {event_ticker}")
-            try:
-                payload = resp.json()
-            except Exception as exc:
-                raise SourceUnavailable(f"kalshi bad JSON: {exc}") from exc
+            known = self._layout.get(key)
+            if known is not None and now - known[0] < self.LAYOUT_TTL:
+                payloads[key] = known[1]
+                stale.append(key)
+                continue
+            payload = await self._event(client, event_ticker)
+            if payload is None:
+                self._missing[key] = now
+                continue
+            self._layout[key] = (now, payload)
+            payloads[key] = payload
+
+        if stale:
+            tickers = [market["ticker"] for key in stale for market in _markets(payloads[key]) if market.get("ticker")]
+            latest = await self._markets(client, tickers)
+            for key in stale:
+                payload = payloads[key]
+                # A ticker the batch did not return (closed, delisted) has no current price.
+                markets = [latest[market["ticker"]] for market in _markets(payload) if market.get("ticker") in latest]
+                payloads[key] = {"event": payload.get("event") or {}, "markets": markets}
+
+        snapshots: list[OddsSnapshot] = []
+        # Stamp with the fetch time: updated_time is market *metadata* time (often weeks
+        # old), which would put every price outside the swing detector's look-back window.
+        fetched = datetime.now(timezone.utc)
+        for key, payload in payloads.items():
             try:
                 parsed = parse_kalshi_event(payload)
             except Exception:
-                # Never raise on one bad race.
-                continue
-            # Stamp with the fetch time: updated_time is market *metadata* time (often weeks
-            # old), which would put every price outside the swing detector's look-back window.
-            fetched = datetime.now(timezone.utc)
+                continue  # never raise on one bad race
             snapshots.extend(replace(snapshot, ts=fetched) for snapshot in parsed if snapshot.key == key)
         return snapshots
+
+    async def _event(self, client: httpx.AsyncClient, event_ticker: str) -> dict | None:
+        """One race's /events payload, or None when Kalshi has no such event."""
+        try:
+            resp = await client.get(f"{self.BASE}/events/{event_ticker}")
+        except httpx.HTTPError as exc:
+            raise SourceUnavailable(f"kalshi unreachable: {exc}") from exc
+        if resp.status_code == 404:
+            return None
+        if resp.status_code >= 400:
+            raise SourceUnavailable(f"kalshi returned {resp.status_code} for {event_ticker}")
+        try:
+            return resp.json()
+        except Exception as exc:
+            raise SourceUnavailable(f"kalshi bad JSON: {exc}") from exc
+
+    async def _markets(self, client: httpx.AsyncClient, tickers: list[str]) -> dict[str, dict]:
+        """Current market rows for many tickers, BATCH per request: {ticker: market}."""
+        latest: dict[str, dict] = {}
+        for start in range(0, len(tickers), self.BATCH):
+            chunk = tickers[start : start + self.BATCH]
+            try:
+                resp = await client.get(
+                    f"{self.BASE}/markets", params={"tickers": ",".join(chunk), "limit": len(chunk)}
+                )
+            except httpx.HTTPError as exc:
+                raise SourceUnavailable(f"kalshi unreachable: {exc}") from exc
+            if resp.status_code >= 400:
+                raise SourceUnavailable(f"kalshi returned {resp.status_code} for a market batch")
+            try:
+                rows = resp.json().get("markets") or []
+            except Exception as exc:
+                raise SourceUnavailable(f"kalshi bad JSON: {exc}") from exc
+            latest.update({row["ticker"]: row for row in rows if isinstance(row, dict) and row.get("ticker")})
+        return latest
 
     def _key_to_event_ticker(self, key: RaceKey) -> str | None:
         state = key.state
@@ -84,10 +150,15 @@ class KalshiSource(OddsSource):
         return f"{series}-26"
 
 
+def _markets(payload: dict) -> list[dict]:
+    event = payload.get("event") or {}
+    return payload.get("markets") or event.get("markets") or []
+
+
 def parse_kalshi_event(payload: dict) -> list[OddsSnapshot]:
     """Parse a Kalshi /events/{event_ticker} response into OddsSnapshot rows."""
     event = payload.get("event") or {}
-    markets = payload.get("markets") or event.get("markets") or []
+    markets = _markets(payload)
     event_ticker = event.get("event_ticker", "")
     series_ticker = event.get("series_ticker", "")
     key = _event_ticker_to_key(event_ticker)
@@ -183,22 +254,36 @@ def _market_candidate(market: dict) -> str | None:
     return name[:100]
 
 
+#: Widest yes bid/ask spread still priced at its midpoint; a wider book uses the last trade.
+MAX_SPREAD = 0.10
+
+
+def _price(market: dict, field: str) -> float | None:
+    """A yes price in dollars: the ``*_dollars`` string, or older payloads' integer cents."""
+    raw = market.get(f"{field}_dollars")
+    if raw not in (None, ""):
+        try:
+            return float(raw)
+        except (TypeError, ValueError):
+            return None
+    raw = market.get(field)
+    if raw is None:
+        return None
+    try:
+        return float(raw) / 100.0
+    except (TypeError, ValueError):
+        return None
+
+
 def _market_prob(market: dict) -> float | None:
-    for field in ("last_price_dollars", "yes_bid_dollars", "yes_ask_dollars"):
-        price = market.get(field)
-        if price:
-            try:
-                return _unit_interval(float(price))
-            except (TypeError, ValueError):
-                pass
-    # Older payloads quote integer cents rather than *_dollars strings.
+    """Midpoint of a tight yes book; otherwise the last trade, then the bid, then the ask."""
+    bid, ask = _price(market, "yes_bid"), _price(market, "yes_ask")
+    if bid and ask and bid <= ask and ask - bid <= MAX_SPREAD:
+        return _unit_interval(round((bid + ask) / 2, 4))
     for field in ("last_price", "yes_bid", "yes_ask"):
-        price = market.get(field)
-        if price is not None:
-            try:
-                return _unit_interval(float(price) / 100.0)
-            except (TypeError, ValueError):
-                pass
+        price = _price(market, field)
+        if price:
+            return _unit_interval(price)
     return None
 
 
