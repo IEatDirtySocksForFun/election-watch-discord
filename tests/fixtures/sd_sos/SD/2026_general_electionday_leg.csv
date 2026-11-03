@@ -1,0 +1,8 @@
+RaceID,RaceName,PartyCode,AreaType,AreaNum,OfficeSeqNo,BallotOrder,CandidateID,CandidateName,CurrentDateTime,VoteFor,CandidateVotes,CandidatePercentage,PrecinctsReporting
+14690,"State Representative","REP","","District 26A",310,,25347,"Ron  Frederick ",11/3/2026 1:49:56 PM,1,0,0,="0/15",
+14690,"State Representative","DEM","","District 26A",310,,25346,"Eric E. Emery ",11/3/2026 1:49:56 PM,1,0,0,="0/15",
+14589,"State Representative","REP","","District 26B",310,,25042,"Angi  Hanzlik ",11/3/2026 1:49:56 PM,1,0,0,="0/22",
+14589,"State Representative","DEM","","District 26B",310,,25254,"Lewis J. GrassRope ",11/3/2026 1:49:56 PM,1,0,0,="0/22",
+14650,"State Representative","REP","","District 28A",310,,25564,"Jana  Hunt ",11/3/2026 1:49:56 PM,1,0,0,="0/31",
+14650,"State Representative","DEM","","District 28A",310,,25565,"Chastity 'Chas'  Jewett ",11/3/2026 1:49:56 PM,1,0,0,="0/31",
+14728,"State Representative","REP","","District 28B",310,,25043,"Travis  Ismay ",11/3/2026 1:49:56 PM,1,0,0,="0/31",

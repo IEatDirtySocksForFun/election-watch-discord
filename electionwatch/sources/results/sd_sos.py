@@ -22,13 +22,24 @@ per candidate per contest:
 - `PrecinctsReporting` is Excel-guarded text, `<reporting>/<total>` for that contest.
 - `AreaNum` is the district for legislative races ("District 01") and the county or city for
   county/local races. Local contests reuse the same `RaceName` ("City Council Member") in
-  every city, so contests are grouped by (RaceName, AreaNum).
+  every city, so contests are grouped by (RaceName, AreaNum). Two House districts are split
+  into lettered sub-districts ("District 26A"/"26B", "District 28A"/"28B"); the letter is part
+  of the race key (`SD HD-26A`, `SD HD-26B`), otherwise the second sub-district's candidates
+  would overwrite the first's.
 - `VoteFor` is 2 for the two-seat South Dakota House districts; no winner flag is published.
 
 The media page carries the election name/date plus turnout, and the site serves whichever
 election it is currently reporting when `eid` is omitted. The adapter therefore omits `eid`
 and refuses to report if the page's date is not the tracked election date; `SD_EID` pins an
 archived election instead (684 = 2024 general, 651 = 2024 primary).
+
+The media page is also the least reliable part of the site: on 2026-11-03 roughly half of the
+requests answered **302** to `/ErrorPages/Error.aspx` (a 172-byte "Object moved" stub) instead
+of the page, while the CSVs kept answering 200. The stub carries no hidden fields, which would
+silently drop the election-date check and the turnout figures; `fetch()` therefore reads the
+page once before the CSVs and once more after them (a cold front end is what 302s, and the CSVs
+warm it up). If both reads fail the vote counts are still reported, without turnout and without
+an update stamp.
 """
 
 from __future__ import annotations
@@ -91,8 +102,11 @@ def _area(text: str) -> str:
 
 
 def _district(text: str) -> str | None:
-    match = re.search(r"(\d{1,3})", text or "")
-    return f"{int(match.group(1)):02d}" if match else None
+    """'District 7' -> '07', 'District 26A' -> '26A' (lettered House sub-district)."""
+    match = re.search(r"(\d{1,3})\s*([A-Za-z])?\b", text or "")
+    if not match:
+        return None
+    return f"{int(match.group(1)):02d}" + (match.group(2) or "").upper()
 
 
 def race_key(title: str, area: str = "") -> RaceKey:
@@ -233,6 +247,33 @@ def _with_eid(url: str, eid: str | None) -> str:
     return f"{url}&eid={eid}" if eid else url
 
 
+async def _media_page(client: httpx.AsyncClient, eid: str | None) -> tuple[str, dict]:
+    """One read of ResultsMedia.aspx: the page plus its hidden fields (date, turnout, stamp).
+
+    About half of the requests on 2026-11-03 answered **302** to `/ErrorPages/Error.aspx`, a
+    172-byte "Object moved" stub with no hidden fields, while the CSVs stayed at 200; some
+    requests timed out instead. The page is metadata only, so a failed read returns an empty
+    dict and the caller asks again after the CSVs.
+    """
+    try:
+        media = await c.get_text(client, _with_eid(MEDIA, eid))
+    except SourceUnavailable:
+        return "", {}
+    return media, media_info(media)
+
+
+def _check_election(details: dict, eid: str | None) -> None:
+    """Refuse another election's numbers (a pinned SD_EID selects the election instead)."""
+    if eid or not details.get("date"):
+        return
+    wanted = c.election_date()
+    if details["date"] != wanted:
+        raise SourceUnavailable(
+            f"SD: the site is reporting the {details['date']} election, not {wanted}; "
+            f"set SD_EID to pin an archived election"
+        )
+
+
 @register
 class SdSos(ResultsSource):
     name = "sd_sos"
@@ -243,14 +284,9 @@ class SdSos(ResultsSource):
         if not any(key.state == "SD" for key in keys):
             return []
         eid = _eid()
-        media = await c.get_text(client, _with_eid(MEDIA, eid))
-        media_details = media_info(media)
-        wanted_date = c.election_date()
-        if media_details.get("date") and media_details["date"] != wanted_date and not eid:
-            raise SourceUnavailable(
-                f"SD: the site is reporting the {media_details['date']} election, not {wanted_date}; "
-                f"set SD_EID to pin an archived election"
-            )
+        media, media_details = await _media_page(client, eid)
+        if media_details.get("date"):
+            _check_election(media_details, eid)  # wrong election: stop before the CSVs
         texts: list[str] = []
         errors = 0
         for kind, mapping in PAGES:
@@ -260,6 +296,11 @@ class SdSos(ResultsSource):
                 errors += 1
         if errors == len(PAGES):
             raise SourceUnavailable(f"SD: no media CSV fetched ({CSV_URL.format('SWR', 'CTY')})")
+        if not media_details.get("date"):
+            # Second look now that the CSVs have woken the front end; still no page -> the
+            # vote counts are reported without turnout and without the timestamp.
+            media, media_details = await _media_page(client, eid)
+            _check_election(media_details, eid)
         parsed = parse_sd(texts, media, fetched_at=c.utcnow())
         return c.select(parsed, [key for key in keys if key.state == "SD"])
 
@@ -267,13 +308,18 @@ class SdSos(ResultsSource):
         if state != "SD":
             return []
         eid = _eid()
-        media = await c.get_text(client, _with_eid(MEDIA, eid))
+        media, media_details = await _media_page(client, eid)
+        if media_details.get("date"):
+            _check_election(media_details, eid)
         texts = []
         for kind, mapping in PAGES:
             try:
                 texts.append(await c.get_text(client, _with_eid(CSV_URL.format(kind, mapping), eid)))
             except SourceUnavailable:
                 continue
+        if not media_details.get("date"):
+            media, media_details = await _media_page(client, eid)
+            _check_election(media_details, eid)
         return [
             (race_result.key, race_result.title or str(race_result.key))
             for race_result in parse_sd(texts, media, fetched_at=c.utcnow())
