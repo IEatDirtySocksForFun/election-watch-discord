@@ -63,7 +63,7 @@ project is a template: fork it, trim it, extend it.
 - **Betting markets.** Kalshi and Polymarket odds for every watched race, with candidate names,
   1 h and 24 h moves, and optional swing alerts tuned per race or per kind of race.
 - **Polls.** The latest public polls for a race, with partisan internals flagged.
-- **Early vote.** Ballots cast before Election Day for the 46 states civicAPI tracks: mail and
+- **Early vote.** Ballots cast before Election Day for the 47 states civicAPI tracks: mail and
   in person, party, age, a party split for every county, one county on its own, and a
   comparison with the last similar election.
 - **Private race browser** (`/races`): tabs for House, Senate, state and local races, a state
