@@ -43,3 +43,35 @@ Sources:
 All CSV files keep the original header and CRLF line endings; candidate names keep the
 source's double spaces and trailing blanks, and PrecinctsReporting keeps the Excel guard
 (="122/671").
+
+Election-day set (fetched 2026-11-03 13:49 UTC, ~08:49 CT, before any precinct had reported)
+------------------------------------------------------------------------------------------
+
+Same host, same format, HTTP 200. The site showed "Unofficial Results — General Election
+November 3, 2026" with every counter at zero, so these files record what the live feed looks
+like after the test data is cleared and before counting starts.
+
+  2026_general_electionday_media.html
+      https://electionresults.sd.gov/ResultsMedia.aspx
+      Content-Type text/html; 26.6 kB. Trimmed to one contiguous slice: the <form> element
+      from its opening tag through the closing </a> of the "Unofficial Results" header box.
+      Carries "Results last updated: 10/30/2026 5:41 PM CT" and the hidden inputs
+      hidElectionDate=11/3/2026, hidVoterTurnout=0, hidVoterTotal=628629,
+      hidPrecinctsReported=0, hidPrecinctsNotReported=671.
+
+  2026_general_electionday_swr.csv
+      https://electionresults.sd.gov/resultsCSV.aspx?text=All&type=SWR&map=CTY
+      Complete response (18 data rows, 2.2 kB). Every CandidateVotes is 0,
+      CandidatePercentage is 0 and PrecinctsReporting is ="0/671".
+
+  2026_general_electionday_leg.csv
+      https://electionresults.sd.gov/resultsCSV.aspx?text=All&type=LEG&map=DIST
+      Trimmed: every row for the lettered House sub-districts District 26A, 26B, 28A and 28B
+      (7 rows). Precinct totals 15, 22, 31 and 31; 28B has a single candidate.
+
+  2026_general_media_error_302.html
+      https://electionresults.sd.gov/ResultsMedia.aspx (HTTP 302, Location
+      /ErrorPages/Error.aspx?aspxerrorpath=/ResultsMedia.aspx)
+      Complete response body, 172 bytes, fetched 2026-11-03 13:55 UTC. The site returned this
+      stub instead of the media page for roughly half of the requests that day, while the CSV
+      endpoints kept answering 200. Parses to no hidden fields.

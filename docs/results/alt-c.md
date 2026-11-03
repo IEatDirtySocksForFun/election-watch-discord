@@ -23,7 +23,7 @@ login or agreement pages.
 | State | Adapter                                | Source                                                                                                 | Coverage                                                                                                                    | Verified                                                                                                       |
 | ----- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | MT    | `mt_sos` (new)                         | `electionresults.mt.gov/resultsSW.aspx?type=…&eid=…` (id discovered from `candidatefiling.mt.gov`)     | statewide: US Senate/House, 6 statewide offices, state senate + house districts, PSC, supreme/district court, ballot issues | yes — 2024 general replayed live (89 races listed), 2026 general id resolves and is empty until election night |
-| SD    | `sd_sos` (new)                         | `electionresults.sd.gov/resultsCSV.aspx?text=All&type=SWR\|BQ\|LEG\|CTY\|MUN`                          | statewide: all 5 contest families (statewide, ballot questions, legislative, county, municipal)                             | yes — 2026 general test data live (122 of 671 precincts)                                                       |
+| SD    | `sd_sos` (new)                         | `electionresults.sd.gov/resultsCSV.aspx?text=All&type=SWR\|BQ\|LEG\|CTY\|MUN`                          | statewide: all 5 contest families (statewide, ballot questions, legislative, county, municipal)                             | yes — 2026 general live on 2026-11-03 (142 contests, 0/671 precincts)                                          |
 | OR    | `or_sos` (new)                         | `orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapData?type=SWPAR\|FED\|HOUSE\|SENATE\|MEASURE` | statewide offices, US Senate/House, all 60 HD + 30 SD districts, statewide measures (no county/local races)                 | yes — 2026 general live, 83 races listed                                                                       |
 | MD    | `md_sbe` (extended)                    | `elections.maryland.gov/elections/2026/general_results/index.html` + per-contest pages                 | statewide: Governor/Lt.Gov, Comptroller, AG, 8 CD, 47 SD, 71 HD (lettered), judges, questions                               | yes — 2026 general live, 141 races listed, "NR" everywhere until counting                                      |
 | OK    | —                                      | nothing reachable                                                                                      | none (cbs_results covers Senate/Gov/House only)                                                                             | no                                                                                                             |
@@ -71,9 +71,21 @@ New dependencies: none. Shared contracts unchanged.
   stamp from its hidden fields.
 - **Coverage:** all five families, i.e. the whole certified result set — statewide races,
   ballot questions, legislative districts, county races/questions, municipal races/questions.
+  House districts 26 and 28 are split into lettered sub-districts (26A/26B, 28A/28B) and each
+  one is keyed separately (`SD HD-26A` … `SD HD-28B`); the `AreaNum` letter is part of the key.
 - **Verification:** live on 2026-10-27 the site was in "Testing In Progress" mode
-  (122 of 671 precincts), so the 2026 general CSV is already serving. Keys checked live:
-  `SD SEN`, `SD-AL`, `SD GOV`, `SD SD-01`, `SD HD-01`.
+  (122 of 671 precincts), so the 2026 general CSV was already serving. Re-checked on
+  2026-11-03 before any precinct reported: "Unofficial Results — General Election
+  November 3, 2026", 0 of 671 precincts, every count 0, 142 contests from the five CSVs
+  (9 statewide, 4 ballot questions, 72 legislative, 40 county, 17 municipal), and the
+  media page's turnout fields at 0 (recorded as "no figure", not as 0% turnout).
+  Keys checked live: `SD SEN`, `SD-AL`, `SD GOV`, `SD SD-01`, `SD HD-01`, `SD HD-26A`.
+- **Known site behaviour:** on 2026-11-03 about half of the requests for the media page
+  answered **302** to `/ErrorPages/Error.aspx` (a 172-byte "Object moved" stub with no hidden
+  fields), and some timed out, while the five CSVs answered 200 throughout. The adapter reads
+  the media page once before the CSVs and once after them; if both reads fail, the counts are
+  still reported (turnout and update stamp empty) and the election-date check cannot be
+  applied for that poll.
 
 ---
 
@@ -179,7 +191,8 @@ New dependencies: none. Shared contracts unchanged.
 
 ## Operational notes
 
-- Polling: MT 8 requests/poll, SD 5 + 1 media page, OR 5, MD 1 index + 1 per tracked contest.
+- Polling: MT 8 requests/poll, SD 5 + 1 media page (+1 more media read only when that page
+  answers its error redirect), OR 5, MD 1 index + 1 per tracked contest.
   All are fine at the bot's ≥60 s interval; MD is the only one that scales with the number of
   tracked contests.
 - All four adapters raise `SourceUnavailable` (never fabricated zeros) when the tracked
