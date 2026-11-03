@@ -1,3 +1,5 @@
+import asyncio
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -7,6 +9,7 @@ import pytest
 from electionwatch.models import Level
 from electionwatch.racekeys import format_key
 from electionwatch.sources.base import SourceUnavailable
+from electionwatch.sources.results import sd_sos
 from electionwatch.sources.results.sd_sos import SdSos, media_info, parse_sd, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "sd_sos" / "SD"
@@ -187,6 +190,55 @@ def test_partial_feed_does_not_crash():
     assert got[0].source_updated_at is None  # no media page -> no timestamp
 
 
+def test_live_county_areas_with_a_vote_centre_suffix():
+    # Live 2026-11-03 rows: counties that count at vote centres append the suffix to AreaNum,
+    # and the county-commissioner heading repeats the district name.
+    got = {
+        format_key(race_result.key): race_result
+        for race_result in parse_sd(
+            (FIX / "2026_general_county_areas.csv").read_text(encoding="utf-8"), fetched_at=LIVE_AT
+        )
+    }
+    assert set(got) == {
+        "SD LOCAL county-auditor-codington",
+        "SD LOCAL sheriff-brookings-brookings-vote-center",
+        "SD LOCAL county-commissioner-campbell-campbell",
+    }
+    sheriff = got["SD LOCAL sheriff-brookings-brookings-vote-center"]
+    # The heading already names the county: the vote-centre area is not repeated in the title.
+    assert sheriff.title == "Sheriff - Brookings"
+    assert [(candidate.name, candidate.party) for candidate in sheriff.candidates] == [
+        ("David Biteler", "REP"),
+        ("Manuel 'Manny' Langstraat", "IND"),
+    ]
+    assert sheriff.precincts_reporting is None
+    assert sheriff.precincts_total == 10
+    assert all(race_result.key.level is Level.LOCAL for race_result in got.values())
+
+
+def test_live_municipal_questions_and_wards():
+    got = {
+        format_key(race_result.key): race_result
+        for race_result in parse_sd(
+            (FIX / "2026_general_municipal_areas.csv").read_text(encoding="utf-8"), fetched_at=LIVE_AT
+        )
+    }
+    assert len(got) == 4
+    assert [candidate.name for candidate in got["SD LOCAL city-council-member-brookings"].candidates] == [
+        "Al Austreim",
+        "Lisa Hager",
+        "Shawn Hostler",
+        "Wade Wantoch",
+        "Brianna Doran",
+    ]
+    assert got["SD LOCAL city-council-member-platte-ward-01"].title == "City Council Member (Platte Ward-01)"
+    titles = {race_result.title: race_result for race_result in got.values()}
+    question = titles["Question : TEMPORARY ONE PERCENT (1%) MUNICIPAL GROSS RECEIPTS TAX (Milbank)"]
+    assert [(candidate.name, candidate.party) for candidate in question.candidates] == [("Yes", None), ("No", None)]
+    assert question.precincts_total == 7
+    assert titles["Bond Issue : Armour School District 21-1 Bond"].precincts_total == 10
+
+
 # --- the media page answers its error redirect about half the time -------------------------------
 
 ERROR_REDIRECT = (FIX / "2026_general_media_error_302.html").read_text(encoding="utf-8")
@@ -274,3 +326,31 @@ async def test_media_page_timeout_does_not_lose_the_counts(monkeypatch):
     assert [format_key(race_result.key) for race_result in got] == ["SD SEN"]
     assert got[0].turnout_pct is None
     assert got[0].precincts_total == 671
+
+
+async def test_a_hanging_media_page_cannot_hold_up_the_counts(monkeypatch):
+    # Live on 2026-11-03 the media page sometimes accepted the connection and never answered,
+    # while the CSVs replied at once. The read is bounded, so the counts still arrive.
+    monkeypatch.delenv("SD_EID", raising=False)
+    monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
+    monkeypatch.setattr(sd_sos, "MEDIA_TIMEOUT", 0.05)
+    seen = {"media": 0, "csv": 0}
+
+    async def handler(request):
+        if "ResultsMedia.aspx" in str(request.url):
+            seen["media"] += 1
+            await asyncio.sleep(5)
+            return httpx.Response(200, text=ELECTION_DAY_MEDIA)
+        seen["csv"] += 1
+        return httpx.Response(200, text=CSV_BODY)
+
+    started = time.monotonic()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        got = await SdSos().fetch([race_key("United States Senator")], client)
+    assert time.monotonic() - started < 2  # two bounded reads, not two five-second hangs
+    assert [format_key(race_result.key) for race_result in got] == ["SD SEN"]
+    assert got[0].precincts_total == 671
+    assert got[0].turnout_pct is None
+    assert got[0].source_updated_at is None
+    assert seen["media"] == 2
+    assert seen["csv"] >= 1

@@ -59,7 +59,7 @@ election night most results feeds are EMPTY or UNAVAILABLE: that is expected.
 | PR    | -                                                               | civicapi                                                             | -      |
 | RI    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ri_boe                                        | -      |
 | SC    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, sc_sec                                        | -      |
-| SD    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, sd_sos                                        | -      |
+| SD    | abc_results, fox_results, nbc_results, sd_sos                   | cbs_results, civicapi                                                | -      |
 | TN    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, tn_counties                                   | -      |
 | TX    | abc_results, cnn_results, fox_results, nbc_results, tx_counties | cbs_results, civicapi, tx_sos                                        | -      |
 | UT    | abc_results, fox_results, nbc_results                           | cbs_results, civicapi, ut_lgov                                       | -      |

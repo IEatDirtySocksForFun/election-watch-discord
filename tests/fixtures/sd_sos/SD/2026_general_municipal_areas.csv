@@ -1,0 +1,12 @@
+RaceID,RaceName,PartyCode,AreaType,AreaNum,OfficeSeqNo,BallotOrder,CandidateID,CandidateName,CurrentDateTime,VoteFor,CandidateVotes,CandidatePercentage,PrecinctsReporting
+14909,"City Council Member","NON","MUN","Brookings",825,,25574,"Al  Austreim ",11/3/2026 4:52:30 PM,2,0,0,="0/10",
+14909,"City Council Member","NON","MUN","Brookings",825,,25575,"Lisa  Hager ",11/3/2026 4:52:30 PM,2,0,0,="0/10",
+14909,"City Council Member","NON","MUN","Brookings",825,,25576,"Shawn  Hostler ",11/3/2026 4:52:30 PM,2,0,0,="0/10",
+14909,"City Council Member","NON","MUN","Brookings",825,,25577,"Wade  Wantoch ",11/3/2026 4:52:30 PM,2,0,0,="0/10",
+14909,"City Council Member","NON","MUN","Brookings",825,,25578,"Brianna  Doran ",11/3/2026 4:52:30 PM,2,0,0,="0/10",
+14936,"City Council Member","NON","WAR","Platte Ward-01",835,,25631,"Jacob Richard Johnson",11/3/2026 4:52:30 PM,1,0,0,="0/7",
+14936,"City Council Member","NON","WAR","Platte Ward-01",835,,25632,"David R. Carter",11/3/2026 4:52:30 PM,1,0,0,="0/7",
+233,"Question : TEMPORARY ONE PERCENT (1%) MUNICIPAL GROSS RECEIPTS TAX","","MUN","Milbank",961,,9001,"Yes",11/3/2026 4:52:30 PM,1,0,0,="0/7",
+233,"Question : TEMPORARY ONE PERCENT (1%) MUNICIPAL GROSS RECEIPTS TAX","","MUN","Milbank",961,,9002,"No",11/3/2026 4:52:30 PM,1,0,0,="0/7",
+237,"Bond Issue : Armour School District 21-1 Bond","","SCH","Armour School District 21-1",981,,9001,"Yes",11/3/2026 4:52:30 PM,1,0,0,="0/10",
+237,"Bond Issue : Armour School District 21-1 Bond","","SCH","Armour School District 21-1",981,,9002,"No",11/3/2026 4:52:30 PM,1,0,0,="0/10",
