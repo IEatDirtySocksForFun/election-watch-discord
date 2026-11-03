@@ -1,0 +1,143 @@
+{
+ "election": {
+  "ID": "108",
+  "NM": "11/03/2026 -- November 2026 State Election",
+  "DT": "11/03/2026",
+  "ET": "G",
+  "EC": "SE",
+  "P": "",
+  "DNM": "2026 General Election"
+ },
+ "officeList": [
+  {
+   "19663": {
+    "ID": "19663",
+    "NM": "Governor and Lieutenant Governor",
+    "OT": "SW",
+    "OO": "1",
+    "DT": "",
+    "D": "0"
+   }
+  },
+  {
+   "19666": {
+    "ID": "19666",
+    "NM": "Representative in Congress 1",
+    "OT": "C",
+    "OO": "2",
+    "DT": "Connecticut 01",
+    "D": "1"
+   }
+  },
+  {
+   "19825": {
+    "ID": "19825",
+    "NM": "State Senator 1",
+    "OT": "S",
+    "OO": "7",
+    "DT": "Connecticut 01",
+    "D": "1"
+   }
+  },
+  {
+   "19674": {
+    "ID": "19674",
+    "NM": "State Representative 1",
+    "OT": "A",
+    "OO": "43",
+    "DT": "Connecticut 01",
+    "D": "1"
+   }
+  }
+ ],
+ "candidateIds": {
+  "44485": {
+   "NM": "Zenobia Adgers and Rick Adgers",
+   "P": "1026"
+  },
+  "43573": {
+   "NM": "Amy Chai",
+   "P": "6"
+  },
+  "44120": {
+   "NM": "Luis Delgado",
+   "P": "7"
+  },
+  "43810": {
+   "NM": "Ryan Fazio and Matt Corey",
+   "P": "6"
+  },
+  "43512": {
+   "NM": "John W. Fonfara",
+   "P": "1"
+  },
+  "44489": {
+   "NM": "Mark Stewart Greenstein",
+   "P": "1026"
+  },
+  "44186": {
+   "NM": "Ned Lamont and Susan Bysiewicz",
+   "P": "1"
+  },
+  "44487": {
+   "NM": "Christian Noe and Michael S. Grant",
+   "P": "1026"
+  },
+  "43562": {
+   "NM": "Matt Ritter",
+   "P": "1"
+  },
+  "44155": {
+   "NM": "Mary L. Sanders",
+   "P": "7"
+  },
+  "44499": {
+   "NM": "L. Lee Whitnum and David Spirt",
+   "P": "1026"
+  },
+  "44396": {
+   "NM": "Ryan Fazio and Matt Corey",
+   "P": "3"
+  },
+  "44299": {
+   "NM": "Ned Lamont and Susan Bysiewicz",
+   "P": "12"
+  },
+  "44188": {
+   "NM": "Luke Bronin",
+   "P": "1"
+  }
+ },
+ "partyIds": {
+  "1": {
+   "CD": "D",
+   "NM": "Democratic Party",
+   "P": "250"
+  },
+  "3": {
+   "CD": "IND",
+   "NM": "Independent Party",
+   "P": "204"
+  },
+  "6": {
+   "CD": "R",
+   "NM": "Republican Party",
+   "P": "135"
+  },
+  "7": {
+   "CD": "G",
+   "NM": "Green Party",
+   "P": "112"
+  },
+  "12": {
+   "CD": "WF",
+   "NM": "Working Families Party",
+   "P": "22"
+  },
+  "1026": {
+   "CD": "WI",
+   "NM": "Write In",
+   "P": "274"
+  }
+ }
+}

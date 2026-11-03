@@ -48,6 +48,25 @@ def test_parse_bad_payloads():
     assert parse_abc_results("<html>no data</html>") == []
 
 
+def test_parse_2026_election_morning_payload():
+    # 2026 general, before any votes were counted: candidate list only, reporting at 0%.
+    results = parse_abc_results(_load("2026-tx-senate.html"), fetched_at=NOW)
+    assert len(results) == 1
+    sen = results[0]
+    assert sen.key == TX_SEN
+    assert [candidate.name for candidate in sen.candidates] == [
+        "James Talarico",
+        "Ken Paxton",
+        "Ted Brown",
+    ]
+    assert [candidate.party for candidate in sen.candidates] == ["DEM", "REP", "OTH"]
+    assert all(candidate.votes == 0 for candidate in sen.candidates)
+    assert sen.expected_vote_pct == 0
+    assert sen.total_votes == 0
+    assert sen.source_updated_at == datetime(2026, 11, 3, tzinfo=timezone.utc)
+    assert "texas-county-senate-election-results-2026" in (sen.url or "")
+
+
 def test_registered_off_by_default():
     load_all()
     assert REGISTRY["results"]["abc_results"] is ABCResultsSource
@@ -72,3 +91,14 @@ async def test_fetch_404_is_empty():
     respx.get(url).mock(return_value=httpx.Response(404))
     async with httpx.AsyncClient() as client:
         assert await ABCResultsSource().fetch([TX_SEN], client) == []
+
+
+@respx.mock
+async def test_fetch_follows_the_widget_redirect():
+    url = ABCResultsSource()._url(TX_SEN)
+    moved = url.replace("abcnews.go.com", "abcnews.com")
+    respx.get(url).mock(return_value=httpx.Response(301, headers={"Location": moved}))
+    respx.get(moved).mock(return_value=httpx.Response(200, text=_load("2026-tx-senate.html")))
+    async with httpx.AsyncClient() as client:  # no follow_redirects on the client: the adapter asks
+        results = await ABCResultsSource().fetch([TX_SEN], client)
+    assert [race_result.key for race_result in results] == [TX_SEN]

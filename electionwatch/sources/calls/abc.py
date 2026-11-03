@@ -57,7 +57,9 @@ class ABCSource(CallSource):
                 continue
             seen.add(url)
             try:
-                resp = await client.get(url)
+                # The widget host answers 301 towards abcnews.com, and the shared client does not
+                # follow redirects, so ask per request.
+                resp = await client.get(url, follow_redirects=True)
             except httpx.HTTPError as exc:
                 raise SourceUnavailable(f"abc unreachable: {exc}") from exc
             if resp.status_code in (403, 404):
