@@ -14,6 +14,7 @@ under `results`.
 - [Texas — `tx_sos`](#texas--tx_sos)
 - [Georgia — `ga_sos`](#georgia--ga_sos)
 - [North Carolina — `nc_sbe`](#north-carolina--nc_sbe)
+- [North Dakota — `nd_enr`](#north-dakota--nd_enr)
 - [Pennsylvania — `pa_dos`](#pennsylvania--pa_dos)
 - [Clarity / Scytl — `clarity`](#clarity--scytl--clarity)
 - [Adding a state](#adding-a-state)
@@ -38,6 +39,7 @@ in the notes under [docs/results/](results/).
 | FL              | `fl_sos`          | https://results.elections.myflorida.com/ResultsExtract.Asp                                 | verified fixture (2024 general tab-delimited extract)                                                                                              |
 | CT              | `ct_ems`          | https://ctemspublic.pcctg.net/ng-app/data/Elections.json (then `election/<id>/<version>/`) | **verified fixture** — 2026 state election (id 108) lists every race at 0 votes; JSON, opt-in; the host answers 301 and the adapter follows it     |
 | MN              | `mn_sos`          | https://electionresultsfiles.sos.mn.gov/`<YYYYMMDD>`/*.txt                                 | **verified fixture** — 2026 general text exports; live 2026-10-27 returns 871 contests (statewide)                                                 |
+| ND              | `nd_enr`          | https://api.resultsnd.sos.nd.gov/Contest/GetContestResults                                 | **verified fixture** — 2026 general (0 votes, 0/358 precincts) and 2026 primary counts; `nd_sos` keeps the 2024 archive                            |
 | MI              | `mi_county`       | https://results.enr.clarityelections.com/MI/<County>/                                      | **verified fixture** — Ottawa 2026 general; Oakland/Macomb/Genesee configured, index empty until published; merged, ` (partial: N counties)`       |
 | WI              | `wi_dane`         | https://elections.countyofdane.com/Election-Result                                         | **verified fixture** — Dane County 2026 general page (0 votes); HTML scraper, opt-in, ` (partial: N counties)`                                     |
 | TN (Shelby Co.) | `tn_counties`     | https://app.enhancedvoting.com/cdn/results/shelby-county-tn/export-General11052024.json    | **verified fixture** — Shelby 2024 general (142 precincts); 2026 export 404 on 2026-10-27; `TN_COUNTY_FEEDS` pins another county/slug              |
@@ -210,6 +212,33 @@ brackets, one object per line).
   statewide executives -> `NC GOV/LTGOV/AG/AUD/AGCOM/INSCOM/SOS/TREAS/SUPT`,
   `NC STATE SENATE DISTRICT nn` -> `NC SD-nn`, `NC HOUSE OF REPRESENTATIVES DISTRICT nnn`
   -> `NC HD-nn`, everything else (including constitutional amendments) -> LOCAL.
+
+---
+
+## North Dakota — `nd_enr`
+
+North Dakota moved its live 2026 count to a new Election Night Reporting site
+(`resultsnd.sos.nd.gov`, linked from the Secretary of State's election-results page). The
+site is a single-page app over a JSON API on `api.resultsnd.sos.nd.gov`:
+
+```text
+Election/GetElectionList?cid=north-dakota                          election ids and dates
+Contest/GetContestSearchList?cid=north-dakota&electionID=<id>      contests, choices, parties
+Contest/GetContestResults?cId=north-dakota&electionID=<id>&contestType=<SW|LEG>
+```
+
+- `GetContestResults` names choices by id only, so the adapter joins the two payloads on
+  `contestID` / `choiceID`. `isWinner` is the winner flag and
+  `precinctsReporting` / `totalPrecincts` the precinct counts; `lastUpdated` (UTC) becomes
+  `source_updated_at`.
+- `SW` covers statewide contests (the at-large House seat, row offices, judicial retention,
+  measures) and `LEG` the legislative districts. County, city, school and conservation
+  contests are not polled.
+- Election id `348` is the 2026 general, pinned in `ELECTIONS`; a date without a pinned id is
+  discovered from `GetElectionList`. Before the count starts every contest answers 0 votes and
+  0 of 358 precincts.
+- The older `results.sos.nd.gov/resultsSW.aspx` pages (`nd_sos`) still serve the 2024 general
+  election; that adapter is now opt-in and refuses to answer when another election is tracked.
 
 ---
 
