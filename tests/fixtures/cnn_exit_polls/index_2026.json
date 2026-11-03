@@ -1,0 +1,122 @@
+{
+ "dropdownConfig": {
+  "GG": [
+   {
+    "stateTitle": "Pennsylvania",
+    "stateAbbr": "PA",
+    "subsetTitle": "Main",
+    "subsetNumber": 0,
+    "url": "exit-poll/2026-GG-PA.json",
+    "raceTypeCode": "GG",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "Pennsylvania",
+    "stateAbbr": "PA",
+    "subsetTitle": "Men",
+    "subsetNumber": 20,
+    "url": "exit-poll/2026-GG-PA-20.json",
+    "raceTypeCode": "GG",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "Texas",
+    "stateAbbr": "TX",
+    "subsetTitle": "Main",
+    "subsetNumber": 0,
+    "url": "exit-poll/2026-GG-TX.json",
+    "raceTypeCode": "GG",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "Texas",
+    "stateAbbr": "TX",
+    "subsetTitle": "Men",
+    "subsetNumber": 20,
+    "url": "exit-poll/2026-GG-TX-20.json",
+    "raceTypeCode": "GG",
+    "isDisabled": false
+   }
+  ],
+  "HG": [
+   {
+    "stateTitle": "UNITED STATES",
+    "stateAbbr": "US",
+    "subsetTitle": "Main",
+    "subsetNumber": 0,
+    "url": "exit-poll/2026-HG-US.json",
+    "raceTypeCode": "HG",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "UNITED STATES",
+    "stateAbbr": "US",
+    "subsetTitle": "Men",
+    "subsetNumber": 20,
+    "url": "exit-poll/2026-HG-US-20.json",
+    "raceTypeCode": "HG",
+    "isDisabled": false
+   }
+  ],
+  "I4G": [
+   {
+    "stateTitle": "California",
+    "stateAbbr": "CA",
+    "subsetTitle": "Main",
+    "subsetNumber": 0,
+    "url": "exit-poll/2026-I4G-CA.json",
+    "raceTypeCode": "I4G",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "California",
+    "stateAbbr": "CA",
+    "subsetTitle": "Men",
+    "subsetNumber": 20,
+    "url": "exit-poll/2026-I4G-CA-20.json",
+    "raceTypeCode": "I4G",
+    "isDisabled": false
+   }
+  ],
+  "SG": [
+   {
+    "stateTitle": "Texas",
+    "stateAbbr": "TX",
+    "subsetTitle": "Main",
+    "subsetNumber": 0,
+    "url": "exit-poll/2026-SG-TX.json",
+    "raceTypeCode": "SG",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "Texas",
+    "stateAbbr": "TX",
+    "subsetTitle": "Men",
+    "subsetNumber": 20,
+    "url": "exit-poll/2026-SG-TX-20.json",
+    "raceTypeCode": "SG",
+    "isDisabled": false
+   }
+  ],
+  "SP": [
+   {
+    "stateTitle": "Ohio",
+    "stateAbbr": "OH",
+    "subsetTitle": "Main",
+    "subsetNumber": 0,
+    "url": "exit-poll/2026-SP-OH.json",
+    "raceTypeCode": "SP",
+    "isDisabled": false
+   },
+   {
+    "stateTitle": "Ohio",
+    "stateAbbr": "OH",
+    "subsetTitle": "Men",
+    "subsetNumber": 20,
+    "url": "exit-poll/2026-SP-OH-20.json",
+    "raceTypeCode": "SP",
+    "isDisabled": false
+   }
+  ]
+ }
+}

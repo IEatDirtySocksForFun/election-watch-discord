@@ -182,19 +182,20 @@ the election channel are public.
 
 ### Commands for everyone
 
-| Command                                   | What it does                                                                         |
-| ----------------------------------------- | ------------------------------------------------------------------------------------ |
-| `/races`                                  | private race browser: results by state and office, with favorites                    |
-| `/bettingmarkets [race]`                  | Kalshi and Polymarket odds with candidate names and 1 h / 24 h moves                 |
-| `/polls race:<race> [count] [internals]`  | the latest polls for a race                                                          |
-| `/earlyvote [state] [breakdown] [county]` | early-vote numbers: party, method, age, counties, or one county with its party split |
-| `/faq [state]`                            | a state's voting FAQ, or the list of states and decision desks                       |
-| `/favorite add·remove <race>`             | pin races in the browser                                                             |
-| `/watch list`                             | the races this server follows                                                        |
-| `/bettingalerts`                          | this server's betting-market alert settings                                          |
-| `/settings`                               | this server's settings                                                               |
-| `/limits`                                 | how often data refreshes, and this server's command limits                           |
-| `/menu`                                   | every tool above as buttons                                                          |
+| Command                                   | What it does                                                                                                   |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `/races`                                  | private race browser: results by state and office, with favorites                                              |
+| `/bettingmarkets [race]`                  | Kalshi and Polymarket odds with candidate names and 1 h / 24 h moves                                           |
+| `/polls race:<race> [count] [internals]`  | the latest polls for a race                                                                                    |
+| `/earlyvote [state] [breakdown] [county]` | early-vote numbers: party, method, age, counties, or one county with its party split                           |
+| `/exitpoll [race] [state]`                | exit polls (CNN, National Election Pool) for one race, one state, or every released one; posted in the channel |
+| `/faq [state]`                            | a state's voting FAQ, or the list of states and decision desks                                                 |
+| `/favorite add·remove <race>`             | pin races in the browser                                                                                       |
+| `/watch list`                             | the races this server follows                                                                                  |
+| `/bettingalerts`                          | this server's betting-market alert settings                                                                    |
+| `/settings`                               | this server's settings                                                                                         |
+| `/limits`                                 | how often data refreshes, and this server's command limits                                                     |
+| `/menu`                                   | every tool above as buttons                                                                                    |
 
 `/bettingmarkets` and `/polls` also work in direct messages, using the default race list.
 

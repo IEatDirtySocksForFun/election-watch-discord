@@ -25,6 +25,8 @@ from electionwatch.bot.early_vote import (
     resolve_state,
     state_choices,
 )
+from electionwatch.bot.exit_polls import batches, exit_poll_embeds, race_choices, resolve_race
+from electionwatch.bot.exit_polls import state_choices as exit_poll_state_choices
 from electionwatch.bot.logic import (
     Card,
     change_calls,
@@ -55,6 +57,7 @@ from electionwatch.ratelimit import RateBook
 from electionwatch.settings import ODDS_CATEGORIES, GuildSettings, UserSettings
 from electionwatch.sources.base import SourceUnavailable
 from electionwatch.sources.early_vote import EarlyVoteClient, NotCached
+from electionwatch.sources.exit_polls_cnn import CnnExitPolls
 
 logger = logging.getLogger(__name__)
 MAX_MESSAGE = 2000  # Discord's message content limit
@@ -114,6 +117,8 @@ class ElectionBot(commands.Bot):
         )
         self.early_vote_refresher = EarlyVoteClient(http_client, store=store)
         self._early_vote_running = asyncio.Lock()
+        # CNN's exit polls into the store as each state's embargo lifts; /exitpoll reads the store.
+        self.exit_polls_refresher = CnnExitPolls(http_client, store)
         self._background: set[asyncio.Task] = set()
         self.poller = Poller(
             store,
@@ -153,6 +158,7 @@ class ElectionBot(commands.Bot):
             faq_command,
             early_vote_command,
             early_vote_posts_command,
+            exit_poll_command,
             refresh_command,
             limits_command,
             menu_command,
@@ -177,6 +183,7 @@ class ElectionBot(commands.Bot):
         self.refresh_race_lists.start()
         self.refresh_early_vote.start()
         self.early_vote_posts.start()
+        self.refresh_exit_polls.start()
 
     @tasks.loop(seconds=60)
     async def poll_results(self) -> None:
@@ -235,6 +242,19 @@ class ElectionBot(commands.Bot):
 
     @early_vote_posts.before_loop
     async def before_early_vote_posts(self) -> None:
+        await self.wait_until_ready()
+
+    @tasks.loop(seconds=120)
+    async def refresh_exit_polls(self) -> None:
+        # The refresher keeps its own schedule per file (release time, 15 min after) and
+        # spaces its requests: CNN blocks bursts.
+        try:
+            await self.exit_polls_refresher.refresh()
+        except Exception:
+            logger.exception("Exit-poll refresh failed")
+
+    @refresh_exit_polls.before_loop
+    async def before_refresh_exit_polls(self) -> None:
         await self.wait_until_ready()
 
 
@@ -585,6 +605,54 @@ async def early_vote_county_autocomplete(
     except (asyncio.TimeoutError, SourceUnavailable):
         return []
     return [app_commands.Choice(name=name, value=value) for name, value in county_choices(ev, current)]
+
+
+@app_commands.command(name="exitpoll", description="Show exit polls: one race, one state, or every released one")
+@app_commands.describe(
+    race="A Senate or governor race, or the national House vote",
+    state="Every exit poll of one state; leave both empty for all of them",
+)
+async def exit_poll_command(
+    interaction: discord.Interaction, race: str | None = None, state: str | None = None
+) -> None:
+    store = interaction.client.store
+    code = ident = None
+    try:
+        if race:
+            ident = await resolve_race(store, race)
+        elif state:
+            code = resolve_state(state)
+    except ValueError as exc:
+        await _error(interaction, exc)
+        return
+    await interaction.response.defer()  # public: exit polls are posted for the channel
+    await show_exit_polls(interaction, ident, code)
+
+
+async def show_exit_polls(interaction: discord.Interaction, ident: str | None, code: str | None) -> None:
+    """/exitpoll after defer(): one race, one state's races, or a line per released race."""
+    if not await _cooldown(interaction, "exitpoll", ident or code or "all", "exitpolls"):
+        return
+    result = await exit_poll_embeds(interaction.client.store, ident, code)
+    if isinstance(result, str):
+        await interaction.followup.send(clip(result, MAX_MESSAGE))
+        return
+    for group in batches(result):
+        await interaction.followup.send(embeds=group)
+
+
+@exit_poll_command.autocomplete("race")
+async def exit_poll_race_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    choices = await race_choices(interaction.client.store, current)
+    return [app_commands.Choice(name=name, value=value) for name, value in choices]
+
+
+@exit_poll_command.autocomplete("state")
+async def exit_poll_state_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    choices = await exit_poll_state_choices(interaction.client.store, current)
+    return [app_commands.Choice(name=name, value=value) for name, value in choices]
 
 
 REFRESH_KINDS = {

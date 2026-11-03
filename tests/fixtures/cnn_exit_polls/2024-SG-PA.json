@@ -1,0 +1,789 @@
+{
+ "isPartisan": true,
+ "raceType": "S",
+ "exitPollEmbargo": {
+  "exitPollsRelease": 1730854800000,
+  "exitPollsReleased": true
+ },
+ "questions": [
+  {
+   "sequence": 5,
+   "numRows": 4,
+   "question": "Age",
+   "isDemographic": true,
+   "mxId": 159,
+   "onTv": true,
+   "onBannerboard": true,
+   "onDigital": true,
+   "answers": [
+    {
+     "row": 1,
+     "answer": "18-29",
+     "mxId": 159,
+     "answerShort": "18-29",
+     "totalPercentage": 12,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 14,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 55
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 10,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 42
+      }
+     ]
+    },
+    {
+     "row": 2,
+     "answer": "30-44",
+     "mxId": 159,
+     "answerShort": "30-44",
+     "totalPercentage": 26,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 28,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 53
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 24,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 45
+      }
+     ]
+    },
+    {
+     "row": 3,
+     "answer": "45-64",
+     "mxId": 159,
+     "answerShort": "45-64",
+     "totalPercentage": 36,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 32,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 44
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 39,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 53
+      }
+     ]
+    },
+    {
+     "row": 4,
+     "answer": "65 or older",
+     "mxId": 159,
+     "answerShort": "65 or older",
+     "totalPercentage": 26,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 25,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 48
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 27,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 51
+      }
+     ]
+    }
+   ],
+   "sortVerticalPercent": false,
+   "type": 1,
+   "isMacroView": true
+  },
+  {
+   "sequence": 12,
+   "numRows": 3,
+   "question": "Party ID",
+   "isDemographic": true,
+   "mxId": 248,
+   "onTv": true,
+   "onBannerboard": true,
+   "onDigital": true,
+   "answers": [
+    {
+     "row": 1,
+     "answer": "Democrat",
+     "mxId": 248,
+     "answerShort": "Democrat",
+     "totalPercentage": 37,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 71,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 95
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 3,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 4
+      }
+     ]
+    },
+    {
+     "row": 2,
+     "answer": "Republican",
+     "mxId": 248,
+     "answerShort": "Republican",
+     "totalPercentage": 40,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 7,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 9
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 74,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 90
+      }
+     ]
+    },
+    {
+     "row": 3,
+     "answer": "Independent",
+     "mxId": 248,
+     "answerShort": "Independent",
+     "totalPercentage": 23,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 22,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 46
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 23,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 49
+      }
+     ]
+    }
+   ],
+   "sortVerticalPercent": true,
+   "type": 1,
+   "isMacroView": true
+  },
+  {
+   "sequence": 2,
+   "numRows": 5,
+   "question": "Race",
+   "isDemographic": true,
+   "mxId": 260,
+   "onTv": true,
+   "onBannerboard": true,
+   "onDigital": true,
+   "answers": [
+    {
+     "row": 1,
+     "answer": "White",
+     "mxId": 260,
+     "answerShort": "White",
+     "totalPercentage": 83,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 76,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 44
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 91,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 54
+      }
+     ]
+    },
+    {
+     "row": 2,
+     "answer": "Black",
+     "mxId": 260,
+     "answerShort": "Black",
+     "totalPercentage": 8,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 15,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 89
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 2,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 10
+      }
+     ]
+    },
+    {
+     "row": 3,
+     "answer": "Latino",
+     "mxId": 260,
+     "answerShort": "Latino",
+     "totalPercentage": 6,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 6,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 49
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 5,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 39
+      }
+     ]
+    },
+    {
+     "row": 4,
+     "answer": "Asian",
+     "mxId": 260,
+     "answerShort": "Asian",
+     "totalPercentage": 1,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 1,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": -1
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 1,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": -1
+      }
+     ]
+    },
+    {
+     "row": 5,
+     "answer": "Other racial/ethnic groups",
+     "mxId": 260,
+     "answerShort": "Other racial/ethnic groups",
+     "totalPercentage": 2,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 2,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": -1
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 2,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": -1
+      }
+     ]
+    }
+   ],
+   "sortVerticalPercent": false,
+   "type": 1,
+   "isMacroView": true
+  },
+  {
+   "sequence": 1,
+   "numRows": 2,
+   "question": "Gender",
+   "isDemographic": true,
+   "mxId": 279,
+   "onTv": true,
+   "onBannerboard": true,
+   "onDigital": true,
+   "answers": [
+    {
+     "row": 1,
+     "answer": "Male",
+     "mxId": 279,
+     "answerShort": "Male",
+     "totalPercentage": 48,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 40,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 41
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 55,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 57
+      }
+     ]
+    },
+    {
+     "row": 2,
+     "answer": "Female",
+     "mxId": 279,
+     "answerShort": "Female",
+     "totalPercentage": 52,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 60,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 55
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 45,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 42
+      }
+     ]
+    }
+   ],
+   "sortVerticalPercent": true,
+   "type": 1,
+   "isMacroView": true
+  },
+  {
+   "sequence": 8,
+   "numRows": 5,
+   "question": "Education",
+   "isDemographic": true,
+   "mxId": 3975,
+   "onTv": true,
+   "onBannerboard": true,
+   "onDigital": true,
+   "answers": [
+    {
+     "row": 1,
+     "answer": "Never attended college",
+     "mxId": 3975,
+     "answerShort": "Never attended college",
+     "totalPercentage": 24,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 15,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 32
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 31,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 64
+      }
+     ]
+    },
+    {
+     "row": 2,
+     "answer": "Some college",
+     "mxId": 3975,
+     "answerShort": "Some college",
+     "totalPercentage": 21,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 21,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 49
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 20,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 48
+      }
+     ]
+    },
+    {
+     "row": 3,
+     "answer": "Associate's degree",
+     "mxId": 3975,
+     "answerShort": "Associate's degree",
+     "totalPercentage": 15,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 14,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 47
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 15,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 51
+      }
+     ]
+    },
+    {
+     "row": 4,
+     "answer": "Bachelor's degree",
+     "mxId": 3975,
+     "answerShort": "Bachelor's degree",
+     "totalPercentage": 23,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 27,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 58
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 19,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 41
+      }
+     ]
+    },
+    {
+     "row": 5,
+     "answer": "Advanced degree",
+     "mxId": 3975,
+     "answerShort": "Advanced degree",
+     "totalPercentage": 19,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 23,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 62
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 14,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 37
+      }
+     ]
+    }
+   ],
+   "sortVerticalPercent": false,
+   "type": 1,
+   "isMacroView": true
+  },
+  {
+   "sequence": 32,
+   "numRows": 5,
+   "question": "Most important issue",
+   "isDemographic": false,
+   "mxId": 5057,
+   "onTv": true,
+   "onBannerboard": true,
+   "onDigital": true,
+   "answers": [
+    {
+     "row": 1,
+     "answer": "Foreign policy",
+     "mxId": 5057,
+     "answerShort": "Foreign policy",
+     "totalPercentage": 3,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 2,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": -1
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 3,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": -1
+      }
+     ]
+    },
+    {
+     "row": 2,
+     "answer": "Abortion",
+     "mxId": 5057,
+     "answerShort": "Abortion",
+     "totalPercentage": 15,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 23,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 76
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 7,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 23
+      }
+     ]
+    },
+    {
+     "row": 3,
+     "answer": "Economy",
+     "mxId": 5057,
+     "answerShort": "Economy",
+     "totalPercentage": 31,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 15,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 24
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 47,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 75
+      }
+     ]
+    },
+    {
+     "row": 4,
+     "answer": "Immigration",
+     "mxId": 5057,
+     "answerShort": "Immigration",
+     "totalPercentage": 13,
+     "candidateAnswers": [
+      {
+       "leader": false,
+       "lastName": "Casey",
+       "vPercentage": 5,
+       "vLeader": false,
+       "candidateId": 39527,
+       "percentage": 19
+      },
+      {
+       "leader": true,
+       "lastName": "McCormick",
+       "vPercentage": 21,
+       "vLeader": true,
+       "candidateId": 20074811,
+       "percentage": 80
+      }
+     ]
+    },
+    {
+     "row": 5,
+     "answer": "Democracy",
+     "mxId": 5057,
+     "answerShort": "Democracy",
+     "totalPercentage": 31,
+     "candidateAnswers": [
+      {
+       "leader": true,
+       "lastName": "Casey",
+       "vPercentage": 48,
+       "vLeader": true,
+       "candidateId": 39527,
+       "percentage": 76
+      },
+      {
+       "leader": false,
+       "lastName": "McCormick",
+       "vPercentage": 14,
+       "vLeader": false,
+       "candidateId": 20074811,
+       "percentage": 21
+      }
+     ]
+    }
+   ],
+   "sortVerticalPercent": true,
+   "type": 1,
+   "isMacroView": true
+  }
+ ],
+ "topline": null,
+ "externalKey": "production-key",
+ "raceTypeCode": "S",
+ "raceEmbargo": {
+  "exitPollsRelease": 1730854800000,
+  "exitPollsReleased": true
+ },
+ "state": {
+  "fipsCode": "42",
+  "title": "Pennsylvania",
+  "abbreviation": "PA",
+  "stateId": 39
+ },
+ "ecKey": "2024-SG-PA",
+ "extractedAt": "2025-05-07T17:11:51.490106",
+ "electionKey": "2024-11-05.39.SW.0.G",
+ "timestamp": "2024-11-15T13:43:40.000Z",
+ "exitPollKey": "2024-11-05.39.SW.0.G.S",
+ "jurisdictionType": "SW",
+ "stateId": 39,
+ "hasData": true,
+ "electionType": "G",
+ "titles": {
+  "raceTitle": {
+   "title": "Senate",
+   "subtitle": "",
+   "shortTitle": ""
+  },
+  "electionTitle": {
+   "title": "General Election",
+   "subtitle": "",
+   "shortTitle": "General"
+  }
+ },
+ "version": 1,
+ "exitPollSubsetKey": "2024-11-05.39.SW.0.G.S.0",
+ "respondents": 2954,
+ "candidates": [
+  {
+   "lastName": "Casey",
+   "onAir": true,
+   "gender": "M",
+   "fullName": "Bob Casey",
+   "majorParty": "DEM",
+   "onExitPoll": true,
+   "firstName": "Bob",
+   "majorPartyId": "DEM",
+   "partyAbbreviation": "D",
+   "isIncumbentBopParty": true,
+   "candidacyKey": "2024-11-05.39.SW.0.G.S.39527",
+   "delegateTracking": true,
+   "partyName": "Democratic",
+   "onWeb": true,
+   "middleName": "",
+   "isIncumbentParty": true,
+   "isIncumbent": true,
+   "bopPartyId": "DEM",
+   "candidateId": 39527
+  },
+  {
+   "lastName": "McCormick",
+   "onAir": true,
+   "gender": "M",
+   "fullName": "Dave McCormick",
+   "majorParty": "REP",
+   "onExitPoll": true,
+   "firstName": "Dave",
+   "majorPartyId": "REP",
+   "partyAbbreviation": "R",
+   "isIncumbentBopParty": false,
+   "candidacyKey": "2024-11-05.39.SW.0.G.S.20074811",
+   "delegateTracking": true,
+   "partyName": "Republican",
+   "onWeb": true,
+   "middleName": "",
+   "isIncumbentParty": false,
+   "isIncumbent": false,
+   "bopPartyId": "REP",
+   "candidateId": 20074811
+  }
+ ],
+ "stage": 10,
+ "electionDate": "2024-11-05",
+ "jurisdictionCode": 0,
+ "subset": {
+  "shortName": "MN",
+  "sub": 0,
+  "longName": "Main"
+ }
+}

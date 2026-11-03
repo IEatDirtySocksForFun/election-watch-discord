@@ -662,9 +662,31 @@ async def test_every_command_reply_is_ephemeral_on_the_wire(harness, case):
     assert "hunter2" not in text_of(sent)
 
 
+#: Commands that post for the whole channel: /exitpoll shares exit polls in the conversation.
+PUBLIC_CASES = [
+    ("exitpoll-none-yet", "exitpoll", [], None, {}, "No exit polls out yet"),
+    ("exitpoll-state-none-yet", "exitpoll", [opt("state", "pa")], None, {}, "No exit polls out yet for Pennsylvania"),
+    ("exitpoll-bad-state", "exitpoll", [opt("state", "ZZ")], None, {}, "Unknown state"),
+]
+
+
+@pytest.mark.parametrize("case", PUBLIC_CASES, ids=[case[0] for case in PUBLIC_CASES])
+async def test_public_command_replies_are_visible_and_fit(harness, case):
+    _, name, options, resolved, kwargs, expected = case
+    sent = await harness.dispatch(command_payload(name, options, resolved, **kwargs))
+    assert sent and (sent[0].method, sent[0].path) == ("POST", CALLBACK)
+    for sent_request in sent:
+        data = sent_request.payload.get("data", sent_request.payload) if sent_request.payload else {}
+        if sent_request.path in (CALLBACK, FOLLOWUP) and "Unknown state" not in text_of(sent):
+            assert not (data.get("flags") or 0) & EPHEMERAL, sent_request.payload
+        if data:
+            check_message_limits(data)
+    assert expected in text_of(sent)
+
+
 async def test_matrix_covers_every_registered_command(harness):
     registered = {command.name for command in harness.bot.tree.get_commands()}
-    assert registered == {case[1] for case in CASES}
+    assert registered == {case[1] for case in CASES} | {case[1] for case in PUBLIC_CASES}
 
 
 async def test_resolved_role_and_channel_reach_the_settings(harness):
