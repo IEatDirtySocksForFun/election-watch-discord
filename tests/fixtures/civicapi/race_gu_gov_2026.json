@@ -1,0 +1,106 @@
+{
+ "election_name": "Guam Governor",
+ "election_type": "Governor",
+ "election_scope": "Statewide",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "GU",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2026-11-02T22:00:00.000Z",
+ "polls_close": "2026-11-03T10:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 99.9,
+ "test_data": false,
+ "last_updated": "2026-11-03T16:20:40.570Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "Guam",
+   "map": "assets/Guam.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "Vicente A. Ada",
+   "candidate_id": 1223040,
+   "party": "Republican",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": true,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 15945,
+   "percent": 51.45
+  },
+  {
+   "name": "Therese Maria Terlaje",
+   "candidate_id": 1223041,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 14925,
+   "percent": 48.15
+  },
+  {
+   "name": "Write-in",
+   "candidate_id": 1223042,
+   "party": "Nonpartisan",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#9A36FF",
+   "votes": 124,
+   "percent": 0.4
+  }
+ ],
+ "region_results": {
+  "guam": {
+   "name": "Guam",
+   "type": "State",
+   "fill": "#c6606b",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Vicente A. Ada",
+     "party": "Republican",
+     "votes": 15945,
+     "percent": 51.45,
+     "color": "#c6606b",
+     "winner": true,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Therese Maria Terlaje",
+     "party": "Democratic",
+     "votes": 14925,
+     "percent": 48.15,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Write-in",
+     "party": "Nonpartisan",
+     "votes": 124,
+     "percent": 0.4,
+     "color": "#9A36FF",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  }
+ }
+}

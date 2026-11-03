@@ -1,0 +1,93 @@
+{
+ "count": 6,
+ "offset": 0,
+ "limit": 1000,
+ "races": [
+  {
+   "id": 160886,
+   "type": "Governor",
+   "country": "US",
+   "province": "GU",
+   "district": null,
+   "municipality": null,
+   "election_name": "Guam Governor",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Vicente A. Ada",
+     "candidate_id": 1223040,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 15945,
+     "percent": 51.45,
+     "winner": true
+    },
+    {
+     "name": "Therese Maria Terlaje",
+     "candidate_id": 1223041,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 14925,
+     "percent": 48.15,
+     "winner": false
+    },
+    {
+     "name": "Write-in",
+     "candidate_id": 1223042,
+     "party": "Nonpartisan",
+     "color": "#9A36FF",
+     "votes": 124,
+     "percent": 0.4,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 160887,
+   "type": "Delegate",
+   "country": "US",
+   "province": "GU",
+   "district": "GU-AL",
+   "municipality": null,
+   "election_name": "Guam Delegate",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Alicia Anne Garrido Limtiaco",
+     "candidate_id": 1223044,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 15645,
+     "percent": 51,
+     "winner": true
+    },
+    {
+     "name": "James Craig Moylan",
+     "candidate_id": 1223043,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 14983,
+     "percent": 48.84,
+     "winner": false
+    },
+    {
+     "name": "Write-in",
+     "candidate_id": 1223045,
+     "party": "Nonpartisan",
+     "color": "#9A36FF",
+     "votes": 49,
+     "percent": 0.16,
+     "winner": false
+    }
+   ]
+  }
+ ]
+}

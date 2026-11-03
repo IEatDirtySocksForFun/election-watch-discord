@@ -1,0 +1,106 @@
+{
+ "election_name": "Guam Delegate",
+ "election_type": "Delegate",
+ "election_scope": "General",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "GU",
+ "district": "GU-AL",
+ "municipality": null,
+ "polls_open": "2026-11-02T22:00:00.000Z",
+ "polls_close": "2026-11-03T10:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 99.9,
+ "test_data": false,
+ "last_updated": "2026-11-03T16:20:40.744Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "Guam",
+   "map": "assets/Guam.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "Alicia Anne Garrido Limtiaco",
+   "candidate_id": 1223044,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": true,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 15645,
+   "percent": 51
+  },
+  {
+   "name": "James Craig Moylan",
+   "candidate_id": 1223043,
+   "party": "Republican",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 14983,
+   "percent": 48.84
+  },
+  {
+   "name": "Write-in",
+   "candidate_id": 1223045,
+   "party": "Nonpartisan",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#9A36FF",
+   "votes": 49,
+   "percent": 0.16
+  }
+ ],
+ "region_results": {
+  "guam": {
+   "name": "Guam",
+   "type": "State",
+   "fill": "#4874a3",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Alicia Anne Garrido Limtiaco",
+     "party": "Democratic",
+     "votes": 15645,
+     "percent": 51,
+     "color": "#4874a3",
+     "winner": true,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "James Craig Moylan",
+     "party": "Republican",
+     "votes": 14983,
+     "percent": 48.84,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Write-in",
+     "party": "Nonpartisan",
+     "votes": 49,
+     "percent": 0.16,
+     "color": "#9A36FF",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  }
+ }
+}
