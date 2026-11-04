@@ -863,3 +863,44 @@ async def test_an_unchanged_price_is_not_checked_for_a_swing_again(monkeypatch):
     await p.tick()
     await p.tick()
     assert len(checked) == 1  # the second poll saw the same 0.70 and skipped the check
+
+
+class StaticResults(ResultsSource):
+    """One fixed answer for TX SEN; ``fallback`` marks it as a national fallback."""
+
+    states = frozenset({"TX"})
+
+    def __init__(self, name: str, votes: int, fallback: bool = False) -> None:
+        self.name = name
+        self.votes = votes
+        self.fallback = fallback
+
+    async def fetch(self, keys, client):
+        return [counted(self.votes, self.name)]
+
+
+def counted(votes: int, source: str) -> RaceResult:
+    return RaceResult(
+        KEY,
+        [CandidateResult("Ted Cruz", "REP", votes, None), CandidateResult("Jane Doe", "DEM", votes, None)],
+        source,
+        NOW,
+    ).finalize()
+
+
+@pytest.mark.asyncio
+async def test_a_zero_vote_answer_does_not_keep_a_fallback_with_votes_away():
+    """Ohio, 2026-11-03: the state feed answered 429 after poll close, its reused zero-vote
+    answer counted as complete, and the fallback with real votes was never asked."""
+    from electionwatch.poller import best_result
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(KEY)]))
+    official = StaticResults("official", votes=0)
+    fallback = StaticResults("nbc", votes=1_079_120, fallback=True)
+    await poller(store, {"results": [official, fallback]}, RecordingPoster()).tick()
+    stored = await store.latest_result(KEY)
+    assert stored.source == "nbc"
+    zero, votes = counted(0, "official"), counted(1_079_120, "nbc")
+    assert best_result([zero, votes]) is votes
+    assert best_result([zero]) is zero

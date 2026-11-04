@@ -31,6 +31,7 @@ sources, which print one name per ticket head.
 
 from __future__ import annotations
 
+import asyncio
 import re
 from datetime import datetime
 
@@ -157,9 +158,16 @@ def parse_oh(contest_list, details, *, fetched_at: datetime) -> list[RaceResult]
     return results
 
 
+#: Pause between two contest-detail requests: Ohio answered 429 to the back-to-back burst at
+#: poll close on 2026-11-03.
+DETAIL_SPACING = 0.5
+
+
 async def _details(client: httpx.AsyncClient, groupings: list[dict]) -> list[dict]:
     detail_pages = []
-    for grouping in groupings:
+    for index, grouping in enumerate(groupings):
+        if index:
+            await asyncio.sleep(DETAIL_SPACING)
         url = str(
             httpx.URL(
                 f"{BASE}/GetContestDetailsObject",

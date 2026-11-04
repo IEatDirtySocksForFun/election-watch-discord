@@ -115,9 +115,25 @@ def is_partial(race_result: RaceResult) -> bool:
     return "(partial:" in (race_result.title or "")
 
 
+def has_votes(race_result: RaceResult) -> bool:
+    """Any vote counted. A zero-vote answer is the pre-count placeholder, or a stale one reused
+    while its source is failing (Ohio answered 429 at poll close in 2026)."""
+    return any((candidate.votes or 0) > 0 for candidate in race_result.candidates)
+
+
+def answered(race_result: RaceResult) -> bool:
+    """A complete answer with votes: the race needs no fallback."""
+    return not is_partial(race_result) and has_votes(race_result)
+
+
 def best_result(answers: list[RaceResult]) -> RaceResult | None:
-    """First complete answer in priority order, else the first partial one."""
-    return next((answer for answer in answers if not is_partial(answer)), answers[0] if answers else None)
+    """In priority order: the first complete answer with votes, then a partial one with votes,
+    then a complete zero-vote answer, then whatever came first."""
+    for wanted in (answered, has_votes, lambda answer: not is_partial(answer)):
+        found = next((answer for answer in answers if wanted(answer)), None)
+        if found is not None:
+            return found
+    return answers[0] if answers else None
 
 
 #: Which kind of source each fetch method belongs to (ratelimit.FLOORS, EW_INTERVALS).
@@ -365,7 +381,7 @@ class Poller:
         primary = [source for source in enabled if not getattr(source, "fallback", False) or source.name in pinned]
         fallback = [source for source in enabled if getattr(source, "fallback", False) and source.name not in pinned]
         await self._gather_results(primary, keys, by_race)
-        complete = {race for race, answers in by_race.items() if any(not is_partial(answer) for answer in answers)}
+        complete = {race for race, answers in by_race.items() if any(answered(answer) for answer in answers)}
         missing = [key for key in keys if str(key) not in complete]
         if missing:
             await self._gather_results(fallback, missing, by_race)
