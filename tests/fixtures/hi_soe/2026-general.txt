@@ -1,0 +1,22 @@
+#FormatVersion 1																				
+#Contest ID	Contest Title	Contest Seq Nbr	Contest Type	Contest Party	Mail Blank Votes	In-Person Blank Votes	Mail Over Votes	In-Person Over Votes	Mail Invalid Votes	In-Person Invalid Votes	Registered Voters	Total Precincts	Counted Precincts	Candidate ID	Candidate Name	Candidate Seq Nbr	Candidate Party	Mail Votes	In-Person Votes	Total Votes
+30	U.S. Representative, Dist I	1	OF		7186	177	143	10	0	0	853399	223	112	4	(D) CASE, Ed	2		97342	2754	100096
+30	U.S. Representative, Dist I	1	OF		7186	177	143	10	0	0	853399	223	112	3	(R) LAM, Adriel C.	4		26017	2668	28685
+30	U.S. Representative, Dist I	1	OF		7186	177	143	10	0	0	853399	223	112	1	(G) CONLEY, Jordan S.	3		4175	353	4528
+30	U.S. Representative, Dist I	1	OF		7186	177	143	10	0	0	853399	223	112	2	(N) BERNING, Nathan M.	1		1634	146	1780
+5	U.S. Representative, Dist II	2	OF		8514	382	148	4	0	0	853399	273	43	1	(D) TOKUDA, Jill N.	2		104109	4260	108369
+5	U.S. Representative, Dist II	2	OF		8514	382	148	4	0	0	853399	273	43	2	(R) AWA, Brenton	1		43080	5684	48764
+43	Governor and Lieutenant Governor	3	OF		5119	256	362	25	0	0	853399	494	154	2	"(D) GREEN, Josh
+For GOVERNOR
+KAWAKAMI, Derek S.K.
+For LIEUTENANT GOVERNOR"	2		219575	7471	227046
+43	Governor and Lieutenant Governor	3	OF		5119	256	362	25	0	0	853399	494	154	1	"(R) CORDERY, Gary
+For GOVERNOR
+ANTHONY, Daniel
+For LIEUTENANT GOVERNOR"	1		67292	8686	75978
+6	State Senator, Dist 2	4	OF		647	73	11	0	0	0	853399	18	0	1	(D) SAN BUENAVENTURA, Joy	2		8766	430	9196
+6	State Senator, Dist 2	4	OF		647	73	11	0	0	0	853399	18	0	2	(L) FOGEL, Frederick F.	1		1965	352	2317
+92	State Representative, Dist 43	34	OF		1694	80	11	0	0	0	853399	8	4	1	SOUZA, Kanani	2		1750	105	1855
+92	State Representative, Dist 43	34	OF		1694	80	11	0	0	0	853399	8	4	2	MEDEIROS, Sheila	1		1488	207	1695
+38	Question #1	61	MS		23573	756	268	21	0	0	853399	494	154	2	YES	1		174299	7963	182262
+38	Question #1	61	MS		23573	756	268	21	0	0	853399	494	154	1	NO	2		94208	7698	101906

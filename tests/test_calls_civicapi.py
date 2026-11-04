@@ -335,3 +335,45 @@ def test_party_names_use_the_party_table():
     race = _load("race_tx_sen_2024.json")
     parties = {candidate.name: candidate.party for candidate in parse_race(race, 107793, TX_SEN, NOW).candidates}
     assert parties["Analisa Roche"] == "ASP"  # "American Solidarity"
+
+
+def test_a_called_live_2026_state_feed_parses():
+    """Every mainland state carried live 2026 general results on 2026-11-04, calls included."""
+    co_sen = parse("CO SEN")
+    rows = {row["election_name"]: race_key(row) for row in _load("search_co_2026.json")["races"]}
+    assert rows["Colorado US Senate"] == co_sen
+    assert rows["Colorado Governor"] == parse("CO GOV")
+    assert rows["Colorado US House 1"] == parse("CO-01")
+    assert rows["Colorado State House"] is None  # chamber-control summary, not a race
+
+    race = _load("race_co_sen_2026.json")
+    assert race["test_data"] is False and race["called_at"] == "2026-11-04T02:23:25.538Z"
+    race_result = parse_race(race, 87022, co_sen, NOW)
+    assert race_result.expected_vote_pct == 76.8  # percent_reporting, now a real share
+    assert race_result.source_updated_at == datetime(2026, 11, 4, 13, 12, 19, 763000, tzinfo=timezone.utc)
+    assert [(c.name, c.party, c.votes) for c in race_result.candidates] == [
+        ("John Hickenlooper", "DEM", 1310937),
+        ("Mark Baisley", "REP", 773936),
+        ("Bob Chew", "FWD", 55682),
+        ("Blake Huber", "LIB", 23165),
+    ]
+    assert race_result.candidates[0].winner is False  # the call source publishes the call
+    assert race_result.total_votes == 2163720
+    assert race_result.url == "https://civicapi.org/results/elections/87022"
+
+    call = parse_call(race, 87022, co_sen)
+    assert (call.outlet, call.winner, call.party) == ("CIVICAPI", "John Hickenlooper", "DEM")
+    assert call.called_at == datetime(2026, 11, 4, 2, 23, 25, 538000, tzinfo=timezone.utc)
+
+
+@respx.mock
+async def test_a_live_state_is_served_end_to_end_with_its_call():
+    co_sen = parse("CO SEN")
+    respx.get(f"{API}/race/search").respond(json=_load("search_co_2026.json"))
+    respx.get(f"{API}/race/87022").respond(json=_load("race_co_sen_2026.json"))
+    api = _CivicAPI()
+    async with httpx.AsyncClient() as client:
+        results = await CivicAPIResultsSource(api).fetch([co_sen], client)
+        calls = await CivicAPICallSource(api).fetch_calls([co_sen], client)
+    assert [(race_result.key, race_result.total_votes) for race_result in results] == [(co_sen, 2163720)]
+    assert [(call.winner, call.party) for call in calls] == [("John Hickenlooper", "DEM")]

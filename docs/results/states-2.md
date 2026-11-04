@@ -11,20 +11,20 @@ state.
 
 ## Summary
 
-| State | Adapter   | Feed                                                                  | Status                                                                         |
-| ----- | --------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| AK    | `ak_doe`  | Division of Elections precinct CSV                                    | verified fixture; live fetch blocked by the origin's TLS chain                 |
-| AL    | —         | no usable statewide feed                                              | not possible (see below)                                                       |
-| AR    | `ar_sos`  | SOS election page → Tally-ENR `FullDataFile.json`                     | verified fixture (2024); 2026 UUID format has no contest names                 |
-| ID    | `id_sos`  | SOS results archive pages (embedded reactable JSON)                   | verified fixture + live run (2024 general)                                     |
-| IL    | `il_sbe`  | SBE `ElectionVoteTotals.aspx` HTML                                    | verified fixture + live run (2026 primary); 2026 general not published yet     |
-| IN    | `in_sos`  | `enr.indianavoters.in.gov/archive/<election>/data/*.json`             | verified fixture + live run (2024 general)                                     |
-| CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                | verified fixture                                                               |
-| CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                    | verified fixture; no 2026 general rows on 2026-11-03                           |
-| CT    | `ct_ems`  | Secretary of the State EMS JSON (`ctemspublic.pcctg.net`)             | verified fixture (2026 general, 0 votes)                                       |
-| DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                | verified fixture + live run (2026 general, 151,349 votes in the delegate race) |
-| DE    | `de_doe`  | `/results/enr/Election_StatewideResults_ID_GE<year>.json`             | verified fixture + live run (2026 general; 77 contests, 0 votes)               |
-| HI    | `hi_soe`  | `files.hawaii.gov/elections/files/results/<year>/General/summary.txt` | verified fixture                                                               |
+| State | Adapter   | Feed                                                                                                        | Status                                                                         |
+| ----- | --------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| AK    | `ak_doe`  | Division of Elections precinct CSV                                                                          | verified fixture; live fetch blocked by the origin's TLS chain                 |
+| AL    | —         | no usable statewide feed                                                                                    | not possible (see below)                                                       |
+| AR    | `ar_sos`  | SOS election page → Tally-ENR `FullDataFile.json`                                                           | verified fixture (2024); 2026 UUID format has no contest names                 |
+| ID    | `id_sos`  | SOS results archive pages (embedded reactable JSON)                                                         | verified fixture + live run (2024 general)                                     |
+| IL    | `il_sbe`  | SBE `ElectionVoteTotals.aspx` HTML                                                                          | verified fixture + live run (2026 primary); 2026 general not published yet     |
+| IN    | `in_sos`  | `enr.indianavoters.in.gov/archive/<election>/data/*.json`                                                   | verified fixture + live run (2024 general)                                     |
+| CA    | `ca_sos`  | `media.sos.ca.gov/media/<office>.json`                                                                      | verified fixture                                                               |
+| CT    | `ct_sots` | `ct.elstats.civera.com` search CSV                                                                          | verified fixture; no 2026 general rows on 2026-11-03                           |
+| CT    | `ct_ems`  | Secretary of the State EMS JSON (`ctemspublic.pcctg.net`)                                                   | verified fixture (2026 general, 0 votes)                                       |
+| DC    | `dc_boe`  | `electionresults.dcboe.org` XML export                                                                      | verified fixture + live run (2026 general, 151,349 votes in the delegate race) |
+| DE    | `de_doe`  | `/results/enr/Election_StatewideResults_ID_GE<year>.json`                                                   | verified fixture + live run (2026 general; 77 contests, 0 votes)               |
+| HI    | `hi_soe`  | `elections.hawaii.gov/wp-content/results/<YYYY> General/summary.txt` (2026+); `files.hawaii.gov` CSV (2024) | verified fixtures (2024 CSV; 2026 tab export with counted votes)               |
 
 ---
 
@@ -186,6 +186,29 @@ state.
   no duplicates, all votes still 0 and 0 of 530 precincts reported. The results page
   `/results/enr/GE2026.html` answers 200; `/reports/GE2026.csv` still 404s, as expected
   before publication.
+
+---
+
+## HI — `electionwatch/sources/results/hi_soe.py`
+
+- Feed: the Office of Elections links one text export per election from the results page
+  (<https://elections.hawaii.gov/election-results/>). The 2026 general export is
+  <https://elections.hawaii.gov/wp-content/results/2026%20General/summary.txt>, tab-delimited
+  (`#FormatVersion 1`, then a `#Contest ID` header row). Older elections use quoted CSV under
+  a `Format#1` line on `files.hawaii.gov/elections/files/results/<year>/General/summary.txt`;
+  the same address under 2026 answers 404. The adapter picks the layout from the first line.
+- The tab layout reports `Registered Voters`, `Total Precincts` and `Counted Precincts` per
+  contest plus candidate totals. When no precinct has reported yet the vote share stays
+  `None` rather than 0%.
+- The general election lists the governor and lieutenant governor as one ticket
+  (`Governor and Lieutenant Governor`) with both names on separate lines of the candidate
+  name: the adapter keeps the top of the ticket ("GREEN, Josh") and maps the contest to
+  `HI GOV`.
+- Fixtures: `2024-general.txt` (2024 CSV) and `2026-general.txt` (2026 general, trimmed to
+  both House districts, the governor's ticket, one state Senate district, one state House
+  district and Question 1).
+- Checked 2026-11-04: HI-01 counted 112 of 223 precincts (Case 100,096 of 135,089 votes) and
+  the governor's race 154 of 494 (Green 227,046, Cordery 75,978).
 
 ---
 

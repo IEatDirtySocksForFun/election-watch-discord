@@ -170,6 +170,21 @@ under `tests/fixtures/civicapi/`.
 
 ---
 
+## Every state — `civicapi`
+
+On 2026-11-04 the national fallback carried live 2026 general results in every state with a
+Senate, Governor or House race: `test_data` false, real `percent_reporting` values and
+counted votes. The payload shape matched the GU and NH files saved on 2026-11-03, so the
+parser needed no change. Colorado US Senate (race 87022) also carried civicAPI's call
+(`called_at` 2026-11-04T02:23:25Z with one winner) and the call source published it.
+Pennsylvania was the exception: the probed races still answered `test_data: true` (Governor at
+81% reporting), so the adapter kept dropping those rows and `pa_dos` remains the PA source.
+`civicapi` stays ranked after the official adapters (`fallback = True`), so an official feed
+that answers still wins.
+Fixtures: `search_co_2026.json` and `race_co_sen_2026.json` under `tests/fixtures/civicapi/`.
+
+---
+
 ## Environment
 
 - `ELECTION_DATE` — ISO date of the tracked election, default `2026-11-03`

@@ -1,0 +1,148 @@
+{
+ "election_name": "Colorado US Senate",
+ "election_type": "US Senate",
+ "election_scope": "General",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "CO",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2026-11-03T14:00:00.000Z",
+ "polls_close": "2026-11-04T02:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 76.8,
+ "test_data": false,
+ "last_updated": "2026-11-04T13:12:19.763Z",
+ "called_at": "2026-11-04T02:23:25.538Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "Colorado",
+   "map": "assets/Colorado.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "John Hickenlooper",
+   "candidate_id": 220027,
+   "party": "Democratic",
+   "incumbent": false,
+   "winner": true,
+   "votes": 1310937,
+   "percent": 60.24
+  },
+  {
+   "name": "Mark Baisley",
+   "candidate_id": 220026,
+   "party": "Republican",
+   "incumbent": false,
+   "winner": false,
+   "votes": 773936,
+   "percent": 35.56
+  },
+  {
+   "name": "Bob Chew",
+   "candidate_id": 220030,
+   "party": "Forward",
+   "incumbent": false,
+   "winner": false,
+   "votes": 55682,
+   "percent": 2.56
+  },
+  {
+   "name": "Blake Huber",
+   "candidate_id": 220032,
+   "party": "Libertarian",
+   "incumbent": false,
+   "winner": false,
+   "votes": 23165,
+   "percent": 1.06
+  }
+ ],
+ "region_results": {
+  "adams": {
+   "name": "Adams",
+   "type": "County",
+   "fips": "08001",
+   "fill": "#4874a3",
+   "percent_reporting": 76.6,
+   "candidates": [
+    {
+     "name": "John Hickenlooper",
+     "party": "Democratic",
+     "incumbent": false,
+     "winner": false,
+     "votes": 97073,
+     "percent": 63.37
+    },
+    {
+     "name": "Mark Baisley",
+     "party": "Republican",
+     "incumbent": false,
+     "winner": false,
+     "votes": 48892,
+     "percent": 31.92
+    },
+    {
+     "name": "Bob Chew",
+     "party": "Forward",
+     "incumbent": false,
+     "winner": false,
+     "votes": 4408,
+     "percent": 2.88
+    },
+    {
+     "name": "Blake Huber",
+     "party": "Libertarian",
+     "incumbent": false,
+     "winner": false,
+     "votes": 1740,
+     "percent": 1.14
+    }
+   ]
+  },
+  "arapahoe": {
+   "name": "Arapahoe",
+   "type": "County",
+   "fips": "08005",
+   "fill": "#4874a3",
+   "percent_reporting": 66.6,
+   "candidates": [
+    {
+     "name": "John Hickenlooper",
+     "party": "Democratic",
+     "incumbent": false,
+     "winner": false,
+     "votes": 129767,
+     "percent": 66.24
+    },
+    {
+     "name": "Mark Baisley",
+     "party": "Republican",
+     "incumbent": false,
+     "winner": false,
+     "votes": 57409,
+     "percent": 29.31
+    },
+    {
+     "name": "Bob Chew",
+     "party": "Forward",
+     "incumbent": false,
+     "winner": false,
+     "votes": 5795,
+     "percent": 2.96
+    },
+    {
+     "name": "Blake Huber",
+     "party": "Libertarian",
+     "incumbent": false,
+     "winner": false,
+     "votes": 1791,
+     "percent": 0.91
+    }
+   ]
+  }
+ }
+}
