@@ -12,6 +12,7 @@ from electionwatch.sources.results.ia_sos import parse_ia, race_key
 
 FIX = Path(__file__).parent / "fixtures" / "ia_sos" / "ia"
 FIX26 = Path(__file__).parent / "fixtures" / "ia_sos" / "ia2026"
+FIX26LIVE = Path(__file__).parent / "fixtures" / "ia_sos" / "ia2026-live"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 AT26 = datetime(2026, 10, 31, 14, 30, tzinfo=timezone.utc)
 
@@ -22,6 +23,10 @@ def load(name):
 
 def load26(name):
     return json.loads((FIX26 / name).read_text(encoding="utf-8"))
+
+
+def load26live(name):
+    return json.loads((FIX26LIVE / name).read_text(encoding="utf-8"))
 
 
 def by_key(results):
@@ -192,3 +197,19 @@ def test_fetch_discovers_and_parses_the_2026_general(monkeypatch):
     assert set(got) == {"IA SEN", "IA GOV", "IA-01"}
     assert got["IA SEN"].url == "https://results.enr.clarityelections.com/IA/127077/"
     assert seen[0].endswith("/IA/elections.json")
+
+
+def test_2026_general_live_count_parses_votes():
+    # ia2026-live, captured 2026-11-04 UTC while the count was under way.
+    got = by_key(parse_ia(load26live("summary.json"), load26live("electionsettings.json"), fetched_at=AT26))
+    sen = got["IA SEN"]
+    assert [(candidate.name, candidate.party) for candidate in sen.candidates][:2] == [
+        ("Josh Turek", "DEM"),
+        ("Ashley Hinson", "REP"),
+    ]
+    assert sen.candidates[0].votes == 546784
+    assert sen.total_votes == 1075662
+    assert (sen.precincts_reporting, sen.precincts_total) == (70, 99)
+    assert sen.source_updated_at == datetime(2026, 11, 4, 4, 7, 42, tzinfo=timezone.utc)
+    assert got["IA GOV"].candidates[0].name == "Rob Sand and Dave Muhlbauer"
+    assert got["IA-01"].candidates[0].votes == 139483

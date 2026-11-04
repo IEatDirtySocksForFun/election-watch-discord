@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XmlExportViewModel>
+  <ElectionName>General Election</ElectionName>
+  <ElectionDate>2026-11-03T00:00:00</ElectionDate>
+  <ContestList>
+    <ContestDataExportViewModel>
+      <ContestName>REGISTERED VOTERS - TOTAL</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Party>CITYWIDE</Party>
+          <Votes>457371</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>BALLOTS CAST - TOTAL</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Party>CITYWIDE</Party>
+          <Votes>155969</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>DELEGATE TO THE HOUSE OF REPRESENTATIVES FROM THE DISTRICT OF COLUMBIA</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Denise Rosado</Candidate>
+          <Party>REP</Party>
+          <Votes>9907</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Robert White</Candidate>
+          <Party>DEM</Party>
+          <Votes>132966</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>STG Kymone Freeman</Candidate>
+          <Party>STG</Party>
+          <Votes>8476</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>972</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>REP</Party>
+          <Votes>581</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>REP</Party>
+          <Votes>2813</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>MAYOR OF THE DISTRICT OF COLUMBIA</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>IND Rhonda Hamilton</Candidate>
+          <Party>IND</Party>
+          <Votes>15510</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Janeese Lewis George</Candidate>
+          <Party>DEM</Party>
+          <Votes>126932</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>STG Robert L. Gross</Candidate>
+          <Party>STG</Party>
+          <Votes>5404</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>3259</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>IND</Party>
+          <Votes>414</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>IND</Party>
+          <Votes>4440</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>AT-LARGE MEMBER OF THE COUNCIL OF THE DISTRICT OF COLUMBIA</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Oye Owolewa</Candidate>
+          <Party>DEM</Party>
+          <Votes>104987</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>STG Darryl Moch</Candidate>
+          <Party>STG</Party>
+          <Votes>4932</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Darrell Green</Candidate>
+          <Party>REP</Party>
+          <Votes>9214</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>IND Elissa Silverman</Candidate>
+          <Party>IND</Party>
+          <Votes>32257</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>868</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>DEM</Party>
+          <Votes>699</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>DEM</Party>
+          <Votes>3002</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+    <ContestDataExportViewModel>
+      <ContestName>UNITED STATES SENATOR</ContestName>
+      <ElectionData>
+        <ElectionDataExportViewModel>
+          <Candidate>REP Robert Simmons</Candidate>
+          <Party>REP</Party>
+          <Votes>10111</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>DEM Paul Strauss</Candidate>
+          <Party>DEM</Party>
+          <Votes>135367</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>Write-in</Candidate>
+          <Party>NPN</Party>
+          <Votes>1775</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>OVER VOTES</Candidate>
+          <Party>REP</Party>
+          <Votes>354</Votes>
+        </ElectionDataExportViewModel>
+        <ElectionDataExportViewModel>
+          <Candidate>UNDER VOTES</Candidate>
+          <Party>REP</Party>
+          <Votes>8098</Votes>
+        </ElectionDataExportViewModel>
+      </ElectionData>
+    </ContestDataExportViewModel>
+  </ContestList>
+</XmlExportViewModel>

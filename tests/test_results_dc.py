@@ -72,3 +72,21 @@ def test_race_key_mapping():
     )
     assert format_key(race_key("INITIATIVE 83")) == "DC LOCAL initiative-83"
     assert format_key(race_key("ANC-8E05")) == "DC LOCAL anc-8e05"
+
+
+def test_2026_general_live_count_parses_the_election_night_export():
+    # 2026-general.xml is the election-night unofficial export (144 of 144 precincts counted).
+    text = (FIX / "2026-general.xml").read_text(encoding="utf-8")
+    got = by_key(parse_dc(ET.fromstring(text.encode("utf-8")), fetched_at=AT))
+    delegate = got["DC-AL"]
+    assert [(candidate.name, candidate.party) for candidate in delegate.candidates][:3] == [
+        ("Robert White", "DEM"),
+        ("Denise Rosado", "REP"),
+        ("Kymone Freeman", "STG"),
+    ]
+    assert delegate.candidates[0].votes == 132966
+    assert delegate.total_votes == 151349
+    assert got["DC GOV"].candidates[0].name == "Janeese Lewis George"
+    assert got["DC LOCAL shadow-senator"].candidates[0].votes == 135367
+    assert delegate.registered_voters == 457371
+    assert delegate.turnout_pct == round(100.0 * 155969 / 457371, 2)

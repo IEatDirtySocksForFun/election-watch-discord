@@ -144,3 +144,31 @@ def test_fetch_requests_only_wanted_contests(monkeypatch):
     assert set(got) == {"OH GOV", "OH-01"}
     assert seen[0].endswith("/getContestList")
     assert len(seen) == 3  # list + two detail calls, nothing else
+
+
+# --- the 2026 general live count (captured 2026-11-04 UTC) -----------------------------------
+
+LIVE = FIX / "2026-live"
+
+
+def live(name):
+    return json.loads((LIVE / name).read_text(encoding="utf-8"))
+
+
+def test_2026_general_live_count_parses_county_rows():
+    got = by_key(parse_oh(live("contest_list.json"), [live("governor.json"), live("congress_01.json")], fetched_at=AT))
+    gov = got["OH GOV"]
+    assert [(candidate.name, candidate.party) for candidate in gov.candidates][:2] == [
+        ("Vivek Ramaswamy", "REP"),
+        ("Amy Acton", "DEM"),
+    ]
+    # Five of the 88 county rows are in the fixture, so these totals are the kept rows' sums.
+    assert gov.candidates[0].votes == 62412
+    assert gov.candidates[1].votes == 37139
+    assert gov.total_votes == 104927
+    assert (gov.precincts_reporting, gov.precincts_total) == (270, 275)
+    cd1 = got["OH-01"]
+    assert cd1.candidates[0].name == "Greg Landsman"
+    assert cd1.candidates[0].votes == 175919
+    assert cd1.total_votes == 323738
+    assert (cd1.precincts_reporting, cd1.precincts_total) == (778, 784)

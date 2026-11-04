@@ -1,0 +1,54 @@
+[
+ {
+  "displayName": "Governor and Lieutenant Governor",
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA542A09A3E0633390EE0AE290",
+    "displayName": "Governor and Lieutenant Governor",
+    "contestName": "Governor and Lieutenant Governor",
+    "isChecked": false
+   }
+  ],
+  "contestChildCount": 1,
+  "isParentChecked": false
+ },
+ {
+  "displayName": "Secretary of State",
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA553B09A3E0633390EE0AE290",
+    "displayName": "Secretary of State",
+    "contestName": "Secretary of State",
+    "isChecked": false
+   }
+  ],
+  "contestChildCount": 1,
+  "isParentChecked": false
+ },
+ {
+  "displayName": "U.S. Senator",
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA56A709A3E0633390EE0AE290",
+    "displayName": "U.S. Senator - Unexpired Term Ending 01/03/2029",
+    "contestName": "U.S. Senator",
+    "isChecked": false
+   }
+  ],
+  "contestChildCount": 1,
+  "isParentChecked": false
+ },
+ {
+  "displayName": "Representative to Congress",
+  "contestGroupings": [
+   {
+    "contestObjectId": "_55A742EA574909A3E0633390EE0AE290",
+    "displayName": "Representative to Congress - District 01",
+    "contestName": "Representative to Congress",
+    "isChecked": false
+   }
+  ],
+  "contestChildCount": 15,
+  "isParentChecked": false
+ }
+]

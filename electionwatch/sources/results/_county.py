@@ -41,7 +41,7 @@ _PLACEHOLDER = re.compile(r"^NO (?:CANDIDATE|NOMINATION)(?: FILED| MADE)?$|^(?:R
 #: Some counties repeat the party in the candidate name ("REP Ted Cruz") even though the
 #: contest also carries a party column, and Travis writes it in parentheses ("(R) Ted Cruz").
 #: Kept as-is, the same candidate would not merge with "Ted Cruz" from the next county.
-_PARTY_PREFIX = re.compile(r"^(REP|DEM|LIB|GRN|GRE|CON|CST|IND|NPA|NP|WRI|REF|FWD)\.?\s+(\S.*)$", re.I)
+_PARTY_PREFIX = re.compile(r"^(REP|DEM|LIB|GRN|GRE|CON|CST|IND|NPA|NP|WRI|REF|FWD|NMC|NMD)\.?\s+(\S.*)$", re.I)
 _PAREN_PARTY_PREFIX = re.compile(r"^\(([A-Za-z]{1,3})\)\s+(\S.*)$")
 
 
