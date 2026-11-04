@@ -1,0 +1,241 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "U.S. Senator",
+  "K": "0004",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 267,
+  "PR": 267,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "DEM Cory Booker",
+   "REP Justin Murphy",
+   "Joanne Kuniansky",
+   "Veronica Fernandez",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "IND",
+   "IND",
+   ""
+  ],
+  "PCT": [
+   63.9490604906673,
+   33.3361945190087,
+   0.860696672701167,
+   1.59888257693988,
+   0.255165740682939
+  ],
+  "V": [
+   81952,
+   42721,
+   1103,
+   2049,
+   327
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   128152
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "U.S. Representative 7th",
+  "K": "0005",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 133,
+  "PR": 133,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "DEM Rebecca Bennett",
+   "REP Thomas H. Kean, Jr.",
+   "Seamus Patrick O’Toole",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "IND",
+   ""
+  ],
+  "PCT": [
+   59.0735759259807,
+   39.6139407017648,
+   1.12920866711993,
+   0.183274705134648
+  ],
+  "V": [
+   39968,
+   26802,
+   764,
+   124
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   67658
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "U.S. Representative 12th",
+  "K": "0006",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 134,
+  "PR": 134,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "DEM Adam Hamawy",
+   "REP Gregg Mele",
+   "Andres Jinete",
+   "Winston Jordan",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "IND",
+   "IND",
+   ""
+  ],
+  "PCT": [
+   71.8120693672403,
+   26.8282128948507,
+   0.662383916386513,
+   0.49762007788836,
+   0.199713743634124
+  ],
+  "V": [
+   43149,
+   16120,
+   398,
+   299,
+   120
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   60086
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]

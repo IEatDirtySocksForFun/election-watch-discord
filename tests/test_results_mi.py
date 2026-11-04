@@ -218,3 +218,29 @@ def test_other_states_are_ignored():
             return await mi_county.MiCounty().fetch([parse("MN SEN")], client)
 
     assert asyncio.run(go()) == []
+
+
+# --- the 2026 general live count (captured 2026-11-04 UTC) -----------------------------------
+
+LIVE = FIX / "2026-live"
+
+
+def live(name):
+    return json.loads((LIVE / name).read_text())
+
+
+def test_2026_general_live_count_parses_ottawa_votes():
+    results = rekey(parse_clarity(live("ottawa_summary.json"), live("ottawa_settings.json"), state="MI", fetched_at=AT))
+    keys = {format_key(race_result.key): race_result for race_result in results}
+    sen = keys["MI SEN"]
+    assert [(candidate.name, candidate.party) for candidate in sen.candidates][:2] == [
+        ("Mike Rogers", "REP"),
+        ("Abdul El-Sayed", "DEM"),
+    ]
+    assert sen.candidates[0].votes == 23897
+    assert sen.total_votes == 41212
+    assert (sen.precincts_reporting, sen.precincts_total) == (35, 127)
+    assert sen.source_updated_at == datetime(2026, 11, 4, 4, 1, 4, tzinfo=timezone.utc)
+    assert keys["MI GOV"].candidates[0].name == "John James and Jay DeBoyer"
+    assert keys["MI-03"].candidates[0].votes == 16059
+    assert (keys["MI-02"].precincts_reporting, keys["MI-02"].precincts_total) == (None, 4)

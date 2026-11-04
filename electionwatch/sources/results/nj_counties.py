@@ -77,6 +77,7 @@ _SENATE = {
     "SENATE RACE",
     "UNITED STATES SENATE",
     "UNITED STATES SENATOR",
+    "MEMBER OF THE UNITED STATES SENATE",
     "US SENATE",
     "US SENATOR",
     "U.S. SENATE",
@@ -95,8 +96,15 @@ def _norm(name: str) -> str:
 
 
 def _house_district(name: str) -> str | None:
-    """'... CD 6' / '3rd Congressional District' / '- 2ND CONGRESSIONAL' -> '06' / '03' / '02'."""
+    """'... CD 6' / '3rd Congressional District' / 'Reps - 5th Cong' -> '06' / '03' / '05'."""
     match = re.search(r"\bCD\s*[-# ]?\s*(\d+)", name)
+    if match:
+        return f"{int(match.group(1)):02d}"
+    # Passaic writes "Member of the House of Reps - 5th Cong"; Somerset "U.S. Representative 7th".
+    match = re.search(r"\bREPS?\b[\s-]*(\d{1,3})(?:ST|ND|RD|TH)?\b", name)
+    if match:
+        return f"{int(match.group(1)):02d}"
+    match = re.search(r"\bREPRESENTATIVE\s+(\d{1,3})(?:ST|ND|RD|TH)?\b", name)
     if match:
         return f"{int(match.group(1)):02d}"
     return c.district_from(name)
@@ -111,7 +119,12 @@ def shared_key(name: str) -> RaceKey | None:
     office_name = _norm(name)
     if office_name in _SENATE:
         return RaceKey("NJ", Level.SENATE, "SEN")
-    if "HOUSE OF REPRESENTATIVES" in office_name or "CONGRESSIONAL DISTRICT" in office_name:
+    if (
+        "HOUSE OF REPRESENTATIVE" in office_name
+        or "HOUSE OF REPS" in office_name
+        or "CONGRESSIONAL DISTRICT" in office_name
+        or re.match(r"^U\.?S\.? REPRESENTATIVE\b", office_name)
+    ):
         district = _house_district(office_name)
         # "United States House of Representatives" with no district: the county spans several
         # districts, so the votes cannot be attributed - keep it county-local.

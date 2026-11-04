@@ -1,0 +1,281 @@
+[
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "United States Senator",
+  "K": "1",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 578,
+  "PR": 556,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Justin MURPHY",
+   "Cory BOOKER",
+   "Joanne KUNIANSKY",
+   "Veronica FERNANDEZ"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "",
+   ""
+  ],
+  "PCT": [
+   17.8085668856918,
+   79.5482845156223,
+   1.23943985747399,
+   1.40370874121185
+  ],
+  "V": [
+   37185,
+   166100,
+   2588,
+   2931
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   208804
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Member of the House of Representatives (8th Congressional District)",
+  "K": "2",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 57,
+  "PR": 54,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Rob MENENDEZ",
+   "Aristotle ELIOPOULOS",
+   "Da'Shone HUGHEY",
+   "Craig HONTS"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   92.8103477238367,
+   2.60372921216194,
+   2.81370737443306,
+   1.77221568956828
+  ],
+  "V": [
+   11050,
+   310,
+   335,
+   211
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   11906
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Member of the House of Representatives (10th Congressional District)",
+  "K": "3",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 290,
+  "PR": 275,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Carmen BUCCO",
+   "LaMonica R. McIVER"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM"
+  ],
+  "PCT": [
+   10.7857353117539,
+   89.2142646882461
+  ],
+  "V": [
+   9893,
+   81830
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   91723
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_0",
+  "CAT": "Results",
+  "C": "Member of the House of Representatives (11th Congressional District)",
+  "K": "4",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 231,
+  "PR": 227,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Joe HATHAWAY",
+   "Analilia MEJIA",
+   "Alan B. BOND"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   ""
+  ],
+  "PCT": [
+   28.8169200264375,
+   70.1816579542951,
+   1.00142201926736
+  ],
+  "V": [
+   28776,
+   70082,
+   1000
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   99858
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]

@@ -201,3 +201,29 @@ def test_general_election_fetch_uses_the_pinned_id(monkeypatch):
     assert got["CO GOV"].url == "https://results.enr.clarityelections.com/CO/127407/"
     assert got["CO GOV"].source_updated_at == datetime(2026, 11, 3, 13, 52, 34, tzinfo=timezone.utc)
     assert not any(path.endswith("/CO/elections.json") for path in seen)  # pinned id, no lookup
+
+
+# --- the 2026 general live count (captured 2026-11-04 UTC) -----------------------------------
+
+LIVEGEN = FIX / "2026-general-live"
+
+
+def livegen(name):
+    return json.loads((LIVEGEN / name).read_text(encoding="utf-8"))
+
+
+def test_2026_general_live_count_parses_votes_and_precincts():
+    got = by_key(parse_co(livegen("summary.json"), livegen("electionsettings.json"), fetched_at=AT))
+    sen = got["CO SEN"]
+    assert [(candidate.name, candidate.party) for candidate in sen.candidates][:2] == [
+        ("John Hickenlooper", "DEM"),
+        ("Mark Baisley", "REP"),
+    ]
+    assert sen.candidates[0].votes == 1194874
+    assert sen.total_votes == 1960780
+    assert (sen.precincts_reporting, sen.precincts_total) == (13, 64)
+    assert sen.source_updated_at == datetime(2026, 11, 4, 4, 5, 30, tzinfo=timezone.utc)
+    assert got["CO-01"].candidates[0].name == "Melat Kiros"
+    assert got["CO-01"].total_votes == 191925
+    assert got["CO GOV"].candidates[0].name == "Phil Weiser / Lesley Dahlkemper"
+    assert got["CO HD-01"].candidates[0].votes == 13456

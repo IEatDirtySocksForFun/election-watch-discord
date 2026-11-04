@@ -1,0 +1,269 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "United States Senator",
+  "K": "1",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 106,
+  "PR": 78,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Cory BOOKER",
+   "Justin MURPHY",
+   "Joanne KUNIANSKY",
+   "Veronica FERNANDEZ",
+   "Write-In",
+   "Eduardo Castille",
+   "Shawn Riggins",
+   "Geoff Rickly"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "SOC",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   58.3655551356223,
+   39.4191353897142,
+   0.654126813384888,
+   1.49431636479926,
+   0.0610518359159229,
+   0.00290723028171061,
+   0,
+   0.00290723028171061
+  ],
+  "V": [
+   20076,
+   13559,
+   225,
+   514,
+   21,
+   1,
+   0,
+   1
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   34397
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "United States House of Representatives",
+  "K": "2",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 106,
+  "PR": 78,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Zack MULLOCK",
+   "Jeff VAN DREW",
+   "Ramon MORA, Jr.",
+   "Write-In",
+   "Tim Alexander"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   57.7560918939328,
+   40.9543725131422,
+   1.25468327960268,
+   0.031947953878772,
+   0.00290435944352473
+  ],
+  "V": [
+   19886,
+   14101,
+   432,
+   11,
+   1
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   34431
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "County",
+  "C": "Sheriff",
+  "K": "3",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 106,
+  "PR": 78,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Robert A. AUSTINO",
+   "Michael DONATO",
+   "Write-In",
+   "Edmond Grennon Sr",
+   "April Zirkle"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "",
+   "",
+   ""
+  ],
+  "PCT": [
+   56.328079392878,
+   43.6135434909515,
+   0.049620548744892,
+   0.00583771161704612,
+   0.00291885580852306
+  ],
+  "V": [
+   19298,
+   14942,
+   17,
+   2,
+   1
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   34260
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]
