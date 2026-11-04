@@ -904,3 +904,33 @@ async def test_a_zero_vote_answer_does_not_keep_a_fallback_with_votes_away():
     zero, votes = counted(0, "official"), counted(1_079_120, "nbc")
     assert best_result([zero, votes]) is votes
     assert best_result([zero]) is zero
+
+
+@pytest.mark.asyncio
+async def test_a_special_gets_results_from_a_source_that_files_it_under_the_plain_key():
+    """NBC lists the 2026 Ohio and Florida Senate specials as OH SEN / FL SEN."""
+    special = parse("OH SEN S")
+
+    class Plain(ResultsSource):
+        name = "plainfeed"
+        states = frozenset({"OH"})
+
+        async def fetch(self, keys, client):
+            assert parse("OH SEN") in keys
+            return [
+                RaceResult(
+                    parse("OH SEN"),
+                    [
+                        CandidateResult("Sherrod Brown", "DEM", 900, None),
+                        CandidateResult("Jon Husted", "REP", 800, None),
+                    ],
+                    "plainfeed",
+                    NOW,
+                ).finalize()
+            ]
+
+    store = MemoryStore()
+    await store.save_guild(GuildSettings(1, channel_id=10, important=[str(special)]))
+    await poller(store, {"results": [Plain()]}, RecordingPoster()).tick()
+    stored = await store.latest_result(special)
+    assert stored is not None and stored.total_votes == 1700

@@ -341,17 +341,24 @@ class Poller:
             keys.append(key)
             known[text] = key
 
-        await self._results(now, guilds, keys)
         # Outlets and markets don't flag special elections (OH/FL Senate 2026 are specials):
         # ask for the plain key too and file those answers under the watched special.
         self._aliases = {
             replace(key, special=False): key for key in keys if key.special and replace(key, special=False) not in keys
         }
+        await self._results(now, guilds, keys)
         outlet_keys = keys + list(self._aliases)
         await self._calls(now, guilds, outlet_keys)
         await self._exit_polls(now, guilds, outlet_keys)
         await self._odds(now, guilds, self._demanded("odds", outlet_keys))
         await self._polls(now, self._demanded("polls", keys))
+
+    def _with_aliases(self, keys: list) -> list:
+        """keys plus the plain key of each special among them (NBC files OH SEN S as OH SEN)."""
+        specials = {str(key) for key in keys}
+        return list(keys) + [
+            plain for plain, special in getattr(self, "_aliases", {}).items() if str(special) in specials
+        ]
 
     def _canonical_batch(self, source, results: list) -> list:
         """Apply the special-election alias to one source's answers, unless the source flags
@@ -380,11 +387,11 @@ class Poller:
         pinned = {name for guild in guilds for name in guild.results_sources}
         primary = [source for source in enabled if not getattr(source, "fallback", False) or source.name in pinned]
         fallback = [source for source in enabled if getattr(source, "fallback", False) and source.name not in pinned]
-        await self._gather_results(primary, keys, by_race)
+        await self._gather_results(primary, self._with_aliases(keys), by_race)
         complete = {race for race, answers in by_race.items() if any(answered(answer) for answer in answers)}
         missing = [key for key in keys if str(key) not in complete]
         if missing:
-            await self._gather_results(fallback, missing, by_race)
+            await self._gather_results(fallback, self._with_aliases(missing), by_race)
         # Adapter order is priority order: the first complete answer is the stored result. A
         # county merge titled "(partial: N counties)" only wins when nothing complete answered,
         # so a reachable state feed (tx_sos) or an enabled national fallback is preferred over
@@ -435,7 +442,7 @@ class Poller:
                 logger.error("Results source %s failed", source.name, exc_info=fetched)
                 fetched = self.last_answers(source, "fetch", source_keys)
             asked = {str(key) for key in source_keys}
-            for race_result in fetched:
+            for race_result in self._canonical_batch(source, fetched):
                 race = str(race_result.key)
                 if race in asked:
                     by_race[race].append(race_result)
