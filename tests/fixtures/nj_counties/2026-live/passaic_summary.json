@@ -1,0 +1,309 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "Member of the United States Senate",
+  "K": "0004",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 283,
+  "PR": 135,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Justin MURPHY",
+   "DEM Cory BOOKER",
+   "NMC Veronica FERNANDEZ",
+   "NMD Joanne KUNIANSKY",
+   "Write-In-Vote"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "NMC",
+   "NMD",
+   ""
+  ],
+  "PCT": [
+   36.328116567728,
+   60.2406907717215,
+   2.21910415542364,
+   1.00701565029682,
+   0.205072854830005
+  ],
+  "V": [
+   33658,
+   55813,
+   2056,
+   933,
+   190
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   92650
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "Member of the House of Reps - 5th Cong",
+  "K": "0005",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 35,
+  "PR": 26,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Sean KIRRANE",
+   "DEM Josh GOTTHEIMER",
+   "NMC Adam RUEDA",
+   "Write-In-Vote"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "NMC",
+   ""
+  ],
+  "PCT": [
+   46.044499381953,
+   51.500168558265,
+   2.33734127430048,
+   0.117990785481515
+  ],
+  "V": [
+   8195,
+   9166,
+   416,
+   21
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   17798
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "Member of the House of Reps - 9th Cong",
+  "K": "0006",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 195,
+  "PR": 88,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Rosie PINO",
+   "DEM Nelida POU",
+   "NMC Terrisa BUKOVINAC",
+   "Write-In-Vote"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "NMC",
+   ""
+  ],
+  "PCT": [
+   28.840371052104,
+   69.0856736709737,
+   1.80605419985056,
+   0.267901077071677
+  ],
+  "V": [
+   15825,
+   37908,
+   991,
+   147
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   54871
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "C": "Member of the House of Reps - 11th Cong",
+  "K": "0007",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 53,
+  "PR": 21,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "REP Joe HATHAWAY",
+   "DEM Analilia MEJIA",
+   "NMC Alan B. BOND",
+   "Write-In-Vote"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "NMC",
+   ""
+  ],
+  "PCT": [
+   44.1577099074173,
+   54.87921677131,
+   0.877939768011067,
+   0.0851335532616793
+  ],
+  "V": [
+   8299,
+   10314,
+   165,
+   16
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   18794
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]

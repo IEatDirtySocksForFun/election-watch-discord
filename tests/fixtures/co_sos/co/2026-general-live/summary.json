@@ -1,0 +1,330 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Offices",
+  "C": "United States Senator",
+  "K": "20",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 64,
+  "PR": 13,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Mark Baisley",
+   "John Hickenlooper",
+   "Bob Chew",
+   "Christopher Baum",
+   "Blake Huber",
+   "Adam Withrow"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "FWD",
+   "APV",
+   "LBR",
+   "UNI"
+  ],
+  "PCT": [
+   35.002040004488,
+   60.9387080651577,
+   2.51420353124777,
+   0.135048297106254,
+   0.99797019553443,
+   0.412029906465794
+  ],
+  "V": [
+   686313,
+   1194874,
+   49298,
+   2648,
+   19568,
+   8079
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   1960780
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State Offices",
+  "C": "Governor / Lieutenant Governor",
+  "K": "210",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 64,
+  "PR": 13,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Victor Marx / George Washington Markert",
+   "Phil Weiser / Lesley Dahlkemper",
+   "Stephen T. Hamilton / James K Treibert",
+   "Eric Mulder / Wayne Harlos",
+   "Jeff Peckman / T.J. Cole",
+   "Erik Underwood / Frank Atwood",
+   "Greg Lopez / Taralyn Romero"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "ACN",
+   "LBR",
+   "UNI",
+   "APV",
+   "UAF"
+  ],
+  "PCT": [
+   33.0419785609767,
+   61.6705832306143,
+   0.591251668917516,
+   1.46142077735039,
+   0.184356124574923,
+   0.289629263267414,
+   2.7607803742988
+  ],
+  "V": [
+   644687,
+   1203264,
+   11536,
+   28514,
+   3597,
+   5651,
+   53866
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   1951115
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Offices",
+  "C": "Representative to the 120th United States Congress - District 1",
+  "K": "110",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 3,
+  "PR": 2,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Melat Kiros",
+   "Christy Peterson",
+   "Critter Milton",
+   "Chad Humphrey",
+   "Shimon Blau"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "UNI",
+   "LBR",
+   "UAF"
+  ],
+  "PCT": [
+   78.3493552168816,
+   13.9059528461639,
+   0.345447440406409,
+   1.54174807867657,
+   5.85749641787156
+  ],
+  "V": [
+   150372,
+   26689,
+   663,
+   2959,
+   11242
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   191925
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_6",
+  "CAT": "State House",
+  "C": "State Representative - District 1",
+  "K": "2001",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 2,
+  "PR": 1,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Javier Mabrey",
+   "Joseph Montoya"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP"
+  ],
+  "PCT": [
+   73.3416907396305,
+   26.6583092603695
+  ],
+  "V": [
+   13456,
+   4891
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   18347
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]

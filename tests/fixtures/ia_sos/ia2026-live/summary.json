@@ -1,0 +1,226 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "SUBCATKEY": "C_1_1",
+  "SUBCAT": "United States Senate",
+  "C": "United States Senator",
+  "K": "1000",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 99,
+  "PR": 70,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Ashley Hinson",
+   "Josh Turek",
+   "Thomas Laehn",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "LIB",
+   ""
+  ],
+  "PCT": [
+   46.0250524793104,
+   50.8323246521677,
+   3.02000070654165,
+   0.12262216198025
+  ],
+  "V": [
+   495074,
+   546784,
+   32485,
+   1319
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   1075662
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State",
+  "SUBCATKEY": "C_2_1",
+  "SUBCAT": "Statewide Executive Branch",
+  "C": "Governor and Lt. Governor",
+  "K": "1500",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 99,
+  "PR": 70,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Zach Lahn and Derek Wulf",
+   "Rob Sand and Dave Muhlbauer",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   ""
+  ],
+  "PCT": [
+   44.0551629941924,
+   55.8186169090512,
+   0.126220096756403
+  ],
+  "V": [
+   476083,
+   603205,
+   1364
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   1080652
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal",
+  "SUBCATKEY": "C_1_2",
+  "SUBCAT": "United States Representative",
+  "C": "United States Representative District 1",
+  "K": "1100",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 20,
+  "PR": 10,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Mariannette Miller-Meeks",
+   "Christina Bohannan",
+   "Michael Bridgford",
+   "Write-in"
+  ],
+  "CHAggId": null,
+  "P": [
+   "REP",
+   "DEM",
+   "",
+   ""
+  ],
+  "PCT": [
+   42.6161571464302,
+   53.6710468091656,
+   3.62929757392693,
+   0.0834984704773265
+  ],
+  "V": [
+   110753,
+   139483,
+   9432,
+   217
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   259885
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]

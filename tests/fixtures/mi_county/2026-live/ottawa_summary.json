@@ -1,0 +1,316 @@
+[
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "United States Senator",
+  "K": "344490",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 127,
+  "PR": 35,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Abdul El-Sayed",
+   "Mike Rogers",
+   "Lydia Christensen",
+   "Tim Long",
+   "Douglas P. Marsh",
+   "Walter P. Kristy"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "LIB",
+   "UST",
+   "GRN",
+   "NLP"
+  ],
+  "PCT": [
+   40.0635737163933,
+   57.9855381927594,
+   1.17926817431816,
+   0.40036882461419,
+   0.230515383868776,
+   0.1407357080462
+  ],
+  "V": [
+   16511,
+   23897,
+   486,
+   165,
+   95,
+   58
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   41212
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_2",
+  "CAT": "State Candidates",
+  "C": "Governor and  Lieutenant Governor",
+  "K": "343477",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 127,
+  "PR": 35,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Jocelyn Benson and Winnie Brinks",
+   "John James and Jay DeBoyer",
+   "Anthony Hudson and Beau Parmenter",
+   "Donna Brandenburg and Robert Donald Cowper II",
+   "Douglas Campbell and Bobbie Clay"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "LIB",
+   "UST",
+   "GRN"
+  ],
+  "PCT": [
+   41.6217659336925,
+   56.7569535459444,
+   1.00723265860881,
+   0.337362263967769,
+   0.276685597786515
+  ],
+  "V": [
+   17149,
+   23385,
+   415,
+   139,
+   114
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   41202
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "Representative in Congress 2nd District",
+  "K": "344489",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 4,
+  "PR": 0,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Ben Ambrose",
+   "John Moolenaar",
+   "Charlotte Magoon",
+   "Richard Sills"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "GRN",
+   "NLP"
+  ],
+  "PCT": [
+   25.046904315197,
+   73.921200750469,
+   0.75046904315197,
+   0.281425891181989
+  ],
+  "V": [
+   267,
+   788,
+   8,
+   3
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   1066
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ },
+ {
+  "CATKEY": "C_1",
+  "CAT": "Federal Candidates",
+  "C": "Representative in Congress 3rd District",
+  "K": "357650",
+  "AggID": null,
+  "regvoters": 0,
+  "BCxContest": 0,
+  "VF": 1,
+  "TP": 48,
+  "PR": 25,
+  "TV": 0,
+  "BC": 0,
+  "RC": 0,
+  "RO": 0,
+  "CH": [
+   "Hillary Scholten",
+   "Terri DeBoer",
+   "Joe Jock"
+  ],
+  "CHAggId": null,
+  "P": [
+   "DEM",
+   "REP",
+   "GRN"
+  ],
+  "PCT": [
+   45.5126072782915,
+   53.4195994943783,
+   1.06779322733018
+  ],
+  "V": [
+   13682,
+   16059,
+   321
+  ],
+  "RCVRoundVGain": null,
+  "RCVRoundPCTGain": null,
+  "T": [
+   30062
+  ],
+  "RCVExhaustedBallots": null,
+  "RCVBallotsCast": null,
+  "RCVOverVotes": null,
+  "W": [
+   0,
+   0,
+   0
+  ],
+  "CRC": [
+   0,
+   0,
+   0
+  ],
+  "CRO": [
+   0,
+   0,
+   0
+  ],
+  "IsCumulative": null,
+  "CumulativeVotes": null,
+  "CumulativeChoices": null,
+  "CumulativePercentages": null,
+  "IsContestNoChoice": 0,
+  "IsRCV": false,
+  "RCVAwaitingResults": false,
+  "RCVRounds": 0
+ }
+]

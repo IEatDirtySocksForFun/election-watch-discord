@@ -183,3 +183,46 @@ def test_fetch_explains_missing_elections(monkeypatch):
     with pytest.raises(SourceUnavailable) as err:
         asyncio.run(go())
     assert "NJ_COUNTY_FEEDS" in str(err.value)
+
+
+# --- the 2026 general live count (captured 2026-11-04 UTC) -----------------------------------
+
+
+def live(name):
+    return load(f"2026-live/{name}")
+
+
+def test_new_county_naming_maps_to_statewide_keys():
+    assert format_key(nj_counties.race_key("passaic", "Member of the United States Senate")) == "NJ SEN"
+    assert format_key(nj_counties.race_key("passaic", "Member of the House of Reps - 5th Cong")) == "NJ-05"
+    assert format_key(nj_counties.race_key("somerset", "U.S. Representative 7th")) == "NJ-07"
+
+
+def test_2026_live_counties_merge_into_partial_statewide_results():
+    parts = []
+    for county in ("Cumberland", "Essex", "Passaic", "Somerset"):
+        parts += nj_counties.parse_nj_county(
+            live(f"{county.lower()}_summary.json"),
+            live(f"{county.lower()}_settings.json"),
+            county=county,
+            fetched_at=AT,
+        )
+    # Passaic's "Member of the United States Senate" was previously filed as a county race.
+    passaic = nj_counties.parse_nj_county(
+        live("passaic_summary.json"), live("passaic_settings.json"), county="Passaic", fetched_at=AT
+    )
+    assert by_key(passaic)["NJ SEN"].total_votes == 92650
+
+    got = by_key(_county.merge(parts, source="nj_counties", url=nj_counties.HUMAN))
+    sen = got["NJ SEN"]
+    assert sen.title == "United States Senator (partial: 4 counties)"
+    assert sen.total_votes == 464003
+    assert {candidate.name: candidate.votes for candidate in sen.candidates}["Cory BOOKER"] == 323941
+    # Party prefixes ("NMC Veronica FERNANDEZ") are stripped so county tallies merge.
+    assert "NMC Veronica FERNANDEZ" not in {candidate.name for candidate in sen.candidates}
+    assert {candidate.name: candidate.votes for candidate in sen.candidates}["Veronica FERNANDEZ"] == 7550
+    assert {"NJ-05", "NJ-07", "NJ-08", "NJ-09", "NJ-10", "NJ-11", "NJ-12"} <= set(got)
+    assert got["NJ-07"].candidates[0].name == "Rebecca Bennett"
+    assert got["NJ-07"].candidates[0].votes == 39968
+    assert got["NJ-05"].candidates[0].votes == 9166
+    assert got["NJ-11"].candidates[0].votes == 80396
