@@ -1,13 +1,17 @@
-"""Hawaii — Office of Elections certified summary text file.
+"""Hawaii — Office of Elections summary text file.
 
-Hawaii publishes certified results as a fixed-width/CSV text file:
+The Office of Elections publishes one text export per election, linked from the
+results page (https://elections.hawaii.gov/election-results/). Two layouts exist:
 
-    https://files.hawaii.gov/elections/files/results/<YYYY>/General/summary.txt
+* 2026 onward — tab-delimited with a ``#Contest ID`` header row:
+  ``https://elections.hawaii.gov/wp-content/results/<YYYY> General/summary.txt``
+* 2024 and earlier — ``Format#1`` quoted CSV on the files host:
+  ``https://files.hawaii.gov/elections/files/results/<YYYY>/General/summary.txt``
 
-The file begins with a "Format#1" header, then one quoted-CSV row per candidate.
-Candidate names carry a party prefix such as (D), (R), (G), and may span multiple
-lines when a vice-presidential running mate is listed. The adapter normalizes
-those names and maps offices to RaceKey values.
+Both carry one row per candidate. Candidate names have a party prefix such as
+(D), (R), (G) and may span several lines when a joint ticket is listed (the
+governor's running mate), so embedded newlines are kept inside quoted fields.
+The adapter normalizes the names and maps offices to RaceKey values.
 """
 
 from __future__ import annotations
@@ -24,8 +28,20 @@ from electionwatch.sources.base import ResultsSource, SourceUnavailable, registe
 
 from . import _common as c
 
-BASE = "https://files.hawaii.gov/elections/files/results"
+BASE = "https://files.hawaii.gov/elections/files/results"  # 2024 and earlier
+CURRENT = "https://elections.hawaii.gov/wp-content/results"  # 2026 onward
 HUMAN = "https://elections.hawaii.gov/election-results"
+
+#: 2026+ tab-delimited columns the parser reads, by header name.
+_TAB_COLUMNS = {
+    "Contest ID": "contest_id",
+    "Contest Title": "office",
+    "Registered Voters": "registered_voters",
+    "Total Precincts": "precincts_total",
+    "Counted Precincts": "precincts_reporting",
+    "Candidate Name": "candidate_raw",
+    "Total Votes": "votes_total",
+}
 
 _ROMAN = {"I": "01", "II": "02", "III": "03", "IV": "04", "V": "05"}
 
@@ -66,7 +82,8 @@ def race_key(office_raw: str) -> RaceKey:
     if match:
         dist = _ROMAN.get(match.group(1)) or f"{int(match.group(1)):02d}"
         return RaceKey("HI", Level.HOUSE, "HOUSE", dist, special)
-    if office == "GOVERNOR":
+    if office == "GOVERNOR" or office == "GOVERNOR AND LIEUTENANT GOVERNOR":
+        # The general election lists governor and lieutenant governor as one ticket.
         return RaceKey("HI", Level.GOVERNOR, "GOV", None, special)
     if office == "LIEUTENANT GOVERNOR":
         return RaceKey("HI", Level.GOVERNOR, "LTGOV", None, special)
@@ -82,7 +99,27 @@ def race_key(office_raw: str) -> RaceKey:
     return c.local_key("HI", office)
 
 
+def _tab_rows(reader) -> list[dict]:
+    """2026+ tab-delimited rows -> the column names ``parse_hi`` reads."""
+    header = next(reader, [])
+    while header and not header[0].strip().startswith("#Contest ID"):
+        header = next(reader, [])  # the "#FormatVersion 1" line sits above it
+    columns = {}
+    for index, name in enumerate(header):
+        key = _TAB_COLUMNS.get(name.strip().lstrip("#").strip())
+        if key:
+            columns[index] = key
+    rows = []
+    for values in reader:
+        if not any(value.strip() for value in values):
+            continue
+        rows.append({key: values[index] for index, key in columns.items() if index < len(values)})
+    return rows
+
+
 def _rows(text: str) -> list[dict]:
+    if text.lstrip("\ufeff").lstrip().startswith("#FormatVersion"):
+        return _tab_rows(csv.reader(io.StringIO(text), delimiter="\t", quotechar='"'))
     buf = io.StringIO(text)
     first = buf.readline()
     if first.strip() not in ('"Format#1"', "Format#1"):
@@ -162,9 +199,16 @@ def parse_hi(rows: list[dict], *, fetched_at: datetime) -> list[RaceResult]:
     return results
 
 
+def summary_url(date: str) -> str:
+    """Text export for an election date; 2026 and later moved to the results host."""
+    year = int(date.split("-")[0])
+    if year >= 2026:
+        return f"{CURRENT}/{year}%20General/summary.txt"
+    return f"{BASE}/{year}/General/summary.txt"
+
+
 async def _summary(client: httpx.AsyncClient, date: str) -> str:
-    year = date.split("-")[0]
-    url = f"{BASE}/{year}/General/summary.txt"
+    url = summary_url(date)
     try:
         return await c.get_text(client, url)
     except SourceUnavailable as exc:

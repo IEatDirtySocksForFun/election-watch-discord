@@ -31,3 +31,8 @@ county breakdown but no party or age data, while .../NY/returned,
 .../historical/2022/NY/inperson?date=2022-11-01 answer 404 or zeros and the capabilities flags
 are all false. Alabama, Massachusetts, New Hampshire and DC still have no data. The saved files
 above were kept unchanged: the payload shape did not change, so a new fixture would repeat them.
+
+Re-checked 2026-11-04 (election day): the four national endpoints answer with
+snapshot_date 2026-11-04 and the same keys; 47 states carry ballots (45 with returned,
+41 with requested, 34 with in person, Illinois only for grace). New York still reports
+in-person votes alone (1,965,043). No new fixture was needed.

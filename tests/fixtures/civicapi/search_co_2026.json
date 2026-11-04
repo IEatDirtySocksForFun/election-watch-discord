@@ -1,0 +1,168 @@
+{
+ "count": 4,
+ "offset": 0,
+ "limit": 1000,
+ "races": [
+  {
+   "id": 87022,
+   "type": "US Senate",
+   "country": "US",
+   "province": "CO",
+   "district": null,
+   "municipality": null,
+   "election_name": "Colorado US Senate",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 77,
+   "candidates": [
+    {
+     "name": "John Hickenlooper",
+     "candidate_id": 220027,
+     "party": "Democratic",
+     "winner": true,
+     "votes": 1310937,
+     "percent": 60.24
+    },
+    {
+     "name": "Mark Baisley",
+     "candidate_id": 220026,
+     "party": "Republican",
+     "winner": false,
+     "votes": 773936,
+     "percent": 35.56
+    },
+    {
+     "name": "Bob Chew",
+     "candidate_id": 220030,
+     "party": "Forward",
+     "winner": false,
+     "votes": 55682,
+     "percent": 2.56
+    }
+   ]
+  },
+  {
+   "id": 87018,
+   "type": "Governor",
+   "country": "US",
+   "province": "CO",
+   "district": null,
+   "municipality": null,
+   "election_name": "Colorado Governor",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 76,
+   "candidates": [
+    {
+     "name": "Phil Weiser",
+     "candidate_id": 220009,
+     "party": "Democratic",
+     "winner": true,
+     "votes": 1319781,
+     "percent": 60.94
+    },
+    {
+     "name": "Victor Marx",
+     "candidate_id": 220008,
+     "party": "Republican",
+     "winner": false,
+     "votes": 728650,
+     "percent": 33.65
+    },
+    {
+     "name": "Greg Lopez",
+     "candidate_id": 220014,
+     "party": "Independent",
+     "winner": false,
+     "votes": 60227,
+     "percent": 2.78
+    }
+   ]
+  },
+  {
+   "id": 87010,
+   "type": "House of Representatives",
+   "country": "US",
+   "province": "CO",
+   "district": "CO-01",
+   "municipality": null,
+   "election_name": "Colorado US House 1",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 61,
+   "candidates": [
+    {
+     "name": "Melat Kiros",
+     "candidate_id": 219973,
+     "party": "Democratic",
+     "winner": true,
+     "votes": 169159,
+     "percent": 78.28
+    },
+    {
+     "name": "Christy Peterson",
+     "candidate_id": 219974,
+     "party": "Republican",
+     "winner": false,
+     "votes": 30046,
+     "percent": 13.9
+    },
+    {
+     "name": "Shimon Blau",
+     "candidate_id": 219979,
+     "party": "Independent",
+     "winner": false,
+     "votes": 12764,
+     "percent": 5.91
+    }
+   ]
+  },
+  {
+   "id": 159527,
+   "type": "State House",
+   "country": "US",
+   "province": "CO",
+   "district": null,
+   "municipality": null,
+   "election_name": "Colorado State House",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "seats": 65,
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 86,
+   "candidates": [
+    {
+     "name": "Democratic",
+     "candidate_id": 16151304,
+     "party": "Democratic",
+     "winner": false,
+     "votes": 1189476,
+     "percent": 58.74
+    },
+    {
+     "name": "Republican",
+     "candidate_id": 16151305,
+     "party": "Republican",
+     "winner": false,
+     "votes": 785863,
+     "percent": 38.81
+    },
+    {
+     "name": "Libertarian",
+     "candidate_id": 16151306,
+     "party": "Libertarian",
+     "winner": false,
+     "votes": 31305,
+     "percent": 1.55
+    }
+   ]
+  }
+ ]
+}

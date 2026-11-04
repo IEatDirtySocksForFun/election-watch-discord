@@ -1,5 +1,5 @@
 Trimmed real civicAPI responses, fetched with a descriptive User-Agent: TX on 2026-10-27,
-GU and NH on 2026-11-03.
+GU and NH on 2026-11-03, CO on 2026-11-04.
 
 search_tx_2026.json   GET https://civicapi.org/api/v2/race/search?country=US&province=TX&startDate=2026-11-03&endDate=2026-11-03&limit=1000
                       (6 of 725 races kept; candidate lists cut to 3)
@@ -19,4 +19,11 @@ race_nh_sen_2026.json GET https://civicapi.org/api/v2/race/87283 (2026 NH US Sen
                       "test_data": false and no called_at; region_results cut to 1 town)
 race_nh_gov_2026.json GET https://civicapi.org/api/v2/race/87284 (2026 NH Governor, live results,
                       "test_data": false and no called_at; region_results cut to 1 town)
-region_results trimmed to 2 counties in both TX race files, to 1 region in the GU and NH race files.
+search_co_2026.json   GET https://civicapi.org/api/v2/race/search?country=US&province=CO&startDate=2026-11-03&endDate=2026-11-03&limit=1000
+                      (2026 CO general, live results, fetched 2026-11-04; 4 of 988 races kept: US Senate,
+                      Governor, US House 1 and the State House chamber summary; candidate lists cut to 3)
+race_co_sen_2026.json GET https://civicapi.org/api/v2/race/87022 (2026 CO US Senate, live results and a
+                      civicAPI call: "test_data": false, one winner, called_at 2026-11-04T02:23:25.538Z;
+                      candidates cut to 4, region_results cut to Adams and Arapahoe with 4 candidates each)
+region_results trimmed to 2 counties in both TX race files, to 1 region in the GU and NH race files, to
+2 counties in the CO race file.
