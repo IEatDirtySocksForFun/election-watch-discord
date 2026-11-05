@@ -63,18 +63,18 @@ beats the category override, which beats the server default, field by field (`en
 
 ## Race calls
 
-| Outlet     | Method                                                                            | Key needed     | Verified                       |
-| ---------- | --------------------------------------------------------------------------------- | -------------- | ------------------------------ |
-| `ap`       | AP Elections API v3 `/elections`                                                  | `AP_API_KEY`   | Schema only                    |
-| `ddhq`     | DDHQ API v4 (endpoint/auth client-specific)                                       | `DDHQ_API_KEY` | Skeleton                       |
-| `votehub`  | Polling API only (`/polls`); no results endpoint                                  | None           | No results API (2026-10-27)    |
-| `cnn`      | CNN politics JSON feed (`politics.api.cnn.io`)                                    | None           | Yes (2024 fixture)             |
-| `nbc`      | NBC firecracker results JSON (`/firecracker/api/v2/national-results/...`)         | None           | Yes (2024 fixture)             |
-| `cbs`      | CBS election archive API (`races2/<year>/G?filter.officeCode=&filter.state=`)     | None           | Yes (2024 fixture)             |
-| `fox`      | Fox per-state feeds (`feeds-elections.foxnews.com/archive/.../<Office>/<ST>/...`) | None           | Yes (2024 fixture)             |
-| `abc`      | ABC state-results widget HTML; data in `window['__abcnews__']`                    | None           | Yes (2024 fixture)             |
-| `nyt`      | NYT results feed (none found)                                                     | None           | No (interactive page 403)      |
-| `civicapi` | civicAPI race detail (`/api/v2/race/{id}`), its own decision desk                 | None           | Schema only (no real call yet) |
+| Outlet     | Method                                                                            | Key needed     | Verified                           |
+| ---------- | --------------------------------------------------------------------------------- | -------------- | ---------------------------------- |
+| `ap`       | AP Elections API v3 `/elections`                                                  | `AP_API_KEY`   | Schema only                        |
+| `ddhq`     | DDHQ API v4 (endpoint/auth client-specific)                                       | `DDHQ_API_KEY` | Skeleton                           |
+| `votehub`  | Polling API only (`/polls`); no results endpoint                                  | None           | No results API (2026-10-27)        |
+| `cnn`      | CNN politics JSON feed (`politics.api.cnn.io`)                                    | None           | Yes (2024 fixture)                 |
+| `nbc`      | NBC firecracker results JSON (`/firecracker/api/v2/national-results/...`)         | None           | Yes (2024 fixture)                 |
+| `cbs`      | CBS election archive API (`races2/<year>/G?filter.officeCode=&filter.state=`)     | None           | Yes (2024 fixture)                 |
+| `fox`      | Fox per-state feeds (`feeds-elections.foxnews.com/archive/.../<Office>/<ST>/...`) | None           | Yes (2024 fixture)                 |
+| `abc`      | ABC state-results widget HTML; data in `window['__abcnews__']`                    | None           | Yes (2024 fixture)                 |
+| `nyt`      | NYT results feed (none found)                                                     | None           | No (interactive page 403)          |
+| `civicapi` | civicAPI race detail (`/api/v2/race/{id}`), its own decision desk                 | None           | Yes (first 2026 call: PA Governor) |
 
 Per-race vote counts: `cbs_results` (in `calls/cbs_results.py`) is a `ResultsSource`
 over the same CBS `races2` JSON, a keyless national fallback for Senate/Governor/House
@@ -82,8 +82,10 @@ in every state (off by default). See `docs/research/source-sweep.md` for the AP/
 route research, API keys and per-state fallbacks.
 
 civicAPI calls are fetched by default but posted only by servers that pick the `CIVICAPI`
-outlet with `/calls`: its decision desk has no real call on record to check yet (see
-[civicapi-accuracy.md](civicapi-accuracy.md)).
+outlet with `/calls`. The first call on a non-test race appeared on 2026-11-04 (PA Governor,
+`called_at` 02:18:31Z; saved in `tests/fixtures/civicapi/race_pa_gov_2026.json`), so the outlet
+can now be checked against the other desks; until that comparison exists the default stays
+opt in (see [civicapi-accuracy.md](civicapi-accuracy.md)).
 
 All outlets other than AP, DDHQ and civicAPI are `scrape=True` and `enabled_by_default=False`.
 In particular, `fox` and `fox_results` stay opt in because Fox's election-feed `robots.txt`

@@ -1,5 +1,5 @@
 Trimmed real civicAPI responses, fetched with a descriptive User-Agent: TX on 2026-10-27,
-GU and NH on 2026-11-03.
+GU and NH on 2026-11-03, PA on 2026-11-05.
 
 search_tx_2026.json   GET https://civicapi.org/api/v2/race/search?country=US&province=TX&startDate=2026-11-03&endDate=2026-11-03&limit=1000
                       (6 of 725 races kept; candidate lists cut to 3)
@@ -19,4 +19,11 @@ race_nh_sen_2026.json GET https://civicapi.org/api/v2/race/87283 (2026 NH US Sen
                       "test_data": false and no called_at; region_results cut to 1 town)
 race_nh_gov_2026.json GET https://civicapi.org/api/v2/race/87284 (2026 NH Governor, live results,
                       "test_data": false and no called_at; region_results cut to 1 town)
-region_results trimmed to 2 counties in both TX race files, to 1 region in the GU and NH race files.
+search_pa_2026.json   GET https://civicapi.org/api/v2/race/search?country=US&province=PA&startDate=2026-11-03&endDate=2026-11-03&limit=1000
+                      (2026 PA general, live results; 7 of 248 races kept: Governor, US House 1
+                      and 2, the State Senate and State House chamber summaries, State Senate
+                      District 8 and State House District 189; candidate lists cut to 3)
+race_pa_gov_2026.json GET https://civicapi.org/api/v2/race/87393 (2026 PA Governor, live results,
+                      "test_data": false and called_at set; region_results cut to 2 counties)
+region_results trimmed to 2 counties in the TX and PA race files, to 1 region in the GU and NH
+race files.
