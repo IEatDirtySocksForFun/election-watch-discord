@@ -1,0 +1,150 @@
+{
+ "election_name": "Pennsylvania Governor",
+ "election_type": "Governor",
+ "election_scope": "Statewide",
+ "election_date": "2026-11-03T05:00:00.000Z",
+ "country": "US",
+ "province": "PA",
+ "district": null,
+ "municipality": null,
+ "polls_open": "2026-11-03T12:00:00.000Z",
+ "polls_close": "2026-11-04T01:00:00.000Z",
+ "is_disputed": false,
+ "has_map": true,
+ "registered_voters": null,
+ "percent_reporting": 82.2,
+ "test_data": false,
+ "last_updated": "2026-11-05T20:57:03.767Z",
+ "called_at": "2026-11-04T02:18:31.025Z",
+ "round": 1,
+ "maps": [
+  {
+   "name": "Pennsylvania",
+   "map": "assets/Pennsylvania.svg"
+  }
+ ],
+ "candidates": [
+  {
+   "name": "Josh Shapiro",
+   "candidate_id": 221049,
+   "party": "Democratic",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": true,
+   "advanced": false,
+   "color": "#4874a3",
+   "votes": 3008156,
+   "percent": 60.41
+  },
+  {
+   "name": "Stacy Garrity",
+   "candidate_id": 221050,
+   "party": "Republican",
+   "incumbent": false,
+   "major_candidate": true,
+   "winner": false,
+   "advanced": false,
+   "color": "#c6606b",
+   "votes": 1907150,
+   "percent": 38.3
+  },
+  {
+   "name": "Ken Krawchuk",
+   "candidate_id": 221051,
+   "party": "Libertarian",
+   "incumbent": false,
+   "major_candidate": false,
+   "winner": false,
+   "advanced": false,
+   "color": "#d4c029",
+   "votes": 64454,
+   "percent": 1.29
+  }
+ ],
+ "region_results": {
+  "adams": {
+   "name": "Adams",
+   "type": "County",
+   "fips": "42001",
+   "fill": "#c6606b",
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Stacy Garrity",
+     "party": "Republican",
+     "votes": 22738,
+     "percent": 53.61,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Josh Shapiro",
+     "party": "Democratic",
+     "votes": 18995,
+     "percent": 44.78,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Ken Krawchuk",
+     "party": "Libertarian",
+     "votes": 684,
+     "percent": 1.61,
+     "color": "#d4c029",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  },
+  "allegheny": {
+   "name": "Allegheny",
+   "type": "County",
+   "fips": "42003",
+   "fill": "#4874a3",
+   "percent_reporting": 81.7,
+   "candidates": [
+    {
+     "name": "Josh Shapiro",
+     "party": "Democratic",
+     "votes": 367885,
+     "percent": 71.3,
+     "color": "#4874a3",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Stacy Garrity",
+     "party": "Republican",
+     "votes": 142598,
+     "percent": 27.64,
+     "color": "#c6606b",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": true
+    },
+    {
+     "name": "Ken Krawchuk",
+     "party": "Libertarian",
+     "votes": 5513,
+     "percent": 1.07,
+     "color": "#d4c029",
+     "winner": false,
+     "advanced": false,
+     "incumbent": false,
+     "major_candidate": false
+    }
+   ]
+  }
+ }
+}

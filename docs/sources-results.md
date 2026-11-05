@@ -48,6 +48,7 @@ in the notes under [docs/results/](results/).
 | TX (counties)   | `tx_counties`     | https://results.enr.clarityelections.com/TX/<County>/                                      | **verified fixtures** — 17 configured, 2024 for 13 counties, 2026 for Denton/Galveston/Kaufman; per-county 2024 shares in docs/results/counties.md           |
 | NV, ME          | —                 | —                                                                                          | blocked / PDF-only; see docs/results/alt-a.md                                                                                                                |
 | NH              | `civicapi`        | https://civicapi.org/api/v2/race/search?country=US&province=NH                             | **verified fixture** — live 2026 general (308 rows, 0% reporting); no official state feed; SOS still 403                                                     |
+| PA              | `civicapi`        | https://civicapi.org/api/v2/race/search?country=US&province=PA                             | **verified fixture** — live 2026 general (248 rows, 82.2% reporting, governor called 2026-11-04); `pa_dos` election 117 still returns an empty body          |
 
 "Verified fixture" means `parse_*` is tested against a trimmed real response saved under
 `tests/fixtures/<adapter>/` (each README.txt records the URL and fetch date). Nothing in
@@ -167,6 +168,21 @@ name and maps those to `NH SD-nn`. State House rows are county-scoped ("... Hill
 County District 39") and have no district-wide key in the bot, so they stay unmapped.
 Fixtures: `search_nh_2026.json`, `race_nh_sen_2026.json` and `race_nh_gov_2026.json`
 under `tests/fixtures/civicapi/`.
+
+---
+
+## Pennsylvania — `civicapi`
+
+`pa_dos` is the official source, but its 2026 general (election id 117) answers an empty body
+on `GetOfficeData` for every office, so the state feed carries no numbers. On 2026-11-05 the
+civicAPI general feed for PA flipped from test data to live: 248 rows, 246 of which map to race
+keys (17 US House districts, Governor, 25 state Senate districts and 203 state House districts;
+the two chamber-control summaries are skipped). Governor stood at 82.2% reporting with
+4,979,760 votes (Shapiro 3,008,156; Garrity 1,907,150; Krawchuk 64,454) and carried
+`called_at` 2026-11-04T02:18:31Z — the first call on a non-test race in this feed, so
+`CivicAPICallSource` now produces a real call and `parse_race` keeps the `winner` flag out of
+the result rows. PA has no 2026 US Senate race. Fixtures: `search_pa_2026.json` and
+`race_pa_gov_2026.json` under `tests/fixtures/civicapi/`.
 
 ---
 

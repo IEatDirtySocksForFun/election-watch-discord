@@ -35,6 +35,11 @@ how far the bot trusts civicAPI. The per-race tables keep the numbers exactly as
 
 - `called_at` was **absent on every real race** (108 race details from 2024, 2025 and 2026 primaries/specials). It appears only on current **test_data=true** 2026-11-03 races with fake winners and times (TX Senate "Talarico" winner, called_at 2026-10-27T13:34Z; VA Senate called 2026-10-27T11:00Z). So call-time plausibility against AP **cannot be measured**. CivicAPICallSource has never produced a real call in the archive.
 - No past race has test_data=true. Search rows never carry `test_data`; only the race detail does (the adapter already reads the detail).
+- **First real call, 2026-11-05:** PA Governor carries `called_at` 2026-11-04T02:18:31Z at 82.2%
+  reporting (Shapiro 3,008,156, Garrity 1,907,150, Krawchuk 64,454), with `test_data: false`.
+  Saved in `tests/fixtures/civicapi/race_pa_gov_2026.json`. `CivicAPICallSource` returns that
+  call, so the outlet can now be compared with AP and the other desks; no such comparison has
+  been made yet.
 - At capture, TX and VA 2026-11-03 carried test votes (40 TX rows, 12 VA rows). The adapter
   drops those rows.
 
@@ -61,7 +66,8 @@ how far the bot trusts civicAPI. The per-race tables keep the numbers exactly as
 
 - Candidate names often differ from official sources through initials, suffix punctuation and
   nicknames. The bot displays the source's names rather than trying to merge identities.
-- Keep civicAPI calls opt in until a real `called_at` appears on a non-test race.
+- Keep civicAPI calls opt in until the first real `called_at` (PA Governor, 2026-11-04) has been
+  compared with the other decision desks.
 
 ---
 

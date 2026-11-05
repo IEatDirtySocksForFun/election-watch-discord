@@ -1,0 +1,271 @@
+{
+ "count": 248,
+ "offset": 0,
+ "limit": 1000,
+ "races": [
+  {
+   "id": 159564,
+   "type": "State Senate",
+   "country": "US",
+   "province": "PA",
+   "district": null,
+   "municipality": null,
+   "election_name": "Pennsylvania State Senate",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "seats": 50,
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 94,
+   "candidates": [
+    {
+     "name": "Democratic",
+     "candidate_id": 385606,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 1406962,
+     "percent": 55.4,
+     "seats": 23,
+     "winner": false
+    },
+    {
+     "name": "Republican",
+     "candidate_id": 385607,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 1091397,
+     "percent": 42.97,
+     "seats": 24,
+     "winner": false
+    },
+    {
+     "name": "Independent Party",
+     "candidate_id": 385609,
+     "party": "Independent Party",
+     "color": "#808080",
+     "votes": 39260,
+     "percent": 1.55,
+     "seats": 0,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 87393,
+   "type": "Governor",
+   "country": "US",
+   "province": "PA",
+   "district": null,
+   "municipality": null,
+   "election_name": "Pennsylvania Governor",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 82,
+   "candidates": [
+    {
+     "name": "Josh Shapiro",
+     "candidate_id": 221049,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 3008156,
+     "percent": 60.41,
+     "winner": true
+    },
+    {
+     "name": "Stacy Garrity",
+     "candidate_id": 221050,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 1907150,
+     "percent": 38.3,
+     "winner": false
+    },
+    {
+     "name": "Ken Krawchuk",
+     "candidate_id": 221051,
+     "party": "Libertarian",
+     "color": "#d4c029",
+     "votes": 64454,
+     "percent": 1.29,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 159563,
+   "type": "State House",
+   "country": "US",
+   "province": "PA",
+   "district": null,
+   "municipality": null,
+   "election_name": "Pennsylvania State House",
+   "election_type": "Statewide",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "seats": 203,
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 98,
+   "candidates": [
+    {
+     "name": "Democratic",
+     "candidate_id": 385599,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 2679712,
+     "percent": 56.37,
+     "seats": 107,
+     "winner": false
+    },
+    {
+     "name": "Republican",
+     "candidate_id": 385601,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 2028914,
+     "percent": 42.68,
+     "seats": 83,
+     "winner": false
+    },
+    {
+     "name": "Democratic / Republican",
+     "candidate_id": 385600,
+     "party": "Democratic / Republican",
+     "color": "#808080",
+     "votes": 20100,
+     "percent": 0.42,
+     "seats": 1,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 159413,
+   "type": "State House",
+   "country": "US",
+   "province": "PA",
+   "district": "PA-HD-189",
+   "municipality": null,
+   "election_name": "Pennsylvania State House 189",
+   "election_type": "Local",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Tarah Probst",
+     "candidate_id": 385341,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 13790,
+     "percent": 64.55,
+     "winner": true
+    },
+    {
+     "name": "Danica Hartenfels",
+     "candidate_id": 385342,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 7574,
+     "percent": 35.45,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 159203,
+   "type": "State Senate",
+   "country": "US",
+   "province": "PA",
+   "district": "PA-SD-008",
+   "municipality": null,
+   "election_name": "Pennsylvania State Senate 8",
+   "election_type": "Local",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 100,
+   "candidates": [
+    {
+     "name": "Anthony Hardy Williams",
+     "candidate_id": 384950,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 74104,
+     "percent": 100,
+     "winner": true
+    }
+   ]
+  },
+  {
+   "id": 87377,
+   "type": "House of Representatives",
+   "country": "US",
+   "province": "PA",
+   "district": "PA-02",
+   "municipality": null,
+   "election_name": "Pennsylvania US House 2",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 52,
+   "candidates": [
+    {
+     "name": "Brendan Boyle",
+     "candidate_id": 221017,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 147970,
+     "percent": 80.79,
+     "winner": true
+    },
+    {
+     "name": "Jessica Arriaga",
+     "candidate_id": 221018,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 35186,
+     "percent": 19.21,
+     "winner": false
+    }
+   ]
+  },
+  {
+   "id": 87376,
+   "type": "House of Representatives",
+   "country": "US",
+   "province": "PA",
+   "district": "PA-01",
+   "municipality": null,
+   "election_name": "Pennsylvania US House 1",
+   "election_type": "General",
+   "election_date": "2026-11-03T05:00:00.000Z",
+   "has_breakdown": true,
+   "has_map": true,
+   "percent_reporting": 99,
+   "candidates": [
+    {
+     "name": "Bob Harvie",
+     "candidate_id": 221015,
+     "party": "Democratic",
+     "color": "#4874a3",
+     "votes": 188087,
+     "percent": 52.74,
+     "winner": true
+    },
+    {
+     "name": "Brian Fitzpatrick",
+     "candidate_id": 221016,
+     "party": "Republican",
+     "color": "#c6606b",
+     "votes": 168531,
+     "percent": 47.26,
+     "winner": false
+    }
+   ]
+  }
+ ]
+}

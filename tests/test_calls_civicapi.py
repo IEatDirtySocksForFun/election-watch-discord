@@ -158,6 +158,49 @@ async def test_new_hampshire_is_served_end_to_end():
     assert {race_result.total_votes for race_result in results} == {7}
 
 
+def test_a_called_2026_statewide_feed_parses():
+    """PA's 2026 general carries counted votes and the first real 2026 call (called_at set)."""
+    rows = {row["election_name"]: race_key(row) for row in _load("search_pa_2026.json")["races"]}
+    assert rows["Pennsylvania Governor"] == RaceKey("PA", Level.GOVERNOR, "GOV")
+    assert rows["Pennsylvania US House 1"] == parse("PA-01")
+    assert rows["Pennsylvania US House 2"] == parse("PA-02")
+    assert rows["Pennsylvania State Senate 8"] == parse("PA SD-08")
+    assert rows["Pennsylvania State House 189"] == parse("PA HD-189")
+    # both chamber-control summaries have no district and are not races
+    assert rows["Pennsylvania State Senate"] is None and rows["Pennsylvania State House"] is None
+    race = _load("race_pa_gov_2026.json")
+    assert race["test_data"] is False and race["called_at"] == "2026-11-04T02:18:31.025Z"
+    race_result = parse_race(race, 87393, rows["Pennsylvania Governor"], NOW)
+    assert [
+        (candidate.name, candidate.party, candidate.votes, candidate.pct) for candidate in race_result.candidates
+    ] == [
+        ("Josh Shapiro", "DEM", 3008156, 60.41),
+        ("Stacy Garrity", "REP", 1907150, 38.3),
+        ("Ken Krawchuk", "LIB", 64454, 1.29),
+    ]
+    assert race_result.total_votes == 4979760
+    assert race_result.expected_vote_pct == 82.2
+    assert race_result.url == "https://civicapi.org/results/elections/87393"
+    assert not any(candidate.winner for candidate in race_result.candidates)  # the call describes the winner
+    call = parse_call(race, 87393, rows["Pennsylvania Governor"])
+    assert (call.outlet, call.winner, call.party) == ("CIVICAPI", "Josh Shapiro", "DEM")
+    assert call.called_at == datetime(2026, 11, 4, 2, 18, 31, 25000, tzinfo=timezone.utc)
+
+
+@respx.mock
+async def test_pennsylvania_results_and_call_share_one_fetch():
+    respx.get(f"{API}/race/search").respond(json=_load("search_pa_2026.json"))
+    detail = respx.get(f"{API}/race/87393").respond(json=_load("race_pa_gov_2026.json"))
+    keys = [parse("PA GOV"), parse("PA SEN")]  # PA has no 2026 Senate race
+    api = _CivicAPI()
+    async with httpx.AsyncClient() as client:
+        results = await CivicAPIResultsSource(api).fetch(keys, client)
+        calls = await CivicAPICallSource(api).fetch_calls(keys, client)
+    assert [race_result.key for race_result in results] == [parse("PA GOV")]
+    assert [call.winner for call in calls] == ["Josh Shapiro"]
+    assert detail.call_count == 1
+
+
 def test_a_real_call():
     call = parse_call(_load("race_tx_sen_2024.json"), 107793, TX_SEN)
     assert call is None or (call.outlet, call.winner, call.party) == ("CIVICAPI", "Ted Cruz", "REP")
