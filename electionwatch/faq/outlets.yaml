@@ -46,7 +46,7 @@ FOX:
     the traditional exit poll; 2026 results are added to the voter-analysis hub.
 NYT:
   name: The New York Times
-  results_url: https://www.nytimes.com/interactive/2026/us/elections/results.html
+  results_url: https://www.nytimes.com/news-event/2026-midterm-elections
   exit_poll_url: null
   notes: >-
     Uses AP race calls plus its own modelling and "needle" in close races;
