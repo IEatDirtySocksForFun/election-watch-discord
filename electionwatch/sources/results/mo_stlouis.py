@@ -6,10 +6,13 @@ alternate. St. Louis County publishes a complete per-precinct CSV export, one di
 election named `el{YYMMDD}`:
 
     https://extcontent.stlouisco.com/BOE/eResults/el241105/CSV.csv   (9.3 MB, cp1252)
+    https://extcontent.stlouisco.com/BOE/eResults/el261103/CSV.csv   (6.7 MB, 2026 general)
 
 Columns: precinct, registered voters, ballots cast, contest title/id/party, choice name/id/
 party, total votes. One row per (precinct, contest, choice), so votes are summed per choice
-and the precincts reporting a contest are counted from the same file.
+and the precincts reporting a contest are counted from the same file. The 2026 export titles
+state senate contests "STATE SENATE - DISTRICT nn"; the parser also accepts the older
+"STATE SENATOR" spelling, and both map to the shared `MO SD-nn` key.
 
 The CSV uses the county's own contest names, including the odd ones: judicial retention
 contests are titled with the judge's name and have YES/NO choices. Statewide offices and
@@ -52,7 +55,7 @@ _STATEWIDE = {
 }
 _SENATE = {"U.S. SENATOR", "US SENATOR", "UNITED STATES SENATOR"}
 _HOUSE = re.compile(r"^(?:U\.S\.|US|UNITED STATES) REPRESENTATIVE\b.*?(?:DISTRICT|DIST\.?)\s*(\d+)")
-_STATE_SENATE = re.compile(r"^STATE SENATOR\b.*?(?:DISTRICT|DIST\.?)\s*(\d+)")
+_STATE_SENATE = re.compile(r"^STATE SENAT(?:E|OR)\b.*?(?:DISTRICT|DIST\.?)\s*(\d+)")
 _STATE_HOUSE = re.compile(r"^STATE REPRESENTATIVE\b.*?(?:DISTRICT|DIST\.?)\s*(\d+)")
 #: Statewide ballot measures: "STATE - CONSTITUTIONAL AMENDMENT NO. 2", "STATE - PROPOSITION A".
 _STATE_MEASURE = re.compile(r"^STATE - (CONSTITUTIONAL AMENDMENT NO\.? ?\w+|PROPOSITION ?\w+)$")

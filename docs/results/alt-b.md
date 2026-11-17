@@ -11,7 +11,7 @@ certified-only (see `states-*.md`). Status is what was verified against live res
 | TX    | `tx_counties`                        | `https://results.enr.clarityelections.com/TX/<County>/elections.json` → `/<EID>/<ver>/json/en/summary.json`                                                                             | 17 counties configured; 14 published a 2024 Senate contest = 2,018,216 counted Senate votes = **17.87%** of Texas's 2024 Senate vote (11,291,854). Per-county table in `docs/results/counties.md`    | verified fixtures (2024 general for 13 counties; 2026 general for Denton, Galveston, Kaufman) |
 | NJ    | `nj_counties`                        | `https://results.enr.clarityelections.com/NJ/<County>/…` (same vendor layout)                                                                                                           | 14 counties configured, all answering; 2024 verified for Mercer + Cumberland = 208,807 Senate votes; 8 counties have pinned 2024 ids                                                                 | verified fixture (2024 general Mercer + Cumberland; 2026 general Cumberland)                  |
 | NY    | `ny_nycboe` (scrape, off by default) | `https://vote.nyc/page/election-results-summary[-<year>]` → `https://www.vote.nyc/sites/default/files/pdf/election_results/<YYYY>/<YYYYMMDD><Stage>/<code><County> <Contest> Recap.csv` | New York City = 5 counties (New York, Bronx, Kings, Queens, Richmond); 2024 Senate citywide total 2,680,944 votes; 840 recap files listed for the 2024 general, downloaded only for subscribed races | verified fixture (2024 general Senate citywide, CD-10 Manhattan + Brooklyn)                   |
-| MO    | `mo_stlouis`                         | `https://extcontent.stlouisco.com/BOE/eResults/el<YYMMDD>/CSV.csv` (per-precinct CSV, cp1252)                                                                                           | St. Louis County only: 2024 Senate 502,494 votes, 965 precincts, 89 contests                                                                                                                         | verified fixture (2024 general)                                                               |
+| MO    | `mo_stlouis`                         | `https://extcontent.stlouisco.com/BOE/eResults/el<YYMMDD>/CSV.csv` (per-precinct CSV, cp1252)                                                                                           | St. Louis County only: 2024 Senate 502,494 votes, 965 precincts, 89 contests; 2026 general export live (70,057 rows), MO-01 148,178 votes                                                            | verified fixtures (2024 and 2026 general)                                                     |
 | MA    | —                                    | `https://www.sec.state.ma.us/...` (Imperva), `https://electionstats.state.ma.us` (PD43+)                                                                                                | none                                                                                                                                                                                                 | not possible — see MA notes                                                                   |
 | KY    | —                                    | `https://vrsws.sos.ky.gov/liveresults/` (WAF), `https://elect.ky.gov/Results/` (archive pages only)                                                                                     | none                                                                                                                                                                                                 | not possible — see KY notes                                                                   |
 
@@ -105,18 +105,22 @@ Not covered: upstate New York (57 counties) — no machine-readable publisher wa
 
 `enr.sos.mo.gov` answers a Cloudflare challenge and `sos.mo.gov/enrweb/` redirects into it, so
 the statewide ENR is not usable. St. Louis County publishes a full per-precinct export per
-election (`el{YYMMDD}`), 9.4 MB / 104,636 rows for 2024-11-05, cp1252:
+election (`el{YYMMDD}`), 9.4 MB / 104,636 rows for 2024-11-05 and 6.7 MB / 70,057 rows for
+2026-11-03, cp1252:
 
 ```text
 https://extcontent.stlouisco.com/BOE/eResults/el241105/CSV.csv
+https://extcontent.stlouisco.com/BOE/eResults/el261103/CSV.csv
 ```
 
 Rows are (precinct, contest, choice, votes); votes are summed per choice and the precincts
 reporting a contest are counted. Statewide offices, US House/Senate, the legislature and
 statewide ballot measures map to shared keys; `ST. LOUIS COUNTY - PROPOSITION A` and the
 judicial retention contests (titled with the judge's name, YES/NO choices) become county-local.
-The export has no precinct total, so `precincts_total` and the expected-vote percentage stay
-empty. Jackson, St. Charles, Greene, Clay and Boone run other vendors
+The 2026 export titles state senate contests `STATE SENATE - DISTRICT nn` (the adapter also
+accepts `STATE SENATOR`); US House titles carry two spaces before `DISTRICT`, which the parser
+tolerates. The export has no precinct total, so `precincts_total` and the expected-vote
+percentage stay empty. Jackson, St. Charles, Greene, Clay and Boone run other vendors
 (`livevoterturnout.com` HTML) and are not implemented.
 
 ---
