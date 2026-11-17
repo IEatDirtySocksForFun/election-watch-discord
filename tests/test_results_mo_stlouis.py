@@ -15,6 +15,7 @@ from electionwatch.sources.results import _county, mo_stlouis
 FIX = Path(__file__).parent / "fixtures" / "mo_stlouis"
 AT = datetime(2026, 10, 27, 14, 30, tzinfo=timezone.utc)
 CSV = (FIX / "st_louis_2024_csv.csv").read_bytes().decode("cp1252")
+CSV_2026 = (FIX / "st_louis_2026_csv.csv").read_bytes().decode("cp1252")
 
 
 def by_key(results):
@@ -52,6 +53,27 @@ def test_statewide_and_district_mapping():
     assert got["MO GOV"].key.level is Level.GOVERNOR
     assert got["MO-01"].key.district == "01"
     assert got["MO HD-73"].candidates[0].name == "Raychel C Proudie"
+
+
+def test_live_2026_feed_parses():
+    results = mo_stlouis.parse_csv(CSV_2026, fetched_at=AT)
+    got = by_key(results)
+    # The 2026 export writes "U.S. REPRESENTATIVE -  DISTRICT 1" with two spaces.
+    assert got["MO-01"].title == "U.S. REPRESENTATIVE -  DISTRICT 1"
+    assert {candidate.name: candidate.votes for candidate in got["MO-01"].candidates} == {
+        "Wesley Bell": 175,
+        "Paul Berry III": 75,
+        "Tom Schmitz": 15,
+    }
+    assert got["MO-01"].total_votes == 265
+    assert got["MO-01"].precincts_reporting == 2
+    # The 2026 export titles state senate contests "STATE SENATE - DISTRICT 14";
+    # the parser previously expected "STATE SENATOR", so both spellings map to the
+    # shared key.
+    assert got["MO SD-14"].title == "STATE SENATE - DISTRICT 14"
+    assert got["MO SD-14"].key.level is Level.STATE
+    assert mo_stlouis.race_key("STATE SENATOR - DISTRICT 24").district == "24"
+    assert got["MO HD-73"].key.district == "73"
 
 
 def test_ballot_measures_and_retention_are_local():
