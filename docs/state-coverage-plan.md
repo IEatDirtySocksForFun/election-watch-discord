@@ -40,7 +40,7 @@ were read from the counties' own 2024 (AL: 2022) files.
 | KY                 | none (SBE live-results host blocks this IP: "acceptable use" page) | unchanged; **sanctioned route: ask SBE**, which publishes a documented XML feed                                                                                                           | —                                                                                                                                                               | fox_results OK                                                                         |
 | NV                 | none (Imperva; Clark is Blazor/SignalR, Washoe PDF)                | unchanged; **ask SOS for media-site access**                                                                                                                                              | —                                                                                                                                                               | fox_results OK                                                                         |
 | OK                 | none (results host 403 for every UA)                               | unchanged; **ask State Election Board**                                                                                                                                                   | —                                                                                                                                                               | fox_results OK                                                                         |
-| MA, ME, NH         | none (no live state feed; towns report)                            | unchanged                                                                                                                                                                                 | —                                                                                                                                                               | fox_results OK                                                                         |
+| MA, ME, NH         | none (no live state feed; towns report)                            | MA: **`ma_pd43`** (PD43+ certified archive, opt-in, every office); ME and NH unchanged                                                                                                    | MA: certified 2026 general (271 contests); no election-night count                                                                                              | fox_results OK                                                                         |
 | WY                 | none (certified XLSX/PDF only)                                     | unchanged                                                                                                                                                                                 | —                                                                                                                                                               | fox_results OK                                                                         |
 | MS                 | certified only (`ms_sos`)                                          | unchanged                                                                                                                                                                                 | —                                                                                                                                                               | fox_results OK                                                                         |
 | MI                 | Ottawa (+3 configured)                                             | unchanged                                                                                                                                                                                 | Ottawa live 2026-11-03; Oakland/Macomb/Genesee list the general later                                                                                           | fox_results OK                                                                         |
@@ -238,11 +238,17 @@ The bot uses civicAPI, then `fox_results`.
 
 ## Massachusetts, Maine, New Hampshire
 
-No live state feed exists (MA: PD43+ is certified-only; ME and NH towns report by phone/PDF;
-NH's SOS is CloudFront 403). On 2026-11-03 civicAPI carried the NH general with early
+No live state feed exists (MA: PD43+ publishes certified results only; ME and NH towns report
+by phone/PDF; NH's SOS is CloudFront 403). Massachusetts is now read by `ma_pd43` (opt-in):
+the Secretary of the Commonwealth's archive lists every contest of a certified election on
+one dated page, and on 2026-11-22 the 2026 general was complete there (271 contests, U.S.
+Senate 2,749,609 ballots cast, statewide offices, 9 House districts, 40 state senate and 159
+state house districts, district attorneys, county offices). That is final numbers, not an
+election-night count: the Elections Division states that nothing is published on the night.
+On 2026-11-03 civicAPI carried the NH general with early
 Senate and Governor votes (308 rows, `percent_reporting` 0, no calls); state Senate
 districts map from `election_name`, while county-scoped House rows stay unmapped. Use
-civicAPI or an enabled national fallback.
+civicAPI or an enabled national fallback for ME and NH.
 
 ---
 
