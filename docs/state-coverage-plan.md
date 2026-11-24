@@ -214,6 +214,26 @@ Re-checked on 2026-11-03 without touching the blocked host: the 2026 page
 certification and recap sheets, with no general-results page and no feed link. Nothing to wire
 up yet.
 
+Re-checked on 2026-11-24: the archive landing page (`elect.ky.gov/results/Pages/default.aspx`)
+now links **2026 General Recap Sheets**
+(`elect.ky.gov/results/2020-2029/Pages/2026General-Recap-Sheets.aspx`). That page is one link
+per county to a PDF under
+`elect.ky.gov/results/2020-2029/2026ElectionReports/GeneralRecaps/<County>.pdf`, and 118 of
+Kentucky's 120 counties are posted (Breathitt and Rowan are missing). Each file is the county's
+own cumulative precinct report: "OFFICIAL BALLOT FOR <COUNTY>", run 2026-11-03, one row per
+precinct, split into absentee mail-in, absentee walk-in, early voting and election day, with a
+county total. A small county's file already runs to about 230 pages, so the whole set is several
+hundred megabytes. The 2026 page still carries only the primary certification PDF, and no
+statewide recap, CSV, JSON or feed link was found; the `/Documents/` library answers **401**
+(2026-11-24), and the documented XML feed stays behind the closed live-results host, which was
+not probed again.
+
+Not wired, therefore: reading the recaps would add a PDF-text dependency, a per-precinct parser
+and 118 heavy downloads for data that lands after the canvass, with no election-night value.
+The URLs and format are recorded here so a post-election certified-results adapter can be
+written later if one is wanted: the file name is the county name, and the PDF carries a text
+layer with one row per precinct and choice.
+
 Not pursued: the bot uses civicAPI, then `fox_results`.
 
 ---
