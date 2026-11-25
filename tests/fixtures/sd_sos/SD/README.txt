@@ -97,3 +97,35 @@ Header and CRLF endings are the source's.
       Trimmed: the Brookings and Platte Ward-01 "City Council Member" rows, the Milbank
       "Question : TEMPORARY ONE PERCENT (1%) MUNICIPAL GROSS RECEIPTS TAX" rows and the
       Armour School District 21-1 "Bond Issue" rows.
+
+Final results (fetched 2026-11-25)
+---------------------------------
+
+Same three endpoints, HTTP 200, all 671 of 671 precincts reported. The CSVs are unchanged in
+shape; the media page is not:
+
+- the header box carries 310,298 ballots cast of 628,563 registered voters (49.37%), while
+  `hidVoterTotal` holds 318,265 (registered voters minus ballots cast). Reading the hidden
+  field alone reported a 97.5% turnout, so the adapter now reads the header box first and
+  keeps the hidden inputs as fallback;
+- the "Results last updated" line is gone, so the parsed update stamp is empty;
+- ballot-question headings now carry the full amendment title after the letter
+  ("Constitutional Amendment I: An Amendment to the South Dakota Constitution that ...").
+
+  2026_general_final_media.html
+      https://electionresults.sd.gov/ResultsMedia.aspx
+      Content-Type text/html; 27.2 kB. Trimmed exactly like the 2026-10-27 file: the <form>
+      element from its opening tag to the end of the "Results Media" <ul> list, with
+      __VIEWSTATE/__VIEWSTATEGENERATOR/__EVENTVALIDATION inputs and <script> blocks removed.
+      Carries hidElectionDate=11/3/2026, hidVoterTurnout=310298, hidVoterTotal=318265,
+      hidPrecinctsReported=671, and the visible header spans "310,298" / "628,563".
+
+  2026_general_final_swr.csv
+      https://electionresults.sd.gov/resultsCSV.aspx?text=All&type=SWR&map=CTY
+      Complete response (18 data rows, 2.6 kB); every contest reports 671 of 671 precincts;
+      CRLF endings.
+
+  2026_general_final_bq.csv
+      https://electionresults.sd.gov/resultsCSV.aspx?text=All&type=BQ&map=CTY
+      Complete response (8 data rows): the four constitutional amendments, Yes and No.
+
