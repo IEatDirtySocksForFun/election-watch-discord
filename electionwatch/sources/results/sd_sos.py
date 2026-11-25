@@ -36,6 +36,13 @@ election it is currently reporting when `eid` is omitted. The adapter therefore 
 and refuses to report if the page's date is not the tracked election date; `SD_EID` pins an
 archived election instead (684 = 2024 general, 651 = 2024 primary).
 
+Turnout figures come from the header box the page displays (`Ballots Cast` /
+`Registered Voters`), with the `hidVoterTotal` / `hidVoterTurnout` inputs as fallback. On
+2026-11-25 that page showed 310,298 ballots cast of 628,563 registered voters (49.37%), while
+`hidVoterTotal` held 318,265 — registered voters minus ballots cast — so the
+hidden field alone would have reported a 97.5% turnout. That page also no longer carries the
+"Results last updated" line, so `source_updated_at` is empty once the results are final.
+
 The media page is also the least reliable part of the site: on 2026-11-03 roughly half of the
 requests answered **302** to `/ErrorPages/Error.aspx` (a 172-byte "Object moved" stub) instead
 of the page, while the CSVs kept answering 200. The stub carries no hidden fields, which would
@@ -157,8 +164,24 @@ def _precincts(value: str) -> tuple[int | None, int | None]:
     return c.to_int(match.group(1)) or None, c.to_int(match.group(2)) or None
 
 
+def _header_number(page: HTMLParser, selector: str) -> int | None:
+    """A turnout figure from the visible header box ('310,298' -> 310298)."""
+    node = page.css_first(selector)
+    if node is None:
+        return None
+    return c.to_int(node.text(strip=True)) or None
+
+
 def media_info(html: str) -> dict:
-    """Election date, turnout and last-updated stamp out of ResultsMedia.aspx."""
+    """Election date, turnout and last-updated stamp out of ResultsMedia.aspx.
+
+    The turnout figures are read from the header box the page displays
+    (`.header-ballot-number` / `.header-voter-number`) first, because those are the numbers the
+    published percentage is computed from. On 2026-11-25 the final-results page carried
+    628,563 registered voters in the header while `hidVoterTotal` held 318,265 (registered
+    voters minus ballots cast), which would have reported a 97.5% turnout for a 49.37% page.
+    The hidden inputs remain the fallback for pages whose header box is missing.
+    """
     page = HTMLParser(html or "")
     values: dict[str, str] = {}
     for node in page.css("input[id^=hid]"):
@@ -173,8 +196,12 @@ def media_info(html: str) -> dict:
     return {
         "date": date,
         "election_type": values.get("hidElectionType") or None,
-        "registered_voters": c.to_int(values.get("hidVoterTotal")) or None,
-        "ballots_cast": c.to_int(values.get("hidVoterTurnout")) or None,
+        "registered_voters": _header_number(page, ".header-voter-number")
+        or c.to_int(values.get("hidVoterTotal"))
+        or None,
+        "ballots_cast": _header_number(page, ".header-ballot-number")
+        or c.to_int(values.get("hidVoterTurnout"))
+        or None,
         "updated_at": c.parse_updated_at(updated.group(1) if updated else None, tz="America/Chicago"),
     }
 

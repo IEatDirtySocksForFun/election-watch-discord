@@ -41,8 +41,9 @@ def test_media_page_header():
     media_details = media_info(media())
     assert media_details["date"] == "2026-11-03"
     assert media_details["election_type"] == "General"
+    # The header box the page displays: 6,441 of 628,629 (the page's own 1.02% turnout).
     assert media_details["ballots_cast"] == 6441
-    assert media_details["registered_voters"] == 622188
+    assert media_details["registered_voters"] == 628629
     # "10/27/2026 10:53 AM CT" -> 15:53 UTC
     assert media_details["updated_at"] == datetime(2026, 10, 27, 15, 53, tzinfo=timezone.utc)
 
@@ -60,7 +61,7 @@ def test_senate_and_at_large_house():
     assert senate.precincts_total == 671
     assert senate.expected_vote_pct == 18.18
     assert senate.source_updated_at == datetime(2026, 10, 27, 15, 53, tzinfo=timezone.utc)
-    assert senate.turnout_pct == 1.04  # 6441 / 622188
+    assert senate.turnout_pct == 1.02  # the page's own 6441 / 628629, not the stale hidden total
 
     house = got["SD-AL"]
     assert house.key.level is Level.HOUSE
@@ -170,6 +171,64 @@ def test_election_morning_feed_parses_before_any_vote():
     assert senate.source_updated_at == datetime(2026, 10, 30, 22, 41, tzinfo=timezone.utc)
 
 
+# --- final results published 2026-11-25 -------------------------------------------------------
+
+FINAL_AT = datetime(2026, 11, 25, 19, 0, tzinfo=timezone.utc)
+
+
+def final_media():
+    return (FIX / "2026_general_final_media.html").read_text(encoding="utf-8")
+
+
+def test_final_results_page_reads_the_displayed_turnout():
+    # The final page showed 310,298 ballots cast of 628,563 registered voters (49.37%) while
+    # hidVoterTotal held 318,265, registered voters minus ballots cast.
+    details = media_info(final_media())
+    assert details["date"] == "2026-11-03"
+    assert details["election_type"] == "General"
+    assert details["ballots_cast"] == 310298
+    assert details["registered_voters"] == 628563
+    # The page no longer prints "Results last updated" once the results are final.
+    assert details["updated_at"] is None
+
+    csv_text = (FIX / "2026_general_final_swr.csv").read_text(encoding="utf-8")
+    got = {
+        format_key(race_result.key): race_result
+        for race_result in parse_sd(csv_text, final_media(), fetched_at=FINAL_AT)
+    }
+    senate = got["SD SEN"]
+    assert [(candidate.name, candidate.party, candidate.votes) for candidate in senate.candidates] == [
+        ("Mike Rounds", "REP", 184590),
+        ("Brian L Bengs", "IND", 120513),
+    ]
+    assert senate.candidates[0].pct == 60.5
+    assert senate.precincts_reporting == 671
+    assert senate.precincts_total == 671
+    assert senate.turnout_pct == 49.37  # not 310298 / 318265 = 97.5%
+    assert senate.registered_voters == 628563
+    assert senate.source_updated_at is None
+    assert got["SD GOV"].title == "Governor and Lieutenant Governor"
+
+
+def test_final_ballot_question_titles_keep_their_compact_slugs():
+    got = {
+        format_key(race_result.key): race_result
+        for race_result in parse_sd(
+            (FIX / "2026_general_final_bq.csv").read_text(encoding="utf-8"), fetched_at=FINAL_AT
+        )
+    }
+    assert set(got) == {
+        "SD LOCAL constitutional-amendment-i",
+        "SD LOCAL constitutional-amendment-j",
+        "SD LOCAL constitutional-amendment-k",
+        "SD LOCAL constitutional-amendment-l",
+    }
+    assert [
+        (candidate.name, candidate.votes) for candidate in got["SD LOCAL constitutional-amendment-l"].candidates
+    ] == [("No", 171362), ("Yes", 126176)]
+    assert got["SD LOCAL constitutional-amendment-i"].precincts_reporting == 671
+
+
 def test_lettered_house_subdistricts_do_not_overwrite_each_other():
     csv_text = (FIX / "2026_general_electionday_leg.csv").read_text(encoding="utf-8")
     got = {format_key(race_result.key): race_result for race_result in parse_sd(csv_text, fetched_at=LIVE_AT)}
@@ -237,6 +296,24 @@ def test_live_municipal_questions_and_wards():
     assert [(candidate.name, candidate.party) for candidate in question.candidates] == [("Yes", None), ("No", None)]
     assert question.precincts_total == 7
     assert titles["Bond Issue : Armour School District 21-1 Bond"].precincts_total == 10
+
+
+async def test_final_results_are_fetched_with_the_published_turnout(monkeypatch):
+    monkeypatch.delenv("SD_EID", raising=False)
+    monkeypatch.setenv("ELECTION_DATE", "2026-11-03")
+    final_swr = (FIX / "2026_general_final_swr.csv").read_text(encoding="utf-8")
+
+    def handler(request):
+        if "ResultsMedia.aspx" in str(request.url):
+            return httpx.Response(200, text=final_media())
+        return httpx.Response(200, text=final_swr)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        got = await SdSos().fetch([race_key("United States Senator")], client)
+    assert [format_key(race_result.key) for race_result in got] == ["SD SEN"]
+    assert got[0].precincts_reporting == 671
+    assert got[0].turnout_pct == 49.37
+    assert got[0].source_updated_at is None
 
 
 # --- the media page answers its error redirect about half the time -------------------------------
